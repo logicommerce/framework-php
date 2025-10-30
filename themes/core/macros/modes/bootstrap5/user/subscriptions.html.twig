@@ -1,0 +1,55 @@
+{% macro subscriptions(args) %}
+    {%- if args.subscriptions.items|length -%}
+        <div class="subscriptionsContainer">
+            {%- for subscription in args.subscriptions.items -%}
+                <div class="subscriptions subscriptionsRecord subscription{{ subscription.active ? 'Active' : 'Inactive' }} subscription{{ subscription.verified ? 'Verified' : 'Unverified' }}">
+
+                    <div class="subscriptionsHeader">
+                        <div class="subscriptionsType">
+                            <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_SUBSCRIPTION_TYPE')] }}</span> 
+                            <span class="val">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_SUBSCRIPTION_TYPE_' ~ subscription.subscriptionType )] }}</span>
+                        </div>
+                        <div class="subscriptionsEmail">
+                            <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_EMAIL')] }}</span> 
+                            <span class="val">{{ subscription.email }}</span>
+                        </div>
+                        {%- if args.allowUnsubscribe and subscription.verified and subscription.active -%}
+                            <div class="unsubscribeSubscription">
+                                <button 
+                                    type="button" class="btn btn-secondary" type="button" 
+                                    id="unsubscribeButton{{ loop.index }}{{ subscription.subscriptionType }}"
+                                    data-lc-function="unsubscribeSubscription" data-lc-event="click"
+                                    data-lc-subscription-type="{{ subscription.subscriptionType }}"
+                                >
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_UNSUBSCRIBE')] -}}
+                                </button>
+                            </div>
+                        {%- endif -%}
+                    </div>
+                    
+                    <div class="subscriptionsContent">
+                        <div class="subscriptionsDate">
+                            <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_SUBSCRIPTION_DATE')] }}</span>
+                            <span class="val">{{ localizedDateTime(subscription.subscriptionDate) }}</span>
+                        </div>
+
+                        {%- if subscription.unsubscribedAt -%}
+                            <div class="subscriptionsUnsubscribedDate">
+                                <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_UNSUBSCRIBED_AT')] }}</span>
+                                <span class="val">{{ localizedDateTime(subscription.unsubscribedAt) }}</span>
+                            </div>
+                        {%- endif -%}
+
+                        <div class="subscriptionsStatus">
+                            <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_STATUS')] }}</span>
+                            <span class="val">{{ subscription.verified ? languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_VERIFIED')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_NOT_VERIFIED')] }}, {{ subscription.active ? languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_ACTIVE')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_NOT_ACTIVE')] }}</span>
+                        </div>
+                    </div>
+
+                </div>
+            {%- endfor -%}
+        </div>
+    {% else %}
+        <div class="subscriptionsNoSubscriptions">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTIONS_NO_SUBSCRIPTIONS')] }}</div>
+    {% endif %}
+{% endmacro subscriptions %}

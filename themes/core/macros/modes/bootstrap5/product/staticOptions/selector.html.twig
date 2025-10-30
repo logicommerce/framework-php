@@ -1,0 +1,16 @@
+{%- macro selector(productOption, args) -%}
+    
+    {% if productOption.reference.values|length %}
+        <div class="productStaticOption productStaticOptionSelector">
+            <span class="staticOptionName">{{- productOption.option.language.name -}}</span>
+            <div class="staticOptionValue">
+                {% for optionValue in productOption.option.values %}
+                    {% if productOption.reference.values[0].value == optionValue.id %}
+                        <span class="staticOptionValue">{{- optionValue.language.value -}}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+{% endmacro %}

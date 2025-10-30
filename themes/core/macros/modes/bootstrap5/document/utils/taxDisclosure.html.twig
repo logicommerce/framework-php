@@ -1,0 +1,135 @@
+{% macro taxDisclosure(args) %}
+
+    {% if args.showTaxDisclosure %}
+        <table class="table orderDisclosure">
+            <thead class="orderDisclosure">
+                <tr class="orderTitle orderDisclosureTitle">
+                    {% if args.disclosure.hasDiscounts %}
+                        <td class="orderTitle orderDisclosureTitle orderDisclosureSubtotalTitle">
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBTOTAL')] }}
+                        </td>
+                        <td class="orderTitle orderDisclosureTitle orderDisclosureDiscountsTitle">
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DISCOUNTS')] }}
+                        </td>
+                    {% endif %}
+
+                    <td class="orderTitle orderDisclosureTitle orderDisclosureBaseTitle">
+                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TAX_BASE')] }}
+                    </td>
+                    
+                    {% if args.showTaxName == true %}
+                        <td class="orderTitle orderDisclosureTitle orderDisclosureBaseTitle">
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TAXES')] }}
+                        </td>
+                    {% endif %}
+
+                    {% if args.disclosure.applyTax %}
+                        <td class="orderTitle orderDisclosureTitle orderDisclosureTaxTitle">
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VAT')] }}
+                        </td>
+
+                        {% if args.disclosure.applyRE %}      
+                            <td class="orderTitle orderDisclosureTitle orderDisclosureRETitle">
+                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RE')] }}
+                            </td>
+                        {% endif %}
+                    {% endif %}
+
+                    <td class="orderTitle orderDisclosureTitle orderDisclosureTotalTitle">
+                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TOTAL')] }}
+                    </td>
+                </tr>
+            </thead>
+
+            <tbody class="orderDisclosure">
+                {% for orderTax in args.document.taxes %}
+
+                    {% set taxTotalPrice = ((orderTax.base) * orderTax.taxRate / 100) + ((orderTax.base) * orderTax.reRate / 100) %}
+                    {% if 
+                        orderTax.base > 0 and 
+                        (
+                            args.showTaxesZeroTotalIncrement == true or 
+                            (args.showTaxesZeroTotalIncrement == false and taxTotalPrice > 0)
+                        )
+                    %}
+                        <tr class="orderDisclosure">
+                            {% if args.disclosure.hasDiscounts %}
+                                <td class="order orderDisclosure orderPrice orderDisclosurePrice orderDisclosureSubtotal">
+                                    {{ outputHtmlCurrency(orderTax.baseWithoutDiscounts) }}
+                                </td>
+                                <td class="order orderDisclosure orderPrice orderDisclosurePrice orderDisclosureDiscount">
+                                    {{ outputHtmlCurrency(-orderTax.discount) }}
+                                </td>
+                            {% endif %}
+
+                            <td class="order orderDisclosure orderPrice orderDisclosurePrice orderDisclosureBase">
+                                {% set taxBase = orderTax.base %}
+                                {{ outputHtmlCurrency(taxBase <= 0 ? 0 : taxBase) }}
+                            </td>
+
+                            {% if args.disclosure.applyTax %}
+                                <td class="order orderDisclosure orderDisclosureTaxRate">{{ orderTax.taxRate|round(1, 'floor') }} %</td>
+
+                                {% if args.disclosure.applyRE %}      
+                                    <td class="order orderDisclosure orderDisclosureRETax">{{ orderTax.reRate|round(1, 'floor') }} %</td>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if args.showTaxName == true %}
+                                <td class="order orderDisclosure orderDisclosureName">
+                                {% if orderTax.name|length != 0 %}
+                                    {{ orderTax.name }}
+                                {% else %}
+                                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TAXES')] }}
+                                {% endif %}
+                                {{ orderTax.taxRate }} %
+                                </td>
+                            {% endif %}
+                            
+                            <td class="order orderDisclosure orderPrice orderDisclosureTotal">
+                                {{ outputHtmlCurrency(taxTotalPrice <= 0 ? 0 : taxTotalPrice) }}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+
+            <tfoot class="orderDisclosure">
+                {%- set totalWithoutVouchers = args.document.totals.total + args.document.totals.totalVouchers -%}
+                {%- set totalWithVouchers = args.document.totals.total -%}
+
+                {% if totalWithoutVouchers != totalWithVouchers and args.document.totals.totalVouchers != 0 -%}
+                    <tr class="orderFooter orderDisclosureFooter orderDisclosureTotalWithoutVoucher">
+                        <td class="order orderFooter orderDisclosureFooter orderTotalWithoutVoucherText" {% if args.disclosure.colspan > 0 %} colspan="{{ args.disclosure.colspan }}" {% endif %}>
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TOTAL_WITHOUT_VOUCHERS')] }}
+                        </td>
+                        <td class="order orderFooter orderDisclosureFooter orderPrice orderDisclosurePrice orderTotalWithoutVoucher">
+                            {{ outputHtmlCurrency(totalWithoutVouchers) }}
+                        </td>
+                    </tr>
+                    
+                    <tr class="orderFooter orderDisclosureFooter orderDisclosureTotalVoucher">
+                        <td class="order orderFooter orderDisclosureFooter orderDisclosureVoucherText" {% if args.disclosure.colspan > 0 %} colspan="{{ args.disclosure.colspan }}" {% endif %}>
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFT_CODE')] }}
+                        </td>
+                        <td class="order orderFooter orderDisclosureFooter orderPrice orderDisclosurePrice orderVoucher">
+                            {{ outputHtmlCurrency(-args.document.totals.totalVouchers) }}
+                        </td>
+                    </tr>
+                {% endif %}
+
+                <tr class="orderFooter orderDisclosureFooter orderDisclosureTotal">
+                    <td class="order orderFooter orderDisclosureFooter orderDisclosureTotalText" {% if args.disclosure.colspan > 0 %} colspan="{{ args.disclosure.colspan }}" {% endif %}>
+                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TOTAL')] }}
+                    </td>
+                    <td class="order orderFooter orderDisclosureFooter orderPrice orderDisclosurePrice orderTotal">
+                    	{{ outputHtmlCurrency(args.document.totals.total) }}
+                    	{# FIXME en algun cas la linia de sota cuadra i el total total no. #}
+                        {# {{ outputHtmlCurrency(args.document.totals.subtotal + args.document.totals.totalTaxes) }} #}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+    {% endif %}
+{% endmacro %}

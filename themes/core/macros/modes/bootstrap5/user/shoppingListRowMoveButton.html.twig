@@ -1,0 +1,12 @@
+{% macro shoppingListRowMoveButton(args) %}
+
+    <button class="{{ args.class }} moveShoppingListRowNotes" type="button" 
+        id="moveShoppingListRowButton{{ args.row.id }}"
+        data-lc-function="moveShoppingListRow" 
+        data-lc-data='{{ outputJsonHtmlString({ shoppingLists: args.shoppingLists, rowId: args.row.id, containerId: args.containerId }) }}' 
+        data-lc-event="click" 
+    >
+        <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROW_MOVE_BUTTON')] }}</span>
+    </button>
+
+{% endmacro %}

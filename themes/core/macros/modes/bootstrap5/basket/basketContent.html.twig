@@ -1,0 +1,122 @@
+{% macro basketContent(args) %}
+
+    {% if args.empty == true %}
+        {% import 'macros/modes/' ~ coreMode ~ '/basket/output/empty.html.twig' as modeBasket %}
+        {{ modeBasket.empty() }}
+    {% else %}
+        {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/warnings.html.twig' as basketWarnings %}
+        {% import 'macros/modes/' ~ coreMode ~ '/basket/output/gifts.html.twig' as basketGifts %}
+        {% from 'macros/modes/' ~ coreMode ~ '/basket/output/footer.html.twig' import footer as basketFooter %}
+        {% from 'macros/modes/' ~ coreMode ~ '/basket/output/taxDisclosure.html.twig' import taxDisclosure as taxDisclosure %}
+
+        {{ basketWarnings.basketWarningsBlock(args.warningsBlockItems, args.showWarnings, args.errorWarningPosition, args.warningWarningPosition, args.infoWarningPosition, constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::WARNING_POSITION_HEADER')) }}
+
+        {% set showColumDiscounts = args.showDiscounts == true and (args.totalProductDiscounts > 0 or args.showZeroDiscount) %}
+
+        <div class="form-message"></div>
+
+        <table class="table basket {{ args.tableClass }}">
+            <thead class="basket">
+                <tr class="basketTitle">
+                    <td class="basketTitle basketNameTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS')] }}</td>
+                    
+                    {% if args.showPrices == true %}
+                        <td class="basketTitle basketPriceTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRICE')] }}</td>
+                    {% endif %}
+                    
+                    <td class="basketTitle basketQuantityTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')] }}</td>
+
+                    {% if showColumDiscounts %}    
+                        <td class="basketTitle basketProductDiscountsTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DISCOUNTS')] }}</td>
+                    {% endif %}
+                    
+                    {% if args.showPrices == true %}
+                        <td class="basketTitle basketSubtotalTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBTOTAL')] }}</td>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody class="basket">
+                {% set gifts = [] %}
+                {% set linkeds = [] %}
+                {% from 'macros/modes/' ~ coreMode ~ '/basket/basketRows/product.html.twig' import product as basketRowProduct %}
+                {% from 'macros/modes/' ~ coreMode ~ '/basket/basketRows/voucherPurchase.html.twig' import voucherPurchase as basketRowVoucherPurchase %}
+                {% from 'macros/modes/' ~ coreMode ~ '/basket/basketRows/bundle.html.twig' import bundle as basketRowBundle %}
+                {% from 'macros/modes/' ~ coreMode ~ '/basket/basketRows/linked.html.twig' import linked as basketRowLinked %}
+                {% from 'macros/modes/' ~ coreMode ~ '/basket/basketRows/grid.html.twig' import grid as basketRowGrid %}
+                {% from 'macros/modes/' ~ coreMode ~ '/basket/lockedStocksContent.html.twig' import lockedStocksContent as lockedStocksContentMacro %}
+
+                {% set gridMountedProducts = []  %}
+
+                {% for basketRow in args.basket.items %}
+
+                    {%- if args.showLockedStocks and settings.basketStockLockingSettings.lockedStockTimerType == constant('SDK\\Enums\\LockedStockTimerType::PRODUCT') -%}
+                        {% set lockedStocksContent %}
+                            <div class="miniBasketLockedStock clearfix">
+                                {{- lockedStocksContentMacro({ 
+                                    showDescription: args.showLockedStocksDescription, 
+                                    lockedStockTimer: basketRow.lockedStockTimer }) 
+                                -}}
+                            </div>
+                        {% endset %}
+                    {% else %}
+                        {% set lockedStocksContent = "" %}
+                    {%- endif -%}
+
+                    {% set trClassName = basketRow.className %}
+                    {% if basketRow.warningSeverity == constant('SDK\\Enums\\BasketWarningSeverity::INFO') %}
+                        {% set trClassName = trClassName ~ ' bg-info' %}
+                    {% elseif basketRow.warningSeverity == constant('SDK\\Enums\\BasketWarningSeverity::WARNING') %}
+                        {% set trClassName = trClassName ~ ' bg-warning' %}
+                    {% elseif basketRow.warningSeverity == constant('SDK\\Enums\\BasketWarningSeverity::ERROR') %}
+                        {% set trClassName = trClassName ~ ' bg-danger' %}
+                    {% endif %}
+
+                    {% if basketRow.type == constant('SDK\\Enums\\BasketRowType::GIFT') %}
+                        {% set gifts = gifts|merge([basketRow]) %}
+                    {% else %}
+                        {% if basketRow.type == constant('SDK\\Enums\\BasketRowType::PRODUCT') %}
+                            {%- if not themeConfiguration.commerce.disableShowAsGridProductOptions and session.basketGridProducts[basketRow.id] and session.basketGridProducts[basketRow.id].gridOptionIds|length > 0 -%}
+                                {%- if not (basketRow.id in gridMountedProducts) -%}
+                                    {{ basketRowGrid(args, basketRow, lockedStocksContent) }}
+                                    {%- set gridMountedProducts = array_add(gridMountedProducts, basketRow.id) -%}
+                                {%- endif -%}
+                            {%- else -%}
+                                <tr class="{{ trClassName }}" data-lc-hash="{{ basketRow.hash }}" data-lc-type="{{ basketRow.type }}" >
+                                    {{ basketRowProduct(args, basketRow, lockedStocksContent) }}
+                                </tr>
+                            {%- endif -%}
+                        {% elseif basketRow.type == constant('SDK\\Enums\\BasketRowType::VOUCHER_PURCHASE') %}
+                            <tr class="{{ trClassName }}" data-lc-hash="{{ basketRow.hash }}" data-lc-type="{{ basketRow.type }}" >
+                                {{ basketRowVoucherPurchase(args, basketRow, lockedStocksContent) }}
+                            </tr>
+                        {% elseif basketRow.type == constant('SDK\\Enums\\BasketRowType::BUNDLE') %}
+                            <tr class="{{ trClassName }}" data-lc-hash="{{ basketRow.hash }}" data-lc-type="{{ basketRow.type }}" >
+                                {{ basketRowBundle(args, basketRow, lockedStocksContent) }}
+                            </tr>
+                        {% elseif basketRow.type == constant('SDK\\Enums\\BasketRowType::LINKED') %}
+                            <tr class="{{ trClassName }}" data-lc-hash="{{ basketRow.hash }}" data-lc-type="{{ basketRow.type }}" >
+                                {{ basketRowLinked(args, basketRow, lockedStocksContent) }}                                
+                            </tr>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if args.giftsPresentation == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::GIFTS_PRESENTATION_PRODUCTS_BLOCK') %}
+                    {{ basketGifts.giftsBlockMode(gifts, args) }}
+                {% endif %}
+                
+            </tbody>
+
+            {{ basketFooter(args.footerRows, args.showFooter) }}
+        </table>
+
+        {% if args.giftsPresentation == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::GIFTS_PRESENTATION_INDEPENDENT') %}
+            {{ basketGifts.giftsIndependentMode(gifts, args) }}
+        {% endif %}
+
+        {% if args.mode == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::MODE_DISCLOSURE') %}
+            {{ taxDisclosure(args) }}
+        {% endif %}
+    {% endif %}
+{% endmacro basketContent %}

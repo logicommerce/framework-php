@@ -1,0 +1,33 @@
+<tr>
+	<td>
+    	{% if index is defined %}
+        	{{ index }}
+        {% else %}
+        	No index    	
+        {% endif %}
+	</td>
+	
+	<td>{{ pieceOfNews.id }}</td>
+	<td>{{ pieceOfNews.pId }}</td>
+
+	<td>{{ pieceOfNews.name }}</td>
+	<td>{{ pieceOfNews.comments }}</td>
+	<td>{{ pieceOfNews.priority }}</td>
+	<td>{{ pieceOfNews.active ? 'Yes' : 'No'  }}</td>
+	<td>{{ localizedDateTime(pieceOfNews.dateAdded) }}</td>
+	<td>{{ localizedDateTime(pieceOfNews.publicationDate) }}</td>
+	<td>{{ pieceOfNews.smallImage }}</td>
+	<td>{{ pieceOfNews.largeImage }}</td>
+	
+	<td>{{ pieceOfNews.language.keywords }}</td>
+	<td>{{ pieceOfNews.language.particularTitle }}</td>
+	<td>{{ pieceOfNews.language.metaDescription }}</td>
+	<td>{{ pieceOfNews.language.urlSeo }}</th>
+	
+	<td>{{ pieceOfNews.language.title }}</td>
+	<td>{{ pieceOfNews.language.shortText }}</td>
+	<td>{{ pieceOfNews.language.pageText }}</td>
+	<td>{{ pieceOfNews.language.addGenericTitle ? 'Yes' : 'No' }}</td>
+</tr>
+    		
+

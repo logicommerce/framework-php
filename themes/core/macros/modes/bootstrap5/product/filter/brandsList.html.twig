@@ -1,0 +1,43 @@
+{%- macro filter(filters, appliedFilters, configuration, filterItemTemplate) -%}
+
+    {%- if filters.brandsList|length and constant('SDK\\Enums\\RouteType::BRAND') not in route.type -%}
+        {%- set selectedIds = appliedFilters[constant('FWK\\Enums\\Parameters::BRANDS_LIST')]|split(',')|default([]) -%}
+        {%- set uid = random(10000000, 99999999) -%}
+        
+        {%- set elements -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/brand.html.twig' as filterProductMacro -%}
+            {{- filterProductMacro.elements(filters, appliedFilters, selectedIds) -}}
+        {%- endset -%}
+
+        {%- set badgeAppliedFilters -%}
+            {%- set nAppliedFilters = 0 -%}
+            {%- for filter in filters.brandsList|filter(filter => filter.id in selectedIds) -%}
+                {%- set nAppliedFilters = nAppliedFilters + 1 -%}
+            {%- endfor %}
+            <span class="n-applied-filter n-{{ nAppliedFilters }} badge rounded-pill bg-primary">{{ nAppliedFilters }}</span>
+        {%- endset -%}
+
+        {%- set blockClass = 'filterBlock brandsFilterBlock' -%}
+        {%- set filterName = languageSheet[constant('FWK\\Enums\\LanguageLabels::BRANDS')] -%}
+
+        {%- if filterItemTemplate != null -%}
+            {{- filterItemTemplate|replace({
+                '{{blockClassWildcard}}': blockClass,
+                '{{dataAttributesWildcard}}': "",
+                '{{uidWildcard}}': uid,
+                '{{nameWildcard}}': filterName,
+                '{{badgeAppliedFiltersWildcard}}': badgeAppliedFilters,
+                '{{elementsWildcard}}': elements,
+            }) -}}
+        {%- else -%}
+            <div class="{{- blockClass -}}">
+                <div class="filterBlockTitle brandsFilterBlockTitle">{{- filterName -}}{{- badgeAppliedFilters -}}</div>
+
+                <div class="filterElements brandsFilterElements">
+                    {{- elements -}}
+                </div>
+            </div>
+        {%- endif -%}
+    {%- endif -%}
+
+{%- endmacro -%}

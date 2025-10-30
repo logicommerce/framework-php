@@ -1,0 +1,20 @@
+{% macro additionalItems(additionalItems) %}
+
+    <table class="table order">
+        <thead class="order">
+			<tr class="orderTitle">
+				<td class="orderTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDITIONAL_ITEM_NAME')] }}</td>
+				<td class="orderTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDITIONAL_ITEM_TYPE')] }}</td>
+				<td class="orderTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDITIONAL_ITEM_PRICE')] }}</td>
+            </tr>
+        </thead>
+    {% for item in additionalItems %}
+        <tr>
+            <td class="order">{{ item.name }}</td>
+            <td class="order">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDITIONAL_ITEM_TYPE_' ~ item.type)] }}</td>
+            <td>{{ outputHtmlCurrency(item.amount) }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+{% endmacro %}

@@ -1,0 +1,49 @@
+{% macro orderTrackings(args) %}
+
+    {%- set validTrackingShipments = 0 -%}
+    {%- for shipment in args.shipments -%}
+        {%- if shipment.trackingNumber|length -%}
+            {%- set validTrackingShipments = validTrackingShipments + 1 -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+    {%- if validTrackingShipments > 0 -%}
+        {%- if args.showContainer -%}
+            <div class="orderTrackings">
+        {%- endif -%}
+
+        {%- set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' -%}
+
+        {%- for shipment in args.shipments -%}
+            {%- if shipment.trackingUrl|length and shipment.trackingNumber|length -%}
+                <div class="{{- args.itemClass|length ? args.itemClass : 'userOrderActionWrap' -}}">
+                    {# Replace wildcards: %trackingNumber% or %%trackingNumber%% or {{trackingNumber}} #}
+                    {%- set trackingUrl = shipment.trackingUrl|preg_replace('/(%%|%|\\{\\{)trackingNumber(%%|%|\\}\\})/', shipment.trackingNumber) -%}
+                    <a href="{{ trackingUrl }}" target="_blank" class="btn btn-link userOrderAction shipmentTracking">
+                        <img src="{{ iconsPath ~ 'tracking' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPPING_TRACKING')] }}">
+                        <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPPING_TRACKING')] }}: {{ shipment.trackingNumber }}</span>
+                    </a>
+                </div>
+            {%- elseif shipment.trackingNumber|length and 'http' in shipment.trackingNumber -%}
+                <div class="{{- args.itemClass|length ? args.itemClass : 'userOrderActionWrap' -}}">
+                    <a href="{{ shipment.trackingNumber }}" target="_blank" class="btn btn-link userOrderAction shipmentTracking">
+                        <img src="{{ iconsPath ~ 'tracking' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPPING_TRACKING')] }}">
+                        <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPPING_TRACKING')] }}</span>
+                    </a>
+                </div>
+            {%- elseif shipment.trackingNumber|length -%}
+                <div class="{{- args.itemClass|length ? args.itemClass : 'userOrderActionWrap' -}}">
+                    <span class="btn btn-link userOrderAction shipmentTracking">
+                        <img src="{{ iconsPath ~ 'tracking' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPPING_TRACKING')] }}">
+                        <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPPING_TRACKING')] }}: {{ shipment.trackingNumber }}</span>
+                    </span>
+                </div>
+            {% endif %}
+        {%- endfor -%}
+
+        {%- if args.showContainer -%}
+            </div>
+        {%- endif -%}
+    {%- endif -%}
+
+{% endmacro orderTrackings %}

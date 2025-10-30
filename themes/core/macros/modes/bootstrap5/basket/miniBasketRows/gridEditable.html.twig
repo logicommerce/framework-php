@@ -1,0 +1,59 @@
+{% macro gridEditable(args, basketRow, rowId, row, options, optionValues, gridOptionIds, gridOptionValueIds) %}
+
+    {% set gridHashes = [] %}
+    {% for gridRow in row.grid %}
+        {%- if gridRow.hash|length -%}
+                {%- set gridHashes = array_add(gridHashes, gridRow.hash) -%}
+        {%- endif -%}
+    {% endfor %}
+
+    <div class="basketProductInfo">
+
+        {%- set rowNoGridValues = rowId|split('-') -%}
+        {%- if rowNoGridValues|length > 0 and rowNoGridValues[0] != 0 -%}
+            <div class="basketOptions">
+                <div class="{{ classPrefix }}Options">
+                    {% for rowNoGridValueId in rowNoGridValues %}
+                        {%- set option = optionValues[rowNoGridValueId] -%}
+                        <div class="{{ classPrefix }}Option">
+                            <span class="{{ classPrefix }}OptionName">{{ options[option.optionId].name|striptags }}</span>
+                            <span class="{{ classPrefix }}OptionValue">{{ option.value }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {%- endif -%}
+
+        {%- if gridOptionIds|length == 2 -%}
+            {% set firstOption = options[gridOptionIds[0]] %}
+            {% set secondOption = options[gridOptionIds[1]] %}
+            {%- if args.showAsGridUniqueDimension == false -%}
+                {%- include 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid/twoDimTwoOptions.html.twig' -%}
+            {%- else -%}
+                {%- include 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid/oneDimTwoOptions.html.twig' -%}
+            {%- endif -%}
+        {%- else -%}
+            {% set firstOption = options[gridOptionIds[0]] %}
+            {%- if args.showAsGridUniqueDimension == false -%}
+                {%- include 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid/twoDimOneOption.html.twig' -%}
+            {%- else -%}
+                {%- include 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid/oneDimOneOption.html.twig' -%}
+            {%- endif -%}
+        {%- endif -%}
+
+        <a role="button" href="#" class="basketDeleteRow" data-lc-basketDeleteRows='{{ outputJsonHtmlString(gridHashes) }}' title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ROW')] }}">
+            <span class="basketDeleteRowIcon glyphicon glyphicon-trash"></span>
+            <span class="basketDeleteRowText">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')] }}</span>
+        </a>
+
+        {% if args.showWarnings == true %}
+            {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/warnings.html.twig' as basketWarnings %}
+            {{ basketWarnings.basketWarningsBlock(
+                args.warningsBlockItems, args.showWarnings, args.errorWarningPosition, args.warningWarningPosition, args.infoWarningPosition, 
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::WARNING_POSITION_LINE'), gridHashes
+            ) }}
+        {% endif %}
+
+    </div>
+
+{% endmacro gridEditable %}

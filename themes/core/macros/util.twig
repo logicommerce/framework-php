@@ -1,0 +1,2301 @@
+{#- @documentation
+    {
+        "name": "agencyLogo",
+        "description": [
+            {
+                "es": "Pinta el logo de la agencia"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "linkRel",
+                "description": [
+                    {
+                        "es": "Link de referencia para los colores"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "nofollow noreferrer",
+                "required": "false"
+            },
+            {
+                "param": "color",
+                "description": [
+                    {
+                        "es": "Color que se quiera usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "default",
+                "required": "false"
+            },
+            {
+                "param": "folder",
+                "description": [
+                    {
+                        "es": "Carpeta con los logos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "agencyLogo",
+                "required": "false"
+            },
+            {
+                "param": "showOnlyText",
+                "description": [
+                    {
+                        "es": "Muestra solo el texto, sin logo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "name",
+                "description": [
+                    {
+                        "es": "Nombre de la agencia"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "id",
+                "description": [
+                    {
+                        "es": "Id de la agencia"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de la clase personalizado que se mostrara en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "classLink",
+                "description": [
+                    {
+                        "es": "Link a la clase html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "link",
+                "description": [
+                    {
+                        "es": "Link de la agencia"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "logo",
+                "description": [
+                    {
+                        "es": "Logo de la agencia"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "extension",
+                "description": [
+                    {
+                        "es": "Extensión de la imagen del logo de la agencia"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "'.png'",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.agencyLogo({ |name: 'logicommerce.com', |id: 'logoLogicommerce', |class: 'logoLogicommerce', |classLink: 'logoLogicommerce', |link: 'https://www.logicommerce.com', |logo: 'logicommerce', |folder: 'agencyLogo', |linkRel: 'nofollow noreferrer', |color: 'default' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/AgencyLogo.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/agencyLogo.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro agencyLogo(args) %}
+    {{ addTimerDebugFlag('utilMacros-agencyLogo',true) }}
+    {% set viewParameters = viewHelpers.util.agencyLogoMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/util/agencyLogo.html.twig' as modeUtil %}
+    {{ modeUtil.agencyLogo(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-agencyLogo',false) }}
+{% endmacro agencyLogo %}
+
+{#- @documentation
+    {
+        "name": "breadcrumb",
+        "description": [
+            {
+                "es": "Pinta las breadcrumb de los subapartado que se visite"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "showHome",
+                "description": [
+                    {
+                        "es": "Mostrar el home"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showArea",
+                "description": [
+                    {
+                        "es": "Selecciona si el area esta desplegada o no"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "maxLevels",
+                "description": [
+                    {
+                        "es": "El maximo de niveles que se muestran, 0 = ilimitado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "tag",
+                "description": [
+                    {
+                        "es": "Defina la estructura del html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Util/Macro/Breadcrumb::TAG_UL",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Util/Macro/Breadcrumb::TAG_UL",
+                        "description": [
+                            {
+                                "es": "Define la estructura en una lista"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Util/Macro/Breadcrumb::TAG_DIV",
+                        "description": [
+                            {
+                                "es": "Define la estructura en una caja"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "data",
+                "description": [
+                    {
+                        "es": "route.breadcrumb(variable de twig)"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.breadcrumb({  |data: route.breadcrumb  |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/Breadcrumb.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/breadcrumb.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro breadcrumb(args) %}
+    {{ addTimerDebugFlag('utilMacros-breadcrumb',true) }}
+    {% set viewParameters = viewHelpers.util.breadcrumbMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/util/breadcrumb.html.twig' as modeUtil %}
+    {{ modeUtil.breadcrumb(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-breadcrumb',false) }}
+{% endmacro breadcrumb %}
+
+{#- @documentation
+    {
+        "name": "coreJsEnvironmentVariables",
+        "description": [
+            {
+                "es": "Pinta un js con las variables globales requeridas por el js core"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "mobileAgents",
+                "description": [
+                    {
+                        "es": "Define los agentes moviles"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "languageCode",
+                "description": [
+                    {
+                        "es": "Codigo del lenguaje"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "session.generalSettings.language",
+                "required": "false"
+            },
+            {
+                "param": "countryCode",
+                "description": [
+                    {
+                        "es": "Codigo del país"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "session.generalSettings.country",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore macrosCore.util as utilMacros %} |{{ utilMacros.coreJsEnvironmentVariables({ |languageCode: route.language |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/CoreJsEvironmentVariables.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/coreJsEvironmentVariables.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro coreJsEnvironmentVariables(args) -%}
+    {{ addTimerDebugFlag('utilMacros-coreJsEnvironmentVariables',true) }}
+    {%- set viewParameters = viewHelpers.util.coreJsEnvironmentVariables(args) -%}
+    
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/coreJsEnvironmentVariables.js.twig' as modeUtil -%}
+    {{- modeUtil.coreJsEnvironmentVariables(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-coreJsEnvironmentVariables',false) }}
+{%- endmacro coreJsEnvironmentVariables -%}
+
+{#- @documentation
+    {
+        "name": "coreJsSessionVariables",
+        "description": [
+            {
+            "es": "Pinta el js con las variables requeridas por el js core"
+            },
+            {
+            "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "user",
+                "description": [
+                    {
+                        "es": "El usuario actual"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\User",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |||{% import macrosCore.util as utilMacros %} |||{{ utilMacros.coreJsSessionVariables({ |||user: session.user |||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/CoreJsSessionVariables.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/CoreJsSessionVariables.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro coreJsSessionVariables() -%}
+    {{ addTimerDebugFlag('utilMacros-coreJsSessionVariables',true) }}
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/coreJsSessionVariables.js.twig' as modeUtil -%}
+    {{- modeUtil.coreJsSessionVariables() -}}
+    {{ addTimerDebugFlag('utilMacros-coreJsSessionVariables',false) }}
+{%- endmacro coreJsSessionVariables -%}
+
+{#- @documentation
+    {
+        "name": "countriesLinksForm",
+        "description": [
+            {
+            "es": "Pinta un selector con la lista de paises y/o idiomas que estan disponibles en la tienda"
+            },
+            {
+            "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se ve en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "countriesLinksForm",
+                "description": [
+                    {
+                        "es": "Formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "acceptRouteWarning",
+                "description": [
+                    {
+                        "es": "Marca la session de usuario que se han aceptado los warnings del route"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+        ],
+        "example": " |||{% import macrosCore.util as utilMacros %} |||{{ utilMacros.countriesLinksForm({ |||class: 'my-class',|||countriesLinksForm: controllerItem.countriesLinksForm|||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/CountriesLinksForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/countriesLinksForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro countriesLinksForm(args) -%}
+    {{ addTimerDebugFlag('utilMacros-countriesLinksForm',true) }}
+    {%- set viewParameters = viewHelpers.util.countriesLinksFormMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/countriesLinksForm.html.twig' as modeUtil -%}
+    {{- modeUtil.countriesLinksForm(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-countriesLinksForm',false) }}
+{%- endmacro countriesLinksForm -%}
+
+{#- @documentation
+    {
+        "name": "expressCheckout",
+        "description": [
+            {
+            "es": "Pinta un selector con la lista de paises y/o idiomas que estan disponibles en la tienda"
+            },
+            {
+            "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se ve en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showTitle",
+                "description": [
+                    {
+                        "es": "Indica si quiere que se muestre el titulo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+        ],
+        "example": " |||{% import macrosCore.util as utilMacros %} |||{{ utilMacros.expressCheckout({ |||class: 'my-class',|||showTitle: true|||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/expressCheckout.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/expressCheckout.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro expressCheckout(args) -%}
+    {{ addTimerDebugFlag('utilMacros-expressCheckout',true) }}
+    {%- set viewParameters = viewHelpers.util.expressCheckoutMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/expressCheckout.html.twig' as modeUtil -%}
+    {{- modeUtil.expressCheckout(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-expressCheckout',false) }}
+{%- endmacro expressCheckout -%}
+
+{#- @documentation
+    {
+        "name": "fillDataFunction",
+        "description": [
+            {
+                "es": "Genere todas las funciones necesarias para el js-fill-data"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "user",
+                "description": [
+                    {
+                        "es": "El usuario actual"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\User",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.fillDataFunction({ |user: session.user |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/FillDataFunction.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/fillDataFunction.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro fillDataFunction(args) -%}
+    {{ addTimerDebugFlag('utilMacros-fillDataFunction',true) }}
+    {%- set viewParameters = viewHelpers.util.fillDataFunction(args) -%}
+    
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/fillDataFunction.js.twig' as modeUtil -%}
+    {{- modeUtil.fillDataFunction(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-fillDataFunction',false) }}
+{%- endmacro fillDataFunction -%}
+
+
+{#- @documentation
+    {
+        "name": "lcCommerceData",
+        "description": [
+            {
+                "es": "Genera el bloque js con la variable lcCommerceData"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "route",
+                "description": [
+                    {
+                        "es": "Objeto Route de la petición"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Common\\Route",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "pageProduct",
+                "description": [
+                    {
+                        "es": "En el caso de ser una página de producto, en pageProduct deberemos enviar el objeto Product que represente la petición"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "pageCategory",
+                "description": [
+                    {
+                        "es": "En el caso de ser una página de categoría, en pageCategory deberemos enviar el objeto Catogory que represente la petición"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Category",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "pageProducts",
+                "description": [
+                    {
+                        "es": "En el caso de ser una página de categoría, en pageProducts deberemos enviar el objeto ElementCollection de Product que contenga los productos de la categoría"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "order",
+                "description": [
+                    {
+                        "es": "En el caso de ser una página de confirmOrder, en order deberemos enviar el objeto Document con la información del pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\Documents\\Document",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.lcCommerceData({ |route: route |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/lcCommerceData.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/lcCommerceData.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro lcCommerceData(args) -%}
+    {{ addTimerDebugFlag('utilMacros-lcCommerceData',true) }}
+    {%- set viewParameters = viewHelpers.util.lcCommerceDataMacro(args) -%}
+    
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/lcCommerceData.js.twig' as modeUtil -%}
+    {{- modeUtil.lcCommerceData(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-lcCommerceData',false) }}
+{%- endmacro lcCommerceData -%}
+
+{#- @documentation
+    {
+        "name": "lcCommerceSession",
+        "description": [
+            {
+                "es": "Genera el bloque js con la variable lcCommerceSession"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "session",
+                "description": [
+                    {
+                        "es": "Objeto Session de la petición"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Resources\\Session",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.lcCommerceSession({ |session: session |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/lcCommerceSession.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/lcCommerceSession.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro lcCommerceSession(args) -%}
+    {{ addTimerDebugFlag('utilMacros-lcCommerceSession',true) }}
+    {%- set viewParameters = viewHelpers.util.lcCommerceSessionMacro(args) -%}
+    
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/lcCommerceSession.js.twig' as modeUtil -%}
+    {{- modeUtil.lcCommerceSession(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-lcCommerceSession',false) }}
+{%- endmacro lcCommerceSession -%}
+
+{#- @documentation
+    {
+        "name": "pagination",
+        "description": [
+            {
+                "es": "Pinta el paginado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "pagination",
+                "description": [
+                    {
+                        "es": "Objeto pagination con la informacion de la paginacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\Pagination",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "pagerParameters",
+                "description": [
+                    {
+                        "es": "Establece laonfiguracion de la paginacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Theme\\Dtos\\Pagination",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "mode",
+                "description": [
+                    {
+                        "es": "Modo en el que se muestra la paginacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Util/Macro/Pagination::MODE_BLOCKS",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Util/Macro/Pagination::MODE_BLOCKS",
+                        "description": [
+                            {
+                                "es": "Pinta el paginado en blockes"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Util/Macro/Pagination::MODE_TEXT",
+                        "description": [
+                            {
+                                "es": "Pinta el paginado en texto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.pagination({  |pagination: products.pagination,  |pagerParameters: themeConfiguration.category.productList.pagination |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/Pagination.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/paginationText.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        },
+        {
+            "files": "macros/modes/{{coreMode}}/util/paginationBlock.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro pagination(args) %}
+    {{ addTimerDebugFlag('utilMacros-pagination',true) }}
+    {% set viewParameters = viewHelpers.util.paginationMacro(args) %}
+    
+    {% if viewParameters.mode is constant('FWK\\ViewHelpers\\Util\\Macro\\Pagination::MODE_TEXT') %}
+        {% import 'macros/modes/' ~ coreMode ~ '/util/paginationText.html.twig' as modeUtil %}
+    {% elseif viewParameters.mode is constant('FWK\\ViewHelpers\\Util\\Macro\\Pagination::MODE_BLOCKS') %}
+        {% import 'macros/modes/' ~ coreMode ~ '/util/paginationBlock.html.twig' as modeUtil %}
+    {% else %}
+        {% import 'macros/modes/' ~ coreMode ~ '/util/' ~ viewParameters.mode ~ '.html.twig' as modeUtil %}
+    {% endif %}
+    {{ modeUtil.pagination(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-pagination',false) }}
+{% endmacro pagination %}
+
+{#- @documentation
+    {
+        "name": "pluginsAssets",
+        "description": [
+            {
+                "es": "Pinta los elementos con plugins"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "assets",
+                "description": [
+                    {
+                        "es": "elementos con los plugins"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "ambience",
+                "description": [
+                    {
+                        "es": "Ambiente actual"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "position",
+                "description": [
+                    {
+                        "es": "Posicion actual en la pagina"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "type",
+                "description": [
+                    {
+                        "es": "El tipo actual de la pagina"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCores.util as utilMacros %} |{{- utilMacros.pluginsAssets({ |assets: pluginsAssets.items, |position: constant('SDK\\Enums\\TrackerPosition::HEAD_TOP') |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/PluginsAssets.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/pluginsAssets.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro pluginsAssets(args) -%}
+    {{ addTimerDebugFlag('utilMacros-pluginsAssets',true) }}
+    {%- set viewParameters = viewHelpers.util.pluginsAssetsMacro(args) -%}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/pluginsAssets.html.twig' as modeUtil %}
+    {{ modeUtil.pluginsAssets(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-pluginsAssets',false) }}
+{%- endmacro pluginsAssets -%}
+
+{#- @documentation
+    {
+        "name": "printableContent",
+        "description": [
+            {
+                "es": "Muestra una caja pintable"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "windowAttributes",
+                "description": [
+                    {
+                        "es": "Define los atributos de la ventana"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "content",
+                "description": [
+                    {
+                        "es": "Pinta el contenido de la caja"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "hrefType",
+                "description": [
+                    {
+                        "es": "Tipo de link externo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "title",
+                "description": [
+                    {
+                        "es": "Titulo que se mostrara en la caja"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.printableContent({ |windowAttributes: 'width=800,height=600,location=no,left=200px', |content: printableContent, |hrefType: '_blank', |title: 'Terms of user and privaty policy' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/PrintableContent.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/printableContent.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro printableContent(args) -%}
+    {{ addTimerDebugFlag('utilMacros-printableContent',true) }}
+    {%- set viewParameters = viewHelpers.util.printableContentMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/printableContent.html.twig' as modeUtil -%}
+    {{- modeUtil.printableContent(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-printableContent',false) }}
+{%- endmacro printableContent -%}
+
+
+
+
+{#- @documentation
+    {
+        "name": "routeWarningAlertModal",
+        "description": [
+            {
+                "es": "Incluye la modal para poder mostrar los warnings del route"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "route",
+                "description": [
+                    {
+                        "es": "Objeto Route de la petición"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Common\\Route",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showCountriesLinksForm",
+                "description": [
+                    {
+                        "es": "Muestra el formulario de countriesLinks en lugar de los botones básicos de continuar o ir a la tienda sugerida en el warning"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "countriesLinksFormAcceptRouteWarning",
+                "description": [
+                    {
+                        "es": "Marca la session de usuario que se han aceptado los warnings del route"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "countriesLinksFormClass",
+                "description": [
+                    {
+                        "es": "Nombre de la clase personalizado que se mostrara en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.routeWarningAlertModal({ |route: route |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/routeWarningAlertModal.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/routeWarningAlertModal.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro routeWarningAlertModal(args) -%}
+    {{ addTimerDebugFlag('utilMacros-routeWarningAlertModal',true) }}
+    {%- set viewParameters = viewHelpers.util.routeWarningAlertModalMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/routeWarningAlertModal.html.twig' as modeUtil -%}
+    {{- modeUtil.routeWarningAlertModal(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-routeWarningAlertModal',false) }}
+{%- endmacro routeWarningAlertModal -%}
+
+
+
+{#- @documentation
+    {
+        "name": "searchForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de busqueda"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra la etiqueta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showPlaceholder",
+                "description": [
+                    {
+                        "es": "Muestra el marcador de posicion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "minCharacters",
+                "description": [
+                    {
+                        "es": "Caracteres minimos para proporcionar resultados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "3",
+                "required": "false"
+            },
+            {
+                "param": "searchProducts",
+                "description": [
+                    {
+                        "es": "Buscar productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "searchCategories",
+                "description": [
+                    {
+                        "es": "Buscar categorias"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "searchBlog",
+                "description": [
+                    {
+                        "es": "Buscar en los blogs"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "searchPages",
+                "description": [
+                    {
+                        "es": "Buscar paginas"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "searchNews",
+                "description": [
+                    {
+                        "es": "Buscar noticias"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.searchForm({ |form : formSearch, |showLabel: false, |minCharacters: 3, |showPlaceholder: true |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/SearchForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/searchForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro searchForm(args) %}
+    {{ addTimerDebugFlag('utilMacros-searchForm',true) }}
+    {% set viewParameters = viewHelpers.util.searchFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/util/searchForm.html.twig' as modeUtil %}
+    {{ modeUtil.searchForm(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-searchForm',false) }}
+{% endmacro searchForm %}
+
+{#- @documentation
+    {
+        "name": "trackers",
+        "description": [
+            {
+                "es": "Pinta los bloques con codigo js que se incrustan"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "trackers",
+                "description": [
+                    {
+                        "es": "Los bloques con codigo js"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "ambience",
+                "description": [
+                    {
+                        "es": "Ambiente actual"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "position",
+                "description": [
+                    {
+                        "es": "Posicion en la que queremos pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "type",
+                "description": [
+                    {
+                        "es": "Tipo actual"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.trackers({ |trackers: trackers, |position: constant('SDK\\Enums\\TrackerPosition::HEAD_TOP') |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/Trackers.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/trackers.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro trackers(args) -%}
+    {{ addTimerDebugFlag('utilMacros-trackers',true) }}
+    {%- set viewParameters = viewHelpers.util.trackersMacro(args) -%}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/trackers.html.twig' as modeUtil %}
+    {{ modeUtil.trackers(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-trackers',false) }}
+{%- endmacro trackers -%}
+
+{#- @documentation
+    {
+        "name": "kimera",
+        "description": [
+            {
+                "es": "Pinta script con json kimera"
+            },
+            {
+                "en": "Print script with json kimera"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "kimera",
+                "description": [
+                    {
+                        "es": "Información de la petición a kimera"
+                    },
+                    {
+                        "en": "Kimera request information"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Kimera\\KimeraDataRequest",
+                "default": "[]",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.kimera({ |trackers: trackers|}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/Kimera.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/Kimera.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro kimera(args) -%}
+    {{ addTimerDebugFlag('utilMacros-kimera',true) }}
+    {%- set viewParameters = viewHelpers.util.kimeraMacro(args) -%}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/kimera.html.twig' as modeUtil %}
+    {{ modeUtil.kimera(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-kimera',false) }}
+{%- endmacro kimera -%}
+
+{#- @documentation
+    {
+        "name": "viewSection",
+        "description": [
+            {
+                "es": "Pinta todas las vistas de los articulos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "itemList",
+                "description": [
+                    {
+                        "es": "Lista de todos los articulos a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Theme\\Dtos\\ItemList",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showElementsList",
+                "description": [
+                    {
+                        "es": "Elementos que la macro va a pintar independientemente de itemList. Si el valor esta vacio, se muestra todo."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{- utilMacros.viewSection({ |itemList: themeConfiguration.category.productList |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/ViewSection.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/perPage.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        },
+        {
+            "files": "macros/modes/{{coreMode}}/util/sort.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        },
+        {
+            "files": "macros/modes/{{coreMode}}/util/template.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro viewSection(args) %}
+    {{- addTimerDebugFlag('utilMacros-viewSection',true) -}}
+    {%- set viewParameters = viewHelpers.util.viewSection(args) -%}
+	{%- for key, value in viewParameters.itemList.viewOptions.toArray()|sort((a, b) => a.viewPriority <=> b.viewPriority)|filter(value => value.enabled) -%}
+        {%- if viewParameters.showElementsList is empty or key in viewParameters.showElementsList -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/util/view/' ~ key ~ '.html.twig' as macroViewItem -%}
+            {{- macroViewItem.view(attribute(viewParameters.itemList.viewOptions, key), requestParams[key] ? requestParams[key]:attribute(viewParameters.itemList.defaultParametersValues, key)) -}}
+        {%- endif -%}
+	{%- endfor -%}
+    {{- addTimerDebugFlag('utilMacros-viewSection',false) -}}
+{% endmacro viewSection %}
+
+{#- @documentation
+    {
+        "name": "physicalLocationsForm",
+        "description": [
+            {
+                "es": "Pinta el formulario para usar el localizador de puntos físicos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "levels",
+                "description": [
+                    {
+                        "es": "Número de niveles que se desea mostrar. Su valor, debe ser, entre 1 y 3"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "integer",
+                "default": "1",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.util as utilMacros %} |||{{- utilMacros.physicalLocationsForm({ |||form: physicalLocationsForm,|||levels: 1,|||restricted: false|||}) -}} |||",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/PhysicalLocationsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/physicalLocationsForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro physicalLocationsForm(args) %}
+    {{ addTimerDebugFlag('utilMacros-physicalLocationsForm',true) }}
+    {%- set viewParameters = viewHelpers.util.physicalLocationsForm(args) -%}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/physicalLocationsForm.html.twig' as modeUtil %}
+    {{ modeUtil.physicalLocationsForm(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-physicalLocationsForm',false) }}
+{% endmacro physicalLocationsForm %}
+
+{#- @documentation
+    {
+        "name": "physicalLocationsFilter",
+        "description": [
+            {
+                "es": "Pinta el filtro para obtener y mostrar las ubicaciones"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "physicalLocationsFilter",
+                "description": [
+                    {
+                        "es": "Párametros enviados a la API para la obtencion de los phisycalLocations"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "pickupPointProviders",
+                "description": [
+                    {
+                        "es": "Coleccion proveerdores mostrar para obtenes la colección de ubicaciones a mostrar. Espera una coleccion de elementos de tipo SDK\\Dtos\\Documents\\PickupPointProviders."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "countries",
+                "description": [
+                    {
+                        "es": "Coleccion de paises que se desea mostrar en el selector. Espera una coleccion de elementos de tipo SDK\\Dtos\\Settings\\CountrySettings"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "defaultCountry",
+                "description": [
+                    {
+                        "es": "Codigo de pais del país que se quiere seleccionar por defecto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.util as utilMacros %} |||{{- utilMacros.physicalLocationsFilter({ |||countries: countries,|||defaultCountry: defaultCountry,|||physicalLocationsFilter: physicalLocationsFilter|||}) -}} |||",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/PhysicalLocationsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/physicalLocationsFilter.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro physicalLocationsFilter(args) %}
+    {{ addTimerDebugFlag('utilMacros-physicalLocationsFilter',true) }}
+    {%- set viewParameters = viewHelpers.util.physicalLocationsFilter(args) -%}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/physicalLocationsFilter.html.twig' as modeUtil %}
+    {{ modeUtil.physicalLocationsFilter(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-physicalLocationsFilter',false) }}
+{% endmacro physicalLocationsFilter %}
+
+{#- @documentation
+    {
+        "name": "physicalLocationsMap",
+        "description": [
+            {
+                "es": "Pinta el filtro para obtener y mostrar las ubicaciones"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "physicalLocationsItems",
+                "description": [
+                    {
+                        "es": "Tiendas físicas del Commerce"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "mapsApiKey",
+                "description": [
+                    {
+                        "es": "Api Key de Google Maps"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "",
+                "required": "false"
+            },
+            {
+                "param": "showAllMapMarkersButton",
+                "description": [
+                    {
+                        "es": "Muestra un botón para restablecer el zoom del mapa y mostrar todos los puntos."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.util as utilMacros %} |||{{- utilMacros.physicalLocationsMap({ |||countries: countries,|||defaultCountry: defaultCountry,|||physicalLocationsMap: physicalLocationsMap|||}) -}} |||",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/PhysicalLocationsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/physicalLocationsMap.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro physicalLocationsMap(args) %}
+    {{ addTimerDebugFlag('utilMacros-physicalLocationsMap',true) }}
+    {%- set viewParameters = viewHelpers.util.physicalLocationsMap(args) -%}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/physicalLocationsMap.html.twig' as modeUtil %}
+    {{ modeUtil.physicalLocationsMap(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-physicalLocationsMap',false) }}
+{% endmacro physicalLocationsMap %}
+
+{#- @documentation
+    {
+        "name": "physicalLocations",
+        "description": [
+            {
+                "es": "Pinta las ubicaciones enviadas por paŕametro"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "physicalLocations",
+                "description": [
+                    {
+                        "es": "Coleccion de ubicaciones mostrar. Espera una coleccion de elementos de tipo SDK\\Dtos\\Catalog\\PhysicalLocation."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "optionName",
+                "description": [
+                    {
+                        "es": "Nombre a aplicar a los options de physicalLocations"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "physicalLocation",
+                "required": "false"
+            },
+            {
+                "param": "optionClass",
+                "description": [
+                    {
+                        "es": "Class a aplicar a los options de physicalLocations"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "",
+                "required": "false"
+            },
+            {
+                "param": "addCountrySelector",
+                "description": [
+                    {
+                        "es": "Indica si se quiere mostrar un el selector del niver 'Country'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "addStateSelector",
+                "description": [
+                    {
+                        "es": "Indica si se quiere mostrar un el selector del niver 'State'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "addCitySelector",
+                "description": [
+                    {
+                        "es": "Indica si se quiere mostrar un el selector del niver 'City'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "addPostalCodeSelector",
+                "description": [
+                    {
+                        "es": "Indica si se quiere mostrar un el selector del niver 'PostalCode'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "addAllOption",
+                "description": [
+                    {
+                        "es": "Indica si se quiere mostrar una opcion para mostrar todas las localizaciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showInMap",
+                "description": [
+                    {
+                        "es": "Indica si se desea mostrar la ubicacion en un mapa"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "mapsApiKey",
+                "description": [
+                    {
+                        "es": "Api key para el mapa"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "defaultPhysicalLocationId",
+                "description": [
+                    {
+                        "es": "Indica el id de la ubicacion que se quiere marcar por defecto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "showDirections",
+                "description": [
+                    {
+                        "es": "Indica si se desea mostrar el 'Como llegar' de las ubicaciones en un mapa"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "physicalLocationFields",
+                "description": [
+                    {
+                        "es": "Indica que propiedades se imprimen de cada physical location."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "['address', 'postalCode', 'city', 'state', 'country', 'phone', 'email', 'information']",
+                "required": "false"
+            },
+            {
+                "param": "showPlacesAutocomplete",
+                "description": [
+                    {
+                        "es": "Muestra un input para buscar una ubicación concreta. Usa la api de mapa, requiere el parametro mapsApiKey."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showAllMapMarkersButton",
+                "description": [
+                    {
+                        "es": "Muestra un botón para restablecer el zoom del mapa y mostrar todos los puntos."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showPickupPointProviderMapMarkers",
+                "description": [
+                    {
+                        "es": "Añade un sufijo a la imagen del las marcas en el mapa, para que se pueda cambiar segun el proveedor"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "filterByPhysicalLocations",
+                "description": [
+                    {
+                        "es": "Muestra el filtro segun los resultados obtenidos de los physicalLocations o en cambio muestra un selector para encontrar el locationId y a partir de este buscar los physicalLocations"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "searchResultZoom",
+                "description": [
+                    {
+                        "es": "Indica el número de zooms que se haran para mostrar el resultado de la busqueda de localidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "11",
+                "required": "false"
+            },
+            {
+                "param": "searchMinResults",
+                "description": [
+                    {
+                        "es": "El minimo de locacalizaciones que se quiere mostrar tras centrar el resultado de la busqueda. Con valor 0 no se aplica"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "searchMaxResults",
+                "description": [
+                    {
+                        "es": "El máximo de locacalizaciones que se quiere mostrar tras centrar el resultado de la busqueda. Con valor 0 no se aplica"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "physicalLocationItemsCheckVisibility",
+                "description": [
+                    {
+                        "es": "Indica si se ha de ocultar de la lista de localizaciones los detalles de las localizaciones que quedan puera del mapa visible"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.util as utilMacros %} |||{{- utilMacros.physicalLocations({ |||countries: countries,|||defaultCountry: defaultCountry,|||physicalLocationsFilter: physicalLocationsFilter|||}) -}} |||",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/PhysicalLocationsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/physicalLocations.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        },
+        {
+            "files": "macros/modes/{{coreMode}}/util/physicalLocationInformation.html.twig",
+            "description": [
+                {
+                    "es": "En esta macro se maqueta el detalle e información de la ubicación"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro physicalLocations(args) %}
+    {{ addTimerDebugFlag('utilMacros-physicalLocations',true) }}
+    {%- set viewParameters = viewHelpers.util.physicalLocations(args) -%}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/physicalLocations.html.twig' as modeUtil %}
+    {{ modeUtil.physicalLocations(viewParameters) }}
+    {{ addTimerDebugFlag('utilMacros-physicalLocations',false) }}
+{% endmacro physicalLocations %}
+
+
+{#- @documentation
+    {
+        "name": "webhook",
+        "description": [
+            {
+            "es": "Imprime el código HTML mostrando la respuesta del webhook"
+            },
+            {
+            "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "webhookResponse",
+                "description": [
+                    {
+                        "es": "Objeto resultante de haber hecho la peticion Loader::service(Services::PLUGIN)->webhookprocess(). En FWK\\Controllers\\WebhookController se lo pasa a la vista en la variable self::CONTROLLER_ITEM"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\WebhookResponse",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "postParameters",
+                "description": [
+                    {
+                        "es": "Array con los parámetros recividos vía POST. En FWK\\Controllers\\Checkout\\WebhookController se lo pasa a la vista en la variable self::POST_PARAMETERS"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "getParameters",
+                "description": [
+                    {
+                        "es": "Array con los parámetros recividos vía GET. En FWK\\Controllers\\Checkout\\WebhookController se lo pasa a la vista en la variable self::GET_PARAMETERS"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.util as utilMacros %} |||{{ utilMacros.webhook({ |||class: 'my-class',|||showTitle: true|||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/webhook.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/webhook.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro webhookMacro(args) -%}
+    {{ addTimerDebugFlag('utilMacros-webhook',true) }}
+    {%- set viewParameters = viewHelpers.util.webhookMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/util/webhook.html.twig' as modeUtil -%}
+    {{- modeUtil.webhook(viewParameters) -}}
+    {{ addTimerDebugFlag('utilMacros-webhook',false) }}
+{%- endmacro webhookMacro -%}
+
+
+{#- @documentation
+    {
+        "name": "ajaxModalForm",
+        "description": [
+            {
+                "es": "Renderiza un formulario en una ventana modal utilizando AJAX"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "args",
+                "description": [
+                    {
+                        "es": "Parámetros necesarios para construir el formulario modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "{}",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.ajaxModalForm({ |formId: 'contactForm', |title: 'Contáctanos', |submitUrl: '/send' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Util/Macro/AjaxModalForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/util/modalForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal que genera el formulario modal con AJAX"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro ajaxModalForm(args) %}
+    {{ addTimerDebugFlag('utilMacros-ajaxModalForm',true) }}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/modalForm.html.twig' as modeUtil %}
+    {{ modeUtil.ajaxModalForm(args) }}
+    {{ addTimerDebugFlag('utilMacros-ajaxModalForm',false) }}
+{% endmacro ajaxModalForm %}

@@ -1,0 +1,56 @@
+{% macro discounts(args) %}
+    {%- set notFoundImage = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') -%}
+    <div data-lc-id="{{ args.productId }}" id="discounts">
+        {%- if args.discounts.items|length -%}
+            {%- for discount in args.discounts.items -%}
+                <a class="discount-link" href="{{ discount.language.urlSeo }}" title="{{ discount.language.name|escape }}">
+                    <div class="discount discount-content discount-{{ discount.id }}">
+                        {%- if args.showActivityLimit -%}
+                            <div class="discount-activity-limit discount-activity-limit-{{ discount.id }}">
+                                {%- for condition in discount.conditions -%}
+                                    {%- if condition.type == constant('SDK\\Enums\\DiscountConditionType::ACTIVITY_LIMIT') -%}
+                                        <div class="discount-activity-limit">
+                                            <div class="discount-date">
+                                                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DISCOUNT_ACTIVITY_LIMIT')]|replace({
+                                                    '{{from}}': condition.activationDate.dateTime|date(getTwigDatePattern()),
+                                                    '{{to}}': condition.expirationDate.dateTime|date(getTwigDatePattern())
+                                                }) -}}
+                                            </div>
+                                        </div>
+                                    {%- endif -%}
+                                {%- endfor -%}
+                            </div>
+                        {%- endif -%}
+                        {%- if args.showSmallImage -%}
+                            <div class="discount-small-image discount-small-image-{{ discount.id }}">
+                                <img src="{{- discount.language.smallImage|default(notFoundImage) -}}" alt="{{ discount.language.name|escape }}" onError="this.src='{{- notFoundImage -}}'; this.onerror=null;" loading="lazy">
+                            </div>
+                        {%- endif -%}
+                        {%- if args.showLargeImage -%}
+                            <div class="discount-large-image discount-large-image-{{ discount.id }}">
+                                <img src="{{- discount.language.largeImage|default(notFoundImage) -}}" alt="{{ discount.language.name|escape }}" onError="this.src='{{- notFoundImage -}}'; this.onerror=null;" loading="lazy">
+                            </div>
+                        {%- endif -%}
+                        {%- if args.showName -%}
+                            <div class="discount-name discount-name-{{ discount.id }}">
+                                {{- discount.language.name -}}
+                            </div>
+                        {%- endif -%}
+                        {%- if args.showShortDescription -%}
+                            <div class="discount-short-description discount-short-description-{{ discount.id }}">
+                                {{- discount.language.shortDescription -}}
+                            </div>
+                        {%- endif -%}
+                        {%- if args.showLongDescription -%}
+                            <div class="discount-long-description discount-long-description-{{ discount.id }}">
+                                {{- discount.language.longDescription -}}
+                            </div>
+                        {%- endif -%}
+                    </div>
+                </a>
+            {%- endfor -%}
+        {%- else -%}
+            <div class="no-available-discounts">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NO_AVAILABLE_DISCOUNTS')] }}</div>
+        {%- endif -%}
+    </div>
+{% endmacro discounts %}

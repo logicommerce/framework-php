@@ -1,0 +1,55 @@
+{% extends layout %}
+
+{% block content %}
+    var settings = {
+    	internal_prefix: "{{ constant("INTERNAL_PREFIX") }}",
+    	locale: "{{ session.generalSettings.locale }}",
+        serverTime: "{{ serverTime }}",
+        commerceDateTime: "{{ formatMomentDateTime(commerceDateTime) }}",
+        isMobile: {{ isMobile ? "true" : "false" }},
+        stockManagement: {{ settings.stockSettings.stockManagement ? "true" : "false" }},
+        showTaxesIncluded: {{ themeConfiguration.commerce.showTaxesIncluded ? "true" : "false" }},
+        catalogStockByWarehouse: {{ catalogStockByWarehouse ? "true" : "false"  }},
+        pickup: {{ pickup ? "true" : "false" }},
+        allowReservations: {{ settings.stockSettings.allowReservations ? "true" : "false" }},
+        defaultCurrencyId: "{{ settings.generalSettings.defaultCurrency }}",
+        currencyId: "{{ session.generalSettings.currency }}",
+        countryId: "{{ session.generalSettings.country }}",
+        currencies: {
+            {% for currency in currencies %}
+                "currency{{ currency.code }}": { 
+                    "usdValue": {{ currency.usdValue }}, 
+                    "symbol": {{ currency.symbol|length>0?outputJsonHtmlString(currency.symbol):"\"\"" }}, 
+                    "code": {{ currency.code|length>0?outputJsonHtmlString(currency.code):"\"\"" }},
+                    "name": {{ currency.name|length>0?outputJsonHtmlString(currency.name):"\"\"" }}
+                }{{ loop.last ? "" : "," }}
+            {% endfor %}
+        },
+        cdnPath: "{{ cdnPath }}",
+        forceBillingAddressCountry: {{ settings.ordersSettings.forceBillingAddressCountry ? "true" : "false" }},
+        commerceCdnPath: "{{ commerceCdnPath }}",
+        mobileAgents: "{{ mobileAgents }}",
+        commonCdnPath: "{{ commonCdnPath }}"
+    };
+    {%- if productAvailabilities|length -%}
+        var productAvailabilities = {
+            {%- for availability in productAvailabilities-%}
+                'availability{{- availability.id -}}': [
+                    {%- for interval in availability.intervals -%}
+                        {
+                            'stock': {{ interval.stock }},
+                            'image': {{ key|length ? outputJsonHtmlString(interval.language.image) : "\"\"" }},
+                            'name': {{ outputJsonHtmlString(interval.language.name) }},
+                            'description': {{ key|length ? outputJsonHtmlString(interval.language.description) : "\"\"" }}
+                        }{% if not loop.last %},{% endif %}
+                    {%- endfor -%}
+                ]{% if not loop.last %},{% endif %}
+            {%- endfor -%}
+        };
+    {%- else -%}
+        var productAvailabilities = {};
+    {%- endif -%}
+    var avoidTrackings = {{ avoidTrackings }};
+    var languageSheet = { {% for key in languageSheet|keys %}{{ key|length>0?outputJsonHtmlString(key):"\"\"" }}: {{ languageSheet[key]|length>0?outputJsonHtmlString(languageSheet[key]):"\"\"" }}{{ loop.last ? "" : "," }}{% endfor %} };
+    var routePaths = { {% for key in routePaths.getRouteTypePaths()|keys %}{{ key|length>0?outputJsonHtmlString(key):"\"\"" }}:{{ routePaths.getRouteTypePaths()[key]|length>0?outputJsonHtmlString(routePaths.getRouteTypePaths()[key]):"\"\"" }}{{ loop.last ? "" : "," }}{% endfor %} };
+{% endblock content %}

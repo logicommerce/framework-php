@@ -1,0 +1,44 @@
+<div class="contentTd">
+	<table border=1>
+		<tr>
+			<th>Label</th><th>Value</th>
+		</tr>
+		<tr>
+			<td>prices.basePrice</td><td>{{ itemPrice.prices.basePrice }}</td>
+		</tr>
+		<tr>
+			<td>prices.retailPrice</td><td>{{ itemPrice.prices.retailPrice }}</td>
+		</tr>
+		<tr>
+			<td>pricesByQuantity</td>
+			<td>
+				{% if (itemPrice.pricesByQuantity is iterable and itemPrice.pricesByQuantity|length > 0 )%}
+    				{% for priceByQuantity in itemPrice.pricesByQuantity %}
+                        <div class="contentTd">
+                        	<table border=1>
+                        		<tr>
+                        			<th>Label</th><th>Value</th>
+                        		</tr>
+                        		<tr>
+                        			<td>quantity</td><td>{{ priceByQuantity.quantity }}</td>
+                        		</tr>
+                        		<tr>
+                        			<td>prices.basePrice</td><td>{{ priceByQuantity.prices.basePrice }}</td>
+                        		</tr>
+                        		<tr>
+                        			<td>prices.retailPrice</td><td>{{ priceByQuantity.prices.retailPrice }}</td>
+                        		</tr>
+                        	</table>
+                        </div>
+            	    {% endfor %}
+        		{% else %}
+                	no pricesByQuantity
+                {% endif %}  
+		    </td>
+		</tr>
+	</table>
+</div>
+
+
+
+

@@ -1,0 +1,15 @@
+{%- macro saving(product, basePrice, retailPrice) -%}
+    {%- if product.definition.showPrice and product.definition.offer  -%}
+        {%- set savingPrice = basePrice - retailPrice -%}
+        {%- set savingPercent = 0 -%}
+        {%- if basePrice > 0 -%}
+            {%- set savingPercent = savingPrice * 100 / basePrice -%}
+        {%- endif -%}
+        <span class="product-saving" {% if retailPrice >= basePrice -%} style="display: none;" {%- endif %}>
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SAVING_TEXT')]|replace({ 
+                '{{savingPercent}}': '<span class="percent">' ~ savingPercent|round(2, 'floor') ~ '</span>',
+                '{{savingPrice}}': outputHtmlCurrency(savingPrice)
+            }) -}}
+        </span>
+    {%- endif -%}
+{%- endmacro -%}

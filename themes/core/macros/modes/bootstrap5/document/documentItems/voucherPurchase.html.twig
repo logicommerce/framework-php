@@ -1,0 +1,72 @@
+{% macro voucherPurchase(args, orderRow) %}
+
+    {% set orderRowPrices = orderRow.prices %}
+
+    {% set totalTaxesValue = orderRow.richPrices.totalTaxesValue %}
+    {% if args.showTaxIncluded %}
+        {% set productPrice = orderRow.richPrices.productPriceWithTaxes %}
+        {% set optionsPrice = orderRow.richPrices.optionsPriceWithTaxes %}
+        {% set previousPrice = orderRow.richPrices.previousPriceWithTaxes %}
+        {% set price = orderRow.richPrices.priceWithTaxes %}
+        {% set total = orderRow.richPrices.totalWithTaxes %}
+        {% set totalDiscountsValue = orderRow.richPrices.totalDiscountsValueWithTaxes %}        
+        {% set totalWithDiscounts = orderRow.richPrices.totalWithDiscountsWithTaxes %}
+    {% else %}
+        {% set productPrice = orderRow.richPrices.productPrice %}
+        {% set optionsPrice = orderRow.richPrices.optionsPrice %}
+        {% set previousPrice = orderRow.richPrices.previousPrice %}
+        {% set price = orderRow.richPrices.price %}
+        {% set total = orderRow.richPrices.total %}
+        {% set totalDiscountsValue = orderRow.richPrices.totalDiscountsValue %}
+        {% set totalWithDiscounts = orderRow.richPrices.totalWithDiscounts %}
+    {% endif %}
+
+    {% set trClassName = orderRow.className %}
+    <tr class="{{ trClassName }}" data-hash="{{ orderRow.hash }}">
+        <td class="order orderProduct orderVoucherPurchase">            
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/rowTemplates/voucherPurchase.html.twig' as voucherPurchase %}
+            {{ voucherPurchase.voucherPurchase(args, orderRow) }}
+        </td>
+        {% if args.showPrices %}
+            <td class="order orderPrice orderProductPrice">
+                {% if orderRow.offer %}
+                    {% if args.showPreviousPrice %}
+                        <span class="previousPrice">{{ outputHtmlCurrency(previousPrice) }}</span>
+                    {% endif %}
+                    {% if args.showPercentDifference %}
+                        <span class="offerPercentDifference">
+                            <span class="percentageValue">-{{ viewHelpers.util.getPriceDifference(previousPrice, price).roundedPercentDifference }}</span><span class="percentageSymbol">%</span>
+                        </span>
+                    {% endif %}
+                    {% if args.showPriceDifference %}
+                        <span class="offerPriceDifference">{{ outputHtmlCurrency(-viewHelpers.util.getPriceDifference(previousPrice, price).priceDifference) }}</span>
+                    {% endif %}
+                {% endif %}
+                {{ outputHtmlCurrency(price) }}
+            </td>
+        {% endif %}
+        <td class="order orderQuantity">
+            {{ orderRow.quantity }}
+        </td>
+        {% if args.showDiscounts and (args.totalProductDiscounts > 0 or args.showZeroDiscount) %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/discounts.html.twig' as modeOrder %}
+            {{ modeOrder.discountsColumn(orderRow.discounts, args.showDiscountName, args.showDiscountValue, args.showTaxIncluded, args.showZeroDiscount) }}
+        {% endif %}
+        {% if args.showPrices %}
+            <td class="order orderPrice orderProductTotal">
+                {% set orderRowTotal = orderRowPrices.total - orderRow.totalDiscounts %}
+                {% if orderRowTotal != 0 %}
+                    {% if args.showPreviousPrice and args.showPrices and orderRow.offer %}
+                        <span class="previousPrice">
+                            {{ outputHtmlCurrency((previousPrice * orderRow.quantity) - totalDiscountsValue) }}
+                        </span>
+                    {% endif %}
+                    {{ outputHtmlCurrency(totalWithDiscounts) }}
+                {% else %}
+                    {{ outputHtmlCurrency(0) }}
+                {% endif %}
+            </td>
+        {% endif %}
+    </tr>
+
+{% endmacro voucherPurchase %}

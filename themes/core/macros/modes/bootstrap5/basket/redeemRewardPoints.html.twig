@@ -1,0 +1,71 @@
+{% macro redeemRewardPoints(args) %}
+    {%- if args.rewardPoints.items|length -%}
+        <div class="rewardPoints {{- args.class|length ? ' ' ~ args.class : '' -}}">
+            {%- for rewardPoint in args.rewardPoints.items -%}
+                {%- set name = rewardPoint.language.name -%}
+                <div class="rewardPoint rewardPointsRecord">
+                    {%- if args.showRewardPointsHeader -%}
+                        <div class="rewardPointHeader">
+                            <span class="name">{{ rewardPoint.language.name }}</span>
+                            {%- if rewardPoint.language.description|length -%}
+                                <span class="description">{{ rewardPoint.language.description }}</span>
+                            {%- endif -%}
+                        </div>
+                    {%- endif -%}
+                    <div class="rewardPoint rewardPointsBalance">
+                        <div class="rewardPointPending">
+                            {%- set quantity -%}
+                                {%- if args.showSelectableBox -%}
+                                    <select class="quantitySelect rewardPointQuantity form-select {{ args.class }}" id="rewardPointQuantity_{{ rewardPoint.id }}" name="rewardPointQuantity_{{ rewardPoint.id }}">
+                                        {%- for optionIndex in range(0, rewardPoint.maxAvailable, 1) -%}
+                                            <option value="{{- optionIndex -}}" {%- if rewardPoint.toRedeem == optionIndex %} selected="selected" {%- endif -%}>{{- optionIndex -}}</option>
+                                        {%- endfor -%}
+                                    </select>
+                                {%- else -%}
+                                    <input 
+                                        type="text" 
+                                        data-validation="number" 
+                                        data-validation-allowing="range[0;{{- rewardPoint.maxAvailable -}}]" 
+                                        class="rewardPointQuantity {{ args.class }}"  
+                                        id="rewardPointQuantity_{{ rewardPoint.id }}" 
+                                        name="rewardPointQuantity_{{ rewardPoint.id }}" 
+                                        value="{{rewardPoint.toRedeem}}" 
+                                        data-input="true" 
+                                        min="0" 
+                                        max="{{- rewardPoint.maxAvailable -}}" 
+                                        data-force-min-zero="true" 
+                                        data-lc-id="{{- rewardPoint.id -}}" 
+                                        {%- if args.quantityPlugin %} data-lc-quantity="quantity" {% endif -%}
+                                    >
+                                {%- endif -%}
+                            {%- endset -%}
+
+                            <span class="rewardPointsAddText">
+                                {%- if rewardPoint.available > rewardPoint.maxAvailable -%}
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_REWARD_POINTS_ADD_MAX')]|replace({
+                                        '{{name}}': name, 
+                                        '{{value}}': rewardPoint.available, 
+                                        '{{quantity}}': quantity, 
+                                        '{{max}}': rewardPoint.maxAvailable
+                                    }) -}}
+                                {%- else -%}
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_REWARD_POINTS_ADD')]|replace({
+                                        '{{name}}': name, 
+                                        '{{value}}': rewardPoint.available, 
+                                        '{{quantity}}': quantity
+                                    }) -}}
+                                {%- endif -%}
+                            </span> 
+
+                            <button type="button" class="btn btn-primary rewardPointButton" id="rewardPointButton_{{ rewardPoint.id }}" data-lc-id="{{- rewardPoint.id -}}">
+                                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::APPLY')] -}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {%- endfor -%}
+        </div>
+    {%- else -%}
+        <div class="rewardPointsEmpty">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_NO_BALANCE')] -}}</div>
+    {%- endif -%}
+{% endmacro redeemRewardPoints %}

@@ -1,0 +1,54 @@
+{% macro rewardPoints(args) %}
+    {%- if args.rewardPoints.items|length -%}
+        <div class="productRewardPoints">
+            {%- for rewardPoint in args.rewardPoints -%}
+                <div class="productRewardPointsItem">
+                    {%- if args.showHeader -%}
+                        <div class="productRewardPointsItemName">{{ rewardPoint.language.name }}</div>
+                        {%- if rewardPoint.language.description|length -%}
+                            <div class="productRewardPointsItemDesc">{{ rewardPoint.language.description }}</div>
+                        {%- endif -%}
+                    {%- endif -%}
+
+                    <div class="productRewardPointsRules">
+                        {%- for rule in rewardPoint.rules -%}
+                            <div class="productRewardPointsRule">
+                                {%- if args.showRulesHeader -%}
+                                    <div class="ruleName">{{ rule.language.name }}</div>
+                                    {%- if rule.language.description|length -%}
+                                        <div class="ruleDescription">{{ rule.language.description }}</div>
+                                    {%- endif -%}
+                                {%- endif -%}
+
+                                {%- if args.showRulesCondition -%}
+                                    {%- set ruleLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_' ~ rule.valueMode ~ '_' ~ rule.type)]|default('') -%}
+                                    {%- if ruleLabel|length -%}
+                                        {%- set typeValue = languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS')] -%}
+                                        {%- set eachValue = rule.from -%}
+
+                                        {% if rule.type == constant('SDK\\Enums\\RewardPointsRuleType::BY_AMOUNT') %}
+                                            {%- set eachValue = outputHtmlCurrency(rule.from) -%}
+                                        {% elseif rule.type == constant('SDK\\Enums\\RewardPointsRuleType::COMMENT') %}
+                                            {%- set typeValue = languageSheet[constant('FWK\\Enums\\LanguageLabels::REVIEWS')] -%}
+                                        {% endif %}
+
+                                        <div class="ruleLabel">
+                                            {{- ruleLabel|replace({
+                                                '{{from}}': '<span class="from">' ~ rule.from ~ '</span>',
+                                                '{{to}}': '<span class="to">' ~ rule.from ~ '</span>',
+                                                '{{type}}': '<span class="type">' ~ typeValue ~ '</span>',
+                                                '{{value}}': '<span class="value">' ~ rule.earned ~ '</span>',
+                                                '{{each}}': '<span class="each">' ~ eachValue ~ '</span>',
+                                                '{{name}}': '<span class="name">' ~ rewardPoint.language.name ~ '</span>',
+                                            }) -}}
+                                        </div>
+                                    {%- endif -%}
+                                {%- endif -%}
+                            </div>
+                        {%- endfor -%}
+                    </div>
+                </div>
+            {%- endfor -%}
+        </div>
+    {%- endif -%}
+{% endmacro rewardPoints %}

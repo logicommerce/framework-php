@@ -1,0 +1,21 @@
+{#
+    @description Paint outputFirstRecipient
+    @param {array} recipients
+    @example
+        {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputFirstRecipient.html.twig' as modeBasket %}
+        {{ modeBasket.outputFirstRecipient(basketRow.recipients) }}
+#}
+{% macro outputFirstRecipient(recipients) %}
+    <div class="basketVoucherPurchaseRecipient">
+        {% if recipients|length %}            
+            <div class="basketProductName basketVoucherPurchaseRecipientEmail">
+                <label class="basketVoucherPurchaseRecipientLabel" style="display:none;"></label>
+                {{ recipients[0].getEmail() }}
+            </div>            
+            <div class="basketProductName basketVoucherPurchaseRecipientMessage">
+                <label class="basketVoucherPurchaseRecipientLabel" style="display:none;"></label>
+                {{ recipients[0].getMessage() }}
+            </div>
+        {% endif %}
+    </div>
+{% endmacro outputFirstRecipient %}

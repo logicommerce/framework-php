@@ -1,0 +1,8 @@
+{%- macro OSCModule(args) -%}
+	<div 
+		class="{% if args.additionalContent %}oneStepChekcoutAdditionalContent{% else %}oneStepCheckoutModule{% endif %} {{ args.class -}}" 
+		{% if args.additionalContent %}data-lc-oscac{% else %}data-lc-checkout{% endif %}="{{- args.type -}}" 
+		>
+			{{- args.content -}}
+	</div>
+{%- endmacro OSCModule -%}

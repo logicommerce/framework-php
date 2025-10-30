@@ -1,0 +1,53 @@
+{% macro routeWarningAlertModal(args) %}
+
+    <div id="routeWarning" class="lcModal modal fade routeWarningModal" tabindex="-1" aria-hidden="true" aria-labelledby="routeWarningTitle">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div id="routeWarningTitle" class="routeWarningTitle">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ROUTE_WARNING_TITLE')]|replace({'{{country}}': getCountryNameByCountryCode(args.route.country), '{{commerceName}}': settings.generalSettings.name}) -}}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="lcModalContainer">
+                        {%- if args.route.warningGeoIp|length -%}
+                            <div id="routeWarningMessage" class="routeWarningMessage">
+                                {{- args.route.warningGeoIp -}}
+                            </div>
+                        {%- else -%}
+                            <div id="routeWarningMessage" class="routeWarningMessage">
+                                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ROUTE_WARNING_OWN_VERSION_MESSAGE')]|replace({ '{{country}}': getCountryNameByCountryCode(args.route.warning.country)}) -}}
+                            </div>
+                        {%- endif -%}
+                        {%- if args.showCountriesLinksForm -%}
+                            {%- from "macros/util.twig" import countriesLinksForm as countriesLinksFormMacro -%}
+                            {{- countriesLinksFormMacro({
+                                countriesLinksForm: args.countriesLinksForm,
+                                acceptRouteWarning: args.countriesLinksFormAcceptRouteWarning,
+                                class: args.countriesLinksFormClass
+                            }) -}}
+                        {%- endif -%}
+                    </div>
+                </div>
+                {%- if not args.showCountriesLinksForm -%}
+                    <div class="modal-footer routeWarningButton">
+                        {%- if args.route.warningGeoIp|length -%}
+                            <button type="button" class="btn btn-primary routeWarningButton" data-lc-event="click" data-lc-function="acceptRouteWarning">
+                                {{- languageSheet[constant('SITE\\Enums\\LanguageLabels::CONTINUE')] -}}
+                            </button>
+                        {%- else -%}
+                            <button type="button" class="btn btn-secondary routeWarningButton" data-lc-event="click" data-lc-function="acceptRouteWarning">
+                                {{- languageSheet[constant('SITE\\Enums\\LanguageLabels::ROUTE_WARNING_BUTTON_CONTINUE')]|replace({ '{{country}}': getCountryNameByCountryCode(args.route.country)}) -}}
+                            </button>
+                            <button type="button" class="btn btn-primary routeWarningButton" data-lc-event="click" data-lc-function="acceptRouteWarning" data-lc-warning-url="{{args.route.warning.url}}">
+                                {{- languageSheet[constant('SITE\\Enums\\LanguageLabels::ROUTE_WARNING_BUTTON_REDIRECT')]|replace({ '{{country}}': getCountryNameByCountryCode(args.route.warning.country)}) -}}
+                            </button>
+                        {%- endif -%}
+                    </div>
+                {%- endif -%}
+            </div>
+        </div>
+    </div>
+
+{% endmacro %}

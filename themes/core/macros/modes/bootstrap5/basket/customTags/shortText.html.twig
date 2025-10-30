@@ -1,0 +1,22 @@
+{% macro shortText(customTag, showForm) %}
+    {% if showForm == true %}
+        {% set spacelessContent %}
+            <input 
+                type="text" 
+                class="form-control formField basketField" 
+                id="basketCustomTag{{ customTag.id }}" 
+                name="customTags_{{ customTag.id }}" 
+                value="{{ customTag.value }}"
+                {% if customTag.required %}
+                    data-validation="required" 
+                {% endif %}
+                {% if customTag.maxValue is defined and customTag.maxValue|length %}
+                    maxlength="{{ customTag.maxValue }}" 
+                {% endif %}
+            >  
+        {% endset %}
+        {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+    {% else %}
+        <div class="staticBasketTextValue">{{ customTag.value }}</div>
+    {% endif %}
+{% endmacro %}

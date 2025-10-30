@@ -1,0 +1,48 @@
+<div class="contentTd">
+	<table border=1>
+		<tr>
+			<th>Label</th><th>Value</th>
+		</tr>
+		<tr>
+			<td>recoverOrderDays</td><td>{{ ordersSettings.recoverOrderDays }}</td>
+		</tr>
+		<tr>
+			<td>faresByShippingAddress</td><td>{{ ordersSettings.faresByShippingAddress?'Yes':'No' }}</td>
+		</tr>
+		<tr>
+			<td>addStockOnReturns</td><td>{{ ordersSettings.addStockOnReturns?'Yes':'No' }}</td>
+		</tr>
+		<tr>
+			<td>forceBillingAddressCountry</td><td>{{ ordersSettings.forceBillingAddressCountry?'Yes':'No' }}</td>
+		</tr>
+		<tr>
+			<td>recurrentOrdersPeriodDays</td><td>{{ ordersSettings.recurrentOrdersPeriodDays }}</td>
+		</tr>
+		<tr>
+			<td>recurrentMinOrdersInPeriod</td><td>{{ ordersSettings.recurrentMinOrdersInPeriod }}</td>
+		</tr>
+		<tr>
+			<td>returnShippingOnRefundRequest</td><td>{{ ordersSettings.returnShippingOnRefundRequest?'Yes':'No' }}</td>
+		</tr>
+		<tr>
+			<td>returnPaymentOnRefundRequest</td><td>{{ ordersSettings.returnPaymentOnRefundRequest?'Yes':'No' }}</td>
+		</tr>
+		<tr>
+			<td>returnStates</td>
+			<td>
+                {% if (ordersSettings.returnStates is iterable and ordersSettings.returnStates > 0 )%}
+    				{% for returnState in ordersSettings.returnStates %}
+    					[{{ loop.index0 }}]={{ returnState }}<br>
+            	    {% endfor %}
+        		{% else %}
+                	no items in returnStates
+                {% endif %}  
+			</td>
+		</tr>
+
+	</table>
+</div>
+
+
+
+

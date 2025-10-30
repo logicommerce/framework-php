@@ -1,0 +1,115 @@
+{% macro addressForm(args, legalCheck) %}
+
+    {% set formElements = args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) %}
+
+    {% set inputsTemplates = ['createAccount', 'gender', 'location', 'password', 'passwordRetype', 'subscribed', 'userType', 'useShippingAddress', 're'] %}
+
+	{% if args.addressBook %}
+	    <form id="{{ args.prefix }}AddressBookForm" 
+            class="addressBookForm" 
+            method="post" 
+            action="{{routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalUser::SET_ADDRESS_BOOK'))}}"
+            data-lc-user-type="" {# filled in js #}
+            data-lc-account-type="{{ session.basket.account.type }}"
+            data-lc-address="{{ args.prefix }}"
+            data-lc-form="{{ args.prefix }}AddressBookForm"
+        >
+        <input type="hidden" name="id">{# set value in js #}
+        <input type="hidden" name="mode">{# set value in js #}
+        <div id="{{ args.prefix }}AddressBookFormTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDRESS_BOOK_TITLE')] }}</div>
+	{% else %}
+        {{- formElements['formStart']|replace({ (constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD')): 'data-lc-form="addressForm" data-lc-address="' ~ args.prefix ~ '" lc-user-type=""' }) -}}	
+		{{ formElements['id'] }}
+		{{ formElements['mode'] }}
+		<div id="{{ args.prefix }}AddressFormTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDRESS_FORM_TITLE')] }}</div>
+	{% endif  %}
+
+	<input type="hidden" name="type" value="{{ args.prefix }}">
+
+        {% set formElement = formElements[constant('FWK\\Core\\Theme\\Dtos\\FormSetUser::ADDRESSBOOK_FIELDS')] %}
+        
+        {% if args.prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and themeConfiguration.forms.setUser.addressbookFields.shippingFields.getSortFilterArrayFormFields()|length > 0 %}
+            {% set useShippingWithoutType = true %}
+            {{ formElements['module'] }}
+        {% endif %}
+
+        {%- set isGeneral = session.basket.account.type == constant('SDK\\Enums\\AccountType::GENERAL') -%}
+
+        {% if formElement|length > 1 and not useShippingWithoutType %}
+
+            {# Print userTypes nav tabs #}
+            {% if isGeneral %}
+                {% import 'macros/modes/' ~ coreMode ~ '/user/form/userTypeNavTabs.html.twig' as modeUser %}
+                {{ modeUser.userTypeNavTabs(formElement, args.defaultUserType, args.prefix) }}
+             {% endif %}   
+            <div class="tab-content">
+        {% endif %}
+
+        {% for userTypeName, userTypeElement in formElement %}
+            {% if useShippingWithoutType %}
+                {%- set userTypeName = constant('SDK\\Enums\\UserType::PARTICULAR') -%}
+            {%- endif -%}
+            {# Print userTypes tab panes #}
+            {%- set tabPanelActive = (session.basket.account.getUserType() == userTypeName) or useShippingWithoutType -%}
+            {% if isGeneral or tabPanelActive %}
+                <div role="tabpanel" class="tab-pane tabPaneUserType {% if userTypeName == args.defaultUserType or useShippingWithoutType or tabPanelActive %} active {% endif %}" id="{{ args.prefix }}_tabPane_{{ userTypeName }}">
+                    {% for addressTypeName, addressType in userTypeElement %}
+                        {% if addressTypeName == args.prefix %}
+                            <div class="formFields {{ addressTypeName }}FormFields">
+                                {% for fieldName, field in addressType %}
+                                    {% set fieldNameData = fieldName|split('_') %}
+                                    {% set fieldNameData = fieldName|split('_') %}
+
+                                    {% if fieldNameData[2] == constant('FWK\\Enums\\Parameters::LOCATION') %}
+                                        {% set useLocation = true %}
+                                    {% elseif fieldNameData[2] == constant('FWK\\Enums\\Parameters::COUNTRY') and useLocation and args.locationMode|length %}
+                                        {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/location.html.twig' with { 
+                                            input: field, 
+                                            name: fieldNameData[2]|default(''),
+                                            userType: fieldNameData[0]|default(''),
+                                            section: fieldNameData[1]|default(''),
+                                            selectedCountry: args.selectedCountry,
+                                            selectedCountryLocations: args.selectedCountryLocations,
+                                            locationMode: args.locationMode
+                                        } %}
+                                    {% else %}
+                                        {% if fieldNameData[2] in inputsTemplates %}
+                                            {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/' ~ fieldNameData[2] ~ '.html.twig' %}
+                                        {% else %}
+                                            {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/_default.html.twig' %}
+                                        {% endif %}
+                                        {% include inputTemplate with { 
+                                            input: field, 
+                                            name: fieldNameData[2]|default(''),
+                                            userType: fieldNameData[0]|default(''),
+                                            section: fieldNameData[1]|default(''),
+                                            definitionElement: args.form.definitionElements[constant('FWK\\Core\\Theme\\Dtos\\FormSetUser::ADDRESSBOOK_FIELDS')][userTypeName][addressTypeName][fieldName]
+                                        } %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {%- endif -%}
+        {% endfor %}
+
+        {% if formElement|length > 1 and not useShippingWithoutType %}
+            </div>
+        {% endif %}
+
+        <div class="addressBookModalButtons">
+            {% if formElements[constant('FWK\\Enums\\Parameters::CAPTCHA_TOKEN')] is defined %}
+                {{ formElements[constant('FWK\\Enums\\Parameters::CAPTCHA_TOKEN')] }}
+            {% endif  %}
+            {% if args.addressBook %}
+                <button type="submit" class="addressBookModalSubmit btn btn-primary">
+                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SAVE')] }}
+                </button>
+            {% else %}
+                {{ formElements['submit'] }}
+            {% endif  %}
+        </div>
+    </form>
+    
+{% endmacro addressForm %}

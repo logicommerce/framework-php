@@ -1,0 +1,18 @@
+{%- macro shippingInformation(args) -%}
+    {%- set user = args.document.user -%}
+    {%- if args.document.delivery.physicalLocation -%}
+        {% import 'macros/modes/' ~ coreMode ~ '/document/pickingInformation.html.twig' as pickingInformation %}
+        {{- pickingInformation.pickingInformation({
+            document: args.document,
+            fields: args.pickingFields, 
+        }) -}}
+    {%- elseif user.shippingAddress.id -%}
+        {% import 'macros/modes/' ~ coreMode ~ '/document/utils/addressInformationFields.html.twig' as addressInformationFields %}
+        <div class="customerInformation shippingInformation">
+            <p class="customerInformation customerInformationTitle">
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPPING_ADDRESS')] -}}
+            </p>
+            {{- addressInformationFields.fields(args.fields, user, user.shippingAddress) -}}
+        </div>
+    {%- endif -%}
+{%- endmacro shippingInformation -%}

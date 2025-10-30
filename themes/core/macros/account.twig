@@ -1,0 +1,2145 @@
+{#- @documentation
+    {
+        "name": "registeredUsersForm",
+        "description": [
+            {
+                "es": "Formulario para pintar los usuarios registrados de la cuenta"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario que se quiere aplicar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "parameters",
+                "description": [
+                    {
+                        "es": "Parametros a mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::Q",
+                        "description": [
+                            {
+                                "es": "ID del usuario"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::FIRSTNAME",
+                        "description": [
+                            {
+                                "es": "Nombre del usuario"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::LASTNAME",
+                        "description": [
+                            {
+                                "es": "Apellido del usuario"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::STATUS_LIST",
+                        "description": [
+                            {
+                                "es": "Estado del usuario"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::ROLE_ID",
+                        "description": [
+                            {
+                                "es": "Rol del usuario"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::MASTER",
+                        "description": [
+                            {
+                                "es": "Si es maestro o no"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::ADDED_FROM",
+                        "description": [
+                            {
+                                "es": "Fecha desde la cual fue añadido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::ADDED_TO",
+                        "description": [
+                            {
+                                "es": "Fecha hasta la cual fue añadido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.account as accountMacros %} |{{- accountMacros.registeredUsersForm({ |form: controllerItem.registeredUsersForm, |parameters: [ |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::STATUS_LIST'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::ROLE_ID'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::MASTER'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::Q'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::FIRSTNAME'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::LASTNAME'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::ADDED_FROM'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsersForm::ADDED_TO') |] |}) -}} |"
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/RegisteredUsersForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/registeredUsersForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro registeredUsersForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_registeredUsersForm',true) }}
+    {% set viewParameters = viewHelpers.account.registeredUsersFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUsersForm.html.twig' as modeAccount %}
+    {{ modeAccount.registeredUsersForm(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_registeredUsersForm',false) }}
+{% endmacro registeredUsersForm %}
+
+{#- @documentation
+    {
+        "name": "registeredUsers",
+        "description": [
+            {
+                "es": "Pinta a los usuarios registrados de la cuenta"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "registeredUsers",
+                "description": [
+                    {
+                        "es": "Coleccion de usuarios registrados de la cuenta de tipo SDK\\Dtos\\Account\\Master"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "parameters",
+                "description": [
+                    {
+                        "es": "Parametros a mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::SELECTED",
+                        "description": [
+                            {
+                                "es": "Mostrar el checkbox de seleccion"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::FIRSTNAME",
+                        "description": [
+                            {
+                                "es": "Mostrar el nombre"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::LASTNAME",
+                        "description": [
+                            {
+                                "es": "Muestra el apellido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::USERNAME",
+                        "description": [
+                            {
+                                "es": "Muestra el nombre de usuario"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::EMAIL",
+                        "description": [
+                            {
+                                "es": "Muestra el email"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::ID",
+                        "description": [
+                            {
+                                "es": "Muestra el id"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::MASTER",
+                        "description": [
+                            {
+                                "es": "Muestra si es maestro"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::ROLE",
+                        "description": [
+                            {
+                                "es": "Muestra el tipo de rol"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::STATUS",
+                        "description": [
+                            {
+                                "es": "Muestra el estado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::DATEADDED",
+                        "description": [
+                            {
+                                "es": "Muestra la fecha añadida"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::LASTUSED",
+                        "description": [
+                            {
+                                "es": "Muestra el último uso"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/RegisteredUsers::ACTIONS",
+                        "description": [
+                            {
+                                "es": "Muestra las acciones"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "request",
+                "description": [
+                    {
+                        "es": "Array con las solicitudes"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+        ],
+        "example": " |{% import macrosCore.account as accountMacros %} |{{ accountMacros.registeredUsers({ |registeredUsers: controllerItem.registeredUsers, |parameters: [ |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::SELECTED'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::FIRSTNAME'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::LASTNAME'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::USERNAME'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::EMAIL'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ID'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::MASTER'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ROLE'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::STATUS'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::DATEADDED'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::LASTUSED'), |constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTIONS') |], |request: controllerItem.registeredUsersFormRequest |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/RegisteredUsers.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/registeredUsers.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro registeredUsers(args) %}
+    {{ addTimerDebugFlag('accountMacros_registeredUsers',true) }}
+    {% set viewParameters = viewHelpers.account.registeredUsersMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUsers.html.twig' as modeAccount %}
+    {{ modeAccount.registeredUsers(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_registeredUsers',false) }}
+{% endmacro registeredUsers %}
+
+companyRoles
+
+{% macro companyRoles(args) %}
+    {{ addTimerDebugFlag('accountMacros_companyRoles',true) }}
+    {% set viewParameters = viewHelpers.account.companyRolesMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/companyRoles.html.twig' as modeAccount %}
+    {{ modeAccount.companyRoles(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_companyRoles',false) }}
+{% endmacro companyRoles %}
+
+{#- @documentation
+    {
+        "name": "registeredUserMoveForm",
+        "description": [
+            {
+                "es": "Formulario para mover un usuario registrado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                    "description": [
+                        {
+                            "es": "Formulario que se quiere aplicar"
+                        },
+                        {
+                            "en": "++"
+                        }
+                    ],
+                    "type": "FWK\\Core\\Form\\Form",
+                    "default": "null",
+                    "required": "true"
+            },
+            {
+                "param": "registeredUser",
+                "description": [
+                    {
+                        "es": "Coleccion de elementos de tipo SDK\\Dtos\\Accounts\\Master que se desea mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Accounts\\Master",
+                "default": "null",
+                "required": "false"
+            },
+        ],
+        
+        "example": " |{% import macrosCore.account as accountMacros %} |{{ accountMacros.registeredUserMoveForm({ |registeredUser: controllerItem, |form: registeredUserMoveForm, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/registeredUserMoveForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/registeredUserMoveForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro registeredUserMoveForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_registeredUserMoveForm',true) }}
+    {% set viewParameters = viewHelpers.account.registeredUserMoveFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUserMoveForm.html.twig' as modeAccount %}
+    {{ modeAccount.registeredUserMoveForm(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_registeredUserMoveForm',false) }}
+{% endmacro registeredUserMoveForm %}
+{#- @documentation
+    {
+        "name": "registeredUserUpdateForm",
+        "description": [
+            {
+                "es": "Formulario para actualizar los datos de la cuenta del usuario registrado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                    "description": [
+                        {
+                            "es": "Formulario que se quiere aplicar"
+                        },
+                        {
+                            "en": "++"
+                        }
+                    ],
+                    "type": "FWK\\Core\\Form\\Form",
+                    "default": "null",
+                    "required": "true"
+            },
+            {
+                "param": "registeredUser",
+                "description": [
+                    {
+                        "es": "Coleccion de elementos de tipo SDK\\Dtos\\Accounts\\MasterVal que se desea mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+            	"type": "SDK\\Dtos\\Accounts\\MasterVal",
+                "default": "null",
+                "required": "false"
+            },
+        ],
+        
+        "example": " |{% import macrosCore.account as accountMacros %} |{{ accountMacros.registeredUserUpdateForm({ |registeredUser: controllerItem, |form: registeredUserUpdateForm |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/RegisteredUserUpdateForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/registeredUserUpdateForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro registeredUserUpdateForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_registeredUserUpdateForm',true) }}
+    {% set viewParameters = viewHelpers.account.registeredUserUpdateFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUserUpdateForm.html.twig' as modeAccount %}
+    {{ modeAccount.registeredUserUpdateForm(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_registeredUserUpdateForm',false) }}
+{% endmacro registeredUserUpdateForm %}
+{#- @documentation
+{
+    "name": "registeredUserCreateForm",
+    "description": [
+        {
+            "es": "Formulario para crear un nuevo usuario registrado"
+        },
+        {
+            "en": "++"
+        }
+    ],
+    "parameters": [
+        {
+            "param": "form",
+            "description": [
+                {
+                    "es": "Formulario que se quiere aplicar"
+                },
+                {
+                    "en": "++"
+                }
+            ],
+            "type": "FWK\\Core\\Form\\Form",
+            "default": "null",
+            "required": "true"
+        },
+        {
+            "param": "selectedCountry",
+            "description": [
+                {
+                    "es": "País seleccionado al que pertenece el nuevo usuario"
+                },
+                {
+                    "en": "++"
+                }
+            ],
+            "type": "SDK\\Dtos\\Settings\\CountrySettings",
+            "default": "null",
+            "required": "false"
+        },
+        {
+            "param": "selectedCountryLocations",
+            "description": [
+                {
+                    "es": "Listado de ubicaciones disponibles para el país seleccionado"
+                },
+                {
+                    "en": "++"
+                }
+            ],
+            "type": "array",
+            "default": "[]",
+            "required": "false"
+        },
+        {
+            "param": "formPrefix",
+            "description": [
+                {
+                    "es": "Prefijo usado para nombrar los campos del formulario"
+                },
+                {
+                    "en": "++"
+                }
+            ],
+            "type": "string",
+            "default": "\"\"",
+            "required": "true"
+        },
+        {
+            "param": "advcaLicense",
+            "description": [
+                {
+                    "es": "Indica si el cliente tiene licencia ADVCA"
+                },
+                {
+                    "en": "++"
+                }
+            ],
+            "type": "boolean",
+            "default": "false",
+            "required": "false"
+        },
+        {
+            "param": "locationMode",
+            "description": [
+                {
+                    "es": "Modo de búsqueda de ubicación activa (ej. por ciudad, por código postal)"
+                },
+                {
+                    "en": "++"
+                }
+            ],
+            "type": "string",
+            "default": "\"\"",
+            "required": "false"
+        }
+    ],
+    "example": " |{% import macrosCore.account as accountMacros %} |{{- accountMacros.registeredUserCreateForm({ |form: controllerItem.saveCompanyDivisionForm, |selectedCountry: controllerItem.selectedCountry, |selectedCountryLocations: controllerItem.selectedCountryLocations, |locationMode: controllerItem.locationMode, |formPrefix: \"saveCompanyDivision\", |advcaLicense: controllerItem.advcaLicense |}) -}} |",
+    "viewHelper": "FWK/ViewHelpers/Account/Macro/RegisteredUserCreateForm.php",
+    "relatedCoreFiles": [{
+        "files": "macros/modes/{{coreMode}}/account/registeredUserCreateForm.html.twig",
+        "description": [
+            {
+                "es": "Macro principal, importada según el 'mode' que se haya definido en el Theme"
+            },
+            {
+                "en": "++"
+            }
+        ]
+    }]
+}
+@endDocumentation -#}
+
+{% macro registeredUserCreateForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_registeredUserCreateForm',true) }}
+    {% set viewParameters = viewHelpers.account.registeredUserCreateFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUserCreateForm.html.twig' as modeAccount %}
+    {% from "macros/form.twig" import legalCheck as legalCheckMacro %}
+    {% set legalCheck %}
+		{{ legalCheckMacro({}) }}
+	{% endset %}
+    {{ modeAccount.registeredUserCreateForm(viewParameters, legalCheck) }}
+    {{ addTimerDebugFlag('accountMacros_registeredUserCreateForm',false) }}
+{% endmacro registeredUserCreateForm %}
+
+{#- @documentation
+    {
+        "name": "salesAgentCustomersForm",
+        "description": [
+            {
+                "es": "Formulario para pintar clientes del agente de ventas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario que se quiere aplicar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore macrosCore.account as accountMacros %} |{{- accountMacros.salesAgentCustomersForm({ |form: controllerItem.salesAgentCustomersForm |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomersForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/salesAgentCustomersForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro salesAgentCustomersForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_salesAgentCustomersForm',true) }}
+    {% set viewParameters = viewHelpers.account.salesAgentCustomersFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/salesAgentCustomersForm.html.twig' as modeAccount %}
+    {{ modeAccount.salesAgentCustomersForm(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_salesAgentCustomersForm',false) }}
+{% endmacro salesAgentCustomersForm %}
+
+{#- @documentation
+    {
+        "name": "salesAgentCustomers",
+        "description": [
+            {
+                "es": "Pinta a los clientes del agente de venta"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "salesAgentCustomers",
+                "description": [
+                    {
+                        "es": "Coleccion de clientes del agente de venta de tipo SDK\\Dtos\\Account\\SalesAgentCustomer"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "parameters",
+                "description": [
+                    {
+                        "es": "Parametros a mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::PID",
+                        "description": [
+                            {
+                                "es": "Mostrar el PID"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::EMAIL",
+                        "description": [
+                            {
+                                "es": "Muestra el email"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::NAME",
+                        "description": [
+                            {
+                                "es": "Muestra el nombre y apellidos o nombre de la empresa"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::NAME",
+                        "description": [
+                            {
+                                "es": "Muestra el nombre y apellidos o nombre de la empresa"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::COMPANY",
+                        "description": [
+                            {
+                                "es": "Muestra la compañia"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::NIF",
+                        "description": [
+                            {
+                                "es": "Muestra el NIF"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::ADDRESS",
+                        "description": [
+                            {
+                                "es": "Muestra la direccion"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::CITY",
+                        "description": [
+                            {
+                                "es": "Muestra la ciudad"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::STATE",
+                        "description": [
+                            {
+                                "es": "Muestra el estado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::COUNTRY",
+                        "description": [
+                            {
+                                "es": "Muestra el pais"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::PHONE",
+                        "description": [
+                            {
+                                "es": "Muestra el telefono"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::TOTAL_AMOUNT",
+                        "description": [
+                            {
+                                "es": "Muestra la cantidad total"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::COMMISSION_AMOUNT",
+                        "description": [
+                            {
+                                "es": "Muestra la cantidad de la comision"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::PENDING_AMOUNT",
+                        "description": [
+                            {
+                                "es": "Muestra la cantidad pendiente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::ACTIONS",
+                        "description": [
+                            {
+                                "es": "Muestra las acciones"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "request",
+                "description": [
+                    {
+                        "es": "Array con las solicitudes"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "availableActions",
+                "description": [
+                    {
+                        "es": "Array con las las acciones disponibles, y el orden en el que se quieren mostar dentro de la zona de acciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::ACTION_SALES_AGENT_SALES, FWK/ViewHelpers/Account/Macro/SalesAgentCustomers::ACTION_LOGIN_SIMULATION]",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.account as accountMacros %} |{{ accountMacros.salesAgentCustomers({ |salesAgentCustomers: controllerItem.salesAgentCustomers,  |parameters: [ |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::PID'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::COMPANY'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::NIF'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::CITY'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::TOTAL_AMOUNT'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::COMMISSION_AMOUNT'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::PENDING_AMOUNT'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::ACTIONS'), |], |request: controllerItem.salesAgentCustomersFormRequest |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/SalesAgentCustomers.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/salesAgentCustomers.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro salesAgentCustomers(args) %}
+    {{ addTimerDebugFlag('accountMacros_salesAgentCustomers',true) }}
+    {% set viewParameters = viewHelpers.account.salesAgentCustomersMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/salesAgentCustomers.html.twig' as modeAccount %}
+    {{ modeAccount.salesAgentCustomers(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_salesAgentCustomers',false) }}
+{% endmacro salesAgentCustomers %}
+
+{#- @documentation
+    {
+        "name": "customerOrders",
+        "description": [
+            {
+                "es": "Pinta el pedido del cliente"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "orders",
+                "description": [
+                    {
+                        "es": "Coleccion de pedidos realizados por el cliente de tipo SDK\\Dtos\\Account\\AccountOrder"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.account as accountMacros %} |{{ accountMacros.customerOrders({ |orders: controllerItem, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/CustomerOrders.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/customerOrders.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro customerOrders(args) %}
+    {{ addTimerDebugFlag('accountMacros_customerOrders',true) }}
+    {% set viewParameters = viewHelpers.account.customerOrdersMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/customerOrders.html.twig' as modeAccount %}
+    {{ modeAccount.customerOrders(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_customerOrders',false) }}
+{% endmacro customerOrders %}
+
+{#- @documentation
+    {
+        "name": "salesAgentSalesForm",
+        "description": [
+            {
+                "es": "Pinta el formulario del agente de ventas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario a usar puede venir de FWK\\Core\\Form\\FormFactory::getSalesAgentSales()"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCores.account as accountMacros%} |{{ accountMacros.salesAgentSalesForm({ |form: controllerItem.salesAgentSalesForm |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/SalesAgentSalesForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/salesAgentSalesForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro salesAgentSalesForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_salesAgentSalesForm',true) }}
+    {% set viewParameters = viewHelpers.account.salesAgentSalesFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/salesAgentSalesForm.html.twig' as modeAccount %}
+    {{ modeAccount.salesAgentSalesForm(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_salesAgentSalesForm',false) }}
+{% endmacro salesAgentSalesForm %}
+
+{#- @documentation
+    {
+        "name": "salesAgentSales",
+        "description": [
+            {
+                "es": "Pinta las ventas del agente de ventas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "salesAgentSales",
+                "description": [
+                    {
+                        "es": "Coleccion de ventas del agente de ventas de tipo SDK\\Dtos\\Account\\SalesAgentSales"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "parameters",
+                "description": [
+                    {
+                        "es": "Parametros a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentSales::PID",
+                        "description": [
+                            {
+                                "es": "Muestra el PID"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentSales::CLIENT",
+                        "description": [
+                            {
+                                "es": "Muestra el cliente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentSales::DATE",
+                        "description": [
+                            {
+                                "es": "Muestra la fecha"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentSales::STATUS",
+                        "description": [
+                            {
+                                "es": "Muestra el estado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentSales::TOTAL",
+                        "description": [
+                            {
+                                "es": "Muestra el total de la venta"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentSales::COMMISSION",
+                        "description": [
+                            {
+                                "es": "Muestra la comission de la venta"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentSales::PAID",
+                        "description": [
+                            {
+                                "es": "Muestra si esta pagado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/SalesAgentSales::VIEW_ORDER",
+                        "description": [
+                            {
+                                "es": "Muestra el pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.account as accountMAcros %} |{{ accountMacros.salesAgentSales({ |salesAgentSales: controllerItem.salesAgentSales, |parameters: [ |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentSales::PID'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentSales::CLIENT'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentSales::DATE'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentSales::STATUS'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentSales::TOTAL'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentSales::COMMISSION'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentSales::PAID'), |constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentSales::VIEW_ORDER'), |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/SalesAgentSales.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/salesAgentSales.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro salesAgentSales(args) %}
+    {{ addTimerDebugFlag('accountMacros_salesAgentSales',true) }}
+    {% set viewParameters = viewHelpers.account.salesAgentSalesMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/salesAgentSales.html.twig' as modeAccount %}
+    {{ modeAccount.salesAgentSales(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_salesAgentSales',false) }}
+{% endmacro salesAgentSales %}
+
+{#- @documentation
+    {
+        "name": "usedAccountSwitch",
+        "description": [
+            {
+                "es": ""
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario que se quiere aplicar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.account as accountMacros %} |{{- accountMacros.usedAccountSwitch({ |form: controllerItem.usedAccountSwitchForm |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/usedAccountSwitch.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/usedAccountSwitch.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro usedAccountSwitch(args) %}
+    {{ addTimerDebugFlag('accountMacros_usedAccountSwitch',true) }}
+    {% set viewParameters = viewHelpers.account.usedAccountSwitchMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/usedAccountSwitch.html.twig' as modeAccount %}
+    {{ modeAccount.usedAccountSwitch(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_usedAccountSwitch',false) }}
+{% endmacro usedAccountSwitch %}
+
+{#- @documentation
+    {
+        "name": "accountOrders",
+        "description": [
+            {
+                "es": "Muestra los pedidos para un usuario determinado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+            "param": "orders",
+                "description": [
+                    {
+                        "es": "Coleccion de pedidos del usuario de tipo SDK\\Dtos\\Account\\AccountOrder"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+            "param": "userId",
+                "description": [
+                    {
+                        "es": "Id del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            },
+            {
+                "param": "showOrderStates",
+                "description": [
+                    {
+                        "es": "Mostrar estados del pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "SDK/Enums/OrderStatus::INCOMING",
+                        "description": [
+                            {
+                                "es": "El pedido esta en camino"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::COMPLETED",
+                        "description": [
+                            {
+                                "es": "El pedido ha sido completado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::DENIED",
+                        "description": [
+                            {
+                                "es": "El pedido ha sido denegado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::INCIDENTS",
+                        "description": [
+                            {
+                                "es": "Incidentes con el pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::IN_PROCESS",
+                        "description": [
+                            {
+                                "es": "El pedido esta en proceso"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::DELETED",
+                        "description": [
+                            {
+                                "es": "El pedido esta siendo eliminado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::CONFIRM_DELETED",
+                        "description": [
+                            {
+                                "es": "Eliminacion del pedido confirmada"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showOrderActions",
+                "description": [
+                    {
+                        "es": "Array de acciones del pedido que se mostraran al usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_VIEW",
+                        "description": [
+                            {
+                                "es": "Ver el pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_VIEW_PDF",
+                        "description": [
+                            {
+                                "es": "Ver el pdf del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_RECOVER",
+                        "description": [
+                            {
+                                "es": "Recuperacion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_DELIVERY_NOTE",
+                        "description": [
+                            {
+                                "es": "Ver notas de entrega"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_DELIVERY_NOTE_PDF",
+                        "description": [
+                            {
+                                "es": "Pdf de las notas de entrega"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_INVOICE",
+                        "description": [
+                            {
+                                "es": "Ver factura del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_INVOICE_PDF",
+                        "description": [
+                            {
+                                "es": "Ver pdf de la factura del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_RETURN",
+                        "description": [
+                            {
+                                "es": "Devolver pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_RETURN_TRACING",
+                        "description": [
+                            {
+                                "es": "Seguimiento de la devolucion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ] 
+            },
+            {
+                "param": "showOrderIcons",
+                "description": [
+                    {
+                        "es": "Array de iconos de las acciones del pedido que se mostraran al usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_VIEW",
+                        "description": [
+                            {
+                                "es": "Icono de ver el pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_VIEW_PDF",
+                        "description": [
+                            {
+                                "es": "Icono de ver el pdf del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_RECOVER",
+                        "description": [
+                            {
+                                "es": "Icono de recuperacion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_DELIVERY_NOTE",
+                        "description": [
+                            {
+                                "es": "Icono de ver notas de entrega"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_DELIVERY_NOTE_PDF",
+                        "description": [
+                            {
+                                "es": "Icono de ver pdf de las notas de entrega"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_INVOICE",
+                        "description": [
+                            {
+                                "es": "Icono de ver factura del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_INVOICE_PDF",
+                        "description": [
+                            {
+                                "es": "Icono de ver pdf de la factura del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_RETURN",
+                        "description": [
+                            {
+                                "es": "Icono de devolver pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::ACTION_RETURN_TRACING",
+                        "description": [
+                            {
+                                "es": "Icono de seguimiento de la devolucion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "documentView",
+                "description": [
+                    {
+                        "es": "Modo de visualizacion del documento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Account/Macro/AccountOrders::POPUP",
+                "required": "true",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::POPUP",
+                        "description": [
+                            {
+                                "es": "Mostrar los documentos en una ventana emergente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::WINDOW",
+                        "description": [
+                            {
+                                "es": "Mostrar los documentos en la propia ventana"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "returnProductView",
+                "description": [
+                    {
+                        "es": "Modo de visualizacion de la devolucion del pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Account/Macro/AccountOrders::POPUP",
+                "required": "true",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::POPUP",
+                        "description": [
+                            {
+                                "es": "Mostrar la informacion del producto en una ventana emergente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::WINDOW",
+                        "description": [
+                            {
+                                "es": "Mostrar la informacion del pedido en la propia ventana"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "returnTracingView",
+                "description": [
+                    {
+                        "es": "Modo de visualizacion del seguimiento de la devolucion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Account/Macro/AccountOrders::POPUP",
+                "required": "true",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::POPUP",
+                        "description": [
+                            {
+                                "es": "Mostrar el seguimiento de devolucion del pedido en una ventana emergente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::WINDOW",
+                        "description": [
+                            {
+                                "es": "Mostrar el seguimiento de devolucion del pedido en la apropia ventana"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showStatus",
+                "description": [
+                    {
+                        "es": "Criterio por el qual muestra el estado y/o subestado de pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "true",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::SHOW_STATUS_ALL",
+                        "description": [
+                            {
+                                "es": "Muestra el estado y subestado de pedido. (El subestado si existe)"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::SHOW_STATUS_ONLY",
+                        "description": [
+                            {
+                                "es": "Muestra solo el estado principal del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Account/Macro/AccountOrders::SHOW_STATUS_PRIORITY_SUBSTATUS",
+                        "description": [
+                            {
+                                "es": "Muestra el estado del pedido pero si tiene subestado, este se muestra en su lugar."
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.account as accountMacros %} |{{ accountMacros.accountOrders({ |orders: controllerItem, |userId: session.basket.account.id, |showOrderStates:[ |constant('SDK\\Enums\\OrderStatus::DENIED'), |constant('SDK\\Enums\\OrderStatus::INCIDENTS'), |constant('SDK\\Enums\\OrderStatus::INCOMING'), |constant('SDK\\Enums\\OrderStatus::IN_PROCESS'), |constant('SDK\\Enums\\OrderStatus::COMPLETED'), |constant('SDK\\Enums\\OrderStatus::DELETED'), |constant('SDK\\Enums\\OrderStatus::CONFIRM_DELETED') |], |showOrderActions:[ |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_VIEW'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_VIEW_PDF'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RECOVER'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_DELIVERY_NOTE'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_DELIVERY_NOTE_PDF'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE_PDF'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RETURN'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RETURN_TRACING') |], |showOrderIcons:[ |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_VIEW'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_VIEW_PDF'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RECOVER'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_DELIVERY_NOTE'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_DELIVERY_NOTE_PDF'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE_PDF'), |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RETURN') , |constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RETURN_TRACING')  |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/AccountOrders.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/accountOrders.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro accountOrders(args) %}
+    {{ addTimerDebugFlag('accountMacros_accountOrders',true) }}
+    {% set viewParameters = viewHelpers.account.accountOrdersMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/account/accountOrders.html.twig' as modeAccount %}
+    {{ modeAccount.accountOrders(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_accountOrders',false) }}
+{% endmacro accountOrders %}
+
+{#- @documentation
+    {
+        "name": "ordersForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de pedidos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario que se quiere aplicar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore macrosCore.account as accountMacros %} |{{- accountMacros.ordersForm({ |form: ordersForm |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/OrdersForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/ordersForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro ordersForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_ordersForm',true) }}
+    {% set viewParameters = viewHelpers.account.ordersFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/ordersForm.html.twig' as modeAccount %}
+    {{ modeAccount.ordersForm(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_ordersForm',false) }}
+{% endmacro ordersForm %}
+
+{#- @documentation
+    {
+        "name": "companyStructure",
+        "description": [
+            {
+                "es": "Muestra la estructura empresarial en forma de árbol"
+            },
+            {
+                "en": "Shows the company structure as a tree"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "companyStructure",
+                "description": [
+                    {
+                        "es": "Colección con la estructura empresarial"
+                    },
+                    {
+                        "en": "Collection with the company structure"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "currentUser",
+                "description": [
+                    {
+                        "es": "Usuario actual"
+                    },
+                    {
+                        "en": "Current user"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "permissions",
+                "description": [
+                    {
+                        "es": "Permisos del usuario"
+                    },
+                    {
+                        "en": "User permissions"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "parameters",
+                "description": [
+                    {
+                        "es": "Parámetros a mostrar"
+                    },
+                    {
+                        "en": "Parameters to show"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\CompanyStructure::COMPANY_TREE",
+                        "description": [
+                            {
+                                "es": "Mostrar el árbol de empresas"
+                            },
+                            {
+                                "en": "Show company tree"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\CompanyStructure::CURRENT_USER",
+                        "description": [
+                            {
+                                "es": "Mostrar el usuario actual"
+                            },
+                            {
+                                "en": "Show current user"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK\\ViewHelpers\\Account\\Macro\\CompanyStructure::PERMISSIONS",
+                        "description": [
+                            {
+                                "es": "Mostrar permisos"
+                            },
+                            {
+                                "en": "Show permissions"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.account as accountMacros %} |{{ accountMacros.companyStructure({ |companyStructure: controllerItem.companyStructure, |currentUser: controllerItem.companyStructure.currentUser, |permissions: controllerItem.companyStructure.permissions, |parameters: [ |constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyStructure::COMPANY_TREE'), |constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyStructure::CURRENT_USER'), |constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyStructure::PERMISSIONS') |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Account/Macro/CompanyStructure.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/account/companyStructure.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada según el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "Main macro, imported according to the 'mode' defined in the Theme"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro companyStructure(args) %}
+    {{ addTimerDebugFlag('accountMacros_companyStructure',true) }}
+    {% set viewParameters = viewHelpers.account.companyStructureMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/companyStructure.html.twig' as modeAccount %}
+    {{ modeAccount.companyStructure(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_companyStructure',false) }}
+{% endmacro companyStructure %}
+
+{#- @documentation
+{
+    "name": "registeredUserSelector",
+    "description": [
+        {
+            "es": "Selector de usuario registrado, usado para elegir un usuario en la interfaz"
+        },
+        {
+            "en": "++"
+        }
+    ],
+    "parameters": [],
+    "example": " |{% import 'macros/modes/' ~ coreMode ~ '/account/registeredUserSelector.html.twig' as registeredUserSelector %} |{{- registeredUserSelector.registeredUserSelector({ }) -}} |",
+    "viewHelper": null,
+    "relatedCoreFiles": [{
+        "files": "macros/modes/{{coreMode}}/account/registeredUserSelector.html.twig",
+        "description": [
+            {
+                "es": "Macro Twig principal para renderizar el selector de usuario registrado"
+            },
+            {
+                "en": "++"
+            }
+        ]
+    }]
+}
+@endDocumentation -#}
+{% macro registeredUserSelector(args) %}
+    {{ addTimerDebugFlag('accountMacros_registeredUserSelector',true) }}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUserSelector.html.twig' as modeAccount %}
+    {{ modeAccount.registeredUserSelector(args) }}
+    {{ addTimerDebugFlag('accountMacros_registeredUserSelector',false) }}
+{% endmacro registeredUserSelector %}
+
+{% macro panel(args) %}
+    {{ addTimerDebugFlag('accountMacros_panel',true) }}
+    {% set viewParameters = viewHelpers.account.panelMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/panel.html.twig' as modeAccount %}
+    {{ modeAccount.panel(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_panel',false) }}
+{% endmacro panel %}
+
+{% macro registeredUserForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_registeredUserForm',true) }}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUserForm.html.twig' as modeAccount %}
+    {% from "macros/form.twig" import legalCheck as legalCheckMacro %}
+    {% set legalCheck %}
+		{{ legalCheckMacro({}) }}
+	{% endset %}
+    {{ modeAccount.registeredUserForm(args, legalCheck) }}
+    {{ addTimerDebugFlag('accountMacros_registeredUserForm',false) }}
+{% endmacro registeredUserForm %}
+
+{#- @documentation
+{
+    "name": "registeredUserApproveForm",
+    "description": [
+        {
+            "es": "Formulario para aprobar un usuario registrado"
+        },
+        {
+            "en": "++"
+        }
+    ],
+    "parameters": [
+        {
+            "param": "form",
+            "description": [
+                {
+                    "es": "Formulario que se quiere aplicar"
+                },
+                {
+                    "en": "++"
+                }
+            ],
+            "type": "FWK\\Core\\Form\\Form",
+            "default": "null",
+            "required": "true"
+        },
+        {
+            "param": "registeredUser",
+            "description": [
+                {
+                    "es": "Usuario registrado de tipo SDK\\Dtos\\Accounts\\MasterVal que se desea aprobar"
+                },
+                {
+                    "en": "++"
+                }
+            ],
+            "type": "SDK\\Dtos\\Accounts\\MasterVal",
+            "default": "null",
+            "required": "false"
+        }
+    ],
+    "example": " |{% import macrosCore.account as accountMacros %} |{{- accountMacros.registeredUserApproveForm({ |form: controllerItem.registeredUserApproveForm, |registeredUser: controllerItem.registeredUser |}) -}} |",
+    "viewHelper": "FWK/ViewHelpers/Account/Macro/RegisteredUserApproveForm.php",
+    "relatedCoreFiles": [{
+        "files": "macros/modes/{{coreMode}}/account/registeredUserApproveForm.html.twig",
+        "description": [
+            {
+                "es": "Macro principal, importada según el 'mode' que se haya definido en el Theme"
+            },
+            {
+                "en": "++"
+            }
+        ]
+    }]
+}
+@endDocumentation -#}
+
+{% macro registeredUserApproveForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_registeredUserApproveForm', true) }}
+    {% set viewParameters = viewHelpers.account.registeredUserApproveFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUserApproveForm.html.twig' as modeAccount %}
+    {{ modeAccount.registeredUserApproveForm(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_registeredUserApproveForm', false) }}
+{% endmacro %}
+
+{#- @documentation
+{
+  "name": "approveRegisteredUser",
+  "description": [
+    { "es": "Macro para aprobar un usuario registrado. Muestra el formulario correspondiente junto con controles de licencia ADVCA si aplica." },
+    { "en": "++" }
+  ],
+  "parameters": [
+    {
+      "param": "registeredUser",
+      "description": [
+        { "es": "Usuario registrado a aprobar." },
+        { "en": "++" }
+      ],
+      "type": "SDK\\Dtos\\Accounts\\MasterVal",
+      "default": "null",
+      "required": "true"
+    }
+  ],
+  "example": " |{% import macrosCore.account as accountMacros %} |{{- accountMacros.approveRegisteredUser({ |registeredUser: registeredUser |}) -}} |",
+  "viewHelper": "FWK/ViewHelpers/Account/Macro/ApproveRegisteredUser.php",
+  "relatedCoreFiles": [
+    {
+      "files": "macros/modes/{{coreMode}}/account/approveRegisteredUser.html.twig",
+      "description": [
+        { "es": "Macro para mostrar el formulario de aprobación de un usuario registrado, dependiendo del modo del theme." },
+        { "en": "++" }
+      ]
+    }
+  ]
+}
+@endDocumentation -#}
+{% macro approveRegisteredUser(args) %}
+    {{ addTimerDebugFlag('accountMacros_approveRegisteredUser', true) }}
+    {% set viewParameters = viewHelpers.account.approveRegisteredUserMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/approveRegisteredUser.html.twig' as modeAccount %}
+    {{ modeAccount.approveRegisteredUser(viewParameters) }}
+    {{ addTimerDebugFlag('accountMacros_approveRegisteredUser', false) }}
+{% endmacro %}
+
+{% macro companyRolesFilter(args) %}
+    {{ addTimerDebugFlag('accountMacros_companyRolesFilter', true) }}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/companyRolesFilter.html.twig' as modeAccount %}
+    {{ modeAccount.companyRolesFilter(args) }}
+    {{ addTimerDebugFlag('accountMacros_companyRolesFilter', false) }}
+{% endmacro %}
+
+{% macro editAccountForm(args) %}
+    {{ addTimerDebugFlag('accountMacros_editAccountForm', true) }}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/editAccountForm.html.twig' as modeAccount %}
+    {% from "macros/form.twig" import legalCheck as legalCheckMacro %}
+    {% set legalCheck %}
+		{{ legalCheckMacro({}) }}
+	{% endset %}
+    {{ modeAccount.editAccountForm(args, legalCheck) }}
+    {{ addTimerDebugFlag('accountMacros_editAccountForm', false) }}
+{% endmacro %}

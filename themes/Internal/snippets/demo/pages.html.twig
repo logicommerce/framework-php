@@ -1,0 +1,47 @@
+{% if (pages is iterable and pages|length > 0 ) or (pages is not iterable and pages is not null) %}
+    <table border=1>
+    	<tr>
+    		<th>Loop Index</th>
+    		<th>Id page.id</th>
+    		<th>Public id page.pId</th>
+    		
+    		<th>Priority page.priority</th>
+    		<th>Position page.position</th>
+    		<th>PagesGroupId page.pagesGroupId</th>
+    		<th>ParentPageId page.parentPageId</th>
+    		<th>PageType page.pageType</th>
+    		<th>ItemId page.itemId</th>
+    		<th>CustomType page.customType</th>
+    		<th>Active page.active</th>
+    		
+    		<th>By Language keywords page.language.keywords</th>
+    		<th>By Language particularTitle page.language.particularTitle</th>
+    		<th>By Language metaDescription page.language.metaDescription</th>
+    		<th>By Language urlSeo page.language.urlSeo</th>
+    		
+    		<th>By Language name page.language.name</th>
+    		<th>By Language SmallImage page.language.smallImage</th>
+    		<th>By Language LargeImage page.language.largeImage</th>
+    		<th>By Language SmallTitle page.language.smallTitle</th>
+    		<th>By Language largeTitle page.language.largeTitle</th>
+    		<th>By Language pageContent page.language.pageContent</th>
+    		<th>By Language destinationUrl page.language.destinationUrl</th>
+    		<th>By Language addGenericTitle page.language.addGenericTitle </th>
+    		<th>By Language linkFollowing page.language.linkFollowing</th>
+    		<th>By Language indexable page.language.indexable</th>
+    		<th>AditionalData</th>
+    		
+    	</tr>
+    	
+        {% if pages is iterable %}
+        	{% for page in pages %}
+        	    {% include '/snippets/demo/page.html.twig' with {'page' : page, 'index' : loop.index0} only %}
+        	{% endfor %}
+        {% else %}
+            {% include '/snippets/demo/page.html.twig' with {'page' : pages} only %}
+        {% endif %}
+    	
+    </table>
+{% else %}
+	no items
+{% endif %}    

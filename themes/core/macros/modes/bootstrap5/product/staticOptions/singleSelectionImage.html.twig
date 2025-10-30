@@ -1,0 +1,20 @@
+{% macro singleSelectionImage(productOption, args) %}
+    
+    {% if productOption.reference.values|length %}
+        <div class="productStaticOption productStaticOptionImage">
+            <span class="staticOptionName">{{- productOption.option.language.name -}}</span>
+            <div class="staticOptionValue">
+                {%- for optionValue in productOption.option.values -%}
+                    {%- if productOption.reference.values[0].value == optionValue.id -%}
+                        {%- if args.showImageValues -%}
+                            <img src="{{ optionValue.images.smallImage }}" class="productOptionValueImage" alt="{{ optionValue.language.value|escape }}">
+                        {%- else -%}
+                            {{- optionValue.language.value -}}
+                        {%- endif -%}
+                    {%- endif -%}
+                {%- endfor -%}
+            </div>
+        </div>
+    {% endif %}
+
+{% endmacro %}

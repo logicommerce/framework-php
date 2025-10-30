@@ -1,0 +1,96 @@
+{% macro salesAgentSales(args) %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+    {% if args.salesAgentSales.items is not empty %}
+        <div class="salesAgentSalesAmountInfo">
+            <div class="salesAgentSalesTotalAmount">
+                <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_TOTAL_AMOUNT')] }}:</span> <span class="val">{{ outputHtmlCurrency(args.salesAgentSales.salesAgentTotals.totalAmount) }}</span>
+            </div>
+            <div class="salesAgentSalesCommissionAmount">
+                <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_COMMISSION_AMOUNT')] }}:</span> <span class="val">{{ outputHtmlCurrency(args.salesAgentSales.salesAgentTotals.commissionAmount) }}</span>
+            </div>
+            <div class="salesAgentSalesPendingAmount">
+                <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_PENDING_AMOUNT')] }}:</span> <span class="val">{{ outputHtmlCurrency(args.salesAgentSales.salesAgentTotals.pendingAmount) }}</span>
+            </div>
+            <div class="salesAgentSalesTotalOrders">
+                <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_TOTAL_ORDERS')] }}:</span> <span class="val">{{ args.salesAgentSales.salesAgentTotals.totalOrders }}</span>
+            </div>
+        </div>
+        <div class="salesAgentSalesForm">
+            <table class="sales table" cellspacing="0">
+                <thead class="sales">
+                    <tr class="salesTitle">
+                        {% for param in args.parameters %}
+                            {% if param == constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::PID') %}
+                                <td class="salesTitle pId">#</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::CLIENT') %}
+                                <td class="salesTitle client">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_CLIENT')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::DATE') %}
+                                <td class="salesTitle date">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_DATE')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::STATUS') %}
+                                <td class="salesTitle status">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_STATUS')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::TOTAL') %}
+                                <td class="salesTitle total">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_TOTAL')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::COMMISSION') %}
+                                <td class="salesTitle commission">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_COMMISSION')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::PAID') %}
+                                <td class="salesTitle paid">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_PAID')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::VIEW_ORDER') %}
+                                <td class="salesTitle actions">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES_ACTIONS')] }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody class="sales">
+                    {% set lcData = {
+                        session: isSessionLoggedIn()
+                    } %}
+                    {%- for item in args.salesAgentSales.items -%}
+                        {% set lcData = lcData|merge({
+                            documentId: item.id,
+                            token: '',
+                        }) %}
+                        {% set status = languageSheet[constant('FWK\\Enums\\LanguageLabels::STATUS_' ~ item.status)] %}
+                        <tr class="customerContent">
+                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::PID') in args.parameters %}
+                                <td class="customerContent pId">{{ item.documentNumber }}</td>
+                            {% endif %}
+                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::CLIENT') in args.parameters %}
+                                <td class="customerContent client">{{ item.customer.company != null ? item.customer.company : item.customer.lastName ~ ', ' ~ item.customer.firstName }}</td>
+                            {% endif %}
+                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::DATE') in args.parameters %}
+                                <td class="customerContent date">{{ formatDateTime(item.date) }}</td>
+                            {% endif %}
+                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::STATUS') in args.parameters %}
+                                <td class="customerContent status">{{ status }}</td>
+                            {% endif %}
+                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::TOTAL') in args.parameters %}
+                                <td class="customerContent total">{{ outputHtmlCurrency(item.salesAgentDetails.totalAmount) }}</td>
+                            {% endif %}
+                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::COMMISSION') in args.parameters %}
+                                <td class="customerContent commission">{{ outputHtmlCurrency(item.salesAgentDetails.commissionAmount) }}</td>
+                            {% endif %}
+                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::PAID') in args.parameters %}
+                                <td class="customerContent paid">{{ item.salesAgentDetails.commissionPaid ? languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] }}</td>
+                            {% endif %}
+                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::VIEW_ORDER') in args.parameters %}
+                                <td class="customerContent actions">
+                                    {% set lcData = lcData|merge({
+                                        documentId: item.id,
+                                    }) %}
+                                    <a class="saleAction" href="#" data-lc-function="salesAgentSaleOrder" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER')] }}">
+                                        <img src="{{ iconsPath ~ 'viewOrder' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" class="saleActionImage" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER')] }}">
+                                    </a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {%- endfor -%}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="clearfix empty-text">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NOT_SALES')] }}</div>
+    {% endif %}
+{% endmacro salesAgentSales %}
+
+                    
+                    

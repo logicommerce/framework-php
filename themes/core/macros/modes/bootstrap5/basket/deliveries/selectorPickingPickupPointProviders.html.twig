@@ -1,0 +1,35 @@
+{%- if hasProviderPickings or args.pickupPointProviders.items|length -%}
+    <div class="pickings pickupPointProviders">
+        {%- if pickingsContent|length > 0 and hasProviderPickings -%}
+            {{- pickingsContent -}}
+        {%- endif -%}
+        {% if args.pickupPointProviders.items|length %}
+            {%- if args.showSelectPickingDescription -%}
+                <div class="selectPickingDescription physicalLocations">
+                    {%- if args.pickupPointProviders.items|length == 1 -%}
+                        <span class="selectPickingDescriptionName">{{- args.pickupPointProviders.items[0].language.name -}}</span>
+                        <span class="selectPickingDescriptionDescription">{{- args.pickupPointProviders.items[0].language.description -}}</span>
+                    {%- else -%}
+                        <span class="selectPickingDescriptionDescription">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECT_PICKING_PROVIDER_DESCRIPTION')] -}}</span>
+                    {%- endif -%}
+                </div>
+            {%- endif -%}
+            <div class="selectPickingButton pickupPointProviders">
+                <button 
+                    type="button" 
+                    class="select-picking-alert btn btn-secondary selectPickingButton pickupPointProviders" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#pickupPointProviders"
+                    data-lc-required='{ "el": "#pickupPointProviders", "macro": "deliveries" }'
+                    title="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELIVERY_TITLE_PICKING_PROVIDER')] -}}">
+                        <svg class="icon"><use xlink:href="#icon-shop"></use></svg>
+                        {%- if pickingsContent|length > 0 and hasProviderPickings -%}
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELIVERY_BUTTON_PICKING_PROVIDER_AGAIN')] -}}
+                        {%- else -%}
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELIVERY_BUTTON_PICKING_PROVIDER')] -}}
+                        {%- endif -%}
+                </button>
+            </div>
+        {% endif %}
+    </div>
+{% endif %}

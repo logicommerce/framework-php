@@ -1,0 +1,35 @@
+{% macro productComparisonPreview(args) %}
+
+    <div class="product-comparison-title" id="productComparisonPreviewTitle">
+        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_COMPARISON_TITLE')] -}}
+    </div>
+    {%- if args.productComparison.items|length -%}
+        <div class="product-comparison-second-title">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_COMPARISON_SUBTITLE')] }}</div>
+        <div class="items-wrapper">
+            {%- for product in args.productComparison.items -%}
+                <div class="preview-item productComparisonPreviewItem{{ product.id }}" data-lc-product-comparison-item="{{- product.id -}}">
+                    <a class="preview-item-link" href="{{- product.language.urlSeo -}}" {% if not product.language.linkFollowing %}rel="nofollow"{% endif %} title="{{- product.language.name|escape -}}">
+                        <div class="product-image">
+                            {%- set notFoundImage = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') -%}
+                            <img src="{{- product.mainImages.smallImage|default(notFoundImage) -}}" alt="{{ product.language.altImageKeywords|default(product.language.name) }}" class="img-fluid product-comparison-image" onerror="this.onerror=null;this.src='{{ notFoundImage }}';">
+                        </div>
+                        <div class="product-name">
+                            {{- product.language.name -}}
+                        </div>
+                        <a data-lc-event="click" data-lc-function="deleteProductComparison" href="#" data-lc-data="{{ product.id }}" class="btn delete-comparison-btn">
+                            <svg class="icon icon-delete"><use xlink:href="#icon-trash"></use></svg>
+                        </a>
+                    </a>
+                </div>
+            {%- endfor -%}
+        </div>
+        <div class="product-comparison-link">
+            <a class="btn btn-primary product-comparison-btn" href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::PRODUCT_COMPARISON')) }}">
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_COMPARISON_BTN')] -}}
+            </a>
+        </div> 
+    {%- else -%}
+        <div class="empty-text">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NO_PRODUCTS_IN_COMPARISON')] }}</div>
+    {%- endif -%}
+
+{% endmacro productComparisonPreview %}

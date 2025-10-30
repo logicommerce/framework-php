@@ -1,0 +1,36 @@
+{% for section in relatedItems.items %}
+    {% if (section is not null) %}
+        <table border=1>
+        	<tr>
+				<th>Name</th><th>Image</th><th>Banners</th><th>Categories</th><th>News</th>
+        		{#
+        		<th>Pages</th>
+        		<th>Products</th>
+        		#}
+            </tr>
+            <tr>
+            	<td>{{ section.name }}</td>
+            	<td>{{ section.image }}</td>
+            	<td>
+                    {% include '/snippets/demo/banners.html.twig' with {'banners' : section.banners} only %}
+            	</td>
+            	<td>
+                    {% include '/snippets/demo/categories.html.twig' with {'categories' : section.categories} only %}    
+            	</td>
+            	<td>
+                    {% include '/snippets/demo/news.html.twig' with {'news' : section.news} only %}    
+            	</td>
+            	{#
+            	<td>
+                	{% include '/snippets/demo/pages.html.twig' with {'pages' : section.pages} only %}    
+            	</td>
+            	<td>
+                    {% include '/snippets/demo/products.html.twig' with {'products' : section.products} only %}    
+            	</td>
+            	#}
+            </tr>
+    	</table>                
+    {% else %}
+    	no items
+    {% endif %}    
+{% endfor %}    

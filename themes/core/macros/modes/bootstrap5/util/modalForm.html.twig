@@ -1,0 +1,51 @@
+{#- 
+    Simplified Modal Form Macro for AJAX-loaded content
+    
+    For modals that load content dynamically via AJAX (like company division creation).
+    Provides a loading state and content container that gets replaced by AJAX.
+    
+    @param {string} modalId - Unique ID for the modal element  
+    @param {string} modalClass - CSS class for modal styling
+    @param {string} title - Modal title text
+    @param {string} contentId - ID for the content container that gets loaded via AJAX
+    @param {string} dialogSize - Modal size class (default: 'modal-lg modal-dialog-centered modal-fullscreen-sm-down')
+-#}
+
+{%- macro ajaxModalForm(args) -%}
+    {%- set modalId = args.modalId|default('modal') -%}
+    {%- set modalClass = args.modalClass|default('') -%}
+    {%- set title = args.title|default('Modal') -%}
+    {%- set contentId = args.contentId|default(modalId ~ 'Content') -%}
+    {%- set dialogSize = args.dialogSize|default('modal-lg modal-dialog-centered modal-fullscreen-sm-down') -%}
+    {%- set titleId = modalId ~ 'Title' -%}
+
+    <div id="{{ modalId }}" 
+         class="lcModal modal fade {{ modalClass }}" 
+         tabindex="-1" 
+         aria-labelledby="{{ titleId }}"
+         aria-hidden="true">
+        <div class="modal-dialog {{ dialogSize }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div id="{{ titleId }}" class="heading">
+                        {{- title -}}
+                    </div>
+                    <button type="button" 
+                            class="btn-close" 
+                            data-bs-dismiss="modal" 
+                            aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}">
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="{{ contentId }}" class="lcModalContainer">
+                        <div class="loading-document">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}

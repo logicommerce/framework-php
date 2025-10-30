@@ -1,0 +1,7 @@
+{% macro empty() %}
+    <div class="basket basketEmpty">
+        <span class="basketEmptyMessage">
+            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EMPTY_BASKET')] }}
+        </span>
+    </div>
+{% endmacro %}

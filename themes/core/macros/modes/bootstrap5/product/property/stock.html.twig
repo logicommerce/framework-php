@@ -1,0 +1,52 @@
+{%- macro stock(product, stockAlertButton, stockAlertButtonClass, showStock, showAvailabilityName, showStockText, showAvailabilityImage) -%}
+    {%- if settings.stockSettings.stockManagement == true and product.definition.stockManagement == true -%}
+        {%- if stockAlertButton == false -%}
+            {%- set availabilityInterval = null -%}
+            {%- for interval in product.definition.availability.intervals -%}
+                {%- if availabilityInterval is null or (product.combinationData.stock.units <= interval.stock and product.combinationData.stock.units > availabilityInterval.stock) -%}
+                    {%- set availabilityInterval = interval -%}
+                {%- endif -%}
+            {%- endfor -%}
+            <span class="product-stock not-init">
+                {%- if showStock -%}
+                    <span class="stock">{{- product.combinationData.stock.units -}}</span>
+                {%- endif -%}
+                {%- set name = availabilityInterval.language.name|replace({'{{stock}}': product.combinationData.stock.units}) -%}
+                {%- if product.definition.onRequest == true -%}
+                    {%- set name = name|replace({ '{{onRequestDays}}': product.definition.onRequestDays }) -%}
+                {%- endif -%}
+                {%- if showAvailabilityName -%}
+                    <span class="availabilityName">{{- name -}}</span>
+                {%- endif -%}
+                {%- if showStockText -%}
+                    <span class="stockText">
+                        {%- if product.combinationData.stock.units == 1 -%}
+                            {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::STOCK_SINGULAR')] -%}
+                        {%- else -%}
+                            {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::STOCK_PLURAL')] -%}
+                        {%- endif -%}
+                        {{- label|replace({ '{{stock}}': product.combinationData.stock.units }) -}}
+                    </span>
+                {%- endif -%}
+                {%- if showAvailabilityImage -%}
+                    <span class="availabilityImage">
+                        <img src="{{ availabilityInterval.language.image }}" class="availabilityImage">
+                    </span>
+                {%- endif -%}
+            </span>
+        {%- endif -%}
+        {%- if stockAlertButton == true -%}
+            <div class="stockAlertButton">
+                <button 
+                    type="button" 
+                    class="product-stock-alert stock-alert stockAlertButton {{ stockAlertButtonClass }}" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#stockAlert"
+                    data-lc-required='{ "el": "#stockAlert", "macro": "buttonStockAlert" }'
+                    title="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_STOCK_ALERT_TITLE')] -}}">
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_STOCK_ALERT_BUTTON')] -}}
+                </button>
+            </div>
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}

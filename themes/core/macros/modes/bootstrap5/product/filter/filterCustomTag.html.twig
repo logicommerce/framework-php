@@ -1,0 +1,100 @@
+{%- macro filter(filters, appliedFilters, configuration, filterItemTemplate) -%}
+
+    {%- set filterCustomTags = filters.filterCustomTag|sort((a, b) => (a.priority <=> b.priority)) -%}
+    {%- if configuration.itemsToShow is empty -%}
+        {%- set filterCustomTags = filters.filterCustomTag|sort((a, b) => (a.position <=> b.position)) -%}
+    {%- else -%}
+        {%- set auxFilterCustomTags = [] -%}
+        {%- for position in configuration.itemsToShow -%}
+            {%- for filter in filterCustomTags|filter(filter => filter.position == position) -%}
+                {%- set auxFilterCustomTags = array_add(auxFilterCustomTags, filter) -%}
+            {%- endfor -%}
+        {%- endfor -%}
+        {%- set filterCustomTags = auxFilterCustomTags -%}
+    {%- endif -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/customTagRangeSlider.html.twig' as filterProductMacroRange -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/customTag.html.twig' as filterProductMacro -%}
+
+    {%- for filter in filterCustomTags -%}
+        {%- if filter.values|length -%}
+            {%- set uid = random(10000000, 99999999) -%}
+            {%- set parsedControlType = '' -%}
+            {%- for controlTypePart in filter.controlType|split('_') -%}
+                {%- set parsedControlType = parsedControlType ~ controlTypePart|lower|capitalize -%}
+            {%- endfor -%}
+            {%- set isRangeSlider = filter.minValue != '' and filter.maxValue != '' and filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::NUMBER') -%}
+
+            {%- set elements -%}
+                {%- if isRangeSlider and filter.position in configuration.itemsToRangeSlider -%}
+                    {{- filterProductMacroRange.elements(filter, appliedFilters) -}}
+                {%- else -%}
+                    {{- filterProductMacro.elements(filter, appliedFilters) -}}
+                {%- endif -%}
+            {%- endset -%}
+
+            {%- set badgeAppliedFilters -%}
+                {%- set nAppliedFilters = 0 -%}
+
+                {%- if isRangeSlider and filter.position in configuration.itemsToRangeSlider -%}
+                    {%- if 
+                        (requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL')] is defined 
+                        and requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL')][filter.id] is defined)
+                    -%}
+                        {%- set fromToValues = requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL')][filter.id][0]|split(constant('FWK\\Core\\FilterInput\\FilterInput::REGEX_VALIDATE_RANGE_SEPARATOR')) -%}
+                        {%- if fromToValues|length == 2 -%}
+                            {%- set fromValue = fromToValues[0] -%}
+                            {%- set toValue = fromToValues[1] -%}
+                        {%- endif -%}
+                        {%- if fromValue > filter.minValue or toValue < filter.maxValue -%}
+                            {%- set anySelected = true -%}
+                            {%- set nAppliedFilters = 1 -%}
+                        {%- endif -%}
+                    {%- endif -%}
+                {%- else -%}
+                    {%- set selected = false -%}
+                    {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
+                        {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and filter.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+                        {%- if selected -%}
+                            {%- set nAppliedFilters = nAppliedFilters + 1 -%}
+                        {%- endif -%}
+                    {%- endif -%}
+                    {%- if not selected -%}
+                        {%- for value in filter.values|usort -%}
+                            {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+                            {%- if selected -%}
+                                {%- set nAppliedFilters = nAppliedFilters + 1 -%}
+                            {%- endif -%}
+                        {%- endfor -%}
+                    {%- endif -%}
+                {%- endif -%}
+                <span class="n-applied-filter n-{{ nAppliedFilters }} badge rounded-pill bg-primary">{{ nAppliedFilters }}</span>
+            {%- endset -%}
+
+            {%- set blockClass = 'filterBlock customTagsFilterblock customTagType' ~ parsedControlType ~ (isRangeSlider ? ' sliderBlock' : '') -%}
+
+            {%- if filterItemTemplate != null -%}
+                {{- filterItemTemplate|replace({
+                    '{{blockClassWildcard}}': blockClass,
+                    '{{dataAttributesWildcard}}': "data-ct='" ~ outputJsonHtmlString({ position: filter.position, group: filter.groupPosition, type: filter.controlType }) ~ "'",
+                    '{{uidWildcard}}': uid,
+                    '{{nameWildcard}}': filter.name,
+                    '{{badgeAppliedFiltersWildcard}}': badgeAppliedFilters,
+                    '{{elementsWildcard}}': elements,
+                }) -}}
+            {%- else -%}
+                <div class="{{- blockClass -}}" data-ct='{{ outputJsonHtmlString({ position: filter.position, group: filter.groupPosition, type: filter.controlType }) }}'>
+                    <div class="filterBlockTitle customTagsFilterBlockTitle">
+                        {{- filter.name -}}
+                        {{- badgeAppliedFilters -}}
+                    </div>
+
+                    <div class="filterElements customTagsFilterElements">
+                        {{- elements -}}
+                    </div>
+                </div>
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+{%- endmacro -%}

@@ -1,0 +1,113 @@
+{% macro buttons(args) %}
+	{%- if args.validOutput -%}
+		<div class="basketButtons {{ args.classList }}">
+    		{%- if args.routeType == constant('SDK\\Enums\\RouteType::CHECKOUT_BASKET') -%}
+    		    {%- if args.showContinue == true -%}
+    				<button type="button" class="btn btn-secondary basketContinueShopping basketButton basketBack" id="basketContinueShopping">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_CONTINUE_SHOPPING')] }}</button>
+    			{%- endif -%}
+
+    			{%- if args.showClear == true -%}
+    				<button type="button" class="btn btn-secondary basketClear basketButton basketNext" id="basketClear">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CLEAR_BASKET')] }}</button>
+    			{%- endif -%}
+
+    			{%- if args.showRecalculate == true -%}
+    				<button type="submit" class="btn btn-secondary basketRecalculate basketButton basketNext" value="recalculate" id="basketRecalculate" disabled="disabled">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RECALCULATE')] }}</button>
+    			{%- endif -%}
+
+    			{%- if args.productsAreValid == true -%}
+    				<button type="submit" class="btn btn-primary basketEndOrder basketButton basketNext {% if args.forceDisabled == true %} initializeDisabled{% endif %}" id="basketEndOrder" value="{{ args.submitAction }}" disabled="disabled">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_END_ORDER')] }}</button>
+    			{%- else -%}
+    				<button type="submit" class="btn btn-primary basketEndOrder basketButton basketNext initializeDisabled" id="basketEndOrder" value="{{ args.submitAction }}" disabled="disabled">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_END_ORDER')] }}</button>
+    				<a href="#basketWarnings" class="basketButtonsError errorBasket">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_INVALID_DISABLED_BUTTON_MESSAGE')] }}</a>
+    			{%- endif -%}
+
+        	{%- elseif args.routeType == constant('SDK\\Enums\\RouteType::CHECKOUT_PAYMENT_AND_SHIPPING') -%}
+        		<a href="{{ args.backLocation|length ? args.backLocation : routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_CUSTOMER')) }}" class="btn btn-secondary basketContinueShopping basketBack" id="paymentAndShippingBasketBack">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BACK')] }}</a>
+				{%- import _self as self -%}
+				{{- self.outputEndOrderButton(args, false) -}}
+				{{- self.outputErrorMessage(args) -}}
+
+			{%- elseif args.routeType in [
+				constant('SDK\\Enums\\RouteType::CHECKOUT'),
+				constant('FWK\\Enums\\RouteTypes\\InternalCheckout::OSC_BUTTONS'),
+				constant('FWK\\Enums\\RouteType::CHECKOUT_PAYMENT_AND_SHIPPING'),
+			] -%}
+				{%- import _self as self -%}
+				{{- self.outputEndOrderButton(args, true) -}}
+				{{- self.outputErrorMessage(args) -}}
+
+        	{%- elseif args.routeType is constant('SDK\\Enums\\RouteType::CHECKOUT_DENIED_ORDER') -%}
+				<div class="basketButtons deniedOrderButtons">
+				 {%- if args.errorCode == 'A01000-INVALID_REQUEST_BODY' or args.errorCode == 'ALLOW_DIFFERENT_COUNTRIES_ON_BILLING_AND_SHIPPING_ADDRESS_COUNTRY_ERROR' -%}
+					{%- if args.submitAction == constant('SDK\\Enums\\RouteType::CHECKOUT_PAYMENT_AND_SHIPPING') -%}
+						<a href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_CUSTOMER')) }}" class="btn btn-secondary basketButton basketBack" id="confirmOrderBackToCommerce">
+							{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BACK_TO_CUSTOMER')] -}}
+						</a>
+					{%- else -%}
+						<a href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT')) }}" class="btn btn-secondary basketButton basketBack" id="confirmOrderBackToCommerce">
+							{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BACK_TO_CHECKOUT')] -}}
+						</a>
+					{%- endif -%}				
+                 {%- else -%}
+					<a href="{{ routePaths.getPath(args.submitAction) }}" class="btn btn-secondary basketButton basketBack" id="confirmOrderBackToCommerce">
+						{%- if args.errorCode == 'A01000-ENDORDER' -%}
+							{%- if args.submitAction == constant('SDK\\Enums\\RouteType::CHECKOUT_PAYMENT_AND_SHIPPING') -%}
+								{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BACK_TO_PAYMENT_AND_SHIPPING')] -}}
+							{%- else -%}
+								{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BACK_TO_BASKET')] -}}
+							{%- endif -%}
+						{%- else -%}
+							{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECT_ANOTHER_PAYMENT')] -}}
+						{%- endif -%}
+					</a>
+				 {%- endif -%}
+				</div>
+        	{%- endif -%}
+		</div>
+	{%- endif -%}
+{% endmacro %}
+
+{% macro outputEndOrderButton(args, isOSC) %}
+	{%- set buttonId = 'paymentAndShippingBasketContinue' -%}
+	{%- if isOSC -%}
+		{%- set buttonId = 'basketEndOrder' -%}
+	{%- endif -%}
+	{%- if (args.basketNeedsShipping == true or args.basketNeedsPayment == true) or args.productsAreValid == false -%}
+		<button type="submit" class="btn btn-primary basketEndOrder basketButton basketNext initializeDisabled" id="{{ buttonId }}" value="{{ args.submitAction }}" disabled="disabled">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_END_ORDER')] }}</button>
+	{%- else -%}
+		<button type="submit" class="btn btn-primary basketEndOrder basketButton basketNext" id="{{ buttonId }}" value="{{ args.submitAction }}"
+		{% if isOSC %}
+			data-end-order="true"
+		{% else %}
+			disabled="disabled"
+		{% endif %}
+		>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_END_ORDER')] }}</button>
+	{%- endif -%}
+{% endmacro %}
+
+{% macro outputErrorMessage(args) %}
+	{%- set errorMessage = '' -%}
+
+	{%- if args.basketAddressError == true -%}
+		{%- set errorMessage -%}
+			<span class="basketButtonsError errorPaymentAndShipping errorAddress">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_VAL_MESSAGE_ADDRESS_ERROR')] }}</span>
+		{%- endset -%}
+	{%- else -%}
+		{%- if args.basketNeedsPayment == true -%}
+			{%- set errorMessage -%}
+				<span class="basketButtonsError errorPaymentAndShipping errorPayment">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_VAL_MESSAGE_NEEDS_PAYMENT')] }}</span>
+			{%- endset -%}
+		{%- endif -%}
+
+		{%- if args.basketNeedsShipping == true -%}
+			{%- set errorMessage -%}
+				{{- errorMessage -}}
+				<span class="basketButtonsError errorPaymentAndShipping errorShipping">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_VAL_MESSAGE_NEEDS_SHIPPING')] }}</span>
+			{%- endset -%}
+		{%- endif -%}
+	{%- endif -%}
+
+	{%- if errorMessage|length > 0 -%}
+		<div class="basketButtonsError errorPaymentAndShipping" id="basketValidationMessage">{{ errorMessage }}</div>
+	{%- endif -%}
+{% endmacro %}

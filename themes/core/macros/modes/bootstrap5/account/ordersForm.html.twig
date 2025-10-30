@@ -1,0 +1,55 @@
+{% macro ordersForm(args) %}
+
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %} 
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+
+    {%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+        {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+            {{ element|replace({ (attributeWildcard): 'data-lc-form="ordersForm"' }) }}
+            <div class="ordersParameters lc-account-search-form">
+        {%- elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') -%}
+            {{ element }}
+            </div>
+        {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+            <div class="formField formButton ordersParameter">
+                {{ element|replace({ (classWildcard): '', (attributeWildcard) : '' }) }}
+            </div>
+        {%- elseif name == constant('FWK\\Enums\\Parameters::ONLY_CREATED_BY_ME') 
+            or name == constant('FWK\\Enums\\Parameters::STATUS_ID_LIST')
+            or name == constant('FWK\\Enums\\Parameters::INCLUDE_SUBCOMPANY_STRUCTURE') -%}
+            <div class="formField ordersParameter">
+                {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
+            </div>
+        {%- elseif name == constant('FWK\\Enums\\Parameters::ADDED_FROM') or name == constant('FWK\\Enums\\Parameters::ADDED_TO') -%}
+            <div class="ordersParameter">
+                <label class="form-label" for="viewDateValue{{ name|ucfirst }}">
+                    {%- if name == constant('FWK\\Enums\\Parameters::ADDED_FROM') -%}
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ADDED_FROM')] -}}
+                    {%- else -%}
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ADDED_TO')] -}}
+                    {%- endif -%}
+                </label>  
+                <div class="input-group date" 
+                    data-datetimepicker="viewDateValue{{ name|ucfirst }}" 
+                    data-language="{{ route.language }}" 
+                    data-years='1910-{{ "now"|date("Y") }}' 
+                    data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+                    data-submit="{{ name }}"  
+                    data-format="{{ getJSDatePattern() }}">
+                    {% if args.form.definitionElements[name].value|length %}
+                        {%- set dateValue = args.form.definitionElements[name].value|date(getTwigDatePattern()) -%}
+                    {% else %}
+                        {%- set dateValue = "" -%}
+                    {% endif %}
+                    <input type="text" value="{{ dateValue }}" class="form-control formField viewDateValue" id="viewDateValue{{ name|ucfirst }}" autocomplete="off">
+                    <span class="input-group-addon input-group-text">
+                        <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+                    </span>
+                </div>
+                <input type="hidden" value="{{ args.form.definitionElements[name].value }}" class="DateValue" id="{{ name }}" name="{{ name }}">
+            </div>
+        {%- endif -%}
+    {%- endfor -%}
+
+{% endmacro ordersForm %}

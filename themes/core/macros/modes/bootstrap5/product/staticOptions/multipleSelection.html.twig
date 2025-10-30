@@ -1,0 +1,18 @@
+{% macro multipleSelection(productOption, args) %}
+    
+    {% if productOption.reference.values|length %}
+        <div class="productStaticOption productStaticOptionMultipleSelection">
+            <span class="staticOptionName">{{- productOption.option.language.name -}}</span>
+            <div class="staticOptionValue">
+                {% for referenceValue in productOption.reference.values %}
+                    {% for optionValue in productOption.option.values %}
+                        {% if referenceValue.value == optionValue.id %}
+                            <span class="staticOptionValue">{{- optionValue.language.value -}}</span>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+{% endmacro %}

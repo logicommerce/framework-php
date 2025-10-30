@@ -1,0 +1,15 @@
+{% macro shortText(option, optionIdName, args) %}
+    <div class="productOption productOptionShortText productOption{{ optionIdName }} productOptionPId_{{option.pId}}" data-lc-product-option='{{ outputJsonHtmlString({ id: optionIdName, name: option.language.name, pId: option.pId }) }}'>
+        {% if args.showImageOptions == true and option.image|length > 0 %}
+            <div class="productOptionContainerImage" title="{{ option.language.prompt|default(option.language.name|escape) }}">
+				<img src="{{ option.image }}" alt="{{ option.language.prompt|default(option.language.name|escape) }}">
+			</div>
+        {% endif %}
+        <div class="productOptionPrompt" title="{{ option.language.prompt|default(option.language.name|escape) }}">{{ option.language.prompt|default(option.language.name) }}</div>
+        <div class="productOptionValues">
+            <div class="productOptionValue productOptionTextValue">
+                <input name="optionValue{{ optionIdName }}" value="{{option.optionReferenceValue}}" type="text" class="form-control productOptionTextValue" {% if option.required %}data-validation="required"{% endif %} autocomplete="off">
+            </div>
+        </div>
+    </div>
+{% endmacro %}

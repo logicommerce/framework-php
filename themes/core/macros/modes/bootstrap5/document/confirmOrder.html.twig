@@ -1,0 +1,38 @@
+{%- macro confirmOrder(args) -%}
+
+	<div class="confirmOrderContent">
+		<div class="confirmOrderText confirmOrderTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CONFIRM_ORDER_TEXT')] }}</div>
+		{%- if args.order.paymentSystem.message|length > 0 -%}
+			<div class="confirmOrderText confirmOrderPaymentSystemText">{{ args.order.paymentSystem.message }}</div>
+		{%- endif -%}
+
+        {%- if args.order.status == constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL') -%}
+            <div class="confirmOrderText confirmOrderData confirmOrderAlertData">
+                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CONFIRM_ORDER_PENDING_APPROVAL_TEXT')]}}
+            </div>
+        {%- else -%}
+            <div class="confirmOrderText confirmOrderData confirmOrderOrderId">
+                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::YOUR_ORDER_NUMBER')]|replace({ '{{orderNumber}}': args.order.documentNumber }) }}
+            </div>
+        {%- endif -%}
+
+		{%- if args.order.transactionId|length > 0 and args.showTransactionId == true -%}
+			<div class="confirmOrderText confirmOrderData confirmOrderTransactionId">
+				{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::YOUR_TRANSACTION_ID')]|replace({ '{{transactionId}}': args.order.transactionId }) }}
+			</div>
+		{%- endif -%}
+
+		{%- if args.order.authNumber|length > 0 and args.showAuthNumber == true -%}
+			<div class="confirmOrderText confirmOrderData confirmOrderAuthCode">
+				{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::YOUR_AUTH_CODE')]|replace({ '{{authCode}}': args.order.authNumber }) }}
+			</div>
+		{%- endif -%}
+	</div>
+
+	{% for plugin in args.confirmOrderPlugins %}
+		{% include 'plugins/' ~ ucwords(plugin.pluginModule,'.') ~ '/core/macros/modes/' ~ coreMode ~ '/document/confirmOrderAdditional.html.twig' ignore missing %}
+	{% endfor %}
+
+	{% include 'plugins/' ~ ucwords(args.order.paymentSystem.module,'.') ~ '/core/macros/modes/' ~ coreMode ~ '/basket/confirmOrderAdditional.html.twig' ignore missing %}
+
+{%- endmacro confirmOrder -%}

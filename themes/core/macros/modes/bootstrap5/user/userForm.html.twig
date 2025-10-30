@@ -1,0 +1,240 @@
+{% macro userForm(args, legalCheck) %}
+
+    {% import _self as self %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/form/userTypeNavTabs.html.twig' as userTypeNavTabs %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/form/addressSection.html.twig' as addressSection %}
+
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set isOSC = route.type is constant('FWK\\Enums\\RouteType::CHECKOUT') %}
+
+    {% set useLocation = false %}
+    {% set locationId = 0 %}
+
+    {% if args.showCustomTagsTitle %}
+        {% set printTagsTitle = true %}
+    {% else %}
+        {% set printTagsTitle = false %}
+    {% endif %}
+    
+    {% set inputsTemplates = ['_default', 'createAccount', 'gender', 'location', 'password', 'passwordRetype', 'subscribed', 'userType', 'useShippingAddress', 're'] %}
+    {% set inputsIncludes = [] %}
+    {% for name in inputsTemplates %}
+        {% set inputsIncludes = array_add(inputsIncludes, source('macros/modes/' ~ coreMode ~ '/user/form/inputs/' ~ name ~ '.html.twig'), name)%}
+    {% endfor %}
+
+
+    <div class="userFormContainer form{{ args.class }}">
+        {{ addTimerDebugFlag('outputElements',true) }}
+        {% set outputElements = args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')])%}
+        {{ addTimerDebugFlag('outputElements',false) }}
+
+        {{ addTimerDebugFlag('outputForm',true) }}
+        {% for formElementName, formElement in outputElements %}
+            {% if formElementName == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') %}
+
+                {% if isOSC %}
+                    <div class="userForm" data-lc-form="userForm" data-lc-address="user" data-lc-user-type="{{ args.defaultUserType }}">
+                {% else %}
+                    {{ formElement|replace({ (attributeWildcard): 'data-lc-form="userForm" data-lc-address="user" data-lc-user-type="' ~ args.defaultUserType ~ '"' })|raw }}
+                {% endif %}
+
+            {% elseif formElementName == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') %}
+
+                {% if isOSC %}                
+                    </div>
+                {% else %}
+                    {{ formElement|raw }}
+                {% endif %}
+
+            {% elseif formElementName == constant('FWK\\Core\\Form\\Form::SUBMIT') %}
+                {% if not isOSC %}
+                    {% set isCheckout = false %}
+                    {% set backButton = '' %}
+                    {% if route.type == constant('SDK\\Enums\\RouteType::CHECKOUT_CREATE_ACCOUNT')  %}
+                        {% set backButton %}
+                            <a 
+                                href="{{routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_CUSTOMER')) }}" 
+                                class="btn btn-secondary basketContinueShopping basketButton basketBack" 
+                                id="customerBasketBack">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BACK')] }}
+                            </a>
+                        {% endset %}
+                        {% set isCheckout = true %}
+                    {% endif %}
+                    {% if route.type == constant('SDK\\Enums\\RouteType::CHECKOUT_CUSTOMER') or route.type == constant('SDK\\Enums\\RouteType::CHECKOUT_GUEST') %}
+                        {% set backButton %}
+                            <a 
+                                href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_BASKET')) }}" 
+                                class="btn btn-secondary basketContinueShopping basketButton basketBack" 
+                                id="customerBasketBack">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BACK')] }}
+                            </a>
+                        {% endset %}
+                        {% set isCheckout = true %}
+                    {% endif %}
+                    {% if not session.user.userAdditionalInformation.simulatedUser or isCheckout %}
+                        {{ legalCheck }}
+                        {{ backButton }}
+                        {{ formElement|replace({ (classWildcard): '', (attributeWildcard): '' })|raw }}
+                    {% endif %}
+                {% endif %}
+
+            {# no login & no address book #}
+            {% elseif formElementName == constant('FWK\\Core\\Theme\\Dtos\\FormSetUser::USER_FIELDS') %}
+
+                {% if formElement|length > 1 %}
+                    {# Print userTypes nav tabs #}
+                    {{ userTypeNavTabs.userTypeNavTabs(formElement, args.defaultUserType) }}
+                    <div class="tab-content">
+                {% endif %}
+
+                {% for userTypeName, userTypeElement in formElement %}
+                    <div role="tabpanel" class="tab-pane tabPaneUserType {% if userTypeName == args.defaultUserType %} active {% endif %}" id="user_tabPane_{{ userTypeName }}">
+                        {% for addressTypeName, addressType in userTypeElement %}
+                            <div class="formFields {{ addressTypeName }}FormFields {% if addressTypeName == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') %} shippingFormFieldsDisabled {% endif %}">
+                                {% set useLocation = false %}
+                                {% set locationId = 0 %}
+                                {% for fieldName, field in addressType %}
+                                    {% set fieldNameData = fieldName|split('_') %}
+                                    {% if fieldNameData[2] == constant('FWK\\Enums\\Parameters::LOCATION') %}
+                                        {% set useLocation = true %}
+                                        {% set locationId = args.form.definitionElements[formElementName][userTypeName][addressTypeName][fieldName].value %}
+                                    {% elseif fieldNameData[2] == constant('FWK\\Enums\\Parameters::COUNTRY') and useLocation and args.locationMode|length %}
+                                        {{ self.outputElement(args, inputsIncludes,
+                                            fieldNameData[2]|default(''), field,
+                                            args.form.definitionElements[formElementName][userTypeName][addressTypeName][fieldName],
+                                            useLocation, locationId, fieldNameData[0]|default(''), fieldNameData[1]|default('')
+                                        ) }}
+                                    {% elseif
+                                        fieldNameData[2] != constant('FWK\\Enums\\Parameters::USE_SHIPPING_ADDRESS')
+                                        or (
+                                            fieldNameData[2] == constant('FWK\\Enums\\Parameters::USE_SHIPPING_ADDRESS')
+                                            and (args.showShippingAddress) 
+                                        )
+                                    %}
+                                        {% if fieldNameData[2] in inputsTemplates %}
+                                            {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/' ~ fieldNameData[2] ~ '.html.twig' %}
+                                        {% else %}
+                                            {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/_default.html.twig' %}
+                                        {% endif %}
+                                        {{ self.outputElement(args, inputsIncludes,
+                                            fieldNameData[2]|default(''), field,
+                                            args.form.definitionElements[formElementName][userTypeName][addressTypeName][fieldName],
+                                            useLocation, locationId, fieldNameData[0]|default(''), fieldNameData[1]|default('')
+                                        ) }}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                {% if formElement|length > 1 %}
+                    </div>
+                {% endif %}
+
+            {# logged: billing address book only if not exists shipping theme configuration #}
+            {% elseif formElementName == constant('FWK\\Core\\Theme\\Dtos\\FormSetUser::ADDRESSBOOK_FIELDS') and args.form.outputElements[constant('FWK\\Enums\\Parameters::USE_SHIPPING_ADDRESS')] is not defined and (route.type == constant('SDK\\Enums\\RouteType::CHECKOUT_CUSTOMER') or route.type == constant('SDK\\Enums\\RouteType::CHECKOUT')) %}
+                {# Billing address #}
+                {{ addressSection.addressSection(
+                    constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX'), 
+                    args.billingAddresses.items, 
+                    args.defaultUserType,
+                    '',
+                    args.selectMode,
+                    args.showAddNewBilling, 
+                    false,
+                    args.showEditBilling,
+                    false,
+                    args.showDeleteBilling,
+                    false
+                ) }}
+
+            {# logged: address book billing and shipping section #}
+            {% elseif formElementName == constant('FWK\\Enums\\Parameters::USE_SHIPPING_ADDRESS') and (route.type == constant('SDK\\Enums\\RouteType::CHECKOUT_CUSTOMER') or route.type == constant('SDK\\Enums\\RouteType::CHECKOUT')) %}
+                {# Billing address #}
+                {{ addressSection.addressSection(
+                    constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX'), 
+                    args.billingAddresses.items, 
+                    args.defaultUserType,
+                    '',
+                    args.selectMode,
+                    args.showAddNewBilling, 
+                    false,
+                    args.showEditBilling,
+                    false,
+                    args.showDeleteBilling,
+                    false
+                ) }}
+
+                {{ self.outputElement(args, inputsIncludes, formElementName, formElement, args.form.definitionElements[formElementName]) }}
+
+                {# Shipping address #}
+                {{ addressSection.addressSection(
+                    constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX'), 
+                    args.shippingAddresses.items, 
+                    args.defaultUserType,
+                    'checked' not in formElement ? 'shippingFormFieldsDisabled' : '',
+                    args.selectMode,
+                    false, 
+                    args.showAddNewShipping,
+                    false,
+                    args.showEditShipping,
+                    false,
+                    args.showDeleteShipping
+                ) }}
+
+            {% elseif formElement is not iterable %}
+
+                {% if formElementName == constant('FWK\\Enums\\Parameters::LOCATION') %}
+                    {% set useLocation = true %}
+                    {% set locationId = args.form.definitionElements[formElementName].value %}
+                {% else  %}
+                    {% if formElementName == constant('FWK\\Enums\\Parameters::COUNTRY') and useLocation and args.locationMode|length %}
+                        {{ self.outputElement(args, inputsIncludes, formElementName, formElement, args.form.definitionElements[formElementName], useLocation, locationId) }}
+                    {% else %}
+                        {% if printTagsTitle and formElementName starts with 'customTags_' %}
+                            {% set printTagsTitle = false %}
+                            <div class="customTagsTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::USER_CUSTOMTAGS_TITLE')] }}</div>
+                        {% endif %}
+                        {% if formElementName in inputsTemplates %}
+                            {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/' ~ formElementName ~ '.html.twig' %}
+                        {% else %}
+                            {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/_default.html.twig' %}
+                        {% endif %}
+                        {{ self.outputElement(args, inputsIncludes, formElementName, formElement, args.form.definitionElements[formElementName]) }}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        {{ addTimerDebugFlag('outputForm',false) }}
+    </div>
+{% endmacro userForm %}
+
+
+
+{%- macro outputElement(args, inputsIncludes, formElementName, formElement, definitionElement, useLocation, locationId, userType, section) -%}
+    {% if inputsIncludes[formElementName] is defined %}
+        {% set inputTemplate = formElementName %}
+    {% else %}
+        {% set inputTemplate = '_default' %}
+    {% endif %}
+    {% if formElementName == constant('FWK\\Enums\\Parameters::COUNTRY') and useLocation and args.locationMode|length %}
+        {% set inputTemplate = 'location' %}
+        {% include template_from_string(inputsIncludes[inputTemplate]) with { 
+            input: formElement, 
+            name: formElementName,
+            userType: userType|default(''),
+            section: section|default(''),
+            selectedCountry: args.selectedCountry,
+            selectedCountryLocations: args.selectedCountryLocations,
+            locationMode: args.locationMode,
+            locationId: locationId
+        } %}
+    {% else %}
+        {% include template_from_string(inputsIncludes[inputTemplate]) with { 
+            input: formElement, 
+            name: formElementName,
+            definitionElement: definitionElement
+        } %}
+    {% endif %}
+{%- endmacro -%}

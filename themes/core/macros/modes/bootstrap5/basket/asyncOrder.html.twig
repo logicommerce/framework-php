@@ -1,0 +1,28 @@
+{% macro asyncOrder(args) %}
+    {% set spacelessContent %}
+        {% if args.validationResponse.type == constant('SDK\\Enums\\PaymentValidateType::WEBHOOK_MESSAGE') %}
+            {{ args.validationResponse.message }}
+        {% else %}
+            {% set statusSuccess = [
+                constant('SDK\\Enums\\PaymentValidateStatus::OK'),
+                constant('SDK\\Enums\\PaymentValidateStatus::VALIDATED'),
+                constant('SDK\\Enums\\PaymentValidateStatus::ACCEPTED')
+            ] %}
+            {% if args.validationResponse.status in statusSuccess %}
+                {% set actionUrl = routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_CONFIRM_ORDER')) ~ addParamsToRequest(args.getParameters) %}        
+            {% else %}
+                {% set actionUrl = routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_DENIED_ORDER')) ~ addParamsToRequest(args.getParameters) %}
+            {% endif %}
+            <form id="orderConfirmForm" action="{{ actionUrl }}" method="POST">
+                {% for name, value in args.postParameters %}
+                    <input type="hidden" name="{{ name }}" value="{{ value }}">
+                {% endfor %}
+            </form>
+            <script>
+                var form = document.forms.orderConfirmForm;
+                form.submit();
+            </script>
+        {% endif %}
+    {% endset %}
+    {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+{% endmacro asyncOrder %}

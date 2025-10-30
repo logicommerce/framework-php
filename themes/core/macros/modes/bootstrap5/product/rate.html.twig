@@ -1,0 +1,14 @@
+
+{% macro rate(args) %}
+    <div class="productRate">
+        <div class="productRateStars lcRating static">
+            {{- outputHtmlRating(args.roundedIntRating) -}}
+        </div>
+
+        <div class="aggregateRatingProductRateTag">
+            <span class="productRateValorationLabel">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::AVERAGE_VALORATION')] }}</span>
+            <span class="productRateValorationAverage">{{ args.roundedRating }}</span>
+            <span class="productRateValorationTotal">({{ args.comments.items|length }})</span>
+        </div>
+    </div>
+{% endmacro %}

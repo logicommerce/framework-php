@@ -1,0 +1,27 @@
+{% macro pagination(args) %}
+    {% if args.paginationItems|length %}
+        <div class="paginationContainer">
+            <ul class="pagination">
+                {% for page in args.paginationItems|filter(page => not (page.page == 0 and page.type == constant('FWK\\Enums\\Pagination::TYPE_PAGE'))) %}
+                    {% set class = attribute(args.pagerParameters, page.type ~ constant('FWK\\Enums\\Pagination::ITEM_CLASS')) %}
+                    {% set label = attribute(args.pagerParameters, page.type ~ constant('FWK\\Enums\\Pagination::ITEM_LABEL')) %}
+                    {% if page.type == constant('FWK\\Enums\\Pagination::TYPE_PAGE') %}
+                        {% set class = class ~ page.selected ? ' ' ~ args.pagerParameters.selectedClass : '' %}
+                        {% set label = label|replace({ '{{pageNumber}}': page.page }) %}
+                    {% endif %}
+                    {%- set rel = '' -%}
+                    {% if page['rel'] is defined %}
+                        {%- set rel = 'rel="' ~ page['rel'] ~ '"' -%}
+                    {% endif %}
+                    <li class="{% if class|trim|length %}{{ class|trim }}{% endif %} page-item">
+                        {% if page.page > 0 %}
+                            <a class="item itemLink page-link" {{rel}} href="{{ addParamsToRequest({ (constant('FWK\\Enums\\Parameters::PAGE')): page.page }) }}" target="{{ args.pagerParameters.linkTarget }}">{{ label }}</a>
+                        {% else %}
+                            <span class="item itemText">{{ label }}</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+{% endmacro %}

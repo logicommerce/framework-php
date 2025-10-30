@@ -1,0 +1,42 @@
+{%- macro coreJsSessionVariables() -%}
+    {%- set defaultString = '""' -%}
+    {#--#}if(logicommerceGlobal === undefined){var logicommerceGlobal = {};}
+    logicommerceGlobal.session = {
+        {#--#}locale: {{- outputJsonHtmlString(session.generalSettings.locale)|default(defaultString) -}},
+        {#--#}currencyId: {{- outputJsonHtmlString(session.generalSettings.currency)|default(defaultString) -}},
+        {#--#}countryId: {{- outputJsonHtmlString(session.generalSettings.country)|default(defaultString) -}},
+        {#--#}language: {{- outputJsonHtmlString(session.generalSettings.language)|default(defaultString) -}},
+        {#--#}login: {{- isSessionLoggedIn() ? 'true' : 'false' -}},
+        {#- deprecated -#}wishlistItems: [
+            {%- for item in session.aggregateData.wishlist.itemIdList -%}
+                {#--#}{{- item -}}
+                {{- loop.last ? '' : ',' -}}
+            {%- endfor -%}
+        ],
+        {#--#}shoppingListProducts: [
+            {%- for id in session.aggregateData.shoppingLists.defaultOne.productIdList -%}
+                    {#--#}{{- id -}}{{- loop.last ? '' : ',' -}}
+            {%- endfor -%}
+        ],
+        {#--#}shoppingListBundles: [
+            {%- for id in session.aggregateData.shoppingLists.defaultOne.bundleIdList -%}
+                    {#--#}{{- id -}}{{- loop.last ? '' : ',' -}}
+            {%- endfor -%}
+        ],
+        {#--#}shoppingLists: [
+            {%- for shoppingList in session.shoppingList.shoppingLists -%}
+                {#--#}{{- outputJsonHtmlString(shoppingList) -}}{{- loop.last ? '' : ',' -}}
+            {%- endfor -%}
+        ],
+        {#--#}productComparisonItems: [
+            {%- for item in session.aggregateData.productComparison.itemIdList -%}
+                {#--#}{{- item -}}
+                {{- loop.last ? '' : ',' -}}
+            {%- endfor -%}
+        ],
+        {#--#}lockedStocksAggregateData: {{- outputJsonHtmlString(session.lockedStocksAggregateData)|default('[]') -}},
+        {#--#}basketGridProducts: {{- outputJsonHtmlString(session.basketGridProducts)|default(defaultString) -}},
+        {#--#}routeWarningAccepted: {{- session.routeWarningAccepted ? 'true' : 'false' -}},
+
+    {#--#}};
+{%- endmacro coreJsSessionVariables -%}

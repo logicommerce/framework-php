@@ -1,0 +1,25 @@
+{%- macro documentInformation(args) -%}
+  <div class="orderInformation">
+    <p class="orderInformation orderInformationOrderNumber">
+        {% if args.documentType == constant('FWK\\ViewHelpers\\Document\\Macro\\DocumentInformation::TYPE_RMA') %}
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_NUMBER')] }}
+        {% elseif args.documentType == constant('FWK\\ViewHelpers\\Document\\Macro\\DocumentInformation::TYPE_RETURN') %}
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_NUMBER')] }}
+        {% elseif args.documentType == constant('FWK\\ViewHelpers\\Document\\Macro\\DocumentInformation::TYPE_CORRECTIVE_INVOICE') %}
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CORRECTIVE_INVOICE_NUMBER')] }}
+        {% elseif args.documentType == constant('FWK\\ViewHelpers\\Document\\Macro\\DocumentInformation::TYPE_INVOICE') %}
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::INVOICE_NUMBER')] }}
+        {% else %}
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_NUMBER')] }}
+        {% endif %}
+        : <span class="orderNumber">{{- args.document.documentNumber -}}</span>
+    </p>
+    {%- if args.showTransactionId and args.document.transactionId|length -%}
+        <p class="orderInformation orderInformationTransaction">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::TRANSACTION_ID')] }}: <span class="transactionId">{{- args.document.transactionId -}}</span></p>
+    {%- endif -%}
+    {%- if args.showAuthNumber and args.document.authNumber|length -%}
+        <p class="orderInformation orderInformationAuthCode">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::AUTH_NUMBER')] }}: <span class="authCode">{{- args.document.authNumber -}}</span></p>
+    {%- endif -%}
+    <p class="orderInformation orderInformationDateOrdered">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_DATE')] }}: <span class="orderDate">{{- formatDateTime(args.document.date) -}}</span></p>
+  </div>
+{%- endmacro documentInformation -%}

@@ -1,0 +1,36 @@
+{%- macro comments(args) -%}
+    {%- if args.comments.items|length -%}
+        <div class="productCommentsContainer">
+            {%- for comment in args.comments.items -%}
+                <div class="productReview">
+                    <div class="productReviewHeader">
+                        <div class="productReviewRate">
+                            <div class="productRateStars">{{ outputHtmlRating(comment.rating) }}</div>
+                            <div class="totalRate">({{ comment.rating }})</div>
+                        </div>
+                        <span class="productReviewNick">{{ comment.nick }}</span>
+                    </div>
+                    <div class="productReviewBody">
+                        {{- comment.comment|striptags -}}
+                    </div>
+                    <div class="productReviewDate">
+                        {{- formatDateTime(comment.dateAdded) -}}
+                    </div>
+                    {% for answer in comment.answers %}
+                        <div class="productReviewAnswer">
+                            <span class="productReviewNick productReviewNickAnswer">
+                                {{- answer.nick -}}
+                            </span>
+                            <div class="productReviewBody productReviewBodyAnswer">
+                                {{- answer.comment|striptags -}}
+                            </div>
+                            <div class="productReviewDate productReviewDateAnswer">
+                                {{- formatDateTime(answer.dateAdded) -}}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {%- endfor -%}
+        </div>
+    {%- endif -%}
+{%- endmacro -%}

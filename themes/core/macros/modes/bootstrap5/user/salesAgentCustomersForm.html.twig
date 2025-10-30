@@ -1,0 +1,57 @@
+{% macro salesAgentCustomersForm(args) %}
+
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %} 
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+
+    {%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+        {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+            {{ element|replace({ (attributeWildcard): 'data-lc-form="salesAgentCustomersForm"' }) }}
+            <div class="salesAgentCustomersParameters">
+        {%- elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') -%}
+            {{ element }}
+            </div>
+        {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+            <div class="formField formButton salesAgentCustomersParameter">
+                {{ element|replace({ (classWildcard): '', (attributeWildcard) : '' }) }}
+            </div>
+        {%- elseif name == constant('FWK\\Enums\\Parameters::Q') -%}
+            <div class="formField salesAgentCustomersParameter">
+                {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
+            </div>
+        {%- elseif name == constant('FWK\\Enums\\Parameters::FROM_DATE') or name == constant('FWK\\Enums\\Parameters::TO_DATE') -%}
+            <div class="salesAgentCustomersParameter">
+                <label class="form-label" for="viewDateValue{{ name|ucfirst }}">
+                    {%- if name == constant('FWK\\Enums\\Parameters::FROM_DATE') -%}
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::FROM_DATE')] -}}
+                    {%- else -%}
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::TO_DATE')] -}}
+                    {%- endif -%}
+                </label>
+                <div class="input-group date"
+                    data-datetimepicker="viewDateValue{{ name|ucfirst }}"
+                    data-language="{{ route.language }}"
+                    data-years='1910-{{ "now"|date("Y") }}'
+                    data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+                    data-submit="{{ name }}"
+                    data-format="{{ getJSDatePattern() }}">
+                    {% if args.form.definitionElements[name].value|length %}
+                        {%- set dateValue = args.form.definitionElements[name].value|date(getTwigDatePattern()) -%}
+                    {% else %}
+                        {%- set dateValue = "" -%}
+                    {% endif %}
+                    <input type="text" value="{{ dateValue }}" class="form-control formField viewDateValue" required id="viewDateValue{{ name|ucfirst }}" autocomplete="off">
+                    <span class="input-group-addon input-group-text">
+                        <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+                    </span>
+                </div>
+                <input type="hidden" value="{{ args.form.definitionElements[name].value }}" class="DateValue" id="{{ name }}" name="{{ name }}">
+            </div>
+        {%- elseif name == constant('FWK\\Enums\\Parameters::INCLUDE_SUBORDINATES') -%}
+            <div class="formField salesAgentCustomersParameter">
+                {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
+            </div>
+        {%- endif -%}
+    {%- endfor -%}
+
+{% endmacro salesAgentCustomersForm %}

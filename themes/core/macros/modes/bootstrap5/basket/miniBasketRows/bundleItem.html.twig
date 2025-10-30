@@ -1,0 +1,46 @@
+{%- macro bundleItem(args, bundleItem) -%}
+    {%- if args.showImage == true -%}
+        <span class="miniBasketBundleItemImage">
+            {%- if args.linkable == true -%}
+                <a href="{{ bundleItem.urlSeo }}">
+            {%- endif -%}
+            <img src="{{ bundleItem.images.smallImage }}" alt="{{ bundleItem.name|striptags }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';" class="miniBasketItemImage img-fluid">
+            {%- if args.linkable == true -%}
+                </a>
+            {%- endif -%}
+        </span>
+    {%- endif -%}
+
+    <div class="miniBasketBundleItemContent">
+        {% set spacelessContent %}
+            <span class="miniBasketItemName">
+                {%- if args.linkable == true -%}
+                    <a href="{{ bundleItem.urlSeo }}">
+                {%- endif -%}
+
+                    {{- bundleItem.name|striptags -}}
+
+                {%- if args.linkable == true -%}
+                    </a>
+                {%- endif -%}
+            </span>
+        {% endset %}
+        {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+
+        {%- if args.showSku == true and bundleItem.codes.sku|length -%}
+            <span class="miniBasketItemSku">{{ bundleItem.codes.sku }}</span>
+        {%- endif -%}
+
+        {%- if args.showOptions == true -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemOptions.html.twig' as modeBasket -%}
+            {{- modeBasket.outputItemOptions(bundleItem.options, 'miniBasketItem', args.showOptionValuesName ) -}}
+        {%- endif -%}
+
+        {%- if args.showCustomTags == true -%}
+            <div class="miniBasketCustomTags">
+                {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemCustomTags.html.twig' as modeBasket -%}
+                {{- modeBasket.outputItemCustomTags(bundleItem.customTagValues, args.showCustomTagPositions) -}}
+            </div>
+        {%- endif -%}
+    </div>
+{%- endmacro bundleItem -%}

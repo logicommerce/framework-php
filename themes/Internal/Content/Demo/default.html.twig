@@ -1,0 +1,416 @@
+{% extends layout %}
+
+{% block headcontent %}
+
+	
+
+	{{ dump(constant( 'FWK\\Enums\\ControllerData::MACROS_CORE')   ) }}
+	{{ dump(constant( 'FWK\\Enums\\ControllerData::MACROS_CORE_PRODUCT')   ) }}
+
+	{% set templateUtil = _context[constant('FWK\\Enums\\ControllerData::MACROS_CORE')][constant( 'FWK\\Enums\\ControllerData::MACROS_CORE_UTIL')] %} 
+	{% import templateUtil as utilMacros %}
+		{{- utilMacros.agencyLogo({
+		name: 'logicommerce.com',
+		id: 'logoLogicommerce',
+		class: 'logoLogicommerce',
+		classLink: 'logoLogicommerce',
+		link: 'https://www.logicommerce.com',
+		logo: 'logicommerce'
+	}) -}}
+  
+	  
+	{#
+	{% set coreUtil = _context[ (constant('FWK\\Enums\\ControllerData::MACROS_CORE') ~ '.' ~ constant( 'FWK\\Enums\\ControllerData::MACROS_CORE_UTIL')) ] %}
+    
+
+     {% import coreUtil as utilMacros %}
+     {{ dump( utilMacros ) }}
+   
+	#}
+
+    timer.start(): {{ timer.start() }} <br>
+	timer.addFlag('demoStart'): {{ timer.addFlag('demoStart') }} <br>
+
+    {{ parent() }}
+    <script>
+    	function testEmptyTD() {
+    		var tds = document.getElementsByTagName("td");
+    		for (var i = 0; i < tds.length; i++) {
+    			if (tds[i].innerText == "") {
+    				tds[i].style.backgroundColor = "red";
+    			} else {
+    				tds[i].style.backgroundColor = "lightgreen";
+    			}
+    		}
+
+        	var pending = document.getElementsByClassName("pending");
+        	var fase2 = document.getElementsByClassName("fase2");
+        	var incomplete = document.getElementById("incomplete");
+
+        	var countIncomplete = 0;
+        	countIncomplete = pending.length + fase2.length;
+			if (countIncomplete > 0){
+	        	for (i = 0; i < pending.length; i++) {
+	        		incomplete.innerHTML += pending[i].innerHTML + '<br>';
+	        	} 
+	        	incomplete.innerHTML += '---------------------------- <br>';
+	        	for (i = 0; i < fase2.length; i++) {
+	        		incomplete.innerHTML += fase2[i].innerHTML + '<br>';
+	        	}
+			}else{
+				incomplete.innerHTML += 'No incomplete items';
+			}        	
+        	  
+    	}
+    	
+    	function showHide(divId) {
+    		var div = document.getElementById(divId + 'Div');
+    		var button = document.getElementById(divId + 'Button');
+    		if (div.style.display === "none") {
+    			div.style.display = "block";
+    			button.value = "-";
+    		} else {
+    			div.style.display = "none";
+    			button.value = "+";
+    		}
+    	}
+
+
+    </script>
+    
+    <style>
+        div.demo {
+        }
+        
+        td {
+        	vertical-align: top;
+        }
+
+        div.contentTd{
+        	max-width: 500px;
+        	overflow: scroll;
+        }
+        div.fase2{
+            background-color: black;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+        div.pending{
+            background-color: purple;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+{% endblock headcontent %}
+
+{% block body %}
+    <body onload="testEmptyTD()">
+    
+    	<p>
+    		MOKED: {{constant('MOCKED_API')?'TRUE':'FALSE'}}
+    	</p>
+    
+		<p>
+    		Incomplete <input id="incompleteButton" type="button"
+    			onClick="showHide('incomplete')" value="+">
+    	</p>
+    	<div class="incomplete" id="incompleteDiv" style="display: none;">
+    		<table border=1>
+    			<tr>
+    				<th>incomplete</th>
+    			</tr>
+    			<tr>
+    				<td>
+    					<div id="incomplete" style="background-color:white;padding: 15px;"></div>
+				    </td>
+    			</tr>
+    		</table>
+    	</div>
+    
+    	<p>
+    		variables <input id="variableButton" type="button"
+    			onClick="showHide('variable')" value="+">
+    	</p>
+    	<div class="demo" id="variableDiv" style="display: none;">
+    		<table border=1>
+    			<tr>
+    				<th>constante</th><th>variable</th><th>Autoescaped</th>
+    			</tr>
+    			<tr>
+    				<td>{{constant('INTERNAL_PREFIX')}}</td><td>{{ variable }}</td><td>{{ testAutoescape }}</td>
+    			</tr>
+    		</table>
+    		
+    		<table border=1>
+    			<tr>
+    				<th>Basic number</th><th>localizedCurrency</th>
+    			</tr>
+    			<tr>
+    				<td>{{ valueForlocalizedCurrency1 }}</td><td>{{ localizedCurrency(valueForlocalizedCurrency1) }}</td>
+    			</tr>
+    			<tr>
+    				<td>{{ valueForlocalizedCurrency2 }}</td><td>{{ localizedCurrency(valueForlocalizedCurrency2) }}</td>
+    			</tr>
+    			<tr>
+    				<td>{{ valueForlocalizedCurrency3 }}</td><td>{{ localizedCurrency(valueForlocalizedCurrency3) }}</td>
+    			</tr>
+    			<tr>
+    				<td>{{ valueForlocalizedCurrency4 }}</td><td>{{ localizedCurrency(valueForlocalizedCurrency4) }}</td>
+    			</tr>
+    		</table>
+    		
+    	</div>
+    
+    
+    	<p>
+    		Abort y Dump <input id="dumpButton" type="button"
+    			onClick="showHide('dump')" value="+">
+    	</p>
+    	<div class="demo" id="dumpDiv" style="display: none;">
+    		<table border=1>
+    			<tr>
+    				<th>dump (Override original Twig)</th>
+    				<th>Abort</th>
+    			</tr>
+    			<tr>
+    				<td>dump(variable){#{ dump(bannerById) }#}</td>
+    				<td>abort(){#{ abort() }#}</td>
+    			</tr>
+    		</table>
+    	</div>
+    
+    	<p>
+    		Ajax requests <input id="ajaxButton" type="button"
+    			onClick="showHide('ajax')" value="+">
+    	</p>
+    	<div class="demo" id="ajaxDiv" style="display: none;">
+    		<table border=1>
+    			<tr>
+    				<th>bannerDoneClick</th>
+    			</tr>
+    			<tr>
+    				<td>src = {{routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalBanner::DONE_CLICK')) }}?id=12
+    				</td>
+    			</tr>
+    			<tr>
+    				<td>Response:<br>
+    				<iframe
+    						src="{{routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalBanner::DONE_CLICK')) }}?id=12"></iframe></td>
+    			</tr>
+    
+    		</table>
+    	</div>
+    
+    	<p>
+    		Work with dates <input id="dateButton" type="button"
+    			onClick="showHide('date')" value="+">
+    	</p>
+    	<div class="demo" id="dateDiv" style="display: none;">
+    		<table border=1>
+    			<tr>
+    				<th>localizedDateTime(workWithDate)</th>
+    			</tr>
+    			<tr>
+    				<td>{{localizedDateTime(workWithDate)}}</td>
+    			</tr>
+    		</table>
+    		<table border=1>
+    			<tr>
+    				<th></th>
+    				<th>SHORT</th>
+    				<th>MEDIUM</th>
+    				<th>LONG</th>
+    				<th>FULL</th>
+    			</tr>
+    
+    			<tr>
+    				<td>Date</td>
+    				<td>{{ localizedDateTime(workWithDate, constant('\\IntlDateFormatter::SHORT'), constant('\\IntlDateFormatter::NONE') ) }}</td>
+    				<td>{{ localizedDateTime(workWithDate, constant('\\IntlDateFormatter::MEDIUM') , constant('\\IntlDateFormatter::NONE') ) }}</td>
+    				<td>{{ localizedDateTime(workWithDate, constant('\\IntlDateFormatter::LONG') , constant('\\IntlDateFormatter::NONE') ) }}</td>
+    				<td>{{ localizedDateTime(workWithDate, constant('\\IntlDateFormatter::FULL') , constant('\\IntlDateFormatter::NONE') ) }}</td>
+    			</tr>
+    			<tr>
+    				<td>Time</td>
+    				<td>{{ localizedDateTime(workWithDate, constant('\\IntlDateFormatter::NONE') , constant('\\IntlDateFormatter::SHORT') ) }}</td>
+    				<td>{{ localizedDateTime(workWithDate, constant('\\IntlDateFormatter::NONE') , constant('\\IntlDateFormatter::MEDIUM') ) }}</td>
+    				<td>{{ localizedDateTime(workWithDate, constant('\\IntlDateFormatter::NONE') , constant('\\IntlDateFormatter::LONG') ) }}</td>
+    				<td>{{ localizedDateTime(workWithDate, constant('\\IntlDateFormatter::NONE') , constant('\\IntlDateFormatter::FULL') ) }}</td>
+    			</tr>
+    		</table>
+    	</div>
+    
+    	<p>
+    		Language <input id="languageButton" type="button"
+    			onClick="showHide('language')" value="+">
+    	</p>
+    	<div class="demo" id="languageDiv" style="display: none;">
+    		<table border=1>
+    			<tr>
+    				<th>languageSheet.ADDTOCART</th>
+    				<th>languageSheet.ACCEPT</th>
+    			</tr>
+    			<tr>
+    				<td>{{ languageSheet.ADDTOCART }}</td>
+    				<td>{{ languageSheet.ACCEPT }}</td>
+    			</tr>
+    		</table>
+    	</div>
+    
+    	<p>
+    		Settings<input id="settingsButton" type="button"
+    			onClick="showHide('settings')" value="+">
+    	</p>
+    	<div class="demo" id="settingsDiv" style="display: none;">
+    		timer.addFlag('Settings'): {{ timer.addFlag('Settings') }} <br>
+		    {% include '/snippets/demo/settings.html.twig' with {'settings' : settings} only %}
+		    timer.getElapsedTime('Settings'): {{ timer.getElapsedTime('Settings') }}<br>
+    	</div>
+    
+    	<p>
+    		function_demo & function_demo_SITE <input id="functionButton"
+    			type="button" onClick="showHide('function')" value="+">
+    	</p>
+    	<div class="demo" id="functionDiv" style="display: none;">
+    		<table border=1>
+    			<tr>
+    				<th>function_demo()</th>
+    				<th>function_demo(1)</th>
+    				<th>function_demo(2)</th>
+    				<th>function_demo_SITE(2)</th>
+    			</tr>
+    			<tr>
+    				<td>{{ function_demo() }}</td>
+    				<td>{{ function_demo(1) }}</td>
+    				<td>{{ function_demo(4) }}</td>
+    				<td>{{ function_demo_SITE(4) }}</td>
+    			</tr>
+    		</table>
+    	</div>
+    
+    	<p>
+    		Area<input id="areaButton" type="button" onClick="showHide('area')"
+    			value="+">
+    	</p>
+    	<div class="demo" id="areaDiv" style="display: none;">
+    		timer.addFlag('Area'): {{ timer.addFlag('Area') }} <br>
+    		<p>Area By Id</p>
+    		{% include '/snippets/demo/areas.html.twig' with {'areas' : areaById} only %}
+    		<br>
+    		<p>Areas</p>
+    		{% include '/snippets/demo/areas.html.twig' with {'areas' : areas} only %}
+    		<br>
+    		<p>Brands Area</p>
+    		{% include '/snippets/demo/categories.html.twig' with {'categories' : brandsAreaCategories} only %}
+    		<br>
+    		<p>Category Area</p>
+    		{% include '/snippets/demo/categories.html.twig' with {'categories' : categoriesAreaCategories} only %}
+    		timer.getElapsedTime('Area'): {{ timer.getElapsedTime('Area') }}<br>
+    	</div>
+    
+    	<p>
+    		Banners<input id="bannerButton" type="button"
+    			onClick="showHide('banner')" value="+">
+    	</p>
+    	<div class="demo" id="bannerDiv" style="display: none;">
+			timer.addFlag('Banners'): {{ timer.addFlag('Banners') }} <br>
+    		<p>Banner By Id</p>
+    		{% include '/snippets/demo/banners.html.twig' with {'banners' : bannerById} only %}
+    		<br>
+    		<p>Function getBanner in the Site</p>
+    		<table border=1>
+    			<tr>
+    				<th>{{ bannersSite }}</th>
+    			</tr>
+    		</table>
+    		<p>bannerDoneClick</p>
+    		<table border=1>
+    			<tr>
+    				<th>{{ bannerDoneClick|json_encode(constant('JSON_UNESCAPED_UNICODE'))|raw }}</th>
+    			</tr>
+    		</table>
+    		<br>
+    		<p>Banners</p>
+    		{% include '/snippets/demo/banners.html.twig' with {'banners' : banners} only %}
+    		timer.getElapsedTime('Banners'): {{ timer.getElapsedTime('Banners') }}<br>
+    	</div>
+    
+    	<p>
+    		Category<input id="categoryButton" type="button"
+    			onClick="showHide('category')" value="+">
+    	</p>
+    	<div class="demo" id="categoryDiv" style="display: none;">
+    		timer.addFlag('Category'): {{ timer.addFlag('Category') }} <br>    
+    		<p>Category By Id</p>
+    		{% include '/snippets/demo/categories.html.twig' with {'categories' : categoryById} only %}
+    		<br>
+    		<p>Categories</p>
+    		{% include '/snippets/demo/categories.html.twig' with {'categories' : categories} only %}
+    		<br>
+    		<p>Related banners</p>
+    		{% include '/snippets/demo/relatedItems.html.twig' with {'relatedItems' : categoryRelatedBanners} only %}
+    		timer.getElapsedTime('Category'): {{ timer.getElapsedTime('Category') }}<br>
+    	</div>
+    	
+    	<p>
+    		News<input id="newsButton" type="button" onClick="showHide('news')"
+    			value="+">
+    	</p>
+    	<div class="demo" id="newsDiv" style="display: none;">
+			timer.addFlag('News'): {{ timer.addFlag('News') }} <br>
+    		<p>PieceOfNews By Id</p>
+    		{% include '/snippets/demo/news.html.twig' with {'news' : pieceOfNewsById} only %}
+    		<br>
+    		<p>News</p>
+    		{% include '/snippets/demo/news.html.twig' with {'news' : news} only %}
+    		<br>
+    		<p>Related categories</p>
+    		{% include '/snippets/demo/relatedItems.html.twig' with {'relatedItems' : newsRelatedCategories} only %}
+    		timer.getElapsedTime('News'): {{ timer.getElapsedTime('News') }}<br>
+    	</div>
+    
+    	<p>
+    		Pages<input id="pagesButton" type="button" onClick="showHide('pages')"
+    			value="+">
+    	</p>
+    	<div class="demo" id="pagesDiv" style="display: none;">
+    		timer.addFlag('Pages'): {{ timer.addFlag('Pages') }} <br>
+    		<div class="pending">pages.additionalData MOKED API</div>
+    		<p>page By Id</p>
+    		{% include '/snippets/demo/pages.html.twig' with {'pages' : pageById} only %}
+    		<p>contact page By Id</p>
+    		{% include '/snippets/demo/pages.html.twig' with {'pages' : contactPages} only %}
+    		<p>sitemap page By Id</p>
+    		{% include '/snippets/demo/pages.html.twig' with {'pages' : sitemapPages} only %}
+    		<p>subpages page By Id</p>
+    		{% include '/snippets/demo/pages.html.twig' with {'pages' : subpagesPages} only %}
+    		<p>pages</p>
+    		{% include '/snippets/demo/pages.html.twig' with {'pages' : pages} only %}<br>
+    		timer.getElapsedTime('Pages'): {{ timer.getElapsedTime('Pages') }}<br>
+    	</div>
+    
+    	<p>
+    		Products<input id="productsButton" type="button"
+    			onClick="showHide('products')" value="+">
+    	</p>
+    	<div class="demo" id="productsDiv" style="display: none;">
+			timer.addFlag('Products'): {{ timer.addFlag('Products') }} <br>
+    		<p>product By Id</p>
+    		{% include '/snippets/demo/products.html.twig' with {'products' : productById} only %}
+       		<p>products</p> 
+       		{% include '/snippets/demo/products.html.twig' with	{'products' : products} only %} <br> 
+    		<p>products relateds</p> 
+    		{% include '/snippets/demo/products.html.twig' with {'products' : productRelateds} only %} <br>
+    		timer.getElapsedTime('Products'): {{ timer.getElapsedTime('Products') }}<br>
+    	</div>
+    
+    	<br><br><br><br>
+        timer.addFlag('demoEnd'): {{ timer.addFlag('demoEnd') }} <br>
+        timer.getElapsedTime('demoStart'): {{ timer.getElapsedTime('demoStart') }}<br>
+        timer.stop(true): {{ timer.stop(true) }}<br>
+            
+    </body>
+
+{% endblock body %}

@@ -1,0 +1,25 @@
+{%- macro pluginsAssets(args) -%}
+    
+    {%- set pluginsAssetsPath = getAssetsPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_PLUGINS')) -%}
+
+    {%- set assets = args.assets -%}
+    {%- if args.ambience != constant('SDK\\Enums\\AssetAmbience::ALL') -%}
+        {%- set assets = assets|filter(asset => asset.ambience == args.ambience) -%}
+    {%- endif -%}
+    {%- if args.position|trim|length -%}
+        {%- set assets = assets|filter(asset => asset.position == args.position) -%}
+    {%- endif -%}
+    {%- if args.type|trim|length -%}
+        {%- set assets = assets|filter(asset => asset.type == args.type) -%}
+    {%- endif -%}
+
+    {%- for asset in assets -%}
+        {%- set path = pluginsAssetsPath ~ asset.path -%}
+        {%- if asset.type == constant('SDK\\Enums\\AssetScopeType::CSS') -%}
+            <link rel="stylesheet" href="{{- path -}}">
+        {%- else -%}
+            <script src="{{- path -}}"></script>
+        {%- endif -%}
+    {%- endfor -%}
+
+{%- endmacro pluginsAssets -%}

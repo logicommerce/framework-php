@@ -1,0 +1,75 @@
+{%- macro gift(args, basketItem) -%}
+    {%- set productHashWildcard = basketItem.hash -%}
+    {%- if args.showImage == true -%}
+        <span class="miniBasketItemImage">
+            {%- if args.linkable == true -%}
+                <a href="{{ basketItem.urlSeo }}">
+            {%- endif -%}
+                <img src="{{ basketItem.images.smallImage }}" alt="{{ basketItem.name|striptags }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';" class="miniBasketItemImage img-fluid">
+            {%- if args.linkable == true -%}
+                </a>
+            {%- endif -%}
+        </span>
+    {%- endif -%}
+
+    <div class="miniBasketItemContent">
+        {%- if args.editable == false -%}
+            <span class="miniBasketItemNum">{{ basketItem.quantityOutput|replace({ '{{className}}': 'form-control' }) }}</span>
+        {%- endif -%}
+
+        {% set spacelessContent %}
+            <span class="miniBasketItemName">
+                {%- if args.linkable == true -%}
+                    <a href="{{ basketItem.urlSeo }}">
+                {%- endif -%}
+                    {{ basketItem.name|striptags }}
+                {%- if args.linkable == true -%}
+                    </a>
+                {%- endif -%}
+            </span>
+        {% endset %}
+        {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+
+        {%- if args.showBrand == true and basketItem.brandName|length -%}
+            <span class="miniBasketItemBrandName">{{ basketItem.brandName }}</span>
+        {%- endif -%}
+
+        {%- if args.showSku == true and basketItem.codes.sku|length -%}
+            <span class="miniBasketItemSku">{{ basketItem.codes.sku }}</span>
+        {%- endif -%}
+
+        {%- if args.editable == true -%}
+            <span class="miniBasketItemQuantity miniBasketItemNum">{{ basketItem.quantityOutput|replace({ '{{className}}': 'form-control' }) }}</span>
+        {%- endif -%}
+
+        {%- if args.showOptions == true -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemOptions.html.twig' as modeBasket -%}
+            {{ modeBasket.outputItemOptions(basketItem.options, 'miniBasketItem', args.showOptionValuesName) }}
+        {%- endif -%}
+
+        <div class="miniBasketItemPrice miniBasketItemPriceTotal">
+            {%- set giftTotal = basketItem.subtotal -%}
+            {%- if args.showTaxIncluded == true -%}
+                {%- set giftTotal = basketItem.total -%}
+            {%- endif -%}
+
+            {%- if giftTotal != 0 -%}
+                {{- outputHtmlCurrency(giftTotal) -}}
+            {%- else -%}
+                {{- outputHtmlCurrency(0) -}}
+            {%- endif -%}
+        </div>
+
+        {%- if args.showCustomTags == true -%}
+            <div class="miniBasketCustomTags">
+                {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemCustomTags.html.twig' as modeBasket -%}
+                {{- modeBasket.outputItemCustomTags(basketItem.customTagValues, args.showCustomTagPositions) -}}
+            </div>
+        {%- endif -%}
+
+        {%- if args.showItemNameDiscounts == true or args.showItemValueDiscounts != constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_NONE') -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/basket/output/productDiscounts.html.twig' as modeBasket -%}
+            {{- modeBasket.outputDiscounts(basketItem.appliedDiscounts, args.showTaxIncluded, args.showItemNameDiscounts, args.showItemValueDiscounts, args.showZeroDiscount) -}}
+        {%- endif -%}
+    </div>
+{%- endmacro -%}

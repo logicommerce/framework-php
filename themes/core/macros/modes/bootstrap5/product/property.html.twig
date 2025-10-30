@@ -1,0 +1,54 @@
+
+{% macro property(args) %}
+
+    {% set definition = args.product.definition %} 
+
+    {% if args.property == constant('FWK\\ViewHelpers\\Product\\Macro\\Property::PROPERTY_PRICE') and definition.showPrice == true %}
+
+        {% set class = 'product-price' %}
+        {% set htmlPrice = outputHtmlCurrency(getBuyPrice(args.product, false, args.priceWithTaxes)) %}
+
+        {% import 'macros/modes/' ~ coreMode ~ '/product/property/prices.html.twig' as modeProduct %}
+        {{ modeProduct.prices(class, htmlPrice, args.taxText, args.appliedTaxes, args.isAlternativePrice) }}
+
+    {% elseif args.property == constant('FWK\\ViewHelpers\\Product\\Macro\\Property::PROPERTY_BASE_PRICE') and definition.showPrice == true and definition.offer == true %}
+
+        {% set class = 'product-basePrice' %}
+        {% set basePrice = getBuyPrice(args.product, true, args.priceWithTaxes) %}
+        {% set retailPrice = getBuyPrice(args.product, false, args.priceWithTaxes) %}
+
+        {% set htmlPrice = outputHtmlCurrency(basePrice) %}
+        {% import 'macros/modes/' ~ coreMode ~ '/product/property/prices.html.twig' as modeProduct %}
+        {{ modeProduct.prices(class, htmlPrice, args.taxText, args.appliedTaxes, args.isAlternativePrice, retailPrice >= basePrice) }}
+
+    {% elseif args.property == constant('FWK\\ViewHelpers\\Product\\Macro\\Property::PROPERTY_SAVING') %}
+
+        {% set basePrice = getBuyPrice(args.product, true, args.priceWithTaxes) %}
+        {% set retailPrice = getBuyPrice(args.product, false, args.priceWithTaxes) %}
+
+    	{% import 'macros/modes/' ~ coreMode ~ '/product/property/saving.html.twig' as modeProduct %}
+        {{ modeProduct.saving(args.product, basePrice, retailPrice) }}
+
+    {% elseif args.property == constant('FWK\\ViewHelpers\\Product\\Macro\\Property::PROPERTY_STOCK') %}
+
+    	{% import 'macros/modes/' ~ coreMode ~ '/product/property/stock.html.twig' as modeProduct %}
+        {{ modeProduct.stock(args.product, args.stockAlertButton, args.stockAlertButtonClass, args.showStock, args.showAvailabilityName, args.showStockText, args.showAvailabilityImage) }}
+
+    {% elseif args.property == constant('FWK\\ViewHelpers\\Product\\Macro\\Property::PROPERTY_SKU') %}
+
+    	{% import 'macros/modes/' ~ coreMode ~ '/product/property/sku.html.twig' as modeProduct %}
+        {{ modeProduct.sku(args.product) }}
+
+    {% elseif args.property == constant('FWK\\ViewHelpers\\Product\\Macro\\Property::PROPERTY_EAN') %}
+
+    	{% import 'macros/modes/' ~ coreMode ~ '/product/property/ean.html.twig' as modeProduct %}
+        {{ modeProduct.ean(args.product) }}
+
+    {% elseif args.property == constant('FWK\\ViewHelpers\\Product\\Macro\\Property::GRID_TOTAL_UNITS') %}
+
+    	{% import 'macros/modes/' ~ coreMode ~ '/product/property/gridTotalUnits.html.twig' as modeProduct %}
+        {{ modeProduct.gridTotalUnits(args.product) }}
+
+    {% endif %}
+
+{% endmacro %}

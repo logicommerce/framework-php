@@ -1,0 +1,16 @@
+{% macro buyFormVoucherPurchase(args) -%}
+
+{%- if args.product.productType == 'VOUCHER_PURCHASE' -%}
+    <div class ="buyFormVoucherPurchase">
+        <label class="form-label buyFormVoucherPurchaseLabel" >{{  languageSheet[constant('FWK\\Enums\\LanguageLabels::VOUCHER_PURCHASE_SECTION')]|ucfirst }}</label>
+        <div class="formField ">
+            <label class="form-label buyFormVoucherPurchaseEmailLabel" for="voucher-purchase-recipient">{{  languageSheet[constant('FWK\\Enums\\LanguageLabels::VOUCHER_PURCHASE_RECIPIENT')]|ucfirst }}</label>
+            <input id="voucher-purchase-recipient" type="email" class="form-control formField buyFormVoucherPurchaseEmail">
+        </div>    
+        <div class="formField">
+            <label class="form-label" for="voucher-purchase-recipient">{{  languageSheet[constant('FWK\\Enums\\LanguageLabels::VOUCHER_PURCHASE_MESSAGE')]|ucfirst }}</label>
+            <textarea id="voucher-purchase-message" class="form-control formField buyFormVoucherPurchaseMessage"></textarea>
+        </div>
+    </div>
+{%- endif -%}
+{% endmacro buyFormVoucherPurchase %}

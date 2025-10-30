@@ -1,0 +1,31 @@
+<div class="contentTd">
+	<table border=1>
+		<tr>
+			<th>Label</th><th>Value</th>
+		</tr>
+		{% if codes.manufacturerSku is defined %}
+    		<tr>
+    			<td>manufacturerSku</td><td>{{ codes.manufacturerSku }}</td>
+    		</tr>
+		{% endif %}
+		<tr>
+			<td>sku</td><td>{{ codes.sku }}</td>
+		</tr>
+		<tr>
+			<td>jan</td><td>{{ codes.jan }}</td>
+		</tr>
+		<tr>
+			<td>isbn</td><td>{{ codes.isbn }}</td>
+		</tr>
+		<tr>
+			<td>ean</td><td>{{ codes.ean }}</td>
+		</tr>
+		<tr>
+			<td>upc</td><td>{{ codes.upc }}</td>
+		</tr>
+	</table>
+</div>
+
+
+
+

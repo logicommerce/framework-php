@@ -1,0 +1,47 @@
+{#
+	@description Paint outputItemCustomTags
+    @param {array} customTagsArray
+    @param {array} showCustomTagPositions
+    @param {bool} showName
+    @param {bool} showValue
+    
+    @example
+        {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemCustomTags.html.twig' as modeBasket %}    
+        {{ modeBasket.outputItemCustomTags(basketRow.customTagsValues, args.showCustomTagPositions) }}
+#}
+{% macro outputItemCustomTags(customTagsArray, showCustomTagPositions = [], showName = true, showValue = true) %}
+
+    {% if customTagsArray|length %}
+        <div class="customTags productCustomTags">
+
+            {% set printedIndex = 1 %}
+            {% for customTag in customTagsArray %}
+                {# if showCustomTagPositions[] is empty, print all (inOrders true) customTags #}
+                {% if customTag.inOrders == true and (customTag.position in showCustomTagPositions or showCustomTagPositions is empty) %}
+                    
+                    {% set parsedControlType = '' %}
+                    {% for controlTypePart in customTag.controlType|split('_') %}
+                        {% set parsedControlType = parsedControlType ~ controlTypePart|lower|capitalize %}
+                    {% endfor %}
+
+                    <div class="customTag productCustomTag productCustomTagType{{ parsedControlType }} {% if loop.first %}productCustomTagFirst{% elseif loop.last %}productCustomTagLast{% endif %}" data-lc-ct='{{ outputJsonHtmlString({ pid: customTag.customTagPId, position: customTag.position }) }}'>
+                        {% if showName == true and customTag.name|length %}
+                            <span class="customTagName productCustomTagName">
+                                {{ customTag.name }}
+                            </span>
+                        {% endif %}
+
+                        {% if showValue == true %}    
+                            <span class="customTagValue productCustomTagValue">
+                                {% include 'macros/modes/' ~ coreMode ~ '/basket/utils/customTagTypes/' ~ customTag.controlType ~ '.html.twig' %}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% set printedIndex = printedIndex + 1 %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
+{% endmacro outputItemCustomTags %}

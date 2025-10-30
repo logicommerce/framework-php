@@ -1,0 +1,3489 @@
+{#- @documentation
+    {
+        "name": "bundleGrouping",
+        "description": [
+            {
+                "es": "Genera el bloque de bundleGrouping segun la definicion y agrupaciones enviadas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "bundleGrouping",
+                "description": [
+                    {
+                        "es": "Indica la definicion de bundle grouping que se quiere mostrar. Este parametro es oblicatorion."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\BundleGrouping",
+                "default": "null",
+                "required": true
+            },
+            {
+                "param": "products",
+                "description": [
+                    {
+                        "es": "Indica la definicion de de los productos usados en el bundle. Este parametro es oblicatorion. Cada elemento a de ser un objeto de tipo SDK\\Dtos\\Catalog\\Product\\Product"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": true
+            },
+            {
+                "param": "showBundleDefinition",
+                "description": [
+                    {
+                        "es": "Define se quiere mostrar un cabecero con la definicion del bundle."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showUniqueUnit",
+                "description": [
+                    {
+                        "es": "Define si se quiere mostrar el texto de unidad única"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "addMainProducts",
+                "description": [
+                    {
+                        "es": "Define si se de incluir en el div proncipal la definicion de todos los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "bundleId",
+                "description": [
+                    {
+                        "es": "Identificador del bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            },
+            {
+                "param": "shoppingListRowId",
+                "description": [
+                    {
+                        "es": "Identificador dentro de la lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "buyFormOptionsArgs",
+                "description": [
+                    {
+                        "es": "Define los valores que se pasaran a la macro 'buyFormOptions' que se quiere mostrar. Los parámetros a incluir dentro de este array, son los mismos que se pasarían a la macro de product.buyFormOptions "
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "buyBundleForm",
+                "description": [
+                    {
+                        "es": "Define los valores que se aplicaran para montar al formulario de compra del bundle. En este array se pueden envar los valores: (string)class, (string)showBundleBuyTitle, (bool)showQuantity, (bool)showQuantitySelectableBox, (int)minQuantity, (int)maxQuantity, (bool)showPrice, (bool)showBasePrice, (int)bundleId"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.product as productMacros %} |||{{ productMacros.bundleGrouping({ |||bundleGrouping: bundleGrouping, |||showBundleDefinition: true, |||buyFormOptionsArgs: { |||showShortDescription: true, |||showUnavailableLabel: true, |||selectDefaults: true, |||showImageOptions: true |||}, |||buyBundleForm: { |||class: 'formClass', |||showQuantity: true, |||showQuantitySelectableBox: false, |||minQuantity: 1, |||maxQuantity: 5, |||showPrice: true, |||showBasePrice: true |||} |||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/BundleGrouping.php",
+        "relatedCoreFiles": [
+            {
+                "files": "macros/modes/{{coreMode}}/product/bundleGrouping.html.twig",
+                "description": [
+                    {
+                        "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            },
+            {
+                "files": "macros/modes/{{coreMode}}/product/bundle/buyForm.html.twig",
+                "description": [
+                    {
+                        "es": "Macro llamada desde la macro principal que se encarga de montar el formulario de compra del bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            },
+            {
+                "files": "macros/modes/{{coreMode}}/product/bundle/definition.html.twig",
+                "description": [
+                    {
+                        "es": "Macro llamada desde la macro principal que se encarga de montar el cabecero con la definicion del bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            },
+            {
+                "files": "macros/modes/{{coreMode}}/product/bundle/grouping.html.twig",
+                "description": [
+                    {
+                        "es": "Macro llamada desde la macro principal que se encarga de montar el grupo de productos con sus opciones, que forman un bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            }
+        ]
+    }
+@endDocumentation -#}
+{% macro bundleGrouping(args) %}
+    {% set debugFlag = 'productMacros-bundleGrouping-' ~ uniqid() %}
+    {{ addTimerDebugFlag(debugFlag,true) }}
+    {% set viewParameters = viewHelpers.product.bundleGroupingMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/product/bundleGrouping.html.twig' as modeProduct %}
+    {{ modeProduct.bundleGrouping(viewParameters) }}
+    {{ addTimerDebugFlag(debugFlag,false) }}
+{% endmacro bundleGrouping %}
+
+{#- @documentation
+    {
+        "name": "bundles",
+        "description": [
+            {
+                "es": "Genera el bloque de bundles segun la definicion y agrupaciones enviadas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "productBundles",
+                "description": [
+                    {
+                        "es": "Indica las definiciones de bundles que se quieren mostrar. Este parametro es oblicatorion."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Services\\Dtos\\BundleDefinitionsWithGroupings",
+                "default": "null",
+                "required": true
+            },
+            {
+                "param": "showBundleDefinition",
+                "description": [
+                    {
+                        "es": "Define se quiere mostrar un cabecero con la definicion del bundle."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showUniqueUnit",
+                "description": [
+                    {
+                        "es": "Define si se quiere mostrar el texto de unidad única"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "buyFormOptionsArgs",
+                "description": [
+                    {
+                        "es": "Define los valores que se pasaran a la macro 'buyFormOptions' que se llamará desde cada uno de los bundles. Los parámetros a incluir dentro de este array, son los mismos que se pasarían a la macro de product.buyFormOptions "
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "buyBundleForm",
+                "description": [
+                    {
+                        "es": "Define los valores que se aplicaran para montar cada formulario de compra de cada bundle. En este array se pueden envar los valores: (string)class, (string)showBundleBuyTitle, (bool)showQuantity, (bool)showQuantitySelectableBox, (int)minQuantity, (int)maxQuantity, (bool)showPrice, (bool)showBasePrice, (int)bundleId"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.product as productMacros %} |||{{ productMacros.bundles({ |||productBundles: productBundles, |||showBundleDefinition: true, |||buyFormOptionsArgs: { |||showShortDescription: true, |||showUnavailableLabel: true, |||selectDefaults: true, |||showImageOptions: true |||}, |||buyBundleForm: { |||class: 'formClass', |||showQuantity: true, |||showQuantitySelectableBox: false, |||minQuantity: 1, |||maxQuantity: 5, |||showPrice: true, |||showBasePrice: true |||} |||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/Bundles.php",
+        "relatedCoreFiles": [
+            {
+                "files": "macros/modes/{{coreMode}}/product/bundles.html.twig",
+                "description": [
+                    {
+                        "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            },
+            {
+                "files": "macros/modes/{{coreMode}}/product/bundle/buyForm.html.twig",
+                "description": [
+                    {
+                        "es": "Macro llamada desde la macro principal que se encarga de montar el formulario de compra del bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            },
+            {
+                "files": "macros/modes/{{coreMode}}/product/bundle/definition.html.twig",
+                "description": [
+                    {
+                        "es": "Macro llamada desde la macro principal que se encarga de montar el cabecero con la definicion del bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            },
+            {
+                "files": "macros/modes/{{coreMode}}/product/bundle/grouping.html.twig",
+                "description": [
+                    {
+                        "es": "Macro llamada desde la macro principal que se encarga de montar el grupo de productos con sus opciones, que forman un bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            }
+        ]
+    }
+@endDocumentation -#}
+{% macro bundles(args) %}
+    {% set debugFlag = 'productMacros-bundles' %}
+    {{ addTimerDebugFlag(debugFlag, true) }}
+    {% set viewParameters = viewHelpers.product.bundlesMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/product/bundles.html.twig' as modeProduct %}
+    {{ modeProduct.bundles(viewParameters) }}
+    {{ addTimerDebugFlag(debugFlag, false) }}
+{% endmacro bundles %}
+
+{#- @documentation
+    {
+        "name": "buttonClearProductsFilter",
+        "description": [
+            {
+                "es": "Pinta un boton que limpia los filtros aplicados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Añade un nombre de classe personalizado en la salida del boton HTML"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "show",
+                "description": [
+                    {
+                        "es": "Define cuando mostrar el boton"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Product/Macro/ButtonClearProductsFilter::SHOW_FITLERING",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/ButtonClearProductsFilter::SHOW_ALWAYS",
+                        "description": [
+                            {
+                                "es": "Mostrar siempre el boton"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/ButtonClearProductsFilter::SHOW_FITLERING",
+                        "description": [
+                            {
+                                "es": "Mostrar si hay filtros aplicados"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/ButtonClearProductsFilter::SHOW_WITH_NO_RESULTS",
+                        "description": [
+                            {
+                                "es": "Mostrar si no hay resultados para los filtros aplicados"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "applicableFilters",
+                "description": [
+                    {
+                        "es": "Objeto applicableFilters, con los filtros aplicables"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Theme\\Dtos\\ApplicableFilters",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "appliedFilters",
+                "description": [
+                    {
+                        "es": "Array con los filtros aplicados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "productItems",
+                "description": [
+                    {
+                        "es": "Numero de productos resultantes, si show es identico a SHOW_WITH_NO_RESULTS y filtering es true este parametro pasa a ser required: true"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buttonClearProductsFilter({ |class: 'test-class',  |show: 'always', |applicableFilters: themeConfiguration.category.productList.applicableFilters, |appliedFilters: productsFilter, |productItems: products.items|length |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ButtonClearProductsFilter.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buttonClearProductsFilter.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonClearProductsFilter(args) %}
+    {{ addTimerDebugFlag('productMacros-buttonClearProductsFilter',true) }}
+    {% set viewParameters = viewHelpers.product.buttonClearProductsFilterMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buttonClearProductsFilter.html.twig' as modeProduct %}
+    {{ modeProduct.buttonClearProductsFilter(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buttonClearProductsFilter',false) }}
+{% endmacro buttonClearProductsFilter %}
+
+{#- @documentation
+    {
+        "name": "buttonProductComparison",
+        "description": [
+            {
+                "es": "Pinta el boton para añadir o eliminar de la lista de productos del comparador"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto producto, que esta en la lista de deseados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra la etiqueta de la lista de deseados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "allowDelete",
+                "description": [
+                    {
+                        "es": "Permite o no que los productos sean retirados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de la classe del boton que se mostrara en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buttonProductComparison({ |product: controllerItem, |showLabel: false, |class: 'btn btn-secondary' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ButtonProductComparison.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buttonProductComparison.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonProductComparison(args) %}
+    {{ addTimerDebugFlag('productMacros-buttonProductComparison',true) }}
+    {% set viewParameters = viewHelpers.product.buttonProductComparisonMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buttonProductComparison.html.twig' as modeProduct %}
+    {{ modeProduct.buttonProductComparison(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buttonProductComparison',false) }}
+{% endmacro buttonProductComparison %}
+
+{#- @documentation
+    {
+        "name": "buttonDiscounts",
+        "description": [
+            {
+                "es": "Pinta un boton para ver los productos con descuentos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "discounts",
+                "description": [
+                    {
+                        "es": "Coleccion de productos con descuentos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de la classe del boton que se mostrara en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buttonDiscounts({ |discounts: productDiscounts |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ButtonDiscounts.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buttonDiscounts.hmtl.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonDiscounts(args) %}
+    {{ addTimerDebugFlag('productMacros-buttonDiscounts',true) }}
+    {% set viewParameters = viewHelpers.product.buttonDiscountsMacro(args) %}   
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buttonDiscounts.html.twig' as modeProduct %}
+    {{ modeProduct.buttonDiscounts(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buttonDiscounts',false) }}
+{% endmacro buttonDiscounts %}
+
+{#- @documentation
+    {
+        "name": "buttonProductContact",
+        "description": [
+            {
+                "es": "Pinta el contacto del producto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "id",
+                "description": [
+                    {
+                        "es": "Id del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado para html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra la etiqueta del boton"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buttonProductContact({ |'id': controllerItem.id, |'class': 'product-contact-product-page btn-link'  |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ButtonProductContact.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buttonProductContact.html-twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonProductContact(args) %}
+    {{ addTimerDebugFlag('productMacros-buttonProductContact',true) }}
+    {% set viewParameters = viewHelpers.product.buttonProductContactMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buttonProductContact.html.twig' as modeProduct %}
+    {{ modeProduct.buttonProductContact(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buttonProductContact',false) }}
+{% endmacro buttonProductContact %}
+
+{#- @documentation
+    {
+        "name": "buttonRecommend",
+        "description": [
+            {
+                "es": "Pinta un boton para ver los productos recomendados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "id",
+                "description": [
+                    {
+                        "es": "Id del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de la clase personalizado para html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "type",
+                "description": [
+                    {
+                        "es": "Tipo de elemento para personalizar el html."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buttonRecommend({ |'id': controllerItem.id,  |'class': 'product-contact-product-page btn-link'  |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ButtonRecommend.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buttonRecommend.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonRecommend(args) %}
+    {{ addTimerDebugFlag('productMacros-buttonRecommend',true) }}
+    {% set viewParameters = viewHelpers.product.buttonRecommendMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buttonRecommend.html.twig' as modeProduct %}
+    {{ modeProduct.buttonRecommend(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buttonRecommend',false) }}
+{% endmacro buttonRecommend %}
+
+{#- @documentation
+    {
+        "name": "buttonShoppingList",
+        "description": [
+            {
+                "es": "Pinta el boton para ver los productos deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "shoppingListRow",
+                "description": [
+                    {
+                        "es": "Objeto shoppingListRow, que esta en la lista de deseados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "false"
+            },
+                        {
+                "param": "item",
+                "description": [
+                    {
+                        "es": "Objeto product o bundle, con la información completa del shoppingListRow"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra la etiqueta de la lista de deseados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "allowDelete",
+                "description": [
+                    {
+                        "es": "Permite o no que los productos sean retirados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDefaultShoppingListButton",
+                "description": [
+                    {
+                        "es": "Permite o no mostrar el botón para añadir a la ShoppingList predeterminada"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showShoppingLists",
+                "description": [
+                    {
+                        "es": "Permite o no mostrar la lista de ShoppingLists en el caso de tenerla contratada"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "allowAddShoppingList",
+                "description": [
+                    {
+                        "es": "Permite o no mostrar en la lista de ShoppingLists la opcion de crear una lista nueva en el caso de tener este servicio contratado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de la classe del boton que se mostrara en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buttonShoppingList({ |item: controllerItem, |showLabel: false, |class: 'btn btn-secondary' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ButtonShoppingList.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buttonShoppingList.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonShoppingList(args) %}
+    {{ addTimerDebugFlag('productMacros-buttonShoppingList',true) }}
+    {% set viewParameters = viewHelpers.product.buttonShoppingListMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buttonShoppingList.html.twig' as modeProduct %}
+    {{ modeProduct.buttonShoppingList(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buttonShoppingList',false) }}
+{% endmacro buttonShoppingList %}
+
+{#- @documentation
+    {
+        "name": "buttonWishlist",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta el boton para ver los productos deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto producto, que esta en la lista de deseados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra la etiqueta de la lista de deseados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "allowDelete",
+                "description": [
+                    {
+                        "es": "Permite o no que los productos sean retirados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de la classe del boton que se mostrara en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buttonWishlist({ |product: controllerItem, |showLabel: false, |class: 'btn btn-secondary' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ButtonWishlist.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buttonWishlist.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonWishlist(args) %}
+    {{ addTimerDebugFlag('productMacros-buttonWishlist',true) }}
+    {% set viewParameters = viewHelpers.product.buttonWishlistMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buttonWishlist.html.twig' as modeProduct %}
+    {{ modeProduct.buttonWishlist(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buttonWishlist',false) }}
+{% endmacro buttonWishlist %}
+
+{#- @documentation
+    {
+        "name": "buyForm",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta el formulario de compra"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto product, producto a comprar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "''",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se muestra en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "style",
+                "description": [
+                    {
+                        "es": "Estilo del atributo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "content",
+                "description": [
+                    {
+                        "es": "Contenido del formulario a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "sectionId",
+                "description": [
+                    {
+                        "es": "Id de la seccion del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.product as productMacros %} |||{{ productMacros.buyForm({ |||product: controllerItem, |||class: 'product-form', |||style: 'display:block;' |||content: contentBuyForm |||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/BuyForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buyForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buyForm(args) %}
+    {{ addTimerDebugFlag('productMacros-buyForm',true) }}
+    {% set viewParameters = viewHelpers.product.buyFormMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buyForm.html.twig' as modeProduct %}
+    {{ modeProduct.buyForm(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buyForm',false) }}
+{% endmacro buyForm %}
+
+{#- @documentation
+    {
+        "name": "buyFormOptions",
+        "description": [
+            {
+                "es": "Genera formulario de comppra con varias opciones del producto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto product, producto a comprar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showShortDescription",
+                "description": [
+                    {
+                        "es": "Muestra la descripcion corta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showLongDescription",
+                "description": [
+                    {
+                        "es": "Muestra la descripcion larga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showUnavailableLabel",
+                "description": [
+                    {
+                        "es": "Muestra una etiqueta para cada producto no disponible"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "selectDefaults",
+                "description": [
+                    {
+                        "es": "Autoselecciona las opciones por defecto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showImageOptions",
+                "description": [
+                    {
+                        "es": "Muestra las opciones de imagen"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showBasePrice",
+                "description": [
+                    {
+                        "es": "Muestra el precio base"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showRetailPrice",
+                "description": [
+                    {
+                        "es": "Muestra el precio minorista"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showTitleInLabelUniqueImage",
+                "description": [
+                    {
+                        "es": "Muestra el nombre en una unica etiqueta con la imagen"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "useUrlOptionsParams",
+                "description": [
+                    {
+                        "es": "Utiliza los valores de opciones que se envien por url para selecionarlos por defecto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "addOptionsToProductLink",
+                "description": [
+                    {
+                        "es": "Añade las opciones seleccionadas al link del product"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showAsGridQuantityPlugin",
+                "description": [
+                    {
+                        "es": "Activa el plugin de cantidad con botones de mas y menos en el campo de cantidad en la cuadricula de opciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showAsGridUniqueDimension",
+                "description": [
+                    {
+                        "es": "Cambia el comportamiento por defecto de la cuadricula de opciones. Por defecto tanto si tenemos una como dos opciones en cuadricula se mostrará un array en dos dimensiones. Puede forzarse a una sola dimensión, que generará todas las combinaciones."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showGridFirst",
+                "description": [
+                    {
+                        "es": "Indica si a la hora de pintar las opciones del producto, se ha de pintar primero el grid con las opciones de este tipo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showGridImageValues",
+                "description": [
+                    {
+                        "es": "Indica si se han de pintar en el grid la imagen de las opciones de tipo SDK\\Enums\\OptionType::SINGLE_SELECTION_IMAGE"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showGridAvailabilityImage",
+                "description": [
+                    {
+                        "es": "Indica si se han de pintar en el grid la imagen asociada a la disponibilidad de cada combinación"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showGridAvailabilityName",
+                "description": [
+                    {
+                        "es": "Indica si se han de pintar en el grid la el nombre de la disponibilidad de cada combinación"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showGridDisabled",
+                "description": [
+                    {
+                        "es": "Indica si se han deshabilitar la opcion de mostrar el modo grid"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "optionReferences",
+                "description": [
+                    {
+                        "es": "Array de elementos SDK\\Dtos\\User\\OptionReference, usados para dal valores a las opciones no combinables, las combinables se alimentan del combinationData"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showOrderBox",
+                "description": [
+                    {
+                        "es": "Indica si se ha de mostrar el cuadro de compra sobreescribiendo el valor de definition.showOrderBox"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "useFilePlugin",
+                "description": [
+                    {
+                        "es": "Indica si se ha usar el plugin para gestinar los adjuntos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "attachmentAcceptAttribute",
+                "description": [
+                    {
+                        "es": "Indica el valor para el atributo 'accept' en los input file para los adjuntos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buyFormOptions({  |product: controllerItem, |showUnavailableLabel: true, |selectDefaults: true |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/BuyFormOptions.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buyFormOptions.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buyFormOptions(args) %}
+    {{ addTimerDebugFlag('productMacros-buyFormOptions',true) }}
+    {% set viewParameters = viewHelpers.product.buyFormOptionsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions.html.twig' as modeProduct %}
+    {{ modeProduct.buyFormOptions(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buyFormOptions',false) }}
+{% endmacro buyFormOptions %}
+
+{#- @documentation
+    {
+        "name": "buyFormProductOffset",
+        "description": [
+            {
+                "es": "Pinta un contenedor que se llena con el pasos al comprar producto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se mostrara en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showOrderBox",
+                "description": [
+                    {
+                        "es": "Clave del objeto del producto {product.definition.showOrderBox}"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buyFormProductOffset({  |showOrderBox: controllerItem.definition.showOrderBox |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/BuyFormProductOffset.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buyFormProductOffset.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buyFormProductOffset(args) %}
+    {{ addTimerDebugFlag('productMacros-buyFormProductOffset',true) }}
+    {% set viewParameters = viewHelpers.product.buyFormProductOffsetMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buyFormProductOffset.html.twig' as modeProduct %}
+    {{ modeProduct.buyFormProductOffset(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buyFormProductOffset',false) }}
+{% endmacro buyFormProductOffset %}
+
+{#- @documentation
+    {
+        "name": "buyFormQuantity",
+        "description": [
+            {
+                "es": "Compra la cantidad seleccionada en la entrada"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto product, producto a comprar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado para el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "quantityPlugin",
+                "description": [
+                    {
+                        "es": "Activa el plugin de cantidad con botones de mas y menos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showSelectableBox",
+                "description": [
+                    {
+                        "es": "El campo de cantidad se muestra como un selector desplegable"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "selectableBoxRows",
+                "description": [
+                    {
+                        "es": "Maximo de lineas del selector desplegable que se activa con el parametro showSelectableBox"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "5",
+                "required": "false"
+            },
+            {
+                "param": "manualMinQuantity",
+                "description": [
+                    {
+                        "es": "Cantidad minima de producto para comprar que sobrescribe el minimo por defecto."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "manualMaxQuantity",
+                "description": [
+                    {
+                        "es": "Cantidad maxima de productos a comprar que sobrescribe el maximo por defecto."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "forceMinQuantityZero",
+                "description": [
+                    {
+                        "es": "Permite el input de cantidad pueda tenenr el valor 0"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showOrderBox",
+                "description": [
+                    {
+                        "es": "Indica si se ha de mostrar el cuadro de compra sobreescribiendo el valor de definition.showOrderBox"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+        ],
+        "example": " |{% import macrosCore.product as produtMacros%} |{{ productMacros.buyFormQuantity({  |product: controllerItem,  |quantityPlugin: true  |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/BuyFormQuantity.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buyFormQuantity.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buyFormQuantity(args) %}
+    {{ addTimerDebugFlag('productMacros-buyFormQuantity',true) }}
+    {% set viewParameters = viewHelpers.product.buyFormQuantityMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buyFormQuantity.html.twig' as modeProduct %}
+    {{ modeProduct.buyFormQuantity(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buyFormQuantity',false) }}
+{% endmacro buyFormQuantity %}
+
+{#- @documentation
+    {
+        "name": "buyFormSubmit",
+        "description": [
+            {
+                "es": "Pinta formulario para aceptar la forma de compra"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "id",
+                "description": [
+                    {
+                        "es": "Id del producto, requerida"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showOrderBox",
+                "description": [
+                    {
+                        "es": "Clave del objeto producto {product.definition.showOrderBox}"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Establece un nombre de clase específico para el resultado html de salida"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra la etiqueta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "formButtonHook",
+                "description": [
+                    {
+                        "es": "Establece el nombre del botón que JS va a enganchar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "true"
+            },
+            {
+                "param": "expressCheckout",
+                "description": [
+                    {
+                        "es": "Muestra el botón de compra con expressCheckout"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.buyFormSubmit({ |id: controllerItem.id, |showOrderBox: controllerItem.definition.showOrderBox, |class: 'btn btn-primary' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/BuyFormSubmit.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buyFormSubmit.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buyFormSubmit(args) %}
+    {{ addTimerDebugFlag('productMacros-buyFormSubmit',true) }}
+    {% set viewParameters = viewHelpers.product.buyFormSubmitMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buyFormSubmit.html.twig' as modeProduct %}
+    {{ modeProduct.buyFormSubmit(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buyFormSubmit',false) }}
+{% endmacro buyFormSubmit %}
+
+{#- @documentation
+    {
+        "name": "buyProductForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de compra"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto product, producto a comprar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "''",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se muestra en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "style",
+                "description": [
+                    {
+                        "es": "Estilo del atributo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "content",
+                "description": [
+                    {
+                        "es": "Contenido del formulario a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "sectionId",
+                "description": [
+                    {
+                        "es": "Id de la seccion del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "printParentHash",
+                "description": [
+                    {
+                        "es": "Permite imprimir el input del hash del producto padre. Por defecto no se imprime."
+                    },
+                    {
+                        "en": "Allows printing the input of the parent product hash. By default, it is not printed."
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "shoppingListRowId",
+                "description": [
+                    {
+                        "es": "Id del shoppingListRow, para actualizarlo si se cambia el valor de alguna opción"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            }
+        ],
+        "example": " |||{% import macrosCore.product as productMacros %} |||{{ productMacros.buyProductForm({ |||product: controllerItem, |||class: 'product-form', |||style: 'display:block;' |||content: contentBuyProductForm |||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/BuyProductForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/buyProductForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buyProductForm(args) %}
+    {{ addTimerDebugFlag('productMacros-buyProductForm',true) }}
+    {% set viewParameters = viewHelpers.product.buyProductFormMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/buyProductForm.html.twig' as modeProduct %}
+    {{ modeProduct.buyProductForm(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-buyProductForm',false) }}
+{% endmacro buyProductForm %}
+
+
+{#- @documentation
+    {
+        "name": "comments",
+        "description": [
+            {
+                "es": "Pinta los comentarios del producto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "comments",
+                "description": [
+                    {
+                        "es": "Coleccion de comentarios del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ProductCommentCollection",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.comments({  |comments: productComments |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/Comments.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/comments.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro comments(args) %}
+    {{ addTimerDebugFlag('productMacros-comments',true) }}
+    {% set viewParameters = viewHelpers.product.commentsMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/comments.html.twig' as modeProduct %}
+    {{ modeProduct.comments(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-comments',false) }}
+{% endmacro comments %}
+
+{#- @documentation
+    {
+        "name": "commentsForm",
+        "description": [
+            {
+                "es": "Pinta el formulario para los comentarios"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "configuration",
+                "description": [
+                    {
+                        "es": "Configuracion para el formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Theme\\Dtos\\FormComments",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "El formulario que se quiere aplicar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.commentsForm({ |form: formComment, |configuration: themeConfiguration.forms.comments |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/CommentsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/commentsForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro commentsForm(args) %}
+    {{ addTimerDebugFlag('productMacros-commentsForm',true) }}
+    {% set viewParameters = viewHelpers.product.commentsFormMacro(args) %}
+    
+    {% from "macros/form.twig" import legalCheck as legalCheckMacro %}
+    {% set legalCheck %}
+		{{ legalCheckMacro({}) }}
+	{% endset %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/commentsForm.html.twig' as modeProduct %}
+    {{ modeProduct.commentsForm(viewParameters, legalCheck) }}
+    {{ addTimerDebugFlag('productMacros-commentsForm',false) }}
+{% endmacro commentsForm %}
+
+{#- @documentation
+    {
+        "name": "contactForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de contacto del producto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario que se quiere aplicar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros%} |{{ productMacros.contactForm({ |form: formProductContact |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ContactForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/contactForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro contactForm(args) %}
+    {{ addTimerDebugFlag('productMacros-contactForm',true) }}
+    {% set viewParameters = viewHelpers.product.contactFormMacro(args) %}
+
+    {%- from "macros/form.twig" import legalCheck as legalCheckMacro -%}
+    {%- set legalCheck -%}
+        {{ legalCheckMacro({}) }}
+    {%- endset -%}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/contactForm.html.twig' as modeProduct %}
+    {{ modeProduct.contactForm(viewParameters, legalCheck) }}
+    {{ addTimerDebugFlag('productMacros-contactForm',false) }}
+{% endmacro contactForm %}
+
+{#- @documentation
+    {
+        "name": "countdown",
+        "description": [
+            {
+                "es": "Pinta el contador del producto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto producto, producto para aplicar el countdown"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "eventTime",
+                "description": [
+                    {
+                        "es": "Define el tiempo que dura la oferta o producto comprable"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Product/Macro/Countdown::EVENT_TIME_END_OFFER_DATE",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Countdown::EVENT_TIME_END_OFFER_DATE",
+                        "description": [
+                            {
+                                "es": "Al acabar el contador se acaba la oferta"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Countdown::EVENT_TIME_END_AVAILABLE_DATE",
+                        "description": [
+                            {
+                                "es": "Al acabar el contador deja de estar disponible el producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "callback",
+                "description": [
+                    {
+                        "es": "Al finalizar countdown 'reload'|'goBack'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Product/Macro/Countdown::CALLBACK_RELOAD",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Countdown::CALLBACK_RELOAD",
+                        "description": [
+                            {
+                                "es": "Al acabar el contador lo recarga"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Countdown::CALLBACK_GO_BACK",
+                        "description": [
+                            {
+                                "es": "Al acabar el contador vuelve atras"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "template",
+                "description": [
+                    {
+                        "es": "Coloca la salida de template Ex: '{{days}} {{lblDays}}, {{hours}}:{{minutes}}:{{seconds}}'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "categoryId",
+                "description": [
+                    {
+                        "es": "Con callback 'goBack' redirige a esta categoryId"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "endDate",
+                "description": [
+                    {
+                        "es": "Fecha final personalizada"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "\\DateTime",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.countdown({ |product: controllerItem, |eventTime: constant('FWK\\ViewHelpers\\Product\\Macro\\Countdown::EVENT_TIME_END_OFFER_DATE'), |callback: constant('FWK\\ViewHelpers\\Product\\Macro\\Countdown::CALLBACK_RELOAD'), |template: languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_COUNTDOWN_TEMPLATE')], |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/Countdown.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/countdown.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro countdown(args) %}
+    {{ addTimerDebugFlag('productMacros-countdown',true) }}
+    {% set viewParameters = viewHelpers.product.countdownMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/countdown.html.twig' as modeProduct %}
+    {{ modeProduct.countdown(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-countdown',false) }}
+{% endmacro countdown %}
+
+{#- @documentation
+    {
+        "name": "discounts",
+        "description": [
+            {
+                "es": "Pinta los productos con descuentos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "discounts",
+                "description": [
+                    {
+                        "es": "Coleccion de productos con descuentos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK \\Core \\Dtos \\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "productId",
+                "description": [
+                    {
+                        "es": "Id del producto al que pertenecen los descuentos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "showActivityLimit",
+                "description": [
+                    {
+                        "es": "Indica si queremos que se muestre el periodo de actividad, en el caso de tenerlo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showSmallImage",
+                "description": [
+                    {
+                        "es": "Indica si queremos que se muestre la imagen pequeña"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showLargeImage",
+                "description": [
+                    {
+                        "es": "Indica si queremos que se muestre la imagen grande"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showName",
+                "description": [
+                    {
+                        "es": "Indica si queremos que se muestre el nombre"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showShortDescription la descripción corta",
+                "description": [
+                    {
+                        "es": "Indica si queremos que se muestre"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showLongDescription la descripción larga",
+                "description": [
+                    {
+                        "es": "Indica si queremos que se muestre"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+            
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.discounts({ |discounts: productDiscounts |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/Discounts.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/discounts.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro discounts(args) %}
+    {{ addTimerDebugFlag('productMacros-discounts',true) }}
+    {% set viewParameters = viewHelpers.product.discountsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/discounts.html.twig' as modeProduct %}
+    {{ modeProduct.discounts(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-discounts',false) }}
+{% endmacro discounts %}
+
+{#- @documentation
+    {
+        "name": "filterForm",
+        "description": [
+            {
+                "es": "Pinta los filtros para los productos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "filters",
+                "description": [
+                    {
+                        "es": "Tipo de filtros, del sdk"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDkFilter",
+                "default": "SDK\\Core\\Dtos\\Filter\\Filter",
+                "required": "true"
+            },
+            {
+                "param": "applicableFilters",
+                "description": [
+                    {
+                        "es": "Configuracion de los filtros aplicables"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Theme\\Dtos\\ApplicableFilters",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "appliedFilters",
+                "description": [
+                    {
+                        "es": "Filtros aplicados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "defaultParametersValues",
+                "description": [
+                    {
+                        "es": "Array con con los parametros por defecto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "autosubmit",
+                "description": [
+                    {
+                        "es": "Los filtros seleccionados se aplican automaticamente"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "filterItemTemplate",
+                "description": [
+                    {
+                        "es": "Template html para la estructura de cada bloque de filtro"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.filterForm({ |filters: products.filter, |applicableFilters: themeConfiguration.category.productList.applicableFilters, |appliedFilters: productsFilter, |defaultParametersValues: themeConfiguration.category.productList.defaultParametersValues, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/FilterForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/filterForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro filterForm(args) %}
+    {{ addTimerDebugFlag('productMacros-filterForm',true) }}
+    {% set viewParameters = viewHelpers.product.filterFormMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/filterForm.html.twig' as modeProduct %}
+    {{ modeProduct.filterForm(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-filterForm',false) }}
+{% endmacro filterForm %}
+
+{#- @documentation
+    {
+        "name": "priceByQuantity",
+        "description": [
+            {
+                "es": "Muestra el precio comprando en cantidad"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto product, producto a comprar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showTaxIncluded",
+                "description": [
+                    {
+                        "es": "Muestra el precio con los impuestos incluidos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "tableClassName",
+                "description": [
+                    {
+                        "es": "Valor de la classe de la tabla html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "table",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.priceByQuantity({ |product: controllerItem |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/PriceByQuantity.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/priceByQuantity.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro priceByQuantity(args) %}
+    {{ addTimerDebugFlag('productMacros-priceByQuantity',true) }}
+    {% set viewParameters = viewHelpers.product.priceByQuantityMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/priceByQuantity.html.twig' as modeProduct %}
+    {{ modeProduct.priceByQuantity(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-priceByQuantity',false) }}
+{% endmacro priceByQuantity %}
+
+{#- @documentation
+    {
+        "name": "productComparison",
+        "description": [
+            {
+                "es": "Bloque de comparacion de productos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "productComparison",
+                "description": [
+                    {
+                        "es": "Coleccion de comentarios del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\ProductComparison",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "tableItems",
+                "description": [
+                    {
+                        "es": "Numero de columnas resultantes de la tabla"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "4",
+                "required": "false"
+            },
+            {
+                "param": "offerImage",
+                "description": [
+                    {
+                        "es": "Icono de producto en oferta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "featuredImage",
+                "description": [
+                    {
+                        "es": "Icono de producto destacado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "discountsImage",
+                "description": [
+                    {
+                        "es": "Icono de producto con descuentos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productsIdsWithDiscounts",
+                "description": [
+                    {
+                        "es": "Array con los Ids de product que tiene descuentos asociados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.productComparison({ |productComparison: productComments |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ProductComparison.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/productComparison.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro productComparison(args) %}
+    {{ addTimerDebugFlag('productMacros-productComparison',true) }}
+    {% set viewParameters = viewHelpers.product.productComparisonMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/productComparison.html.twig' as modeProduct %}
+    {{ modeProduct.productComparison(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-productComparison',false) }}
+{% endmacro productComparison %}
+
+{#- @documentation
+    {
+        "name": "productComparisonPreview",
+        "description": [
+            {
+                "es": "Bloque de comparacion de productos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "productComparisonPreview",
+                "description": [
+                    {
+                        "es": "Coleccion de comentarios del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\ProductComparison",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Class a incluir en la salida"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.productComparisonPreview({ |productComparisonPreview: productComments |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/ProductComparison.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/productComparisonPreview.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro productComparisonPreview(args) %}
+    {{ addTimerDebugFlag('productMacros-productComparisonPreview',true) }}
+    {% set viewParameters = viewHelpers.product.productComparisonPreviewMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/productComparisonPreview.html.twig' as modeProduct %}
+    {{ modeProduct.productComparisonPreview(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-productComparisonPreview',false) }}
+{% endmacro productComparisonPreview %}
+
+{#- @documentation
+    {
+        "name": "property",
+        "description": [
+            {
+                "es": "Pinta un formulario para el propietario"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto product, producto del que queremos generar el formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "property",
+                "description": [
+                    {
+                        "es": "Informacion sobre del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Product/Macro/Property::PROPERTY_PRICE",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Property::PROPERTY_PRICE",
+                        "description": [
+                            {
+                                "es": "Precio total del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Property::PROPERTY_BASE_PRICE",
+                        "description": [
+                            {
+                                "es": "Precio base del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Property::PROPERTY_SAVING",
+                        "description": [
+                            {
+                                "es": "Dinero ahorrado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Property::PROPERTY_STOCK",
+                        "description": [
+                            {
+                                "es": "Stock del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Property::PROPERTY_SKU",
+                        "description": [
+                            {
+                                "es": "Codigo SKU del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Product/Macro/Property::PROPERTY_EAN",
+                        "description": [
+                            {
+                                "es": "Codigo EAN del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showTaxText",
+                "description": [
+                    {
+                        "es": "Muestra la informacion sobre los impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "priceWithTaxes",
+                "description": [
+                    {
+                        "es": "Muestra los precios con los impuestos añadidos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "stockAlertButton",
+                "description": [
+                    {
+                        "es": "Muestra el boton de alerta de stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "stockAlertButtonClass",
+                "description": [
+                    {
+                        "es": "Añade una class al boton de alerta de stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "",
+                "required": "false"
+            },
+            {
+                "param": "showStock",
+                "description": [
+                    {
+                        "es": "Muestra o no el tag con el totalStock quando la property es 'stock'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showAvailabilityName",
+                "description": [
+                    {
+                        "es": "Muestra o no el tag con el availability name quando la property es 'stock'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showStockText",
+                "description": [
+                    {
+                        "es": "Muestra o no el tag con el stock text (etiqueta de lenguage: stockSingular o stockPlural) name quando la property es 'stock'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showAvailabilityImage",
+                "description": [
+                    {
+                        "es": "Muestra o no el tag con availability image name quando la property es 'stock'"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.property({ |product: controllerItem, |property: constant('FWK/ViewHelpers/Product/Macro/Property::PROPERTY_PRICE'),             |showTaxText: true, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/Property.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/property.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro property(args) %}
+    {{ addTimerDebugFlag('productMacros-property',true) }}
+    {% set viewParameters = viewHelpers.product.propertyMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/property.html.twig' as modeProduct %}
+    {{ modeProduct.property(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-property',false) }}
+{% endmacro property %}
+
+{#- @documentation
+    {
+        "name": "rate",
+        "description": [
+            {
+                "es": "Informacion sobre la popularidad del producto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "comments",
+                "description": [
+                    {
+                        "es": "Coleccion de comentarios del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ProductCommentCollection",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.rate({ |comments: productComments |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/Rate.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/rate.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro rate(args) %}
+    {{ addTimerDebugFlag('productMacros-rate',true) }}
+    {% set viewParameters = viewHelpers.product.rateMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/product/rate.html.twig' as modeProduct %}
+    {{ modeProduct.rate(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-rate',false) }}
+{% endmacro rate %}
+
+{#- @documentation
+    {
+        "name": "recommendForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de productos recomendados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.recommendForm({ |form: formProductRecommend |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/RecommendForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/recommendForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro recommendForm(args) %}
+    {{ addTimerDebugFlag('productMacros-recommendForm',true) }}
+    {% set viewParameters = viewHelpers.product.recommendFormMacro(args) %}
+
+    {%- from "macros/form.twig" import legalCheck as legalCheckMacro -%}
+    {%- set legalCheck -%}
+        {{ legalCheckMacro({}) }}
+    {%- endset -%}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/recommendForm.html.twig' as modeProduct %}
+    {{ modeProduct.recommendForm(viewParameters, legalCheck) }}
+    {{ addTimerDebugFlag('productMacros-recommendForm',false) }}
+{% endmacro recommendForm %}
+
+{#- @documentation
+    {
+        "name": "rewardPoints",
+        "description": [
+            {
+                "es": "Pinta el bloque con la informacion de reward points de un producto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "rewardPoints",
+                "description": [
+                    {
+                        "es": "Coleccion de rewardPoints del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK \\Core \\Dtos \\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Muestra o no el nombre y descripcion de los reward points"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showRulesHeader",
+                "description": [
+                    {
+                        "es": "Muestra o no el nombre y descripcion de la condicion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showRulesCondition",
+                "description": [
+                    {
+                        "es": "Muestra o no la label predefinida del tipo de condicion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.rewardPoints({ |rewardPoints: productRewardPoints |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/rewardPoints.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/rewardPoints.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro rewardPoints(args) %}
+    {{ addTimerDebugFlag('productMacros-rewardPoints',true) }}
+    {% set viewParameters = viewHelpers.product.rewardPointsMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/rewardPoints.html.twig' as modeProduct %}
+    {{ modeProduct.rewardPoints(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-rewardPoints',false) }}
+{% endmacro rewardPoints %}
+
+{#- @documentation
+    {
+        "name": "richSnippets",
+        "description": [
+            {
+                "es": "Pint la catalogacion de los productos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "richSnippets",
+                "description": [
+                    {
+                        "es": "Objteto richSnippets, catalogacion del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Snippets\\ProductRichSnippets",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.richSnippets({ |richSnippets: productRichSnippets|}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/RichSnippets.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/richSnippets.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro richSnippets(args) -%}
+    {%- set viewParameters = viewHelpers.product.richSnippetsMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/richSnippets.html.twig' as modeProduct -%}
+    {{- modeProduct.richSnippets(viewParameters) -}}
+{%- endmacro richSnippets -%}
+
+{#- @documentation
+    {
+        "name": "staticOptions",
+        "description": [
+            {
+                "es": "Pinta un bloque de texto con los valores de las opciones y el valor de cada una de ellas, segun lo enviado en optionReferences "
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "product",
+                "description": [
+                    {
+                        "es": "Objeto producto que se desea mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Catalog\\Product\\Product",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "optionReferences",
+                "description": [
+                    {
+                        "es": "Array de elemento de tipo SDK\\Dtos\\User\\OptionReference, con los valores de las opciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "true"
+            },
+            {
+                "param": "showImageValues",
+                "description": [
+                    {
+                        "es": "Muestra o no los valores de opcion de tipo imagen con el tag <img>"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.staticOptions({ |product: product, |optionReferences: optionReferences |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/StockAlertForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/staticOptions.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro staticOptions(args) %}
+    {{ addTimerDebugFlag('productMacros-staticOptions',true) }}
+    {% set viewParameters = viewHelpers.product.staticOptionsMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/staticOptions.html.twig' as modeProduct %}
+    {{ modeProduct.staticOptions(viewParameters) }}
+    {{ addTimerDebugFlag('productMacros-staticOptions',false) }}
+{% endmacro staticOptions %}
+
+{#- @documentation
+    {
+        "name": "stockAlertForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de alerta de stock"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.product as productMacros %} |{{ productMacros.stockAlertForm({ |form: formStockAlert |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Product/Macro/StockAlertForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/product/stockAlertForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro stockAlertForm(args) %}
+    {{ addTimerDebugFlag('productMacros-stockAlertForm',true) }}
+    {% set viewParameters = viewHelpers.product.stockAlertFormMacro(args) %}
+
+    {%- from "macros/form.twig" import legalCheck as legalCheckMacro -%}
+    {%- set legalCheck -%}
+        {{ legalCheckMacro({}) }}
+    {%- endset -%}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/product/stockAlertForm.html.twig' as modeProduct %}
+    {{ modeProduct.stockAlertForm(viewParameters, legalCheck) }}
+    {{ addTimerDebugFlag('productMacros-stockAlertForm',false) }}
+{% endmacro stockAlertForm %}

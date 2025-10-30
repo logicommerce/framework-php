@@ -1,0 +1,14 @@
+{%- macro billingInformation(args) -%}
+    {%- set user = args.document.user -%}
+    {% import 'macros/modes/' ~ coreMode ~ '/document/utils/addressInformationFields.html.twig' as addressInformationFields %}
+    <div class="customerInformation">
+        <p class="customerInformation customerInformationTitle">
+            {%- if user.shippingAddress.id or args.document.delivery.physicalLocation -%}
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BILLING_ADDRESS')] -}}
+            {%- else -%}
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BILLING_SHIPPING_ADDRESS')]|replace({ "&apos;": "'" }) -}}
+            {%- endif -%}
+        </p>
+        {{- addressInformationFields.fields(args.fields, user, user.billingAddress) -}}
+    </div>
+{%- endmacro -%}

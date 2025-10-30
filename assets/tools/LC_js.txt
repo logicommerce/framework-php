@@ -1,0 +1,33 @@
+# LC Javascripts
+
+# Base (loaded by system)
+assets/core/tools/jquery-3.4.1.min.js
+assets/core/tools/bootstrap/3.4.1/bootstrap.min.js
+modernizr.js <-- This file is on CDN!
+
+# LC
+assets/core/js/lc.core.js
+assets/core/js/lc.forms.js
+assets/core/js/lc.plugins.js
+assets/core/js/lc.initialize.js
+assets/core/js/lc.oneStepCheckout.js
+
+resources.js
+localize.js
+registeredUser.js
+
+# - Form validator
+jquery.form-validator.min.js
+security.js
+
+# - Date time resources and calendar
+plugins/moment-with-locales.min.js
+plugins/moment/moment.min.js
+
+
+# Plugins
+plugins/bootstrap-datetimepicker.min.js
+plugins/jquery.easing.js
+plugins/js.cookie.js
+plugins/moment/moment.min.js
+plugins/packery.pkgd.min.js

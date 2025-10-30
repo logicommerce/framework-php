@@ -1,0 +1,266 @@
+{% macro registeredUsers(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/modalForm.html.twig' as ajaxModalForm %}
+
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %} 
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+    
+    {%- set createButton -%}
+        {% if constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTIONS') in args.parameters %}
+            {%- for availableAction in args.availableActions -%}
+                {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTION_REGISTERED_USERS_ADD') -%}
+                    <a data-lc-function="registeredUsersAdd" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString({"accountId": args.accountId}) }}' name="registeredUsersAdd" id="registeredUsersAdd" class="btn btn-primary formField userField btn">
+                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_ADD')] }}
+                    </a>
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endif -%}
+    {%- endset -%}
+    {% if args.registeredUsers is not empty %}
+        {%- set registeredUsersTable -%}
+            <div class="form-message"></div>
+            <div class="registeredUsersForm">
+                <table class="customer table mb-5" cellspacing="0">
+                    <thead class="customer">
+                        <tr class="registeredUserTitle">
+                            {% for param in args.parameters %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::SELECTED') %}
+                                    <td class="registeredUserTitle selected">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_SELECTED')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::FIRSTNAME') %}
+                                    <td class="registeredUserTitle firstName">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::LASTNAME') %}
+                                    <td class="registeredUserTitle lastName">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::USERNAME') %}
+                                    <td class="registeredUserTitle userName">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::EMAIL') %}
+                                    <td class="registeredUserTitle email">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ID') %}
+                                    <td class="registeredUserTitle id">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ID')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::MASTER') %}
+                                    <td class="registeredUserTitle master">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ROLE') %}
+                                    <td class="registeredUserTitle role">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::STATUS') %}
+                                    <td class="registeredUserTitle status">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::DATEADDED') %}
+                                    <td class="registeredUserTitle dateAdded">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_DATEADDED')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::LASTUSED') %}
+                                    <td class="registeredUserTitle lastUsed">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_LASTUSED')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTIONS') %}
+                                    <td class="registeredUserTitle actions">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTIONS')] }}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody class="customer">
+                        {% set lcData = {
+                            session: isSessionLoggedIn()
+                        } %}
+                        {%- for item in args.registeredUsers -%}
+                            {% set lcData = lcData|merge({
+                                accountId: item.accountId,
+                                registeredUserId: item.registeredUser.id,
+                                token: '',
+                            }) %}
+                            {%- set registeredUser = item.registeredUser -%}
+                            <tr class="registeredUserContent">
+                                {% for param in args.parameters %}
+                                    {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::SELECTED') %}
+                                        <td class="registeredUserContent selected"><input type="radio" name="registeredUserSelected" id="registeredUserSelected{{ registeredUser.id }}" class=" formField userField form-check-input" value="{{ registeredUser.id }}" data-lc="" required="" data-validation="required"></td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::FIRSTNAME') %}
+                                        <td class="registeredUserContent firstName">{{ registeredUser.firstName }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::LASTNAME') %}
+                                        <td class="registeredUserContent lastName">{{ registeredUser.lastName }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::USERNAME') %}
+                                        <td class="registeredUserContent userName">{{ registeredUser.username }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::EMAIL') %}
+                                        <td class="registeredUserContent email">{{ registeredUser.email }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ID') %}
+                                        <td class="registeredUserContent id">{{ registeredUser.pid }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::MASTER') %}
+                                        <td class="registeredUserContent master">{{ item.master == 'true' ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_MASTER_YES')]: languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_MASTER_NO')] }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ROLE') %}
+                                        {% if item.role.name is empty %}
+                                            {% if item.isMaster and session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') %}
+                                                <td class="registeredUserContent role">{{- languageSheet[constant('SITE\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_COMPANY_MASTER_ROLE_DEFAULT')] -}}</td>
+                                            {% else %}
+                                                <td class="registeredUserContent role">{{- languageSheet[constant('SITE\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT')] -}}</td>
+                                            {% endif %}
+                                        {% else %}
+                                            <td class="registeredUserContent role">{{item.role.name}}</td>
+                                        {% endif %}
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::STATUS') %}
+                                        <td class="registeredUserContent status">{{- languageSheet[constant('SITE\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS_' ~ item.status)] -}}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::DATEADDED') %}
+                                        <td class="registeredUserContent dateAdded">{{ item.dateAdded.dateTime|date(getTwigDatePattern()) }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::LASTUSED') %}
+                                        <td class="registeredUserContent lastUsed">{{ item.lastUsed.dateTime|date(getTwigDatePattern()) }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTIONS') %}
+                                        <td class="registeredUserContent actions">
+                                            {%- for availableAction in args.availableActions -%}
+                                                {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTION_REGISTERED_USERS_EDIT') -%}
+                                                    <a class="customerAction" href="#" data-lc-function="registeredUserUpdate" data-lc-event="click" data-bs-toggle="modal" data-bs-target="#registeredUserUpdatePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                                        <span data-bs-toggle="tooltip" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_UPDATE')] }}">
+                                                            <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
+                                                        </span>
+                                                    </a>
+                                                    <div class="lcModal modal fade registeredUserUpdatePopup registeredUserUpdatePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}" id="registeredUserUpdatePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}" tabindex="-1" aria-labelledby="registeredUserUpdatePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}Title" aria-hidden="true">
+                                                        <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <div id="registeredUserUpdatePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}Title" class="popup-title heading">
+                                                                        {% if session.basket.account.type in [constant('SDK\\Enums\\AccountType::COMPANY'),constant('SDK\\Enums\\AccountType::COMPANY_DIVISION')] %}
+                                                                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_EMPLOYEE_UPDATE_TITLE')] }}
+                                                                        {% else %}
+                                                                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_UPDATE_TITLE')] }}
+                                                                        {% endif %}
+                                                                    </div>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div id="registeredUserUpdate{{lcData.accountId}}-{{ lcData.registeredUserId }}" class="lcModalContainer">
+                                                                        <div class="loading-document">
+                                                                            <div class="spinner-border text-primary" role="status"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                
+                                                {%- elseif availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTION_REGISTERED_USERS_MOVE') and not item.master -%}
+                                                    <a class="customerAction" href="#" data-lc-function="registeredUserMove" data-lc-event="click" data-bs-toggle="modal" data-bs-target="#registeredUserMovePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                                        <span data-bs-toggle="tooltip" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_MOVE')] }}">
+                                                            <svg class="icon icon-move"><use xlink:href="#icon-move"></use></svg>
+                                                        </span>
+                                                    </a>
+                                                    <div class="lcModal modal fade registeredUserMovePopup registeredUserMovePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}" id="registeredUserMovePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}" tabindex="-1" aria-labelledby="registeredUserMovePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}Title" aria-hidden="true">
+                                                        <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <div id="registeredUserMovePopup{{lcData.accountId}}-{{ lcData.registeredUserId }}Title" class="popup-title heading">
+                                                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MOVE_TITLE')] }}
+                                                                    </div>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <div id="registeredUserMove{{lcData.accountId}}-{{ lcData.registeredUserId }}" class="lcModalContainer">
+                                                                        <div class="loading-document">
+                                                                            <div class="spinner-border text-primary" role="status"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                
+                                                {%- elseif availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTION_REGISTERED_USERS_DELETE') and not item.master -%}
+                                                    <a class="customerAction" href="#" data-lc-function="registeredUsersDelete" data-lc-event="click" data-bs-toggle="modal" data-bs-target="#registeredUserDeletePopup" data-lc-data='{{ outputJsonHtmlString(lcData) }}' >
+                                                        <span data-bs-toggle="tooltip" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_DELETE')] }}">
+                                                            <svg class="icon icon-delete"><use xlink:href="#icon-trash"></use></svg>
+                                                        </span>
+                                                    </a>
+                                                {%- endif -%}
+                                            {%- endfor -%}
+                                            <div class="lcModal modal fade registeredUserDeletePopup" id="registeredUserDeletePopup" tabindex="-1" aria-labelledby="registeredUserDeletePopupTitle" aria-hidden="true">
+                                                <div class="modal-dialog  modal-sm modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body">
+                                                            <div id="registeredUsersDelete" class="lcModalContainer">
+                                                                <div class="lcModalContainer">
+                                                                    <div class="titleDeleteRegisteredUserConfirm">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TITLE')]}}</div>
+                                                                    <div class="textDeleteRegisteredUserConfirm">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TEXT')]}}</div>
+                                                                    <div class="deleteRegisteredUserButtons">
+                                                                        <button type="button" class="btn btn-secondary deleteRegisteredUserButton deleteRegisteredUserButtonDismiss" data-bs-dismiss="modal">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::CANCEL')]}}</button>
+                                                                        <button type="button" class="btn btn-danger deleteRegisteredUserButton deleteRegisteredUserButtonConfirm" id="deleteRegisteredUserButtonConfirm">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')]}}</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="lcModal modal fade registeredUserUpdateConfirmPopup" id="registeredUserUpdateConfirmPopup" tabindex="-1" aria-labelledby="registeredUserUpdateConfirmPopupTitle" aria-hidden="true">
+                                                <div class="modal-dialog  modal-sm modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body">
+                                                            <div id="registeredUsersUpdate" class="lcModalContainer">
+                                                                <div class="lcModalContainer">
+                                                                    <div class="titleUpdateRegisteredUserConfirm">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TITLE')]}}</div>
+                                                                    <div class="textUpdateRegisteredUserConfirm">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TEXT')]}}</div>
+                                                                    <div class="updateRegisteredUserButtons">
+                                                                        <button type="button" class="btn btn-secondary updateRegisteredUserButton updateRegisteredUserButtonDismiss" data-bs-dismiss="modal">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::CANCEL')]}}</button>
+                                                                        <button type="button" class="btn btn-danger updateRegisteredUserButton updateRegisteredUserButtonConfirm" id="updateRegisteredUserButtonConfirm">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::UPDATE')]}}</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {%- endfor -%}
+                    </tbody>
+                </table>
+                {{createButton}}
+            </div>
+            
+            {#- Add pagination if provided -#}
+            {%- if args.pagination is defined and args.pagination is not null -%}
+                {% import 'macros/util.twig' as utilMacros %}
+                <div class="pagination-wrapper mt-3">
+                    {{ utilMacros.pagination({
+                        paginationItems: args.pagination.paginationItems,
+                        mode: constant('FWK\\ViewHelpers\\Util\\Macro\\Pagination::MODE_BLOCKS')
+                    }) }}
+                </div>
+            {%- endif -%}
+        {%- endset -%}
+
+        {{- registeredUsersTable -}}
+    {% else %}
+        {% if args.errorMessage is not empty %}
+            <div class="alert alert-danger clearfix empty-text mb-5">{{ args.errorMessage }}</div>
+        {% else %}
+            <div class="clearfix empty-text mb-5">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EMPTY_REGISTERED_USERS')] }}</div>
+            {{createButton}}
+        {% endif %}
+    {% endif %}
+    {{ ajaxModalForm.ajaxModalForm({
+        modalId: 'registeredUsersCreateModal',
+        modalClass: 'registeredUsersCreateModal',
+        title: languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TITLE')]|replace({
+            '{{accountName}}': session.basket.account.name, 
+        }),
+        contentId: 'registeredUsersCreateContent',
+        dialogSize: 'modal-md modal-dialog-scrollable modal-dialog-centered'
+    }) }}
+{% endmacro registeredUsers %}

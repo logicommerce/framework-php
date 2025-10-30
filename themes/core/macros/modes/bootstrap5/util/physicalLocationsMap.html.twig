@@ -1,0 +1,42 @@
+{%- macro physicalLocationsMap(physicalLocationItems, mapsApiKey, showAllMapMarkersButton) -%}
+    {%- set lcData = { 
+        googleApiKey: mapsApiKey, 
+        mapKind: 'gmap',
+    } -%}
+
+    <div class="physicalLocationsMap" data-lc-data='{{- outputJsonHtmlString(lcData) -}}'>
+        <div class="mapInstance" id="mapInstance_{{uniqid()}}">
+            <div class="loading-map">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        </div>
+
+        <div class="traceTravelToolbar" style="display: none;" aria-hidden="true">
+            <div class="traceTravelToolbarButtons">
+                <button type="button" class="btn btn-primary traceTravelToolbarButton driving">
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATOR_TRAVEL_DRIVING')] -}}
+                </button>
+                <button type="button" class="btn btn-primary traceTravelToolbarButton walking">
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATOR_TRAVEL_WALKING')] -}}
+                </button>
+            </div>
+            <div class="traceTravelToolbarData">
+                <div class="duration">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATOR_TRAVEL_DURATION')] -}}: <span class="val"></span></div>
+                <div class="distance">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATOR_TRAVEL_DISTANCE')] -}}: <span class="val"></span></div>
+            </div>
+        </div>
+
+        <div class="mapPhysicalLocationsList">
+            <div class="physicalLocationsHeader">
+                <div class="physicalLocationsTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PHYSICAL_LOCATION_STORES')] -}}</div>
+                <div class="physicalLocationsMapResults"></div>
+                {%- if showAllMapMarkersButton -%}
+                    <button type="button" class="btn btn-link showAllMapMarkers">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATOR_ALL_MARKERS')] -}}
+                    </button>
+                {%- endif -%}
+            </div>
+            {{- physicalLocationItems -}}
+        </div>
+    </div>
+{%- endmacro physicalLocationsMap -%}

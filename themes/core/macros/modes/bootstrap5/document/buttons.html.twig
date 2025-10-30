@@ -1,0 +1,26 @@
+{% macro buttons(args) %}
+    <div class="orderButtons {{ args.classList }}">
+    
+        {% if args.showBackButton %}
+            {% if isSessionLoggedIn() %}
+                <a href="{{routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_ORDERS')) }}" class="btn btn-secondary orderButton orderBack" id="orderBackToOrders">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GO_TO_ORDERS')] }}</a>
+            {% else %}
+                <a href="{{- getCommerceUrl() -}}" class="btn btn-secondary orderButton orderBack" id="orderBackToHome">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BACK_TO_COMMERCE')] }}</a>
+            {% endif %}
+        {% endif %}
+
+        {% if args.showPrintButton %}
+            {% set lcData = {
+                documentId: args.orderId,
+                documentType:'order',
+                token: args.token,
+                session: isSessionLoggedIn(),
+                pdf: true
+            } %}
+            
+            <button class="btn btn-primary orderButton orderPrint" id="orderPrintOrder" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRINT_ORDER')] }}</button>
+        {% endif %}
+        
+    </div>
+    
+{% endmacro %}

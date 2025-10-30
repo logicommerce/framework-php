@@ -1,0 +1,21 @@
+{%- extends layout -%}
+
+{%- block pageTitle -%}
+    <title>{{- route.type -}}</title>
+{%- endblock pageTitle -%}
+
+{%- block content -%}
+    <section class="section section-prehome">
+        <div class="content content-prehome">
+            <h1 class="title-prehome">
+                {{- route.type -}}
+            </h1>
+            <div class="text text-prehome">
+                {%- import macrosCore.util as utilMacros -%}
+                {{- utilMacros.countriesLinksForm({
+                    countriesLinksForm: controllerItem.countriesLinksForm
+                }) -}}
+            </div>
+        </div>
+    </section>
+{%- endblock content -%}

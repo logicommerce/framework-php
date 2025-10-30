@@ -1,0 +1,160 @@
+{#- @documentation
+    {
+        "name": "categoriesTree",
+        "description": [
+            {
+                "es": "Clasificacion de los productos y las categorias que le pasemos por parametro, coleccion de categoriesTree"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "categories",
+                "description": [
+                    {
+                        "es": "Coleccion de elementos de tipo SDK\\Dtos\\Catalog\\CategoryTree que se desea mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showImage",
+                "description": [
+                    {
+                        "es": "Imagen a mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Category/Macro/CategoriesTree::SHOW_IMAGE_NONE",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Category/Macro/CategoriesTree::SHOW_IMAGE_BACKGROUND_IMAGE",
+                        "description": [
+                            {
+                                "es": "Pinta la imagen de fondo"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Category/Macro/CategoriesTree::SHOW_IMAGE_BEFORE_NAME",
+                        "description": [
+                            {
+                                "es": "Pinta la imagen antes del nombre"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Category/Macro/CategoriesTree::SHOW_IMAGE_AFTER_NAME",
+                        "description": [
+                            {
+                                "es": "Pinta la imagen despues del nombre"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Category/Macro/CategoriesTree::SHOW_IMAGE_NONE",
+                        "description": [
+                            {
+                                "es": "No pinta imagen"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.category as categoryMacros %} |{{ categoryMacros.categoriesTree({ |showImage: constant('FWK\\ViewHelpers\\Category\\Macro\\CategoriesTree::SHOW_IMAGE_BEFORE_NAME'), |categories: categories |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Category/Macro/CategoriesTree.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/category/categoriesTree.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro categoriesTree(args) -%}
+    {{ addTimerDebugFlag('categoryMacros-categoriesTree',true) }}
+    {%- set viewParameters = viewHelpers.category.categoriesTreeMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/category/categoriesTree.html.twig' as modeCategory -%}
+    {{- modeCategory.categoriesTree(viewParameters) -}}
+    {{ addTimerDebugFlag('categoryMacros-categoriesTree',false) }}
+{%- endmacro categoriesTree -%}
+
+{#- @documentation
+    {
+        "name": "richSnippets",
+        "description": [
+            {
+                "es": "Pinta la catalogacion de la tienda"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "richSnippets",
+                "description": [
+                    {
+                        "es": "Objeto richSnippets con todo lo que se quiera mostrar en la catalogacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Snippets\\CategoryRichSnippets",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.category as categoryMacro %} |{{ categoryMacros.richSnippets({ |richSnippets: categoryRichSnippets |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Category/Macro/RichSnippets.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/category/richSnippets.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro richSnippets(args) -%}
+    {{ addTimerDebugFlag('categoryMacros-richSnippets',true) }}
+    {%- set viewParameters = viewHelpers.category.richSnippetsMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/category/richSnippets.html.twig' as modeCategory -%}
+    {{- modeCategory.richSnippets(viewParameters) -}}
+    {{ addTimerDebugFlag('categoryMacros-richSnippets',false) }}
+{%- endmacro richSnippets -%}

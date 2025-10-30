@@ -1,0 +1,40 @@
+{% macro boolean(option, optionIdName, args) %}
+    
+    <div class="productOption productOptionBoolean productOption{{ optionIdName }} productOptionPId_{{option.pId}}" data-lc-product-option='{{ outputJsonHtmlString({ id: optionIdName, name: option.language.name, pId: option.pId }) }}'>
+        
+        {% if args.showImageOptions == true and option.image|length > 0 %}
+            <div class="productOptionContainerImage" title="{{ option.language.prompt|default(option.language.name) }}">
+				<img src="{{ option.image }}" alt="{{ option.language.prompt|default(option.language.name) }}">
+			</div>
+        {% endif %}
+        
+        <div class="productOptionPrompt" title="{{ option.language.prompt|default(option.language.name) }}">{{ option.language.prompt|default(option.language.name) }}</div>
+        
+        <div class="productOptionValues">
+            {% set uid = random(10000000, 99999999) %}
+            <div class="productOptionValue form-check">
+                <input 
+                    id="optionValue_{{ uid }}_{{ optionIdName }}_1" name="optionValue{{ optionIdName }}" type="radio" class="form-check-input productOptionBooleanValue" value="true" data-validation="required"
+                    {% if option.selectedOptionValueId == true or option.optionReferenceValue == 'true' %}
+                        checked="checked"
+                    {% endif %}    
+                    autocomplete="off"
+                >
+                <label class="form-check-label productOptionValueName" for="optionValue_{{ uid }}_{{ optionIdName }}_1">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] }}</label>
+            </div>
+
+            {% set uid = random(10000000, 99999999) %}
+            <div class="productOptionValue form-check">
+                <input 
+                    id="optionValue_{{ uid }}_{{ optionIdName }}_0" name="optionValue{{ optionIdName }}" type="radio" class="form-check-input productOptionBooleanValue" value="false" data-validation="required"
+                    {% if ( not option.selectedOptionValueId is null and option.selectedOptionValueId == false) or (option.optionReferenceValue == 'false') %}
+                        checked="checked"
+                    {% endif %}
+                    autocomplete="off"
+                >
+                <label class="form-check-label productOptionValueName" for="optionValue_{{ uid }}_{{ optionIdName }}_0">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] }}</label>
+            </div>
+        </div>
+    </div>
+
+{% endmacro %}

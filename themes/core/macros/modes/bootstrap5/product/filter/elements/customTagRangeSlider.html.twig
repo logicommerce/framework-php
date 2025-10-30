@@ -1,0 +1,36 @@
+{%- macro elements(filter, appliedFilters) -%}
+    {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::NUMBER') -%}
+        {%- set minValue = filter.minValue -%}
+        {%- set maxValue = filter.maxValue -%}
+        
+        {%- set fromValue = filter.minValue -%}
+        {%- set toValue = filter.maxValue -%}
+        {%- if requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL')] is defined and requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL')][filter.id] is defined -%}
+            {%- set fromToValues = requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL')][filter.id][0]|split(constant('FWK\\Core\\FilterInput\\FilterInput::REGEX_VALIDATE_RANGE_SEPARATOR')) -%}
+            {%- if fromToValues|length == 2 -%}
+                {%- set fromValue = fromToValues[0] -%}
+                {%- set toValue = fromToValues[1] -%}
+            {%- endif -%}
+        {%- endif -%}
+
+        {%- if minValue != maxValue -%}
+            <div class="customTagsFilterElement filterElementRange">
+                <input 
+                    type="text" 
+                    class="filterSliderRange visually-hidden" 
+                    name="{{ constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL') }}{{ constant('FWK\\Core\\FilterInput\\FilterInputHandler::DYNAMIC_NAME_PARAM_DELIMITER') }}{{ filter.id }}" 
+                    value="{{ fromValue }}{{ constant('FWK\\Core\\FilterInput\\FilterInput::REGEX_VALIDATE_RANGE_SEPARATOR') }}{{ toValue }}" 
+                    data-commerce-range-slider="true" 
+                    data-min="{{ minValue }}" 
+                    data-max="{{ maxValue }}" 
+                    data-from="{{ fromValue }}" 
+                    data-to="{{ toValue }}" 
+                    data-type="double" 
+                    data-grid="true" 
+                    data-grid-num="1" 
+                    data-skin="round" {# http://ionden.com/a/plugins/ion.rangeSlider/skins.html #}
+                >
+            </div>
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}

@@ -1,0 +1,20 @@
+<div class="contentTd">
+
+	<div class="pending">settings.taxSettings.applicableTaxes API MOKED</div>
+
+	<table border=1>
+		<tr>
+			<th>Label</th><th>Value</th>
+		</tr>
+		<tr>
+			<td>taxesByShippingAddress</td><td>{{ taxSettings.taxesByShippingAddress?'Yes':'No' }}</td>
+		</tr>
+		<tr>
+			<td>applicableTaxes</td><td>{{ dump(taxSettings.applicableTaxes) }}</td>
+		</tr>
+	</table>
+</div>
+
+
+
+

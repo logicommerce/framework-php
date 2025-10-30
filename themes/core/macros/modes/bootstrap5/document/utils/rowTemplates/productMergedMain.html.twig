@@ -1,0 +1,69 @@
+{% macro productMergedMain(args, orderRow) %}
+
+    {# variables #}
+    {% set linkWildcard = orderRow.link %}
+    {% set imageWildcard = orderRow.image %}
+    {% set nameWildcard = orderRow.name|striptags %}
+    {% set brandWildcard = orderRow.brandName %}
+    {% set skuWildcard = orderRow.combination.sku ? orderRow.combination.sku : orderRow.codes.sku %}
+    {% set manufacturerSkuWildcard = orderRow.codes.manufacturerSku %}
+
+    {% set optionsWildcard %}
+        {% if args.showOptions %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/options.html.twig' as modeOrder %}
+            {{ modeOrder.options(
+                orderRow.options|filter(option => option.optionId in args.mergedRows[orderRow.itemId].mergeableOptions ),
+                args.showOptionValuesName, 
+                args.showOptionValuesSku
+            ) }}
+        {% endif %}
+    {% endset %}
+
+    {% set customTagsWildcard %}
+        {% if args.showCustomTags %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/customTags.html.twig' as modeOrder %}
+            {{ modeOrder.customTags(orderRow.customTags, args) }}
+        {% endif %}
+    {% endset %}
+
+    {# end variables #}
+
+    {% if args.productsTemplate != null %}
+        {{ args.productsTemplate|replace({
+            '{{link}}': linkWildcard,
+            '{{image}}': imageWildcard,
+            '{{name}}': nameWildcard,
+            '{{brand}}': brandWildcard,
+            '{{options}}': optionsWildcard,
+            '{{customTags}}': customTagsWildcard
+        }) }}
+    {% else %}{# default template #}
+        {% if args.showImage %}
+            <div class="orderProductImage">
+                {% if args.linkable %}
+                    <a class="orderProductImage" href="{{ linkWildcard }}">
+                        <img class="productSmallImage orderProductImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null; this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </a>
+                {% else %}
+                    <span class="orderProductImage">
+                        <img class="productSmallImage orderProductImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null; this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </span>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="orderProductInfo">
+            <span class="orderProductName">
+                {% if args.linkable %}
+                    <a href="{{ linkWildcard }}" title="{{ nameWildcard }}">{{ nameWildcard }}</a>
+                {% else %}
+                    {{ nameWildcard }}
+                {% endif %}
+            </span>
+            {%- if args.showBrand == true and brandWildcard|length -%}
+                <span class="orderProductBrand">{{ brandWildcard }}</span>
+            {%- endif -%}
+            {{ optionsWildcard }}
+            {{ customTagsWildcard }}
+        </div>
+    {% endif %}{# end default template #}
+{% endmacro productMergedMain %}

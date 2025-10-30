@@ -1,0 +1,21 @@
+{%- macro legalCheck(args) -%}
+	{%- set privacyPolicy -%}
+		<a href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::PRIVACY_POLICY')) }}" class="legalPopup privacyPolicyLink" data-lc-modal="{{ routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalPage::PRIVACY_POLICY')) }}" data-lc-modal-uid="privacyPolicy" data-lc-modal-callback="legalPopup" data-lc-modal-type="url" data-lc-modal-keep-src="true" target="_blank" rel="nofollow">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRIVACY_POLICY')] }}</a>
+	{%- endset -%}
+
+	{%- set termsOfUse -%}
+		<a href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::TERMS_OF_USE')) }}" class="legalPopup termsOfUseLink" data-lc-modal="{{ routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalPage::TERMS_OF_USE')) }}" data-lc-modal-uid="termsOfUse" data-lc-modal-callback="legalPopup" data-lc-modal-type="url" data-lc-modal-keep-src="true" target="_blank" rel="nofollow">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TERMS_OF_USE')] }}</a>
+	{%- endset -%}
+	
+	<div class="legalTextLinks form-check">
+		{%- if args.showCheck == true and args.checkboxPosition == constant('FWK\\ViewHelpers\\Form\\Macro\\LegalCheck::CHECKBOX_POSITION_BEFORE') -%}
+			<input type="checkbox" name="agreement" class="form-check-input validate-required-check" data-validation="required" data-validation-error-msg="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::AGREEMENT_NEEDED')] }}" value="1">
+		{%- endif -%}
+
+		<span class="form-check-label legalTextLinksText">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LEGAL_CONDITIONS')]|replace({ '{{privacyPolicy}}': privacyPolicy, '{{termsOfUse}}': termsOfUse }) }}</span>
+
+		{%- if args.showCheck == true and args.checkboxPosition == constant('FWK\\ViewHelpers\\Form\\Macro\\LegalCheck::CHECKBOX_POSITION_AFTER') -%}
+			<input type="checkbox" name="agreement" class="form-check-input validate-required-check" data-validation="required" data-validation-error-msg="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::AGREEMENT_NEEDED')] }}" value="1">
+		{%- endif -%}
+	</div>
+{%- endmacro legalCheck -%}

@@ -1,0 +1,51 @@
+{%- macro richSnippets(args) -%}
+    {%- set richSnippets = args.richSnippets -%}
+    {%- set images = richSnippets.images|filter(image => image|length) -%}
+    <script type="application/ld+json">
+        {
+            "@context": "{{- richSnippets.context -}}",
+            "@type": "{{- richSnippets.type -}}",
+            "name": {{- outputJsonHtmlString(richSnippets.name|striptags) -}},
+            {% if images|length -%}
+                "image": [
+                    {%- for image in images -%}
+                        "{{- image -}}"{%- if not loop.last -%},{%- endif -%}
+                    {%- endfor -%}
+                ],
+            {% endif -%}
+            {% if richSnippets.description|striptags|length -%}
+                "description": {{- outputJsonHtmlString(richSnippets.description|striptags) -}},
+            {% endif -%}
+            {% if richSnippets.url|length -%}
+                "url": "{{- richSnippets.url -}}",
+            {% endif -%}
+            {% if richSnippets.aggregateRating.ratingValue|length 
+                and (richSnippets.aggregateRating.ratingCount > 0 or richSnippets.aggregateRating.reviewCount > 0) 
+            -%}
+                "aggregateRating": {
+                    "@type": "{{- richSnippets.aggregateRating.type -}}",
+                    "@context": "{{- richSnippets.aggregateRating.context -}}",
+                    {% if richSnippets.aggregateRating.ratingCount > 0 %}
+                        "ratingCount": "{{- richSnippets.aggregateRating.ratingCount -}}",
+                    {% endif %}
+                    {% if richSnippets.aggregateRating.reviewCount > 0 %}
+                        "reviewCount": "{{- richSnippets.aggregateRating.reviewCount -}}",
+                    {% endif %}
+                    "ratingValue": "{{- richSnippets.aggregateRating.ratingValue -}}",
+                    "bestRating": "{{- richSnippets.aggregateRating.bestRating -}}",
+                    "worstRating": "{{- richSnippets.aggregateRating.worstRating -}}"
+                },
+            {% endif -%}
+            "offers": {
+                "@type": "{{- richSnippets.offers.type -}}",
+                "@context": "{{- richSnippets.offers.context -}}",
+                {%- if richSnippets.offers.offerCount > 0 -%}
+                    "offerCount": "{{- richSnippets.offers.offerCount -}}",
+                {%- endif -%}
+                "lowPrice": "{{- richSnippets.offers.lowPrice|number_format(2, '.', '') -}}",
+                "highPrice": "{{- richSnippets.offers.highPrice|number_format(2, '.', '') -}}",
+                "priceCurrency": "{{- richSnippets.offers.priceCurrency -}}"
+            }
+        }
+    </script>
+{%- endmacro -%}

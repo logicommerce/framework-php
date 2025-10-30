@@ -1,0 +1,112 @@
+{%- macro sendShoppingListRowsForm(args) -%}
+
+    {%- import 'macros/product.twig' as productMacros -%}
+
+	{%- set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') -%}
+	{%- set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') -%}
+	{%- set openShoppingListRowsData = false -%}
+
+	{%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+		{%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+			{{- element|replace({ (attributeWildcard): '' }) -}}
+		{%- elseif name in [
+            constant('FWK\\Enums\\Parameters::EMAIL'),
+            constant('FWK\\Enums\\Parameters::NAME'),
+            constant('FWK\\Enums\\Parameters::TO_EMAIL'),
+            constant('FWK\\Enums\\Parameters::TO_NAME'),
+            constant('FWK\\Enums\\Parameters::COMMENT')
+        ] -%}
+            {%- if openShoppingListRowsData == false -%}
+				{%- set openShoppingListRowsData = true -%}
+				<div class="shoppingListRowsData">
+			{%- endif -%}
+			<div class="form-group formField sendShoppingListRowsField" id="sendShoppingListRows{{ name|ucfirst }}Container">
+				{%- set fillFnClass = "" -%}
+                {%- if name in themeConfiguration.commerce.availableFillDataFields|split(',') -%}
+                    {%- set fillFn = 'data-fill-fn="get' ~ ucwords(name) ~ '"' -%}   
+                    {%- set fillFnClass = "js-fill-data" -%}
+                {%- endif -%}
+                {{- element|replace({
+                    (classWildcard): fillFnClass,
+                    (attributeWildcard): fillFn,
+                }) -}}
+			</div>		
+		{%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+			</div>{# /.shoppingListRowsData #}
+			<div class="shoppingListRows">
+                {%- set notFoundImage = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') -%}
+
+                {%- set products = {} -%}
+                {%- for product in args.shoppingListRows.products -%}
+                    {%- set products = array_add(products, product, product.id) -%}
+                {%- endfor -%}
+
+				{%- for shoppingListRow in args.shoppingListRows -%}
+                    {%- if shoppingListRow.reference.type == constant('SDK\\Enums\\ListRowReferenceType::PRODUCT') or shoppingListRow.reference.type == constant('SDK\\Enums\\ListRowReferenceType::BUNDLE') -%}
+                        <div class="shoppingListRow">
+                            <label>
+                                <span class="shoppingListRowCheck">
+                                    <input type="checkbox" id="shoppingListRow{{ shoppingListRow.id }}" name="shoppingListRow" class="form-check-input"
+                                        value='{{ outputJsonHtmlString({
+                                            type: shoppingListRow.reference.type,
+                                            id: shoppingListRow.reference.id,
+                                            options: shoppingListRow.reference.options,
+                                        }) }}'>
+                                </span>
+                                {%- if shoppingListRow.reference.type == constant('SDK\\Enums\\ListRowReferenceType::PRODUCT') -%}
+                                    <span class="shoppingListRowImage">
+                                        <img class="shoppingListRowSmallImage shoppingListRowImage" src="{{ shoppingListRow.item.mainImages.smallImage }}" alt="{{ shoppingListRow.item.language.name|striptags|escape }}" onerror="this.onerror=null;this.src='{{ notFoundImage }}';" loading="lazy">
+                                    </span>
+                                    <span class="shoppingListRowName">{{ shoppingListRow.item.language.name }}</span>
+                                    {%- set staticOptions -%}
+                                        {{- productMacros.staticOptions({
+                                            product: shoppingListRow.item,
+                                            optionReferences: shoppingListRow.reference.options,
+                                            showImageValues: false,
+                                        }) -}}
+                                    {%- endset -%}
+                                    {%- if staticOptions|length -%}
+                                        <span class="shoppingListRowDetail">{{- staticOptions -}}</span>
+                                    {%- endif -%}
+                                {%- else -%}
+                                    <span class="shoppingListRowName">{{ shoppingListRow.item.language.name }}</span>
+                                    <div class="shoppingListRowBundle">
+                                        {%- set referenceOptions = {} -%}
+                                        {%- for bundleItemOptions in shoppingListRow.reference.options -%}
+                                            {%- set referenceOptions = array_add(referenceOptions, bundleItemOptions, bundleItemOptions.itemId) -%}
+                                        {%- endfor -%}
+                                        {%- for bundleItem in shoppingListRow.item.items -%}
+                                            <div class="shoppingListRowBundleItem">
+                                                <span class="shoppingListRowImage">
+                                                    <img class="shoppingListRowSmallImage shoppingListRowImage" src="{{ products[bundleItem.productId].mainImages.smallImage }}" alt="{{ products[bundleItem.productId].language.name|striptags|escape }}" onerror="this.onerror=null;this.src='{{ notFoundImage }}';" loading="lazy">
+                                                </span>
+                                                <span class="shoppingListRowName">{{ products[bundleItem.productId].language.name }}</span>
+                                                {%- set staticOptions -%}
+                                                    {{- productMacros.staticOptions({
+                                                        product: products[bundleItem.productId],
+                                                        optionReferences: referenceOptions[bundleItem.id].options,
+                                                        showImageValues: false,
+                                                    }) -}}
+                                                {%- endset -%}
+                                                {%- if staticOptions|length -%}
+                                                    <span class="shoppingListRowDetail">{{- staticOptions -}}</span>
+                                                {%- endif -%}
+                                            </div>
+                                        {%- endfor -%}
+                                    </div>
+                                {%- endif -%}
+                            </label>
+                        </div>
+                    {%- endif -%}
+				{%- endfor -%}
+			</div>{# /.shoppingListRows #}
+			<div class="formField sendShoppingListRowsSubmitContainer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] }}</button>
+				{{- element|replace({ (classWildcard): 'formButton sendShoppingListRowsButton', (attributeWildcard): '' }) -}}
+			</div>
+		{%- else -%}
+            {{- element -}}
+		{%- endif -%}
+	{%- endfor -%}
+
+{% endmacro -%}

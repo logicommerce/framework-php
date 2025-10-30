@@ -1,0 +1,32 @@
+{%- macro countriesLinksForm(args) -%}
+    <div class="countriesLinks {{args.class}}" >
+        {%- set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') -%} 
+        {%- set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') -%}
+        {%- for name, element in args.countriesLinksForm.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+            {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+                {{- element|replace({ (attributeWildcard): 'data-lc-form="countriesLinksForm" ' ~ (args.acceptRouteWarning?'data-lc-accept-route-warning="true"':'' ) }) -}}
+                <div class="form-message"></div>
+                <div class="formText countriesLinksFormText">
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::COUNTRIES_LINKS_TEXT')] -}}   
+                </div> 
+                <div class="countriesLinksForm">
+            {%- elseif name in [constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END'), constant('FWK\\Enums\\Parameters::ID'), constant('FWK\\Enums\\Parameters::CAPTCHA_TOKEN')] -%}
+                {{- element -}}
+            {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+                    {{- legalCheck -}}
+                    <div class="formField formButton countriesLinksField form-group" id="countriesLinks{{- ucwords(name) -}}Container">
+                        {{- element|replace({ (classWildcard): '', (attributeWildcard): '' }) -}}
+                    </div>
+                    <div class="formResponseContainer" id="countriesLinksResponse"></div>
+                </div>
+            {%- else -%}
+                <div class="form-group formField countriesLinksField" id="countriesLinks{{- ucwords(name) -}}Container">
+                    {{- element|replace({ 
+                        (classWildcard): args.class,
+                        (attributeWildcard): '' 
+                    }) -}}
+                </div>
+            {%- endif -%}
+        {%- endfor -%}
+    </div>
+{%- endmacro -%}

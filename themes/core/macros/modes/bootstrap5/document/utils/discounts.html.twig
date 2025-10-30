@@ -1,0 +1,51 @@
+{#
+	@description Prints loop of all discounts array
+
+    @param {array} discounts
+    @param {bool} showDiscountName
+    @param {bool} showDiscountValue
+    @param {bool} showTaxIncluded
+#}
+{% macro discounts(discounts, showDiscountName, showDiscountValue, showTaxIncluded) %}
+    {% for discount in discounts %}
+        <div class="orderProductDiscount">
+            {% if showDiscountName == true %}
+                <span class="orderProductDiscountName">{{ discount.name }}</span>
+            {% endif %}
+            {% if showDiscountValue == true %}
+                {% set spacelessContent %}
+                    <span class="orderProductDiscountValue">
+                        {% if showTaxIncluded %}
+                            {% set value = discount.valueWithTaxes %}
+                        {% else %}
+                            {% set value = discount.value %}
+                        {% endif %}
+                        {{ outputHtmlCurrency(-value) }}
+                    </span>
+                {% endset %}
+                {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endmacro discounts %}
+
+{#
+	@description Prints order table <td> discounts column, used in /themes/core/modes/.../document/document.html.twig
+
+    @param {array} discounts
+    @param {bool} showDiscountName
+    @param {bool} showDiscountValue
+    @param {bool} showTaxIncluded
+    @param {bool} showZeroDiscount
+#}
+{% macro discountsColumn(discounts, showDiscountName, showDiscountValue, showTaxIncluded, showZeroDiscount) %}
+	<td class="order orderProductDiscounts">
+		{% if showDiscountValue == true and discounts is empty and showZeroDiscount %}
+			<span class="orderProductDiscountValue">
+				{{ outputHtmlCurrency(0) }}
+			</span>
+		{% endif %}
+		{% import _self as modeDiscounts %}
+		{{ modeDiscounts.discounts(discounts, showDiscountName, showDiscountValue, showTaxIncluded, showZeroDiscount) }}
+	</td>
+{% endmacro discountsColumn %}

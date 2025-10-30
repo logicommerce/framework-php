@@ -1,0 +1,15 @@
+{% macro shoppingListRowEditButton(args) %}
+
+    <button type="button" id="editShoppingListRowNotesButton{{ args.row.id }}" class="{{ args.class }} editShoppingListRowNotes" 
+        data-lc="editShoppingListRowNotesButton{{ args.row.id }}" 
+        data-bs-toggle="modal" 
+        data-bs-target="#popupEditShoppingListRowNotes" 
+        data-lc-data='{{ outputJsonHtmlString(args.row) }}'
+        data-lc-function="editShoppingListRowNotes"
+        data-lc-total-items="{{ args.totalItems }}"
+        data-lc-event="click" 
+    >
+        <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROW_EDIT_BUTTON')] }}</span>
+    </button>
+    
+{% endmacro %}

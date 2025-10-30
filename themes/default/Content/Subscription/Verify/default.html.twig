@@ -1,0 +1,18 @@
+{%- extends layout -%}
+
+{%- block content -%}
+    <section class="section section-subscription section-subscription-verify">
+        <div class="container-md">
+            <div class="row">
+                <div class="col col-user-content col-md-12">
+                    <div class="wrap">
+                        <h1 class="title-subscription-verify">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBSCRIPTION_VERIFY_TITLE')] -}}</h1>
+                        <div class="content styled-form">
+                            {{ controllerItem }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{%- endblock content -%}

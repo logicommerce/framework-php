@@ -1,0 +1,122 @@
+<tr>
+	<td>
+    	{% if index is defined %}
+        	{{ index }}
+        {% else %}
+        	No index    	
+        {% endif %}
+	</td>
+	
+	<td>
+		timer.addFlag('ProductIncludeProduct'): {{ timer.addFlag('ProductIncludeProduct', true) }} <br>
+		<div class="timeTest">
+        	<div class="contentTd">
+            	<table border=1>
+            		<tr><th>Label</th><th>Value</th></tr>
+            		<tr><td>id</td><td>{{ product.id }}</td></tr>
+            		<tr><td>pId</td><td>{{ product.pId }}</td></tr>
+            		<tr><td>totalStock</td><td>{{ product.totalStock }}</td></tr>
+            		<tr><td>purchaseMode</td><td>{{ product.purchaseMode }}</td></tr>
+            		<tr><td>shipping</td><td>{{ product.shipping?"Yes":"No" }}</td></tr>
+            		<tr><td>weight</td><td>{{ product.weight }}</td></tr>
+            		<tr><td>mainCategory</td><td>{{ product.mainCategory }}</td></tr>
+            		<tr><td>priceCategory</td><td>{{ product.priceCategory }}</td></tr>
+            		<tr><td>supplierId</td><td>{{ product.supplierId }}</td></tr>
+            		<tr><td>templateId</td><td>{{ product.templateId }}</td></tr>
+            		<tr><td>productPrice</td><td>{{ product.productPrice }}</td></tr>
+    				<tr><td>optionsPrice</td><td>{{ product.optionsPrice }}</td></tr>
+    				<tr><td>reverseChargeVat</td><td>{{ product.reverseChargeVat?"Yes":"No" }}</td></tr>
+            	</table>
+            </div>
+		</div>
+		timer.getElapsedTime('ProductIncludeProduct'): {{ timer.getElapsedTime('ProductIncludeProduct', true) }}<br>            
+    </td>
+
+	<td>
+		timer.addFlag('ProductIncludeTheme'): {{ timer.addFlag('ProductIncludeTheme', true) }} <br>
+		<div class="timeTest">
+            {% if product.theme is null %}
+    			Theme is null
+    		{% else %}
+    		    {% include '/snippets/demo/product/theme.html.twig' with {'theme' : product.theme} only %}
+    		{% endif %}
+		</div>    		
+		timer.getElapsedTime('ProductIncludeTheme'): {{ timer.getElapsedTime('ProductIncludeTheme', true) }}<br>
+	</td>
+
+	<td>
+		timer.addFlag('ProductIncludeLanguage'): {{ timer.addFlag('ProductIncludeLanguage', true) }} <br>	
+	    <div class="timeTest">{% include '/snippets/demo/product/language.html.twig' with {'language' : product.language} only %}</div>
+		timer.getElapsedTime('ProductIncludeLanguage'): {{ timer.getElapsedTime('ProductIncludeLanguage') }}<br>	    
+	</td>
+	<td>
+		timer.addFlag('ProductIncludeMainImages'): {{ timer.addFlag('ProductIncludeMainImages', true) }} <br>
+	    <div class="timeTest">{% include '/snippets/demo/product/mainImages.html.twig' with {'mainImages' : product.mainImages} only %}</div>
+		timer.getElapsedTime('ProductIncludeMainImages'): {{ timer.getElapsedTime('ProductIncludeMainImages') }}<br>	    
+	</td>
+	<td>
+		timer.addFlag('ProductIncludeDefinition'): {{ timer.addFlag('ProductIncludeDefinition', true) }} <br>
+	    <div class="timeTest">{% include '/snippets/demo/product/definition.html.twig' with {'definition' : product.definition} only %}</div>
+		timer.getElapsedTime('ProductIncludeDefinition'): {{ timer.getElapsedTime('ProductIncludeDefinition') }}<br>	    
+    </td>
+	<td>
+		timer.addFlag('ProductIncludeBrand'): {{ timer.addFlag('ProductIncludeBrand', true) }} <br>
+        <div class="timeTest">{% include '/snippets/demo/product/brand.html.twig' with {'brand' : product.brand} only %}</div>
+		timer.getElapsedTime('ProductIncludeBrand'): {{ timer.getElapsedTime('ProductIncludeBrand') }}<br>        
+    </td>
+	<td>
+		timer.addFlag('ProductIncludeCodes'): {{ timer.addFlag('ProductIncludeCodes', true) }} <br>
+	    <div class="timeTest">{% include '/snippets/demo/product/codes.html.twig' with {'codes' : product.codes} only %}</div>
+		timer.getElapsedTime('ProductIncludeCodes'): {{ timer.getElapsedTime('ProductIncludeCodes') }}<br>	    
+	</td>
+	<td>
+		timer.addFlag('ProductIncludeShipping'): {{ timer.addFlag('ProductIncludeShipping', true) }} <br>
+		<div class="timeTest">{% include '/snippets/demo/product/shipping.html.twig' with {'shippingTypeIds' : product.shippingTypeIds, 'shippingCalculation' : product.shippingCalculation } only %}</div>
+		timer.getElapsedTime('ProductIncludeShipping'): {{ timer.getElapsedTime('ProductIncludeShipping') }}<br>		
+	</td>
+	<td>
+		timer.addFlag('ProductIncludeOptions'): {{ timer.addFlag('ProductIncludeOptions', true) }} <br>
+	    <div class="timeTest">{% include '/snippets/demo/product/options.html.twig' with {'options' : product.options} only %}</div>
+		timer.getElapsedTime('ProductIncludeOptions'): {{ timer.getElapsedTime('ProductIncludeOptions') }}<br>	    
+	</td>
+	<td>
+		timer.addFlag('ProductIncludeCombinations'): {{ timer.addFlag('ProductIncludeCombinations', true) }} <br>
+        <div class="timeTest">{% include '/snippets/demo/product/combinations.html.twig' with {'combinations' : product.combinations} only %}</div>
+		timer.getElapsedTime('ProductIncludeCombinations'): {{ timer.getElapsedTime('ProductIncludeCombinations') }}<br>        
+	</td>
+	<td>
+		timer.addFlag('ProductIncludeCategories'): {{ timer.addFlag('ProductIncludeCategories', true) }} <br>
+        <div class="timeTest">{% include '/snippets/demo/product/categories.html.twig' with {'categories' : product.categories} only %}</div>
+		timer.getElapsedTime('ProductIncludeCategories'): {{ timer.getElapsedTime('ProductIncludeCategories') }}<br>        
+    </td>
+    <td>
+    	timer.addFlag('ProductIncludeCategoryProperties'): {{ timer.addFlag('ProductIncludeCategoryProperties', true) }} <br>
+        <div class="timeTest">{% include '/snippets/demo/product/categoryProperties.html.twig' with {'categoryProperties' : product.categoryProperties} only %}</div>
+		timer.getElapsedTime('ProductIncludeCategoryProperties'): {{ timer.getElapsedTime('ProductIncludeCategoryProperties') }}<br>        
+    </td>
+	<td>
+		timer.addFlag('ProductIncludePrice'): {{ timer.addFlag('ProductIncludePrice', true) }} <br>
+	    <div class="timeTest">{% include '/snippets/demo/product/itemPrice.html.twig' with {'itemPrice' : product.prices} only %}</div>
+		timer.getElapsedTime('ProductIncludePrice'): {{ timer.getElapsedTime('ProductIncludePrice') }}<br>	    
+	</td>
+	<td>
+		timer.addFlag('ProductIncludePricesWithTaxes'): {{ timer.addFlag('ProductIncludePricesWithTaxes', true) }} <br>	
+        <div class="timeTest">{% include '/snippets/demo/product/taxes.html.twig' with {'taxes' : product.taxes} only %}</div>
+		timer.getElapsedTime('ProductIncludePricesWithTaxes'): {{ timer.getElapsedTime('ProductIncludePricesWithTaxes') }}<br>        
+    </td>
+	<td>
+		timer.addFlag('ProductIncludeItemPrice'): {{ timer.addFlag('ProductIncludeItemPrice', true) }} <br>	
+	    <div class="timeTest">{% include '/snippets/demo/product/itemPrice.html.twig' with {'itemPrice' : product.pricesWithTaxes} only %}</div>
+		timer.getElapsedTime('ProductIncludeItemPrice'): {{ timer.getElapsedTime('ProductIncludeItemPrice') }}<br>	    
+	</td>
+	<td>
+		timer.addFlag('ProductIncludeCustomTags'): {{ timer.addFlag('ProductIncludeCustomTags', true) }} <br>
+	    <div class="timeTest">
+	    	<div class="contentTd">{% include '/snippets/demo/customTags.html.twig' with {'customTags' : product.customTags} only %}</div>
+	    </div>
+	    timer.getElapsedTime('ProductIncludeCustomTags'): {{ timer.getElapsedTime('ProductIncludeCustomTags') }}<br>
+	</td>
+
+</tr>
+    		
+

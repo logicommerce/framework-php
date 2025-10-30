@@ -1,0 +1,55 @@
+<div class="contentTd">
+	{% if (taxes is iterable and taxes|length > 0 )%}
+    	<table border=1>
+    		<tr>
+    			<th>Taxes</th>
+    			<th>Value</th>
+    		</tr>	
+	        {% for tax in taxes %}
+			<tr>
+				<td>{{ loop.index0 }}</td>
+				<td>
+                	<table border=1>
+                		<tr>
+                			<th>Label</th><th>Value</th>
+                		</tr>
+                		<tr>
+                			<td>id</td><td>{{ tax.id }}</td>
+                		</tr>
+                		<tr>
+                			<td>pId</td><td>{{ tax.pId }}</td>
+                		</tr>
+                		<tr>
+                			<td>operation</td><td>{{ tax.operation }}</td>
+                		</tr>
+                		<tr>
+                			<td>locationType</td><td>{{ tax.locationType }}</td>
+                		</tr>
+                		<tr>
+                			<td>rate</td><td>{{ tax.rate }}</td>
+                		</tr>
+                		<tr>
+                			<td>reRate</td><td>{{ tax.reRate }}</td>
+                		</tr>
+                		<tr>
+                			<td>cumulativeMode</td><td>{{ tax.cumulativeMode }}</td>
+                		</tr>
+                		<tr>
+                			<td>priority</td><td>{{ tax.priority }}</td>
+                		</tr>
+                		<tr>
+                			<td>redefinedBySubcountry</td><td>{{ tax.redefinedBySubcountry?"Yes":"No" }}</td>
+                		</tr>
+					 </table>
+				</td>
+			</tr>
+    	    {% endfor %}
+    	</table>
+	{% else %}
+		no taxes
+	{% endif %}
+</div>
+
+
+
+

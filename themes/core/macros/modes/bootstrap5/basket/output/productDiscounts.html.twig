@@ -1,0 +1,127 @@
+{#
+    @description Prints loop of all discounts array
+
+    @param {array} discountsArray
+    @param {bool} showTaxIncluded
+    @param {bool} showDiscountName
+    @param {string} showDiscountValue
+    @param {bool} showZeroDiscount
+#}
+{% macro outputDiscounts(discountsArray, showTaxIncluded, showDiscountName, showDiscountValue, showZeroDiscount) %}
+
+    {% for discount in discountsArray %}
+        {% set discountClass = 'basketProductDiscountType' ~ discount.type|capitalize ~ (discount.amountType != null ? ' basketProductDiscountAmountType' ~ discount.amountType|capitalize : '') %}
+        <div class="basketProductDiscount {{ discountClass }}">
+            {% if showDiscountName == true %}
+                <span class="basketProductDiscountName">{{ discount.name }}</span>
+            {% endif %}
+            {% if showDiscountValue in [
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_PERCENTAGE'),
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_BOTH')
+            ] and 
+                (
+                    (
+                        discount.type == constant('SDK\\Enums\\DiscountType::AMOUNT') 
+                        or discount.type == constant('SDK\\Enums\\DiscountType::AMOUNT_COMBINATION')
+                    ) and
+                    discount.amountType == constant('SDK\\Enums\\AmountType::PERCENTAGE')
+                ) and 
+                (discount.discountValue != 0 or showZeroDiscount)
+            %}
+                {% import _self as modeDiscounts %}
+                {{ modeDiscounts.outputDiscountPercentage(discount.discountValue) }}
+            {% endif %}
+            {% if showDiscountValue in [
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_VALUE'),
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_BOTH')
+            ] and (
+                        discount.type == constant('SDK\\Enums\\DiscountType::AMOUNT') 
+                        or discount.type == constant('SDK\\Enums\\DiscountType::AMOUNT_COMBINATION') 
+                        or discount.type == constant('SDK\\Enums\\DiscountType::PERCENT_N_UNIT')
+                        or discount.type == constant('SDK\\Enums\\DiscountType::UNIT')
+                        or discount.type == constant('SDK\\Enums\\DiscountType::MXN')
+                )
+                and (discount.discountValue != 0 or showZeroDiscount)
+            %}
+                {% import _self as modeDiscounts %}
+                {{ modeDiscounts.outputDiscountValue(discount, showTaxIncluded) }}
+            {% endif %}
+        </div>
+    {% endfor %}
+
+{% endmacro outputDiscounts %}
+
+{#
+    @description Prints basket table <td> discounts column, used in /themes/core/modes/.../basket/output.html.twig
+
+    @param {array} discountsArray
+    @param {bool} showTaxIncluded
+    @param {bool} showDiscountName
+    @param {string} showDiscountValue
+    @param {bool} showZeroDiscount
+#}
+{% macro outputDiscountsColumn(discountsArray, showTaxIncluded, showDiscountName, showDiscountValue, showZeroDiscount) %}
+    <td class="basket basketProductDiscounts">
+        {% if discountsArray is empty and showZeroDiscount %}
+            {% if showDiscountValue in [
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_PERCENTAGE'),
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_BOTH'),
+            ] %}
+                {% import _self as modeDiscounts %}
+                {{ modeDiscounts.outputDiscountPercentage() }}
+            {% endif %}
+
+            {% if showDiscountValue in [
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_VALUE'),
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_DISCOUNT_VALUE_BOTH'),
+            ] %}
+                {% import _self as modeDiscounts %}
+                {{ modeDiscounts.outputDiscountValue() }}
+            {% endif %}
+        {% else %}
+            {% import _self as modeDiscounts %}
+            {{ modeDiscounts.outputDiscounts(discountsArray, showTaxIncluded, showDiscountName, showDiscountValue, showZeroDiscount) }}
+        {% endif %}
+    </td>
+{% endmacro outputDiscountsColumn %}
+
+{#
+    @description Prints a percentage styled float 
+
+    @param {float} value
+#}
+{% macro outputDiscountPercentage(value = 0) %}
+    {% set spacelessContent %}
+        <span class="basketProductDiscountPercent">
+            <span class="percentageValue">{{- value > 0 ? '-' : '' -}}{{- value -}}</span><span class="percentageSymbol">%</span>
+        </span>
+    {% endset %}
+    {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+{% endmacro outputDiscountPercentage %}
+
+{#
+    @description Prints a percentage styled float 
+
+    @param {float} value
+    @param {bool} showTaxIncluded
+#}
+{% macro outputDiscountValue(discount = null, showTaxIncluded = false) %}
+    {% set spacelessContent %}
+        <span class="basketProductDiscountValue">
+            {% if discount %}
+                {% if discount.type == constant('SDK\\Enums\\DiscountType::UNIT') %}
+                    -{{ discount.quantity }} {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LBL_UNITS')] }}
+                {% else %}
+                    {% if showTaxIncluded %}
+                        {{ outputHtmlCurrency(-discount.valueWithTaxes) }}
+                    {% else %}
+                        {{ outputHtmlCurrency(-discount.value) }}
+                    {% endif %}
+                {% endif %}
+            {% else %}
+                {{ outputHtmlCurrency(0) }}
+            {% endif %}
+        </span>
+    {% endset %}
+    {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+{% endmacro outputDiscountValue %}

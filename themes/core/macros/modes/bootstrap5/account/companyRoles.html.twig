@@ -1,0 +1,142 @@
+{% macro companyRoles(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/modalForm.html.twig' as ajaxModalForm %}
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %} 
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+    {% if args.companyRoles is not empty %}
+        {%- set companyRolesTable -%}
+            <div class="form-message"></div>
+            <div class="companyRolesForm">
+                <table class="customer table mb-5" cellspacing="0">
+                    <thead class="customer">
+                        <tr class="companyRolesTitle">
+                            {% for param in args.parameters %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::NAME') %}
+                                    <td class="companyRolesTitle name">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ROLE')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::DESCRIPTION') %}
+                                    <td class="companyRolesTitle description">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DESCRIPTION')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::TARGET') %}
+                                    <td class="companyRolesTitle target">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TARGET')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::TARGET_DEFAULT') %}
+                                    <td class="companyRolesTitle targetDefault">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DEFAULT')] }}
+                                    </td>
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::EMPLOYEES_QUANTITY') %}
+                                    <td class="companyRolesTitle employeesQuantity">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}
+                                    </td>
+								{% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::ACTIONS') %}
+                                    <td class="companyRolesTitle actions">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTIONS')] }}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody class="customer">
+                        {%- for item in args.companyRoles -%}
+							{% set lcData = {
+                                roleId: item.id,
+                                roleName: item.name
+                            } %}
+                            {%- set companyRole = item -%}
+                            <tr class="companyRolesContent">
+								{% for param in args.parameters %}
+									{% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::NAME') %}
+										<td class="companyRolesContent name">{{ companyRole.name }}</td>
+									{% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::DESCRIPTION') %}
+										<td class="companyRolesContent description">{{ companyRole.description }}</td>
+									{% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::TARGET') %}
+                                        {%- if companyRole.target == constant('SDK\\Enums\\CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER') -%}
+										    <td class="companyRolesContent target">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::COMPANY_STRUCTURE_NON_MASTER')] }}</td>
+                                        {%- elseif companyRole.target == constant('SDK\\Enums\\CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER') -%}
+                                            <td class="companyRolesContent target">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::COMPANY_STRUCTURE_MASTER')] }}</td>
+                                        {%- endif -%}
+									{% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::TARGET_DEFAULT') %}
+										<td class="companyRolesContent targetDefault">{{ companyRole.targetDefault ? languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] }}</td>
+									{% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::EMPLOYEES_QUANTITY') %}
+										<td class="companyRolesContent employeesQuantity">{{ companyRole.employeesQuantity }}</td>
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::ACTIONS') %}
+                                        <td class="companyRolesContent actions">
+                                            {%- for availableAction in args.availableActions -%}
+                                                {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::ACTION_COMPANY_ROLES_EDIT') -%}
+                                                    <a class="customerAction saveCompanyRoleAction" href="#" data-lc-function="saveCompanyRole" data-lc-event="click" data-bs-target="#saveCompanyRolePopup{{lcData.roleId}}" data-lc-data='{{ outputJsonHtmlString(lcData) }}' data-bs-toggle="tooltip" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_UPDATE')] }}">
+                                                        <span class="saveCompanyRoleActionName"><svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg></span>
+                                                    </a>
+                                                {%- elseif availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::ACTION_COMPANY_ROLES_DUPLICATE') -%}
+                                                    <a class="customerAction duplicateCompanyRoleAction" href="#" data-lc-function="duplicateCompanyRole" data-lc-event="click" data-bs-target="#duplicateCompanyRole{{lcData.roleId}}" data-lc-data='{{ outputJsonHtmlString(lcData) }}' data-bs-toggle="tooltip" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACTION_COMPANY_ROLES_DUPLICATE')] }}">
+                                                        <span class="duplicateCompanyRoleActionName"><svg class="icon icon-duplicate"><use xlink:href="#icon-duplicate"></use></svg></span>
+                                                    </a>
+                                                {%- elseif availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::ACTION_COMPANY_ROLES_DELETE') and companyRole.employeesQuantity < 1 -%}
+                                                    <a class="customerAction deleteCompanyRoleAction" href="#" data-lc-function="deleteRoleEvents" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' data-bs-toggle="tooltip" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_DELETE')] }}">
+                                                        <span class="deleteCompanyRoleActionName"><svg class="icon icon-delete"><use xlink:href="#icon-trash"></use></svg></span>
+                                                    </a>
+                                                {%- endif -%}
+                                            {%- endfor -%}
+                                        </td>
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                        {%- endfor -%}
+                    </tbody>
+                </table>
+                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\companyRoles::ACTIONS') in args.parameters %}
+                    {% set lcData = {
+                        roleId: 0
+                    } %}
+                    {%- for availableAction in args.availableActions -%}
+                        {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\companyRoles::ACTION_COMPANY_ROLES_ADD') -%}
+                            <a data-lc-function="saveCompanyRole" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' name="saveCompanyRole" id="saveCompanyRole" class="btn btn-primary formField userField btn">
+                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_ADD')] }}
+                            </a>
+                        {%- endif -%}
+                    {%- endfor -%}
+                {%- endif -%}
+            </div>
+            
+            {#- Add pagination if provided -#}
+            {%- if args.pagination is defined and args.pagination is not null -%}
+                {% import 'macros/util.twig' as utilMacros %}
+                <div class="pagination-wrapper mt-3">
+                    {{ utilMacros.pagination({
+                        paginationItems: args.pagination.paginationItems,
+                        mode: constant('FWK\\ViewHelpers\\Util\\Macro\\Pagination::MODE_BLOCKS')
+                    }) }}
+                </div>
+            {%- endif -%}
+        {%- endset -%}
+
+        {{- companyRolesTable -}}
+    {% else %}
+        {% if args.errorMessage is not empty %}
+            <div class="alert alert-danger clearfix empty-text mb-5">{{ args.errorMessage }}</div>
+        {% else %}
+            <div class="clearfix empty-text mb-5">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EMPTY_ROLES')] }}</div>
+            {% if constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::ACTIONS') in args.parameters %}
+                {%- set lcData = {
+                    roleId: 0
+                } %}
+                {%- for availableAction in args.availableActions -%}
+                    {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::ACTION_COMPANY_ROLES_ADD') -%}
+                        <a data-lc-function="saveCompanyRole" data-lc-data='{{ outputJsonHtmlString(lcData) }}' data-lc-event="click" name="saveCompanyRole" id="saveCompanyRole" class="btn btn-primary formField userField btn">
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_ADD')] }}
+                        </a>
+                    {%- endif -%}
+                {%- endfor -%}
+            {%- endif -%}
+        {% endif %}
+    {% endif %}
+    {{ ajaxModalForm.ajaxModalForm({
+        modalId: 'saveCompanyRoleModal',
+        modalClass: 'saveCompanyRoleModal',
+        title: languageSheet[constant('FWK\\Enums\\LanguageLabels::COMPANY_ROLE')],
+        contentId: 'saveCompanyRoleContent',
+        dialogSize: 'modal-lg modal-dialog-scrollable modal-dialog-centered'
+    }) }}
+{% endmacro companyRoles %}

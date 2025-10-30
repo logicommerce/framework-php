@@ -1,0 +1,22 @@
+{
+	"chmod": "0755",
+	"files": [
+		"autoload.php"
+	],
+	"directories": [
+		"src"
+	],
+	"finder": [
+		{
+			"name": "*.php",
+			"exclude": ["test", "tests", "phpunit", "phpdocumentor", "phar-io", "sebastian", "phpspec"],
+			"in": "vendor"
+		},
+		{
+			"name": "*.twig",
+			"in": "themes"
+		}
+	],
+	"output": "build/fwk.phar",
+	"stub": "phar-bootstrap.php"
+}

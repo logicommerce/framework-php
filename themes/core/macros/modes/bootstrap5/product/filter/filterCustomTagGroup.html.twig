@@ -1,0 +1,65 @@
+{%- macro filter(filters, appliedFilters, configuration, filterItemTemplate) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/customTagGroup.html.twig' as filterProductMacro -%}
+
+    {%- set filterCustomTagGroups = filters.filterCustomTagGroup|filter(group => group.position in configuration.itemsToShow or configuration.itemsToShow is empty) -%}
+    {%- set filterCustomTagGroups = filterCustomTagGroups|sort((a, b) => (a.priority <=> b.priority)) -%}
+    {%- for group in filterCustomTagGroups -%}
+        {%- if group.id > 0 and group.customTags|length -%}            
+            {%- set uid = random(10000000, 99999999) -%}
+
+            {%- set elements -%}
+                {{- filterProductMacro.elements(filters, appliedFilters, group) -}}
+            {%- endset -%}
+
+            {%- set badgeAppliedFilters -%}
+                {%- set nAppliedFilters = 0 -%}
+                {%- for customTagId in group.customTags -%}
+                    {%- for customTag in filters.filterCustomTag|filter(customTag => customTag.id == customTagId) -%}
+                        {%- set selected = false -%}
+                        {%- if customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
+                            {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and customTag.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+                            {%- if selected -%}
+                                {%- set nAppliedFilters = nAppliedFilters + 1 -%}
+                            {%- endif -%}
+                        {%- endif -%}
+                        {%- if not selected -%}
+                            {%- for value in customTag.values -%}
+                                {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+                                {%- if selected -%}
+                                    {%- set nAppliedFilters = nAppliedFilters + 1 -%}
+                                {%- endif -%}
+                            {%- endfor -%}
+                        {%- endif -%}
+                    {%- endfor -%}
+                {%- endfor -%}
+                <span class="n-applied-filter n-{{ nAppliedFilters }} badge rounded-pill bg-primary">{{ nAppliedFilters }}</span>
+            {%- endset -%}
+
+            {%- set blockClass = 'filterBlock customTagsGroupFilterBlock' -%}
+
+            {%- if filterItemTemplate != null -%}
+                {{- filterItemTemplate|replace({
+                    '{{blockClassWildcard}}': blockClass,
+                    '{{dataAttributesWildcard}}': "data-group='" ~ outputJsonHtmlString({ position: group.position }) ~ "'",
+                    '{{uidWildcard}}': uid,
+                    '{{nameWildcard}}': group.name,
+                    '{{badgeAppliedFiltersWildcard}}': badgeAppliedFilters,
+                    '{{elementsWildcard}}': elements,
+                }) -}}
+            {%- else -%}
+                <div class="filterBlock customTagsGroupFilterBlock" data-group='{{ outputJsonHtmlString({ position: group.position }) }}'>
+                    <div class="filterBlockTitle customTagsGroupFilterBlockTitle">
+                        {{- group.name -}}
+                        {{- badgeAppliedFilters -}}
+                    </div>
+
+                    <div class="filterElements customTagsGroupFilterElements">
+                        {{- elements -}}
+                    </div>
+                </div>
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+{%- endmacro -%}

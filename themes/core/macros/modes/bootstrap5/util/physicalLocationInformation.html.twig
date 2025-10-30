@@ -1,0 +1,59 @@
+{%- macro physicalLocationInformation(physicalLocation, showFields) -%}
+    <div class="physicalLocationInformation">
+        <div class="physicalLocationTitle">
+            {{- physicalLocation.name -}}
+        </div>
+        <div class="description">
+            {%- if 
+                ('address' in showFields or 'postalCode' in showFields or 'city' in showFields or 'state' in showFields or 'country' in showFields) or 
+                showFields is empty 
+            -%}
+                <div class="address">
+                    {%- if 'address' in showFields or showFields is empty -%}
+                        <div class="addressName">{{- physicalLocation.address -}}</div>
+                    {%- endif -%}
+                    <div class="addressInfo">
+                        {%- set addressInfo = '' -%}
+                        {%- if 'postalCode' in showFields or showFields is empty -%}
+                            {%- set addressInfo = addressInfo ~ physicalLocation.postalCode -%}
+                        {%- endif -%}
+                        {%- if 'city' in showFields or showFields is empty -%}
+                            {%- set addressInfo = addressInfo ~ ' ' ~ physicalLocation.city -%}
+                        {%- endif -%}
+                        {%- if 'state' in showFields or showFields is empty -%}
+                            {%- set addressInfo = addressInfo ~ ' ' ~ physicalLocation.state -%}
+                        {%- endif -%}
+                        {%- if 'country' in showFields or showFields is empty -%}
+                            {%- set addressInfo = addressInfo ~ ' ' ~ getCountryNameByCountryCode(physicalLocation.location.geographicalZone.countryCode) -%}
+                        {%- endif -%}
+                        {{- addressInfo -}}
+                    </div>
+                </div>
+            {%- endif -%}
+            {%- if 
+                ('phone' in showFields or 'email' in showFields or 'information' in showFields or showFields is empty) and 
+                (physicalLocation.phone|length or physicalLocation.email|length or physicalLocation.language.information|length)
+            -%}
+                <div class="additionalInfo">
+                    {%- if physicalLocation.phone|length and ('phone' in showFields or showFields is empty) -%}
+                        <div class="info phone">
+                            <span class="phoneLabel">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PHONE')] -}}: </span>
+                            <span class="phoneValue">{{- physicalLocation.phone -}}</span>
+                        </div>
+                    {%- endif -%}
+                    {%- if physicalLocation.email|length and ('email' in showFields or showFields is empty) -%}
+                        <div class="info email">
+                            <span class="emailLabel">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EMAIL')] -}}: </span>
+                            <span class="emailValue">{{- physicalLocation.email -}}</span>
+                        </div>
+                    {%- endif -%}
+                    {%- if physicalLocation.language.information|length and ('information' in showFields or showFields is empty) -%}
+                        <div class="information">
+                            {{- physicalLocation.language.information -}}
+                        </div>
+                    {%- endif -%}
+                </div>
+            {%- endif -%}
+        </div>
+    </div>
+{%- endmacro physicalLocationInformation -%}

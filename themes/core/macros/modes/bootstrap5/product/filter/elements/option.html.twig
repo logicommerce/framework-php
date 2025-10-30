@@ -1,0 +1,35 @@
+{%- macro elements(filter, appliedFilters) -%}
+    {%- for value in filter.values|sort((a, b) => ('%06d'|format(a.priority) ~ ':' ~ a.value) <=> ('%06d'|format(b.priority) ~ ':' ~ b.value)) -%}
+        {%- set optionName = filter.filterName|url_encode -%}
+        {%- set optionValue = value.value|url_encode -%}
+        {%- set selected = 
+            appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')] is defined 
+            and (
+                (
+                    appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode] is defined 
+                    and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode]|map(af => af|url_encode) 
+                ) or (
+                    appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode] is defined 
+                    and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode]|map(af => af|url_encode) 
+                )
+            )
+        -%}
+        
+        <div class="form-group form-check filterElement optionsFilterElement">
+            <input 
+                class="form-check-input filterElement optionsFilterElement" 
+                type="checkbox" 
+                name="{{ constant('FWK\\Enums\\Parameters::FILTER_OPTION') }}{{ constant('FWK\\Core\\FilterInput\\FilterInputHandler::DYNAMIC_NAME_PARAM_DELIMITER') }}{{ optionName }}" 
+                {% if selected %} checked {% endif %}
+                value="{{ optionValue }}" 
+                id="OPTFEA_{{ optionName }}_{{ optionValue }}"
+            >
+
+            {%- if filter.type == constant('SDK\\Enums\\OptionType::BOOLEAN') -%}
+                {%- set value = value ? languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] -%}
+            {%- endif -%}
+
+            <label class="form-check-label filterElement optionsFilterElement" for="OPTFEA_{{ optionName }}_{{ optionValue }}">{{ value.value }}</label>
+        </div>
+    {%- endfor -%}
+{%- endmacro -%}

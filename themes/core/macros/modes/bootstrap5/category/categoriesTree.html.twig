@@ -1,0 +1,24 @@
+{%- macro categoriesTree(args, level = 1) -%}
+	{% import _self as self %}
+	{%- for category in args.categories -%}
+		{%- set className = 'categoryTree categoryTree' ~ level -%}
+		<div class="categoriesTreeContainer categoriesTreeContainer{{- level -}}">
+			<div class="{{- className -}}" {%- if args.showImage is constant('FWK\\ViewHelpers\\Category\\Macro\\CategoriesTree::SHOW_IMAGE_BACKGROUND_IMAGE') -%} style="background-image:url('{{- category.language.smallImage -}}');" {%- endif -%}>
+				<a class="{{- className -}}" href="{{- category.language.link -}}" target="{{- category.language.target -}}">
+					{%- if args.showImage is constant('FWK\\ViewHelpers\\Category\\Macro\\CategoriesTree::SHOW_IMAGE_BEFORE_NAME') and category.language.smallImage|length -%}
+						<img src="{{- category.language.smallImage -}}" alt="{{- category.language.name|escape -}}" title="{{- category.language.name|escape -}}" onerror="this.style.display='none';">
+					{%- endif -%}
+					{{- category.language.name -}}
+					{%- if args.showImage is constant('FWK\\ViewHelpers\\Category\\Macro\\CategoriesTree::SHOW_IMAGE_AFTER_NAME') and category.language.smallImage|length -%}
+						<img src="{{- category.language.smallImage -}}" alt="{{- category.language.name|escape -}}" title="{{- category.language.name|escape -}}" onerror="this.style.display='none';">
+					{%- endif -%}
+				</a>
+			</div>
+			<div class="subCategoriesTree">
+				{%- if category.subcategories|length -%}
+					{{ self.categoriesTree({ categories: category.subcategories, showImage: args.showImage }, level + 1) }}
+				{%- endif -%}
+			</div>
+		</div>
+	{%- endfor -%}
+{%- endmacro -%}

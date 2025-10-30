@@ -1,0 +1,23 @@
+<tr>
+	<td>
+    	{% if index is defined %}
+        	{{ index }}
+        {% else %}
+        	No index    	
+        {% endif %}
+	</td>
+	<td>{{ banner.id }}</td>
+	<td>{{ banner.pId }}</td>
+	<td>{{ banner.name }}</td>
+	<td>{{ banner.description }}</td>
+	<td>{{ localizedDateTime(banner.dateAdded)}}</td>
+	<td>{{ banner.target }}</td>
+	<td>{{ banner.position }}</td>
+	<td>{{ banner.priority }}</td>
+	<td>{{ banner.language.alt }}</td>
+	<td>{{ banner.language.image }}</td>
+	<td>{{ banner.language.destinationUrl }}</td>
+	<td>{{ banner.language.linkFollowing ? 'Yes' : 'No' }}</td>
+</tr>
+
+

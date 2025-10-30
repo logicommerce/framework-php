@@ -1,0 +1,4 @@
+{% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+{% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+
+{{ input|replace({ (classWildcard): 'userTypeInput', (attributeWildcard): '' })|raw }}

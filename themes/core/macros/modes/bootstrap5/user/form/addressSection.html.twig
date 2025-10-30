@@ -1,0 +1,39 @@
+{% macro addressSection(prefix, addresses, defaultUserType, className = '', selectMode, showAddNewBilling, showAddNewShipping, showEditBilling, showEditShipping, showDeleteBilling, showDeleteShipping) %}
+    {%- set isGeneral = session.basket.account.type == constant('SDK\\Enums\\AccountType::GENERAL') -%}
+    <div id="{{ prefix }}AddressContainerStartSectionSeparator" class="blockAddressBook AddressContainerStartSectionSeparator {{ prefix }} {{ className|default('') }}"></div>
+
+    <div id="{{ prefix }}AddressContainer" class="blockAddressBook {{ prefix }} {{ className|default('') }}">
+        <div class="title">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDRESS_BOOK_' ~ prefix|upper ~ '_ADDRESS')] }}</div>
+        <div class="content">
+            {% for address in addresses %}
+                {% import 'macros/modes/' ~ coreMode ~ '/user/addressBook/item.html.twig' as modeUser %}
+                {{ modeUser.item(address, prefix, selectMode, showEditBilling, showEditShipping, showDeleteBilling, showDeleteShipping) }}
+            {% else %}
+                <span class="notAvailableAddress">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NOT_AVAILABLE_ADDRESS')] }}</span>
+            {% endfor %}
+            <div class="actions">
+                {%- set lcData = { 'selectMode': selectMode } -%}
+                {%- if (isGeneral or prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX')) and 
+                    ((prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') and showAddNewBilling) or
+                    (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and showAddNewShipping))
+                -%}
+                    {%- if prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') -%}
+                        {%- set lcData = array_add(lcData, defaultUserType, 'userType') -%}
+                    {%- endif -%}                
+                    <button type="button" 
+                            class="addressBookAction addAddressBook btn btn-link" 
+                            data-bs-toggle="modal" 
+                            data-lc-action="addAddressBook" 
+                            data-bs-target="#{{ prefix }}AddressBookModal"
+                            data-lc-data='{{ outputJsonHtmlString(lcData) }}'
+                    >
+                        <svg class="icon"><use xlink:href="#icon-addressbook-checkout-plus"></use></svg>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_' ~ prefix|upper ~ '_ADDRESS')] -}}
+                    </button>
+                {%- endif -%}
+            </div>
+        </div>
+    </div>
+
+    <div id="{{ prefix }}AddressContainerEndSectionSeparator" class="blockAddressBook AddressContainerEndSectionSeparator {{ prefix }} {{ className|default('') }}"></div>
+
+{% endmacro addressSection %}

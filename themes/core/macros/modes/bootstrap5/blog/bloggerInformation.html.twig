@@ -1,0 +1,25 @@
+{%- macro bloggerInformation(args) -%}
+    <div class="author" itemprop="author" itemscope itemtype="https://schema.org/Person">
+        {%- if args.showName and args.blogger.name|trim|length -%}
+            <div class="authorName">
+                {%- if args.showLabel -%}
+                    <span>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::AUTHOR')] -}}</span>
+                {%- endif -%}
+                <span itemprop="name">
+                    {%- if args.blogger.urlSeo|length -%}
+                        <a href="{{- args.blogger.urlSeo -}}" itemprop="url" {% if not args.blogger.language.linkFollowing %}rel="nofollow"{% endif %}>
+                    {%- endif -%}
+                        {{- args.blogger.name -}}
+                    {%- if args.blogger.urlSeo|length -%}
+                        </a>
+                {%- endif -%}
+                </span>
+            </div>
+        {%- endif -%}
+        {%- if args.showDescription and args.blogger.language.description|trim|length -%}
+            <div class="authorDescription" itemprop="description">
+                {{ args.blogger.language.description }}
+            </div>
+        {%- endif -%}
+    </div>
+{%- endmacro -%}

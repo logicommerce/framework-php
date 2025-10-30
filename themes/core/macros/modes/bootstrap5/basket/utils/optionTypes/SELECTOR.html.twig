@@ -1,0 +1,5 @@
+{% if option.value.value|length and showOptionValuesName == '' or showOptionValuesName == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_OPTION_VALUES_NAME_SHOW_NAME') %}
+    {{ option.value.value|striptags }}
+{% elseif option.value.shortDescription|length and showOptionValuesName == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_OPTION_VALUES_NAME_SHOW_DESCRIPTION') %}
+    {{ option.value.shortDescription|striptags }}
+{% endif %}

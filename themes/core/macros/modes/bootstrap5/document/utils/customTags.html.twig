@@ -1,0 +1,36 @@
+{%- macro customTags(customTagsArray, args, showName = true, showValue = true) -%}
+
+    {% if customTagsArray|length %}
+        <div class="customTags orderCustomTags">
+
+            {% set printedIndex = 1 %}
+            {% for customTag in customTagsArray %}
+                {# if args.showCustomTagPositions[] is empty, print all (inOrders true) customTags #}
+                {% if customTag.position in args.showCustomTagPositions or args.showCustomTagPositions is empty %}
+                    
+                    {% set parsedControlType = '' %}
+                    {% for controlTypePart in customTag.controlType|split('_') %}
+                        {% set parsedControlType = parsedControlType ~ controlTypePart|lower|capitalize %}
+                    {% endfor %}
+
+                    <div class="customTag orderCustomTag orderCustomTagType{{ parsedControlType }} {% if loop.first %}orderCustomTagFirst{% elseif loop.last %}orderCustomTagLast{% endif %}">
+                        {% if showName == true and customTag.name|length %}
+                            <span class="customTagName orderCustomTagName">
+                                {{ customTag.name }}
+                            </span>
+                        {% endif %}
+
+                        {% if showValue == true %}    
+                            <span class="customTagValue orderCustomTagValue">
+                                {% include 'macros/modes/' ~ coreMode ~ '/document/utils/customTagTypes/' ~ customTag.controlType ~ '.html.twig' %}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% set printedIndex = printedIndex + 1 %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+{%- endmacro -%}

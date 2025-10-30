@@ -1,0 +1,29 @@
+{
+  "css": {
+    "default_bs5": {
+      "minify": true,
+      "files": [
+        "lc/lc_bs5.css"
+      ]
+    }
+  },
+  "js": {
+    "default": {
+      "minify": true,
+      "files": [
+        "lc/lc.const.js",
+        "lc/lc.core.js",
+        "lc/lc.forms.js",
+        "lc/lc.plugins.js",
+        "lc/lc.initialize.js",
+        "lc/lc.events.js",
+        "lc/lc.loadContentScroll.js",
+        "lc/lc.oneStepCheckout.js",
+        "lc/lc.mediaqueries.js",
+        "lc/lc.goDesktop.js",
+        "lc/lc.maps.js",
+        "lc/lc.companyStructure.js"
+      ]
+    }
+  }
+}

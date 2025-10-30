@@ -1,0 +1,69 @@
+{% macro linked(args, basketRow, lockedStocksContent) %}
+
+    {% from 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/linked.html.twig' import linked as basketLinked %}
+    {% from 'macros/modes/' ~ coreMode ~ '/basket/output/productDiscounts.html.twig' import outputDiscountsColumn as outputDiscountsColumn %}
+
+    {% set basketRowPrices = basketRow.prices %}
+    {% if args.showTaxIncluded == true %}
+        {% set basketRowPrices = basketRow.pricesWithTaxes %}
+    {% endif %}
+
+    {% set showColumDiscounts = args.showDiscounts == true and (args.totalProductDiscounts > 0 or args.showZeroDiscount) %}
+
+    <td class="basket basketProduct">
+        {{ lockedStocksContent }}
+        {{ basketLinked(args, basketRow) }}
+    </td>
+
+    {% if args.showPrices == true %}
+        <td class="basket basketPrice basketProductPrice">
+            
+            {% if basketRow.offer == true %}
+                {% if args.showPreviousPrice == true %}
+                    <span class="previousPrice">{{ outputHtmlCurrency(basketRowPrices.unitPreviousPrice) }}</span>
+                {% endif %}
+                
+                {% if args.showPercentDifference == true %}
+                    <span class="offerPercentDifference">
+                        <span class="percentageValue">-{{ viewHelpers.util.getPriceDifference(basketRowPrices.unitPreviousPrice, basketRowPrices.unitPrice).roundedPercentDifference }}</span><span class="percentageSymbol">%</span>
+                    </span>
+                {% endif %}
+                
+                {% if args.showPriceDifference == true %}
+                    <span class="offerPriceDifference">{{ outputHtmlCurrency(-viewHelpers.util.getPriceDifference(basketRowPrices.unitPreviousPrice, basketRowPrices.unitPrice).priceDifference) }}</span>
+                {% endif %}
+            {% endif %}
+
+            {{ outputHtmlCurrency(basketRowPrices.unitPrice) }}
+        </td>
+    {% endif %}
+
+    <td class="basket basketQuantity">
+        {{ basketRow.quantityOutput|replace({ '{{className}}': 'form-control' }) }}
+    </td>
+
+    {% if showColumDiscounts %}
+        {{ outputDiscountsColumn(basketRow.appliedDiscounts, args.showTaxIncluded, args.showDiscountName, args.showDiscountValue, args.showZeroDiscount) }}
+    {% endif %}
+
+    {% if args.showPrices == true %}
+        <td class="basket basketPrice basketProductTotal">
+            {% set basketRowTotal = basketRow.subtotal %}
+            {% if args.showTaxIncluded == true %}
+                {% set basketRowTotal = basketRow.total %}
+            {% endif %}
+            {% if basketRowTotal != 0 %}
+                {% if args.showPreviousPrice == true and args.showPrices == true and basketRow.offer == true %}
+                    <span class="previousPrice">
+                        {{ outputHtmlCurrency(basketRowPrices.previousPrice - basketRow.totalDiscounts) }}
+                    </span>
+                {% endif %}
+                {{ outputHtmlCurrency(basketRowTotal) }}
+            {% else %}
+                {{ outputHtmlCurrency(0) }}
+            {% endif %}
+        </td>
+    {% endif %}
+
+
+{% endmacro linked %}

@@ -1,0 +1,96 @@
+{% macro pickings(args, delivery, warningsContent) %}
+    <div class="delivery">
+        {{- warningsContent -}}
+        <div class="picking">
+            {%- if args.showProducts -%}
+                <div class="deliveryProductsTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS')] -}}</div>
+                <ul class="products">
+                    {%- for deliveryRow in delivery.deliveryRows -%}
+                        <li data-hash="{{- deliveryRow.basketRowData.hash -}}">
+                            <span class="productName">{{- deliveryRow.basketRowData.basketRow.name -}}</span>
+                            <span class="productQuantity">{{- deliveryRow.basketRowData.quantity -}}</span>
+                        </li>
+                    {%- endfor -%}
+                </ul>
+            {%- endif -%}
+            <div class="shipping shippingSelector basketSelector {% if delivery.selected %}basketSelectorSelected shippingSelectorSelected{% endif %}">
+                {%- if delivery.mode.type == constant('sdk\\Enums\\PickingDeliveryType::PROVIDER_PICKUP_POINT') -%}
+                    <input class="basketSelector shippingTypeSelector form-check-input"
+                        type="radio"
+                        autocomplete="off"
+                        name="shippingType_picking"
+                        value="{{- delivery.hash -}}"
+                        data-lc-delivery-type="{{- delivery.type -}}"
+                        data-lc-delivery-hash="{{- delivery.hash -}}"
+                        data-lc-provider-pickup-point-hash="{{- delivery.mode.providerPickupPoint.hash -}}"
+                        id="picking_{{- delivery.mode.providerPickupPoint.key -}}"
+                        checked="checked"
+                    >
+                    <label class="basketSelectorName shippingSelectorName" for="picking_{{- delivery.mode.providerPickupPoint.key -}}">
+                        <span class="shipperName">{{- delivery.mode.providerPickupPoint.name -}}</span>
+                        <span class="shipperNameSpacer">-</span>
+                        <span class="shippingTypeName">
+                            <div class="address">
+                                <span class="addressName">{{- delivery.mode.providerPickupPoint.address -}}</span>
+                                <span class="addressInfo">{{- delivery.mode.providerPickupPoint.postalCode }} {{ delivery.mode.providerPickupPoint.city }} ({{ getCountryNameByCountryCode(delivery.mode.providerPickupPoint.location.geographicalZone.countryCode) -}})</span>
+                            </div>
+                        </span>
+                        {% if args.showDescription == true and delivery.mode.providerPickupPoint.openingTimesAdditionalInformation|length %}
+                            <span class="shippingTypeDescription">{{- delivery.mode.providerPickupPoint.openingTimesAdditionalInformation -}}</span>
+                        {% endif %}
+                    </label>
+                {%- elseif delivery.selected -%}
+                    <input class="basketSelector shippingTypeSelector form-check-input"
+                        type="radio"
+                        autocomplete="off"
+                        disabled {# enable after add event listener in lc.forms.js #}
+                        name="shippingType_picking"
+                        value="{{- delivery.hash -}}"
+                        data-lc-delivery-type="{{- delivery.type -}}"
+                        data-lc-delivery-hash="{{- delivery.hash -}}"
+                        id="picking_{{- delivery.mode.physicalLocation.id -}}"
+                        {% if delivery.selected %}checked="checked"{%- endif -%}
+                    >
+                    <label class="basketSelectorName shippingSelectorName" for="picking_{{- delivery.mode.physicalLocation.id -}}">
+                        <span class="shipperName">{{- delivery.mode.physicalLocation.name -}}</span>
+                        <span class="shipperNameSpacer">-</span>
+                        <span class="shippingTypeName">
+                            <div class="address">
+                                <span class="addressName">{{- delivery.mode.physicalLocation.address -}}</span>
+                                <span class="addressInfo">{{- delivery.mode.physicalLocation.postalCode }} {{ delivery.mode.physicalLocation.city }} ({{ delivery.mode.physicalLocation.state }} - {{ getCountryNameByCountryCode(delivery.mode.physicalLocation.location.geographicalZone.countryCode) -}})</span>
+                            </div>
+                        </span>
+                        {% if args.showDescription == true and delivery.mode.physicalLocation.language.information|length %}
+                            <span class="shippingTypeDescription">{{- delivery.mode.physicalLocation.language.information -}}</span>
+                        {% endif %}
+                    </label>
+                {%- endif -%}
+                <label class="basketSelectorPrice shippingSelectorPrice" for="picking_{{- delivery.mode.physicalLocation.id -}}">
+                    {%- if delivery.mode.type == constant('sdk\\Enums\\PickingDeliveryType::PROVIDER_PICKUP_POINT') and (delivery.shipments|length or delivery.price > 0) -%}
+                        {% set showedShippingPrice = false %}
+                        {%- for shipment in delivery.shipments -%}
+                            {%- for shipping in shipment.shippings -%}
+                                {%- if args.showTaxIncluded -%}
+                                    {{- outputHtmlCurrency(shipping.pricesWithTaxes.price) -}}
+                                {%- else -%}
+                                    {{- outputHtmlCurrency(shipping.prices.price) -}}
+                                {%- endif -%}
+                                {% set showedShippingPrice = true %}
+                            {%- endfor -%}
+                        {%- endfor -%}
+                        {%- if delivery.price > 0 -%}
+                            {%- if args.showTaxIncluded -%}
+                                {% set deliveryPrice = deliveryPrice + delivery.priceWithTaxes %}
+                            {%- else -%}
+                                {% set deliveryPrice = deliveryPrice + delivery.price %}
+                            {%- endif -%}
+                            {% if showedShippingPrice %}+{% endif %}{{- outputHtmlCurrency(deliveryPrice) -}}
+                        {%- endif -%}
+                    {%- else -%}
+                        {{- outputHtmlCurrency(0) -}}
+                    {%- endif -%}
+                </label>
+            </div>
+        </div>
+    </div>
+{% endmacro pickings %}

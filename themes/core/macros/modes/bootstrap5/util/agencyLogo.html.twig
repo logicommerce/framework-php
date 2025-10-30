@@ -1,0 +1,15 @@
+{%- macro agencyLogo(args) -%}
+    <div id="{{ args.id }}">
+        {%- if args.showOnlyText == false -%}
+            {%- if route.type == constant('SDK\\Enums\\RouteType::HOME') -%}
+                <a rel="{{ args.linkRel }}" target="_blank" href="{{ args.link }}" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {{ args.name|escape }}">
+            {%- endif -%}
+                <img class="{{ args.class }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {{ args.name|escape }}" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {{ args.name|escape }}" src="{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) }}/{{ args.logoImgSrc }}">
+            {%- if route.type == constant('SDK\\Enums\\RouteType::HOME') -%}
+                </a>
+            {%- endif -%}
+        {%- else -%}
+            <p class="{{ args.classLink }} {{ args.color }}">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {% if route.type == constant('SDK\\Enums\\RouteType::HOME') %}<a rel="{{ args.linkRel }}" target="_blank" href="{{ args.link }}" title="eCommerce by {{ args.name|escape }}">{% endif %}{{ args.name }}{% if route.type == constant('SDK\\Enums\\RouteType::HOME') %}</a>{% endif %}</p>
+        {%- endif -%}
+    </div>
+{%- endmacro -%}

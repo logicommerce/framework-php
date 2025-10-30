@@ -1,0 +1,6 @@
+{%- if session.lockedStocksAggregateData|length -%}
+    {%- import macrosCore.basket as basketMacros -%}
+    <section class="section section-checkout section-checkout-locked-stocks-content">
+        {{- basketMacros.lockedStocksContent({ showDescription: true }) -}}
+    </section>
+{%- endif -%}

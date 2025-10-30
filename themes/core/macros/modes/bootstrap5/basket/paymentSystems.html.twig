@@ -1,0 +1,77 @@
+{% macro paymentSystems(args) %}
+
+    {%- if args.basketNeedsPayment == true -%}
+        <div class="basketPaymentSystems">
+            {%- if args.showTitle == true -%}
+                <div class="basketSelectorsTitle paymentSystemSelectorsTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECT_PAYMENT_SYSTEM')] -}}</div>
+            {%- endif -%}
+
+            {%- if args.paymentSystems.items|length -%}
+                <div class="basketSelectors paymentSystemSelectors">
+                    {%- for paymentSystem in args.paymentSystems -%}
+
+                        <div class="basketSelector paymentSystemSelector {%- if paymentSystem.selected == true %} basketSelectorSelected paymentSystemSelectorSelected {% endif %}">
+
+                            <input 
+                                class="basketSelectorInput basketSelectorPaymentInput form-check-input" 
+                                type="radio" 
+                                disabled {# enable after add event listener in lc.forms.js #}
+                                name="paymentSystem" 
+                                value='{{ outputJsonHtmlString({ 'id': paymentSystem.id }) }}' 
+                                id="paymentSystem_{{ paymentSystem.id }}" 
+                                autocomplete="off" 
+                                {% if paymentSystem.selected == true %} checked="checked" {% endif %}
+                                data-plugin-module='{{ paymentSystem.module }}'
+                                {% if paymentSystem.selected == true and isExpressCheckout(args.basket) %} data-lc-express-checkout="true" {% endif %}
+                            >
+
+                            <label class="basketSelectorName paymentSystemSelectorName" for="paymentSystem_{{ paymentSystem.id }}">
+                                {{- paymentSystem.language.name -}}
+                            </label>
+
+                            {%- if args.showZeroPrice == true or (args.showZeroPrice == false and paymentSystem.price > 0) -%}
+                                <label class="basketSelectorPrice paymentSelectorPrice" for="paymentSystem_{{ paymentSystem.id }}">
+                                    {%- set outputPrice = paymentSystem.price -%}
+                                    {%- if args.showTaxIncluded -%}
+                                        {%- for appliedTaxe in paymentSystem.appliedTaxes|filter(appliedTaxe => appliedTaxe.applyTax == true ) -%}
+                                            {%- set outputPrice = outputPrice + appliedTaxe.taxValue -%}
+                                        {%- endfor -%}
+                                    {%- endif -%}
+                                    {{- outputHtmlCurrency(outputPrice) -}}
+                                </label>
+                            {%- endif -%}
+
+                            {%- if args.showImage == true and paymentSystem.logo|length -%}
+                                <img class="paymentSystemImage" src="{{ settings.generalSettings.cdnImages }}{{ paymentSystem.logo }}"> 
+                            {%- endif -%}
+
+                            {%- if args.showDescription == true and paymentSystem.language.description|length -%}
+                                <span class="basketSelectorDescription paymentSystemSelectorDescription">{{ paymentSystem.language.description }}</span>
+                            {%- endif -%}
+
+                            <div class="paymentPluginContainer">
+                                {%- include 'plugins/' ~ ucwords(paymentSystem.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/basket/paymentSystemsProperties.html.twig' ignore missing -%}
+                            </div>
+                        </div>
+
+                        {% if paymentSystem.selected == true and args.basket.expressCheckout and args.basket.expressCheckout.pluginAccountId > 0 %}                             
+                            {% set lcData = {
+                                id: args.basket.expressCheckout.pluginAccountId,
+                                pluginModule: paymentSystem.module,
+                                action: 'update'
+                            } %}
+                            <div class="express-checkout update">
+                                <a class="paypal-express-checkout-plugin express-checkout-plugin update" href="#" data-lc-function="expressCheckout" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPRESS_CHECKOUT_UPDATE')] -}}</a>
+                            </div>
+                        {% endif %}
+                    {%- endfor -%}
+                </div>
+            {%- else -%}
+                <div class="basketSelectorsEmpty basketSelectorsMessage paymentSystemSelectorsMessage">
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::NO_PAYMENTS_ALLOWED')] -}}
+                </div>
+            {%- endif -%}
+        </div>
+    {%- endif -%}
+
+{% endmacro paymentSystems %}

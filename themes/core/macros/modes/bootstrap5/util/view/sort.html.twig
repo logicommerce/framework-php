@@ -1,0 +1,34 @@
+{%- macro view(options, selectedValue) -%}
+    <div class="viewBlock sortBlock">
+        {%- if options.showLabel -%}
+            <div class="viewTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_BY')] -}}</div>
+        {%- endif -%}
+        <div class="viewElements">
+            {%- for key in options.items.toArray()|filter(element => element.enabled)|sort((a,b) => a.viewPriority <=> b.viewPriority)|keys -%}
+                {%- set element = attribute(options.items,key) -%}
+                {%- set sortDirections = [constant('FWK\\Core\\Theme\\Dtos\\ViewOptionSortItem::ASC'), constant('FWK\\Core\\Theme\\Dtos\\ViewOptionSortItem::DESC')] -%}
+                {%- for direction in sortDirections -%}
+                    {%- if attribute(element,direction) -%}
+                        {%- set name = 'ORDER_BY_' ~ key|replace({ ',': '_' })|upper -%}
+                        {%- set sort = "" -%}
+                        {%- set sort = key ~ '.' ~ direction ~ (element.sorts|length > 0 ? ',' : '') -%}
+                        {% for additionalSort in element.sorts %}
+                            {%- set sort = sort ~ additionalSort ~ (loop.last ? '' : ',') -%}
+                        {% endfor %}	
+                        {%- set parameters = { 
+                            (constant('FWK\\Enums\\Parameters::PAGE')): '',
+                            (constant('FWK\\Enums\\Parameters::SORT')): sort
+                        } -%}
+                        {%- set class = 'viewElement sortElement' ~ key|lower|ucfirst ~ ' sortElement' ~ key|lower|ucfirst ~ direction|ucfirst -%}
+                        {%- if sort|upper == selectedValue|upper -%}
+                            {%- set class = class ~ ' viewElementSelected' -%}
+                        {%- endif -%}
+                        <div class="viewElementWrap">
+                            <a class="{{- class -}}" href="{{- addParamsToRequest(parameters) -}}">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::' ~ name ~ '_' ~ direction|upper)] -}}</a>
+                        </div>
+                    {%- endif -%}
+                {%- endfor -%}
+            {%- endfor -%}
+        </div>
+    </div>
+{%- endmacro -%}

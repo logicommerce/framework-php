@@ -1,0 +1,5 @@
+{% macro basketForm(args) %}
+	<form action="{{ routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalCheckout::NEXT_STEP')) }}" method="post" id="basketForm" data-lc-form="checkoutForm" class="basketForm {{ args.class }}">
+		{{ args.content }}
+	</form>
+{% endmacro basketForm %}

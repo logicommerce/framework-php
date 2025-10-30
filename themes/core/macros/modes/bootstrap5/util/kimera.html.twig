@@ -1,0 +1,6 @@
+{%- macro kimera(args) -%}
+    {%- set kimeraData = args.kimera|default('') -%}
+    {%- if not kimeraData is empty -%}
+        <script> window.lcKimeraConfig = JSON.parse('{{kimeraData}}'); </script>
+    {%- endif -%}
+{%- endmacro kimera -%}

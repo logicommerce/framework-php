@@ -1,0 +1,83 @@
+{% macro product(product, args) %}
+    {%- import 'macros/product.twig' as productMacros -%}
+    {%- set classList = 'product-list product-comparison-list' -%}
+    {%- if product.definition.offer == 1 -%}
+        {%- set classList = classList ~ ' offer-true' -%}
+    {%- endif -%}
+    {%- if product.definition.featured == 1 -%}
+        {%- set classList = classList ~ ' featured-true' -%}
+    {%- endif -%}
+
+    <div class="{{ classList }}">
+        {%- set contentBuyForm -%}
+            <div class="inset">
+                <div class="product-list-img-cont">
+                    <a class="product-list-img-link" href="{{- product.language.urlSeo -}}" {% if not product.language.linkFollowing %}rel="nofollow"{% endif %} title="{{- product.language.name|escape -}}">
+                        <div class="product-list-img-size ratio ratio-1x1">
+                            <img src="{{- product.mainImages.smallImage|default(getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_PRODUCTS_LIST')) -}}" alt="{{ product.language.altImageKeywords|default(product.language.name|escape) }}" class="product-list-img img-fluid" onError="this.src='{{- notFoundImage -}}'; this.onerror=null;" loading="lazy">
+                        </div>
+                        {%- set offer = product.definition.offer and args.offerImage|length -%}
+                        {%- set featured = product.definition.featured and args.featuredImage|length -%}
+                        {%- set discounts = themeConfiguration.commerce.showDiscounts and product.id in args.productsIdsWithDiscounts and args.discountsImage|length -%}
+                        {%- if offer or featured or discounts -%}
+                            <div class="product-list-ribbons">
+                                {%- if offer -%}
+                                    <img src="{{ args.offerImage }}" class="product-list-ribbon sale-ribbon img-fluid">
+                                {%- endif -%}
+                                {%- if featured -%}
+                                    <img src="{{ args.featuredImage }}" class="product-list-ribbon featured-ribbon img-fluid">
+                                {%- endif -%}
+                                {%- if discounts -%}
+                                    <img src="{{ args.discountsImage }}" class="product-list-ribbon discounts-ribbon img-fluid">
+                                {%- endif -%}
+                            </div>
+                        {%- endif -%}
+                    </a>
+                    {{- productMacros.buttonShoppingList({ 
+                        item: product,
+                        showLabel: false,
+                        class: 'btn btn-secondary',
+                        showDefaultShoppingListButton: true
+                    }) -}}
+                    {#{- productMacros.buttonProductComparison({
+                        product: product,
+                        showLabel: false,
+                        class: 'btn btn-secondary',
+                    }) -}#}
+
+                    <a data-lc-event="click" data-lc-function="deleteProductComparison" href="#" data-lc-data="{{ product.id }}" class="btn delete-comparison-btn">
+                        <svg class="icon icon-delete"><use xlink:href="#icon-trash"></use></svg>
+                    </a>
+
+                </div>
+                <div class="product-list-content">
+                    <a class="product-list-title-link" href="{{- product.language.urlSeo -}}" {% if not product.language.linkFollowing %}rel="nofollow"{% endif %} title="{{- product.language.name|escape -}}">
+                        <div class="product-list-title">{{ product.language.name }}</div>
+                    </a>
+                    <div class="product-list-prices">
+                        {{- productMacros.property({ product: product, property: 'price' }) -}}
+                        {{- productMacros.property({ product: product, property: 'basePrice' }) -}}
+                    </div>
+                    {%- if product.definition.showOrderBox -%}
+                        <div class="product-list-order-box product-list-order-box-default">
+                            <div class="col-quick-buy">
+                                {%- if product.options|length -%}
+                                    <a class="buyFormSubmit btn btn-primary linkToProduct" href="{{- product.language.urlSeo -}}" {% if not product.language.linkFollowing %}rel="nofollow"{% endif %} title="{{- product.language.name|escape -}}">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BUY')] -}}
+                                    </a>
+                                {%- else -%}
+                                    {{- productMacros.buyFormSubmit({
+                                        id: product.id,
+                                        showOrderBox: product.definition.showOrderBox,
+                                        class: 'btn btn-primary'
+                                    }) -}}
+                                {%- endif -%}
+                            </div>
+                        </div>
+                    {%- endif -%}
+                </div>
+            </div>
+        {%- endset -%}
+        {{- productMacros.buyProductForm({ content: contentBuyForm, class: 'product-list-form', product: product }) -}}
+    </div>
+{% endmacro %}

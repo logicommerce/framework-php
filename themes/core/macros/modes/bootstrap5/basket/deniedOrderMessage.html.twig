@@ -1,0 +1,32 @@
+{% macro deniedOrderMessage(args) %}
+
+	{%- if args.errorCode == 'A01000-ENDORDER' -%}
+		<div class="message-denied-order"> 
+			{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_DENIED_ERROR_TEXT')] -}}
+			{%- for warning in args.basket.basketWarnings|filter(warning => warning.severity is constant('SDK\\Enums\\BasketWarningSeverity::ERROR')) -%}
+                {%- set warning = viewHelpers.basket.setBasketWarningMessage(warning, args.basket, 'DENIED_ORDER_ERROR_') -%}
+				<span class="clearfix deniedOrderErrors">
+					{{- warning.message -}}
+				</span>
+			{%- endfor -%}
+            {%- for item in args.basket.items -%}
+                {%- for warning in item.basketWarnings|filter(warning => warning.severity is constant('SDK\\Enums\\BasketWarningSeverity::ERROR')) -%}
+                    {%- set warning = viewHelpers.basket.setBasketWarningMessage(warning, args.basket, 'DENIED_ORDER_ERROR_') -%}
+                    <span class="clearfix deniedOrderErrors">
+                        {{- warning.message -}}
+                    </span>
+                {%- endfor -%}
+            {%- endfor -%}
+		</div> 
+	{% elseif args.errorCode == 'A01000-INVALID_REQUEST_BODY' %}
+		<div class="item-order-text">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_DENIED_TEXT_INVALID_REQUEST_BODY')] -}}</div>
+		{%- if args.fieldsToDisplay -%}
+			{{args.fieldsToDisplay}}
+		{%- endif -%}
+	{%- elseif constant('FWK\\Enums\\LanguageLabels::' ~ args.errorCode) is defined -%}
+        <div class="item-order-text">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::' ~ args.errorCode)] -}}</div>
+    {%- else -%}
+		<div class="item-order-text">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_DENIED_TEXT')] -}}</div>
+	{%- endif -%}
+
+{% endmacro deniedOrderMessage %}

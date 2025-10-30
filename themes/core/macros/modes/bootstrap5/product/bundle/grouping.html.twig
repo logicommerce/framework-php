@@ -1,0 +1,72 @@
+{% macro grouping(products, productBundleGrouping, args) %}
+    {%- import 'macros/product.twig' as productMacros -%}
+
+    {%- set combinationDatas = {} -%}
+    {%- for productCombinationData in productBundleGrouping.combinationData.items -%}
+        {%- set combinationDatas = array_add(combinationDatas, productCombinationData, productCombinationData.productId) -%}
+    {%- endfor -%}
+
+    {%- set optionReferences = {} -%}
+    {%- for optionReference in args.buyFormOptionsArgs.optionReferences -%}
+        {%- set optionReferences = array_add(optionReferences, optionReference.options, optionReference.itemId) -%}
+    {%- endfor -%}
+
+    {%- for bundleProduct in productBundleGrouping.items -%}
+        {%- set classList = '' -%}
+        {%- if products[bundleProduct.productId].definition.offer == 1 -%}
+            {%- set classList = classList ~ ' offer-true' -%}
+        {%- endif -%}
+        {%- if products[bundleProduct.productId].definition.featured == 1 -%}
+            {%- set classList = classList ~ ' featured-true' -%}
+        {%- endif -%}
+        {%- if loop.last -%}
+            {%- set classList = classList ~ ' bundle-item-product-last' -%}
+        {%- endif -%}
+
+        <div class="bundle-item bundle-item-product item-index-{{ loop.index }}{{ classList }}">
+            <input type="hidden" name="bundleProduct" value="{{ bundleProduct.id }}">
+
+            <div class="bundle-item-inset">
+                <div class="bundle-item-img">
+                    <a class="bundle-item-product-link bundle-item-product-img-link" href="{{ products[bundleProduct.productId].language.urlSeo }}" title="{{ products[bundleProduct.productId].language.name|escape }}" {% if not products[bundleProduct.productId].language.linkFollowing %} rel="nofollow" {% endif %}>
+                        <div class="bundle-item-img-size ratio ratio-1x1">
+                            {%- if products[bundleProduct.productId].mainImages.smallImage|length %}
+                                <img src="{{ products[bundleProduct.productId].mainImages.smallImage }}" alt="{% if products[bundleProduct.productId].language.altImageKeywords|length %}{{ products[bundleProduct.productId].language.altImageKeywords }}{% else %}{{ products[bundleProduct.productId].language.name|escape }}{% endif %}" class="img-fluid" onError="this.src = '{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~ themeConfiguration.commerce.imageNotFound }}';this.onerror = null;" loading="lazy">
+                            {%- else %}
+                                <img src="{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~ themeConfiguration.commerce.imageNotFound }}" class="img-fluid" loading="lazy">
+                            {%- endif %}
+                        </div>
+                    </a>
+                </div>
+                <div class="bundle-item-content">
+                    <a class="bundle-item-product-link bundle-item-product-title-link" href="{{ products[bundleProduct.productId].language.urlSeo }}" {% if not products[bundleProduct.productId].language.linkFollowing %} rel="nofollow" {% endif %}>
+                        <div class="bundle-item-product-name">{{ products[bundleProduct.productId].language.name|escape }}</div>
+                    </a>
+                    {% if bundleProduct.options|length %}											
+                        <div class="bundle-item-product-options product-options-{{ bundleProduct.productId }}">
+                            {{- productMacros.buyFormOptions(
+                                    args.buyFormOptionsArgs|merge({
+                                        product: products[bundleProduct.productId],
+                                        combinationData: combinationDatas[bundleProduct.productId],
+                                        bundleDefinitionSectionItemId: bundleProduct.id,
+                                        bundleDefinitionSectionItemOptions: bundleProduct.options,
+                                        optionReferences: optionReferences[bundleProduct.id]?:[]
+                                })) 
+                            -}}
+                            <div class="bundle-item-product-options-warning product-options-warning-{{ bundleProduct.productId }}"></div>    
+                        </div>
+                    {%- endif -%}
+                    {%- if bundleProduct.quantity == 1 and args.showUniqueUnit -%}
+                        <div class="bundle-item-product-quantity">
+                            {{- bundleProduct.quantity }} {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LBL_UNIT')] -}}
+                        </div>
+                    {%- elseif bundleProduct.quantity > 1 -%}
+                        <div class="bundle-item-product-quantity">
+                            {{- bundleProduct.quantity }} {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LBL_UNITS')] -}}
+                        </div>
+                    {%- endif -%}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endmacro %}

@@ -1,0 +1,14 @@
+{% macro buttonShoppingListRows(args) %}
+	{% set display %} 
+		{% if session.user.id == 0 %} style="display: none" {% endif %}	
+	{% endset %}
+	{% if args.type == constant('FWK\\ViewHelpers\\User\\Macro\\ButtonShoppingListRows::TYPE_SEND') %}
+		<button type="button" class="userSendShoppingListRows {{ args.class }}" {{ display }} data-bs-toggle="modal" data-bs-target="#userSendShoppingListRows" data-lc-required='{ "el": "#userSendShoppingListRows", "macro": "buttonShoppingListRows" }'>
+			{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_SEND_BUTTON')] -}}
+		</button>
+	{% elseif args.type == constant('FWK\\ViewHelpers\\User\\Macro\\ButtonShoppingListRows::TYPE_DELETE') %}
+		<button type="button" class="userDeleteShoppingListRows {{ args.class }}" {{ display }} data-bs-toggle="modal" data-bs-target="#userDeleteShoppingListRows" data-lc-required='{ "el": "#userDeleteShoppingListRows", "macro": "buttonShoppingListRows" }'>
+			{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROWS_DELETE_BUTTON')] -}}
+		</button>
+	{% endif %}
+{% endmacro buttonShoppingListRows %}

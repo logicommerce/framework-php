@@ -1,0 +1,88 @@
+{% macro document(args) %}
+    <table class="table order {{ args.tableClass }}">
+        <thead class="order">
+            <tr class="orderTitle">
+                <td class="orderTitle orderNameTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS')] }}</td>
+                {% if args.showPrices %}
+                    <td class="orderTitle orderPriceTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRICE')] }}</td>
+                {% endif %}
+                <td class="orderTitle orderQuantityTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')] }}</td>
+                {% if args.showDiscounts and (args.totalProductDiscounts > 0 or args.showZeroDiscount) %}    
+                    <td class="orderTitle orderProductDiscountsTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DISCOUNTS')] }}</td>
+                {% endif %}
+                {% if args.showPrices %}
+                    <td class="orderTitle orderSubtotalTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBTOTAL')] }}</td>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody class="order">
+            {% set gifts = [] %}
+            {% from 'macros/modes/' ~ coreMode ~ '/document/documentItems/product.html.twig' import product as documentItemProduct %}
+            {% from 'macros/modes/' ~ coreMode ~ '/document/documentItems/bundle.html.twig' import bundle as documentItemBundle %}
+            {% from 'macros/modes/' ~ coreMode ~ '/document/documentItems/linked.html.twig' import linked as documentItemLinked %}
+            {% from 'macros/modes/' ~ coreMode ~ '/document/documentItems/voucherPurchase.html.twig' import voucherPurchase as documentItemVoucherPurchase %}
+            {% from 'macros/modes/' ~ coreMode ~ '/document/documentItems/productMerged.html.twig' import productMerged as documentItemProductMerged %}
+            {% set mergedProducts = [] %}
+            {% for orderRow in args.document.items %}
+                {% if orderRow.type == constant('SDK\\Enums\\DocumentRowType::PRODUCT') %}
+                    {%- if args.mergeRows and orderRow.hash in args.mergedRows.hashes -%}
+                        {%- if not(orderRow.itemId in mergedProducts) -%}
+                            {{ documentItemProductMerged(args, orderRow, args.document.items) }}
+                            {%- set mergedProducts = array_add(mergedProducts, orderRow.itemId) -%}
+                        {%- endif -%}
+                    {%- else -%}
+                        {{ documentItemProduct(args, orderRow) }}
+                    {%- endif -%}
+                {% elseif orderRow.type == constant('SDK\\Enums\\DocumentRowType::BUNDLE') %}
+                    {{ documentItemBundle(args, orderRow) }}
+                {% elseif orderRow.type == constant('SDK\\Enums\\DocumentRowType::LINKED') %}
+                    {{ documentItemLinked(args, orderRow) }}
+                {% elseif orderRow.type == constant('SDK\\Enums\\DocumentRowType::GIFT') %}
+                    {% set gifts = gifts|merge([orderRow]) %}
+                {% elseif orderRow.type == constant('SDK\\Enums\\DocumentRowType::VOUCHER_PURCHASE') %}
+                    {{ documentItemVoucherPurchase(args, orderRow) }}
+                {% endif %}
+            {% endfor %}
+            {% if args.giftsPresentation == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::GIFTS_PRESENTATION_PRODUCTS_BLOCK') %}
+                {% import 'macros/modes/' ~ coreMode ~ '/document/utils/gifts.html.twig' as modeOrder %}
+                {{ modeOrder.giftsBlockMode(gifts,args) }}
+            {% endif %}
+        </tbody>
+        {% import 'macros/modes/' ~ coreMode ~ '/document/utils/footer.html.twig' as modeOrder %}
+        {{ modeOrder.footer(args.footerRows, args.showFooter) }}
+    </table>
+    {% set additionalItems = args.document.additionalItems %}
+    {% if args.additionalItems == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::ADDITIONAL_ITEMS_PRESENTATION') and additionalItems is defined and additionalItems is not null and additionalItems is not empty %}
+        {% import 'macros/modes/' ~ coreMode ~ '/document/utils/additionalItems.html.twig' as modeOrder %}
+        {{ modeOrder.additionalItems(additionalItems) }}
+    {% endif %}
+
+    {% if args.giftsPresentation == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::GIFTS_PRESENTATION_INDEPENDENT') %}
+        {% import 'macros/modes/' ~ coreMode ~ '/document/utils/gifts.html.twig' as modeOrder %}
+        {{ modeOrder.giftsIndependentMode(gifts, args) }}
+    {% endif %}
+    {% if args.mode == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::MODE_DISCLOSURE') %}
+        {% import 'macros/modes/' ~ coreMode ~ '/document/utils/taxDisclosure.html.twig' as modeOrder %}
+        {{ modeOrder.taxDisclosure(args) }}
+    {% endif %}
+    {# Devolution button #}
+    {# FIXME: nom del param remove devolution, and check if works and  #}
+    {% if args.showDevolutionButton and not session.user.salesAgent %}
+        {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+        {% set lcData = {
+            session: isSessionLoggedIn(),
+            documentId: args.document.id,
+            token: '',
+            pdf: false,
+            documentType: 'return',
+        } %}
+        <section>
+            <div class="userOrderActionWrap">
+                <button class="btn btn-secondary userOrderAction viewOrder" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                    <img src="{{ iconsPath ~ 'getReturn.png' }}">
+                    <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_ORDER')] }}</span>
+                </button>
+            </div>
+        </section>
+    {% endif %}
+{% endmacro document %}

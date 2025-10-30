@@ -1,0 +1,155 @@
+{% macro salesAgentCustomers(args) %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+    {% if args.salesAgentCustomers is not empty %}
+        <div class="form-message"></div>
+        <div class="salesAgentCustomersForm">
+            <table class="customer table" cellspacing="0">
+                <thead class="customer">
+                    <tr class="customerTitle">
+                        {% for param in args.parameters %}
+                            {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::PID') %}
+                                <td class="customerTitle pId">#</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::EMAIL') %}
+                                <td class="customerTitle email ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_EMAIL')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::NAME') %}
+                                <td class="customerTitle name ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_NAME')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::COMPANY') %}
+                                <td class="customerTitle company ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_BUSINESS_NAME')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::NIF') %}
+                                <td class="customerTitle nif ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_BUSINESS_ID')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::ADDRESS') %}
+                                <td class="customerTitle address ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_ADDRESS')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::CITY') %}
+                                <td class="customerTitle city ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_CITY')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::STATE') %}
+                                <td class="customerTitle state ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_STATE')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::COUNTRY') %}
+                                <td class="customerTitle country ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_COUNTRY')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::PHONE') %}
+                                <td class="customerTitle phone ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_PHONE')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::TOTAL_AMOUNT') %}
+                                <td class="customerTitle totalAmount ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_TOTAL')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::COMMISSION_AMOUNT') %}
+                                <td class="customerTitle commissionAmount ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_COMMISSION')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::PENDING_AMOUNT') %}
+                                <td class="customerTitle pendingAmount ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_PENDING')] }}</td>
+                            {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::ACTIONS') %}
+                                <td class="customerTitle actions ">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_CUSTOMERS_ACTIONS')] }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody class="customer">
+                    {% set lcData = {
+                        session: isSessionLoggedIn(),
+                        includeSubordinates: args.request.includeSubordinates,
+                        salesAgentId: session.user.salesAgentId
+                    } %}
+                    {%- for item in args.salesAgentCustomers -%}
+                        {% set lcData = lcData|merge({
+                            customerId: item.account.id,
+                            token: '',
+                        }) %}
+                        {%- set defaultAddress = item.account.invoicingAddresses|filter(invoicingAddress => invoicingAddress.defaultOne == true)|first -%}
+                        <tr class="customerContent">
+                            {% for param in args.parameters %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::PID') %}
+                                    <td class="customerContent pId">{{ item.account.pId }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::EMAIL') %}
+                                    <td class="customerContent email">{{ item.account.master.registeredUser.email }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::NAME') %}
+                                    {%- set name = item.account.master.registeredUser.firstName ~ ' ' ~ item.account.master.registeredUser.lastName -%}
+                                    <td class="customerContent name">{{ name|length > 1 ? name : defaultAddress.company  }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::COMPANY') %}
+                                    <td class="customerContent company">{{ defaultAddress.company != null ? defaultAddress.company : item.account.master.registeredUser.lastName ~ ', ' ~ item.account.master.registeredUser.firstName }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::NIF') %}
+                                    <td class="customerContent nif">{{ defaultAddress.nif }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::ADDRESS') %}
+                                    <td class="customerContent address">{{ defaultAddress.address }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::CITY') %}
+                                    <td class="customerContent city">{{ defaultAddress.city }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::STATE') %}
+                                    <td class="customerContent state">{{ defaultAddress.state }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::COUNTRY') %}
+                                    <td class="customerContent country">{{ defaultAddress.location.geographicalZone.countryCode ? getCountryNameByCountryCode(defaultAddress.location.geographicalZone.countryCode) : ''}}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::PHONE') %}
+                                    <td class="customerContent phone">{{ defaultAddress.phone != null ? defaultAddress.phone : defaultAddress.mobile }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::TOTAL_AMOUNT') %}
+                                    <td class="customerContent totalAmount">{{ outputHtmlCurrency(item.salesAgentTotals.totalAmount) }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::COMMISSION_AMOUNT') %}
+                                    <td class="customerContent commissionAmount">{{ outputHtmlCurrency(item.salesAgentTotals.commissionAmount) }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::PENDING_AMOUNT') %}
+                                    <td class="customerContent pendingAmount">{{ outputHtmlCurrency(item.salesAgentTotals.pendingAmount) }}</td>
+                                {% endif %}
+                                {% if param == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::ACTIONS') %}
+                                    {% set lcData = lcData|merge({
+                                        fromDate: args.request.fromDate,
+                                        toDate: args.request.toDate,
+                                    }) %}
+                                    <td class="customerContent actions">
+                                        {%- for availableAction in args.availableActions -%}
+                                            {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::ACTION_SALES_AGENT_SALES') -%}
+                                                <a class="customerAction" href="#" data-lc-function="accountSalesAgentSales" data-lc-event="click" data-bs-toggle="modal" data-bs-target="#salesAgentSalesPopup{{ item.account.id }}" data-lc-data='{{ outputJsonHtmlString(lcData) }}' title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CUSTOMER_VIEW_ORDERS')] }}">
+                                                    <img src="{{ iconsPath ~ 'viewOrder' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" class="customerActionImage" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CUSTOMER_VIEW_ORDERS')] }}">
+                                                </a>
+                                                <div class="lcModal modal fade salesAgentSalesPopup salesAgentSalesPopup{{ item.account.id }}" id="salesAgentSalesPopup{{ item.account.id }}" tabindex="-1" aria-labelledby="salesAgentSalesPopup{{ item.account.id }}Title" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <div id="salesAgentSalesPopup{{ item.account.id }}Title" class="popup-order-title heading">
+                                                                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CUSTOMER_VIEW_ORDERS')] }}: {{ defaultAddress.company != null ? defaultAddress.company : defaultAddress.lastName ~ ', ' ~ defaultAddress.firstName }}
+                                                                </div>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div id="salesAgentSales{{ item.account.id }}" class="lcModalContainer">
+                                                                    <div class="loading-document">
+                                                                        <div class="spinner-border text-primary" role="status"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-secondary lcModalClose"
+                                                                    data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {%- endif -%}
+                                            {%- if settings.accountRegisteredUsersSettings.cardinalityPlus -%}
+                                                {%- set actionLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::SIMULATE_MASTER')] -%}
+                                            {%- else -%}
+                                                {%- set actionLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::SIMULATE_USER')] -%}
+                                            {%- endif -%}
+                                            {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\SalesAgentCustomers::ACTION_LOGIN_SIMULATION') and (lcData.includeSubordinates == false or lcData.salesAgentId == item.salesAgent.id) -%}
+                                                <a class="customerAction" href="#" data-lc-function="accountLoginSimulation" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' title="{{ actionLabel }}">
+                                                    <img src="{{ iconsPath ~ 'selectCustomer' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" class="customerActionImage" alt="{{ actionLabel }}">
+                                                </a>
+                                            {%- endif -%}
+                                        {%- endfor -%}
+                                    </td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {%- endfor -%}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="clearfix empty-text">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NOT_CLIENTS')] }}</div>
+    {% endif %}
+{% endmacro salesAgentCustomers %}

@@ -1,0 +1,67 @@
+<div class="contentTd">
+	{% if (combinations is iterable and combinations|length > 0 )%}
+    	<table border=1>
+    		<tr>
+    			<th>Combination</th>
+    			<th>Value</th>
+    		</tr>	
+	        {% for combination in combinations %}
+			<tr>
+				<td>{{ loop.index0 }}</td>
+				<td>
+                	<table border=1>
+                		<tr>
+                			<th>Label</th>
+                			<th>Value</th>
+                		</tr>
+                		<tr>
+                			<td>id</td>
+                			<td>combination.id</td>
+                		</tr>
+                		<tr>
+                			<td>pId</td>
+                			<td>combination.pId</td>
+                		</tr>
+                		<tr>
+                			<td>codes</td>
+                			<td>
+                			    {% include '/snippets/demo/product/codes.html.twig' with {'codes' : combination.codes} only %}
+                			</td>
+                		</tr>
+                		<tr>
+                			<td>Values</td>
+                			<td>
+                			    {% if (combination.values is iterable and combination.values|length > 0 )%}
+                    				{% for combinationValue in combination.values %}
+                    					[{{ loop.index0 }}] productOptionValueId = {{ combinationValue.productOptionValueId }} <br>
+                            	    {% endfor %}
+                        		{% else %}
+                                	no items in Values
+                                {% endif %}  
+                			</td>
+                		</tr>
+                		<tr>
+                			<td>Stocks</td>
+                			<td>
+                			    {% if (combination.stocks is iterable and combination.stocks|length > 0 )%}
+                    				{% for combinationStock in combination.stocks %}
+		                			    {% include '/snippets/demo/product/stocks.html.twig' with {'stock' : combinationStock} only %}
+                            	    {% endfor %}
+                        		{% else %}
+                                	no items in Stocks
+                                {% endif %}  
+                			</td>
+                		</tr>
+					 </table>
+				</td>
+			</tr>
+    	    {% endfor %}
+    	</table>
+	{% else %}
+		no combinations
+	{% endif %}
+</div>
+
+
+
+

@@ -1,0 +1,89 @@
+{% macro giftsBlockMode(gifts, args) %}
+    {% set lblDeleteWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')] %}
+    {% set lblDeleteRowWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ROW')] %}
+
+    {%- set showColumDiscounts = args.showDiscounts == true and (args.totalProductDiscounts > 0 or args.showZeroDiscount) -%}
+
+    {% for gift in gifts %}
+        {% set productHashWildcard = gift.hash %}
+        <tr class="basketGift">
+            <td {#colspan="{{detaillColspan}}"#} class="basket basketProduct basketGift">
+                <div class="wrap-td-title">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFTS')] }}</div>
+                <div class="wrap-td-content">
+                    <div class="wrap-td-title">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFTS')] }}</div>
+                    <div class="wrap-td-content">
+                        {% if args.showImage == true %}
+                            <div class="basketProductImage">
+                                {% if args.linkable == true %}
+                                    <a class="basketProductImage" href="{{ linkWildcard }}">
+                                        <img class="productSmallImage basketProductImage" alt="{{ gift.name|striptags }}" src="{{ gift.images.smallImage }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                                    </a>
+                                {% else %}
+                                    <span class="basketProductImage">
+                                        <img class="productSmallImage basketProductImage" alt="{{ gift.name|striptags }}" src="{{ gift.images.smallImage }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                                    </span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        <div class="basketProductInfo">
+                            <span class="basketProductName basketGiftName">{{ gift.name|striptags }}</span>
+                            {% if args.showBrand == true and gift.brandName|length %}
+                                <span class="basketProductBrand">{{ gift.brandName }}</span>
+                            {% endif %}
+                            {%- set skuWildcard = gift.combination.sku ? gift.combination.sku : gift.codes.sku -%}
+                            {% if args.showSku == true and skuWildcard|length %}
+                                <span class="basketProductSku">{{ skuWildcard }}</span>
+                            {% endif %}
+                            {% if args.showManufacturerSku == true and gift.codes.manufacturerSku|length %}
+                                <span class="basketProductManufacturerSku">{{ gift.codes.manufacturerSku }}</span>
+                            {% endif %}
+                            {% if gift.hash in args.appliedDiscountHashes and args.editable == true %}
+                                <a role="button" href="#" class="basketDeleteRow" data-lc-basketDeleteRow="{{ gift.hash }}" title="{{ lblDeleteRowWildcard }}">
+                                    <span class="basketDeleteRowIcon glyphicon glyphicon-trash"></span>
+                                    <span class="basketDeleteRowText">{{ lblDeleteWildcard }}</span>
+                                </a>
+                            {% endif %}
+                            {% if args.showOptions == true %}
+                                {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemOptions.html.twig' as modeBasket %}
+                                {{ modeBasket.outputItemOptions(gift.options, 'basket', args.showOptionValuesName, args.showOptionValuesSku) }}
+                            {% endif %}
+                            {% if args.showCustomTags == true %}
+                                {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemCustomTags.html.twig' as modeBasket %}
+                                {{ modeBasket.outputItemCustomTags(gift.customTagValues, args.showCustomTagPositions) }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </td>
+            {% if args.showPrices == true %}
+                <td class="basket basketPrice basketProductPrice basketGift"></td>
+            {% endif %}
+            <td class="basket basketQuantity basketGift">
+                {{- gift.quantityOutput|replace({'{{className}}': 'form-control'}) -}}
+            </td>
+            {%- if showColumDiscounts -%}
+                <td class="basket basketProductDiscounts"></td>
+            {%- endif -%}
+            {% if args.showPrices == true %}
+                <td class="basket basketPrice basketProductTotal basketGift"></td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+{% endmacro %}
+
+{% macro giftsIndependentMode(gifts, args) %}
+    {% import _self as self %}
+    {% if gifts|length %}
+        <table class="table basket basketGifts table-mobile-first-init">
+            <thead class="basket basketGifts">
+                <tr class="basketTitle basketGiftTitle">
+                    <td class="basketTitle basketNameTitle basketGiftTitle basketGiftNameTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFTS')] }}</td>
+                    <td class="basketTitle basketQuantityTitle basketGiftTitle basketGiftQuantityTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')] }}</td>
+                </tr>
+            </thead>
+            <tbody>
+                {{ self.giftsBlockMode(gifts, args) }}
+            </tbody>
+        </table>
+    {% endif %}
+{% endmacro %}

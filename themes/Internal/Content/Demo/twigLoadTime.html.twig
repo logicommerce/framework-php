@@ -1,0 +1,148 @@
+{% extends layout %}
+
+{% block headcontent %}
+
+    timer.start(): {{ timer.start() }} <br>
+	timer.addFlag('demoStart'): {{ timer.addFlag('demoStart') }} <br>
+
+    {{ parent() }}
+    <script>
+    	function testEmptyTD() {
+    		var tds = document.getElementsByTagName("td");
+    		for (var i = 0; i < tds.length; i++) {
+    			if (tds[i].innerText == "") {
+    				tds[i].style.backgroundColor = "red";
+    			} else {
+    				tds[i].style.backgroundColor = "lightgreen";
+    			}
+    		}
+
+        	var pending = document.getElementsByClassName("pending");
+        	var fase2 = document.getElementsByClassName("fase2");
+        	var incomplete = document.getElementById("incomplete");
+
+        	var countIncomplete = 0;
+        	countIncomplete = pending.length + fase2.length;
+			if (countIncomplete > 0){
+	        	for (i = 0; i < pending.length; i++) {
+	        		incomplete.innerHTML += pending[i].innerHTML + '<br>';
+	        	} 
+	        	incomplete.innerHTML += '---------------------------- <br>';
+	        	for (i = 0; i < fase2.length; i++) {
+	        		incomplete.innerHTML += fase2[i].innerHTML + '<br>';
+	        	}
+			}else{
+				incomplete.innerHTML += 'No incomplete items';
+			}        	
+        	  
+    	}
+    	
+    	function showHide(divId) {
+    		var div = document.getElementById(divId + 'Div');
+    		var button = document.getElementById(divId + 'Button');
+    		if (div.style.display === "none") {
+    			div.style.display = "block";
+    			button.value = "-";
+    		} else {
+    			div.style.display = "none";
+    			button.value = "+";
+    		}
+    	}
+
+
+    </script>
+    
+    <style>
+        div.demo {
+        }
+        
+        td {
+        	vertical-align: top;
+        }
+
+        div.contentTd{
+        	max-width: 500px;
+        	overflow: scroll;
+        }
+        div.fase2{
+            background-color: black;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+        div.pending{
+            background-color: purple;
+            color: white;
+            text-align: center;
+            padding: 10px;
+        }
+        div.timeTest{
+        	max-height: 100px;
+        	overflow: scroll;
+        }
+    </style>
+{% endblock headcontent %}
+
+{% block body %}
+    <body onload="testEmptyTD()">
+
+
+
+    	
+    	<p>Products Macros <input id="productsOneButton" type="button" onClick="showHide('productsOne')" value="+"></p>
+		timer.addFlag('productsOne'): {{ timer.addFlag('productsOne', true) }} <br>
+    	<div class="demo" id="productsOneDiv" style="display: none;">
+    		<p>product By Id</p>
+    		{% include '/snippets/demo/loadTimeTest/productsMacros.html.twig' with {'products' : productByIdOne, 'timer':timer} only %}
+    	</div>
+   		timer.getElapsedTime('productsOne'): {{ timer.getElapsedTime('productsOne') }}<br>
+    	<br><br>
+    	
+    	<p>ReProducts Macros <input id="ReProductsOneButton" type="button" onClick="showHide('ReProductsOne')" value="+"></p>
+		timer.addFlag('ReproductsOne'): {{ timer.addFlag('ReproductsOne', true) }} <br>
+    	<div class="demo" id="ReProductsOneDiv" style="display: none;">
+    		<p>product By Id</p>
+    		{% include '/snippets/demo/loadTimeTest/productsMacros.html.twig' with {'products' : productByIdOne, 'timer':timer} only %}
+    	</div>
+   		timer.getElapsedTime('ReproductsOne'): {{ timer.getElapsedTime('ReproductsOne') }}<br>
+    	<br><br>
+
+
+
+    	<p>Products Includes<input id="productsButton" type="button" onClick="showHide('products')" value="+"></p>
+		timer.addFlag('Products'): {{ timer.addFlag('Products', true) }} <br>
+    	<div class="demo" id="productsDiv" style="display: none;">
+    		<p>product By Id</p>
+    		{% include '/snippets/demo/loadTimeTest/productsIncludes.html.twig' with {'products' : productById, 'timer':timer} only %}
+    	</div>
+   		timer.getElapsedTime('Products'): {{ timer.getElapsedTime('Products') }}<br>
+    	<br><br>
+    	
+    	<p>ReProducts Includes<input id="ReProductsButton" type="button" onClick="showHide('ReProducts')" value="+"></p>
+		timer.addFlag('ReProducts'): {{ timer.addFlag('ReProducts', true) }} <br>
+    	<div class="demo" id="ReProductsDiv" style="display: none;">
+    		<p>product By Id</p>
+    		{% include '/snippets/demo/loadTimeTest/productsIncludes.html.twig' with {'products' : productById, 'timer':timer} only %}
+    	</div>
+   		timer.getElapsedTime('ReProducts'): {{ timer.getElapsedTime('ReProducts') }}<br>
+    	<br><br>    	
+    	
+    	
+		<p>Products Macros Includes<input id="productsOneIncludeButton" type="button" onClick="showHide('productsOneInclude')" value="+"></p>
+		timer.addFlag('productsOneInclude'): {{ timer.addFlag('productsOneInclude', true) }} <br>
+    	<div class="demo" id="productsOneIncludeDiv" style="display: none;">
+    		<p>product By Id</p>
+    		{% include '/snippets/demo/loadTimeTest/productsMacrosIncludes.html.twig' with {'products' : productByIdOne, 'timer':timer} only %}
+    	</div>
+   		timer.getElapsedTime('productsOneInclude'): {{ timer.getElapsedTime('productsOneInclude') }}<br>
+    	<br><br>
+    	
+    	
+    	<br><br><br><br>
+        timer.addFlag('demoEnd'): {{ timer.addFlag('demoEnd') }} <br>
+        timer.getElapsedTime('demoStart'): {{ timer.getElapsedTime('demoStart') }}<br>
+        timer.stop(true): {{ timer.stop(true) }}<br>
+            
+    </body>
+
+{% endblock body %}

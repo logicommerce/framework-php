@@ -1,0 +1,46 @@
+<tr>
+	<td>
+    	{% if index is defined %}
+        	{{ index }}
+        {% else %}
+        	No index    	
+        {% endif %}
+	</td>
+	<td>{{ category.id }}</td>
+	<td>{{ category.pId }}</td>
+	<td>{{ category.parentId }}</td>
+	<td>{{ category.prodFirst ? 'Yes' : 'No' }}</td>
+	<td>{{ category.templateId }}</td>
+	<td>{{ category.areaId }}</td>
+	<td>{{ category.includeSubcategories ? 'Yes' : 'No' }}</td>
+	<td>{{ category.featured ? 'Yes' : 'No' }}</td>	
+	<td>{{ category.offer ? 'Yes' : 'No' }}</td>
+	<td>{{ category.priority }}</td>
+    <td>{{ localizedDateTime(category.dateAdded) }}</td>
+	<td>{{ category.purchaseMode }}</td>
+	
+	<td>{{ category.language.keywords }}</td>
+	<td>{{ category.language.particularTitle }}</td>
+	<td>{{ category.language.metaDescription }}</td>
+	<td>{{ category.language.urlSeo }}</td>
+	
+	<td>{{ category.language.destinationUrl }}</td>
+	<td>{{ category.language.target }}</td>
+	<td>{{ category.language.largeImage }}</td>
+	<td>{{ category.language.smallImage }}</td>
+	<td>{{ category.language.shortDescription }}</td>
+	<td>{{ category.language.smallTitleImage }}</td>
+	<td>{{ category.language.largeTitleImage }}</td>
+	<td>{{ category.language.addGenericTitle ? 'Yes' : 'No' }}</td>	
+	<td>{{ category.language.name }}</td>
+	<td>{{ category.language.longDescription }}</td>
+
+	<td>
+        {% include '/snippets/demo/categories.html.twig' with {'categories' : category.subcategories} only %}
+    </td>
+	<td>
+	    {% include '/snippets/demo/customTags.html.twig' with {'customTags' : category.customTags} only %}
+	</td>
+</tr>
+    		
+

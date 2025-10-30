@@ -1,0 +1,55 @@
+{%- macro deleteDiscountCodes(args) -%}
+	{%- if args.vouchers.vouchers|length or args.vouchers.discountCodes|length -%}
+		<div id="discountCodesApplied">
+			<div class="discountCodesTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_TITLE')] -}}</div>
+			<div class="discountCodesGroup">
+				{# <div class="form-message-discountCodes"></div> #}
+				{%- for discountCode in args.vouchers.discountCodes -%}
+					<div id="discountCodeApplied">
+						<div class="discountUnitGroup">
+							{%- if discountCode.appliedDiscount is null -%}
+								<span class="outputDiscountName">
+									{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_VOUCHER_NAME')]|replace({ '{{code}}': discountCode.code }) -}}
+								</span>
+							{%- else -%}
+								<span class="outputDiscountName">
+									{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_DISCOUNT_NAME')]|replace({ '{{name}}': discountCode.appliedDiscount.name }) -}}
+								</span>
+								{%- if 
+                                    discountCode.appliedDiscount.type == constant('SDK\\Enums\\DiscountType::AMOUNT') 
+                                    or discount.type == constant('SDK\\Enums\\DiscountType::AMOUNT_COMBINATION') 
+                                    or discountCode.appliedDiscount.type == constant('SDK\\Enums\\DiscountType::PERCENT_N_UNIT') 
+                                    or discountCode.appliedDiscount.type == constant('SDK\\Enums\\DiscountType::UNIT') 
+                                    or discountCode.appliedDiscount.type == constant('SDK\\Enums\\DiscountType::MXN') 
+                                -%}
+									{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_DISCOUNT_VALUE')]|replace({ '{{value}}': outputHtmlCurrency(discountCode.appliedDiscount.totalValue) }) -}}
+								{%- elseif discountCode.appliedDiscount.type == constant('SDK\\Enums\\DiscountType::GIFT') or discountCode.appliedDiscount.type == constant('SDK\\Enums\\DiscountType::SELECTABLE_GIFT') -%}
+									<span class="outputDiscountGifts"> 
+										{%- for item in discountCode.appliedDiscount.items -%}
+											<span class="outputDiscountGift"> 
+												{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_DISCOUNT_GIFT')]|replace({ '{{quantity}}': item.quantity, '{{name}}': item.name }) -}}
+											</span>
+										{%- endfor -%}
+									</span> 
+								{# TODO: % elseif or discountCode.appliedDiscount.type == constant('SDK\\Enums\\DiscountType::REWARD_POINTS')% #}
+								{%- endif -%}
+							{%- endif -%}
+							<span class="deleteVoucherCode deleteTicketCode glyphicon glyphicon-trash" title="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_BUTTON_TITLE')] -}}" data-lc-data='{{- outputJsonHtmlString(discountCode) -}}' data-lc-event="click" data-lc-function="deleteVoucherCode"></span>
+							<span class="alert-remove-all-discounts">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_WARNING')] -}}</span>
+						</div>
+					</div>
+				{%- endfor -%}
+				{%- for voucher in args.vouchers.vouchers -%}
+					<div class="discountUnitGroup">
+						<span class="outputDiscountName">
+							{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_VOUCHER_NAME')]|replace({ '{{code}}': voucher.code }) -}}
+						</span>
+						{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_VOUCHER_VALUE')]|replace({ '{{value}}': outputHtmlCurrency(voucher.availableBalance) }) -}}
+						<span class="deleteVoucherCode deleteTicketCode glyphicon glyphicon-trash" title="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_BUTTON_TITLE')] -}}" data-lc-data='{{- outputJsonHtmlString(voucher) -}}' data-lc-event="click" data-lc-function="deleteVoucherCode"></span>
+						<span class="alert-remove-all-discounts">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_DISCOUNT_CODE_WARNING')] -}}</span>
+					</div>
+				{%- endfor -%}
+			</div>
+		</div>
+	{%- endif -%}
+{%- endmacro deleteDiscountCodes -%}

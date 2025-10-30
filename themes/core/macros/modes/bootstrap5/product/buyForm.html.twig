@@ -1,0 +1,16 @@
+{% macro buyForm(args) %}
+	{% set warehousesData = outputJsonHtmlString(args.dataWarehousesObject) %}
+
+	<form method="post" id="buyForm{{ args.product.id }}" data-lc-form="buyForm" class="buyForm {{ args.class }}" {{ args.style|length ? 'style="' ~ args.style ~ '"' : '' }} data-product='{{ outputJsonHtmlString(args.dataProductObject) }}' data-stock-warehouses='{{ warehousesData|length ? warehousesData : "[]" }}'>
+		
+		{%- if args.sectionId > 0 -%}
+			<input type="hidden" name="sectionId" value="{{ args.sectionId }}">
+		{%- endif -%}
+
+        {%- if args.shoppingListRowId > 0 -%}
+			<input type="hidden" name="shoppingListRowId" value="{{ args.shoppingListRowId }}" />
+		{%- endif -%}
+
+		{{- args.content -}}
+	</form>
+{% endmacro buyForm %}

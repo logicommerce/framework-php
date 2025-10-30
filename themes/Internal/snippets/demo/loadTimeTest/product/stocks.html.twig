@@ -1,0 +1,32 @@
+<div class="contentTd">
+	<table border=1>
+		<tr>
+			<th>Label</th><th>Value</th>
+		</tr>
+		<tr>
+			<td>units</td><td>{{ stock.units }}</td>
+		</tr>
+		<tr>
+			<td>warehouseId</td><td>{{ stock.warehouseId }}</td>
+		</tr>
+		<tr>
+			<td>warehouseGroupId</td><td>{{ stock.warehouseGroupId }}</td>
+		</tr>
+		<tr>
+			<td>priority</td><td>{{ stock.priority }}</td>
+		</tr>
+		<tr>
+			<td>offsetDays</td><td>{{ stock.offsetDays }}</td>
+		</tr>
+		<tr>
+			<td>previsions</td>
+			<td>
+			    {{ dump(stock.previsions) }}
+		    </td>
+		</tr>
+	</table>
+</div>
+
+
+
+

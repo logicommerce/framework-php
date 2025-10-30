@@ -1,0 +1,3 @@
+{%- macro lcCommerceSession(args) -%}
+    globalThis.lcCommerceSession = {{outputJsonHtmlString(args.lcCommerceSession)}};
+{%- endmacro lcCommerceSession -%}

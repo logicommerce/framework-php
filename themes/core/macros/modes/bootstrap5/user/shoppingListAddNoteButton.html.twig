@@ -1,0 +1,17 @@
+{% macro shoppingListAddNoteButton(args) %}
+    
+    <button type="button" id="addShoppingListRowNotesButton" class="{{args.class}} addShoppingListRowNotes" 
+        data-lc="addShoppingListRowNotesButton" 
+        data-bs-toggle="modal" 
+        data-bs-target="#popupAddShoppingListRowNotes" 
+        data-lc-function="addShoppingListRowNotes"
+        data-lc-data='{{ outputJsonHtmlString(args.shoppingList) }}'
+        data-lc-total-items="{{args.totalItems}}"
+        data-lc-event="click" 
+        data-lc-note-row-template="{{args.rowTemplate}}"
+        data-lc-rows-container-id="{{args.containerId}}"
+    >
+        <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ADD_NOTE_BUTTON')] }}</span>
+    </button>
+
+{% endmacro %}

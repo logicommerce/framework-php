@@ -1,0 +1,36 @@
+{% macro date(option, optionIdName, args) %}
+    <div class="productOption productOptionDate productOption{{ optionIdName }} productOptionPId_{{option.pId}}" data-lc-product-option='{{ outputJsonHtmlString({ id: optionIdName, name: option.language.name, pId: option.pId }) }}'>
+
+        {% if args.showImageOptions == true and option.image|length > 0 %}
+            <div class="productOptionContainerImage" title="{{ option.language.prompt|default(option.language.name) }}">
+				<img src="{{ option.image }}" alt="{{ option.language.prompt|default(option.language.name) }}">
+			</div>
+        {% endif %}
+        
+        <div class="productOptionPrompt" title="{{ option.language.prompt|default(option.language.name) }}">{{ option.language.prompt|default(option.language.name) }}</div>
+        
+        <div class="productOptionValues">
+            <div class="productOptionValue productOptionTextValue productOptionDateValue input-group date" 
+                data-datetimepicker="viewDateValue{{ optionIdName }}" 
+                data-language="{{ route.language }}" 
+                data-years='1910-{{ "now"|date("Y") }}' 
+                data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+                data-submit="optionValue{{ optionIdName }}"  
+                data-format="{{ getJSDatePattern() }}"
+            >
+ 
+                {% if option.optionReferenceValue|length %}
+                    {%- set dateValue = option.optionReferenceValue|date(getTwigDatePattern()) -%}
+                {% else %}
+                    {%- set dateValue = "" -%}
+                {% endif %}
+
+                <input type="text" value="{{ dateValue }}" class="form-control formField userField" id="viewDateValue{{ optionIdName }}" {% if option.required %}data-validation="required"{% endif %} autocomplete="off">
+                <span class="input-group-addon input-group-text">
+                    <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+                </span>
+            </div>
+        </div>
+        <input type="hidden" value="{{ option.optionReferenceValue }}" class="productOptionDateValue" id="optionValue{{ optionIdName }}" name="optionValue{{ optionIdName }}">
+    </div>
+{% endmacro %}

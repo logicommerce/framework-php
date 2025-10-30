@@ -1,0 +1,175 @@
+{%- macro physicalLocations(args) -%}
+    <div class="physicalLocations {% if args.pickupPointProviders is not null %}pickupPointProviders{% else %}physicalLocationsPoints{% endif %}">
+        {%- set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') -%}
+        {%- set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') -%}
+        
+        {%- set optionsPhysicalLocation = args.optionsPhysicalLocation.element.outputElement(args.optionsPhysicalLocation.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+        {%- set optionsPhysicalLocation = optionsPhysicalLocation|replace({ 
+            (attributeWildcard): 'data-lc-event="change" data-lc-function="' ~ args.changeOptionFunction ~ '"', 
+            (classWildcard): ''  
+        }) -%}
+
+        {# Split all items and wrap with a html container #}
+        {% set optionsPhysicalLocationItems = optionsPhysicalLocation|preg_match_all('/<\\s*input[^>]*>(.*?)<\\s*\\/\\s*label>/') %}
+        {% set optionsPhysicalLocationRebuildItems = '' %}
+        {% for optionsPhysicalLocationItem in optionsPhysicalLocationItems %}
+            {% set optionsPhysicalLocationRebuildItem %}
+                <div class="physicalLocationItem show" {% if args.physicalLocationItemsCheckVisibility %}data-lc-check-visibility="true"{% endif %} >
+                    {{- optionsPhysicalLocationItem -}}
+                    {%- if args.showInMap and args.showDirections -%}
+                        <a href="#" class="directions d-none">
+                            <svg class="icon"><use xlink:href="#icon-navigation"></use></svg>
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PHYSICAL_LOCATION_DIRECTIONS')] -}}
+                        </a>
+                    {%- endif -%}
+                </div>
+            {% endset %}
+            {% set optionsPhysicalLocationRebuildItems = optionsPhysicalLocationRebuildItems ~ optionsPhysicalLocationRebuildItem %}
+        {% endfor %}
+        {%- set optionsPhysicalLocation = optionsPhysicalLocationRebuildItems -%}
+
+        {% from 'macros/modes/' ~ coreMode ~ '/util/physicalLocationInformation.html.twig' import physicalLocationInformation %}
+
+        {%- for physicalLocation in args.physicalLocations.items -%}
+            {%- set optionPhysicalLocationText -%}
+                {{- physicalLocationInformation(physicalLocation, args.physicalLocationFields) -}}
+            {%- endset -%}
+            {%- set optionsPhysicalLocation = optionsPhysicalLocation|replace({ ('{{option_' ~ physicalLocation.id ~ '}}'): optionPhysicalLocationText }) -%}
+        {%- endfor -%}
+
+        {% if args.physicalLocations.items|length %}
+            {% set initSelectors = {} %}
+            {% set selectors %}
+                {%- if args.countrySelector is not null -%}
+                    {%- set initSelectors = 'country' -%}
+                    {%- set optionsSelector = args.countrySelector.element.outputElement(args.countrySelector.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                    {%- set optionsSelector = optionsSelector|replace({ 
+                        (attributeWildcard): 'data-lc-event="change" data-lc-function="filterPhysicalLocations"', 
+                        (classWildcard): ''  
+                    }) -%}
+                    <div class="form-group physicalLocationCountry">{{- optionsSelector -}}</div>
+                {%- endif -%}
+                {%- if args.filterByPhysicalLocations and args.stateSelector is not null -%}
+                    {% if not initSelectors|length %}
+                        {% set initSelectors = 'state' %}
+                    {% endif %}
+                    {%- set optionsSelector = args.stateSelector.element.outputElement(args.stateSelector.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                    {%- set optionsSelector = optionsSelector|replace({ 
+                        (attributeWildcard): 'data-lc-event="change" data-lc-function="filterPhysicalLocations"', 
+                        (classWildcard): ''  
+                    }) -%}
+                    <div class="form-group physicalLocationState">{{- optionsSelector -}}</div>
+                {%- endif -%}
+                {%- if args.filterByPhysicalLocations == false -%}
+                    {% if not initSelectors|length %}
+                        {% set initSelectors = 'searchLocation' %}
+                    {% endif %}
+                    <div class="form-group physicalLocationSearchLocation">
+                        <div class="locationSearchContainer">
+                            {% set searchLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::ZIP_OR_CITY')] %}
+                            {% set searchPlaceholder = languageSheet[constant('FWK\\Enums\\LanguageLabels::ZIP_OR_CITY_SEARCH')] %}
+                            <label for="locationSearch" class="form-label">
+                                {{ searchLabel }}
+                            </label>
+                            {% set searchParams = {
+                                'searchResultZoom': args.searchResultZoom,
+                                'searchMinResults': args.searchMinResults,
+                                'searchMaxResults': args.searchMaxResults,
+                            } %}
+                            <input id="locationSearch" class="form-control locationSearch formField" type="text" 
+                                data-lc-country="{{args.seletedCountryId}}"
+                                data-lc-search='{{ outputJsonHtmlString(searchParams) }}'
+                                onkeyup="searchLocations(this, this.value, false)" autocomplete="off"
+                            >
+                            <div class="locationsResultsContainer"></div>
+                        </div>
+                    </div>
+                {%- endif -%}
+                {%- if args.filterByPhysicalLocations and args.citySelector is not null -%}
+                    {% if not initSelectors|length %}
+                        {% set initSelectors = 'city' %}
+                    {% endif %}
+                    {%- set optionsSelector = args.citySelector.element.outputElement(args.citySelector.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                    {%- set optionsSelector = optionsSelector|replace({ 
+                        (attributeWildcard): 'data-lc-event="change" data-lc-function="filterPhysicalLocations"', 
+                        (classWildcard): ''  
+                    }) -%}
+                    <div class="form-group physicalLocationCity">{{- optionsSelector -}}</div>
+                {%- endif -%}
+                {%- if args.filterByPhysicalLocations and args.postalCodeSelector is not null -%}
+                    {% if not initSelectors|length %}
+                        {% set initSelectors = 'postalCode' %}
+                    {% endif %}
+                    {%- set optionsSelector = args.postalCodeSelector.element.outputElement(args.postalCodeSelector.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                    {%- set optionsSelector = optionsSelector|replace({ 
+                        (attributeWildcard): 'data-lc-event="change" data-lc-function="filterPhysicalLocations"', 
+                        (classWildcard): '' 
+                    }) -%}
+                    <div class="form-group physicalLocationPostalCode">{{- optionsSelector -}}</div>
+                {%- endif -%}
+                {%- if args.filterByPhysicalLocations and args.placesAutocomplete is not null -%}
+                    {%- set placesAutocompleteInput = args.placesAutocomplete.element.outputElement(args.placesAutocomplete.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                    {%- set placesAutocompleteInput = placesAutocompleteInput|replace({ 
+                        (attributeWildcard): '', 
+                        (classWildcard): ''  
+                    }) -%}
+                    <div class="form-group physicalLocationSearchBox">{{- placesAutocompleteInput -}}</div>
+                {%- endif -%}
+            {% endset %}
+
+            {% if initSelectors|length %}
+                <div class="physicalLocationSelectors">
+                    {{- selectors -}}
+                    <input name="initSelectors" data-lc='{{- initSelectors -}}' type="hidden" data-lc-event="load" data-lc-function="initFilterPhysicalLocations" value="{{- args.defaultPhysicalLocationId -}}">
+                </div>
+            {% endif %}
+
+            {% set physicalLocationItems %}
+                <div class="physicalLocationItems">
+                    {{- optionsPhysicalLocation -}}
+                </div>
+            {% endset %}
+
+            {% if args.showInMap %}
+                {% from 'macros/modes/' ~ coreMode ~ '/util/physicalLocationsMap.html.twig' import physicalLocationsMap %}
+                {{- physicalLocationsMap(physicalLocationItems, args.mapsApiKey, args.showAllMapMarkersButton) -}}
+            {% else %}
+                {{- physicalLocationItems -}}
+            {% endif %}
+        {% elseif args.pickupPointProviders.items|length %}
+
+            <div class="pickingDeliveryPointsSearch">
+                {% if args.pickupPointProvidersSelector.element.type !=  constant('FWK\\Core\\Form\\Elements\\Inputs\\InputHidden::TYPE') %}
+                    <div class="form-group pickingDeliveryPointsProviders">
+                    {{- args.pickupPointProvidersSelector.element.outputElement(args.pickupPointProvidersSelector.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')])|replace({ (attributeWildcard): '', (classWildcard): '' }) -}}    
+                    </div>
+                {% else %}
+                    {{- args.pickupPointProvidersSelector.element.outputElement(args.pickupPointProvidersSelector.name) -}}
+                {% endif %}
+                <div class="form-group pickingDeliveryPointsCountry">
+                    {{- args.countrySelector.element.outputElement(args.countrySelector.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')])|replace({ (attributeWildcard): '', (classWildcard): '' }) -}}
+                </div>
+                <div class="form-group pickingDeliveryPointsPostalCodeInput">
+                    {{- args.postalCodeInput.element.outputElement(args.postalCodeInput.name, [constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')])|replace({ (attributeWildcard): '', (classWildcard): '' }) -}}
+                </div>
+                <div class="form-group searchButton">{{- postalCodeInput -}}
+                    <button type="button" id="getPickingDeliveryPoints" class="btn btn-primary getPickingDeliveryPoints" data-lc-event="click" data-lc-function="getPickingDeliveryPoints" disabled="disabled">
+                        {{- languageSheet[constant('SITE\\Enums\\LanguageLabels::SEARCH')] -}}
+                    </button>                
+                </div>
+            </div>
+
+            {% if args.showInMap %}
+                {% from 'macros/modes/' ~ coreMode ~ '/util/physicalLocationsMap.html.twig' import physicalLocationsMap %}
+                {{- physicalLocationsMap(physicalLocationItems, args.mapsApiKey, args.showAllMapMarkersButton) -}}
+            {% else %}
+                {{- physicalLocationItems -}}
+            {% endif %}
+        
+        {% else %}
+            <div class="physicalLocationNoItems">
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PHYSICAL_LOCATION_NONE')] -}}
+            </div>
+        {% endif %}
+    </div>
+{%- endmacro physicalLocations -%}

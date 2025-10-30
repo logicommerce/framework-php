@@ -1,0 +1,66 @@
+{% macro attachment(customTag, showForm) %}
+    {% if showForm == true %}
+        <div class="form-group formFieldGroup userFieldGroup {{ groupClassList }}">
+            {%- if 'customTags' in name -%} 
+                {% set classSufix = 'CustomTags' -%}
+            {%- else -%}
+                {% set classSufix = '' -%}
+            {%- endif -%}
+            {%- set titleLabelRegex = input|preg_match('/<\\s*label[^>]*>(.*?)<\\s*\\/\\s*label>/') -%}
+            {%- set titleLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::UPLOAD_FILE')] -%}
+            {%- if titleLabelRegex|length > 1 -%}
+                {%- set titleLabel = titleLabelRegex[1] -%}
+            {%- endif -%}
+
+            {% set customTagObj = {
+                maxSize: constant('ATTACHMENT_MAX_SIZE'),
+                className: 'user' ~ classSufix ~ ' input-group file',
+                attachedClassName: 'customTagAttachedValue',
+                id: 'customTags_' ~ customTag.id,
+                required: customTag.required,
+                attachment: customTag.value
+            } %}
+            <label class="form-check-label" for="{{ customTagObj.id }}" {% if customTagObj.attachment|length %} style="display: none"{% endif %}>{{ titleLabel }}</label>
+            <div class="customTagValue lcCustomTagAttachment" data-custom-tag-value="{{ customTagObj.id }}" data-options='{{ outputJsonHtmlString(customTagObj) }}'>
+                <input type="hidden" class="customTagAttachmentHiddenValue" id="{{ customTagObj.id }}" name="{{ customTagObj.id }}" value="{{customTagObj.attachment}}">
+                <div class="customTagAttachmentValue" {% if customTagObj.attachment|length %} style="display: none"{% endif %}>
+                    {% set customTagInputId = customTagObj.id|preg_replace('/_'~customTagObj.id|split('_')|last~'$/','') %}
+                    <input 
+                        type="file" 
+                        class="form-control formField userField attachmentField" 
+                        id="{{customTagInputId}}" 
+                        name="customTagAttachmentValue" 
+                        {% if customTagObj.required %}required data-validation="required"{% endif %}
+                        {% if customTagObj.attachment|length %} disabled {% endif %}
+                        autocomplete="off"
+                    >
+                </div>
+                {% if customTagObj.attachment|length %}
+                    {% set fileName = customTagObj.attachment|split('_',2)[1] %}
+                    <div class="customTagAttachmentButtons">
+                        <button type="button" class="view-attachment btn btn-secondary" data-lc-attachment-path="{{ customTagObj.attachment }}" data-lc-event="click" data-lc-function="openAttachmentPath"> 
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ATTACH_FILE_OPEN')]|replace({ '{{fileName}}': fileName }) -}}
+                        </button>
+                        <button type="button" class="new-attachment btn btn-secondary"> 
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ATTACH_FILE_NEW')] -}}
+                        </button>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    {% else %}
+        <div class="staticBasketAttachmentValue">
+            {% set fileName = '' %}
+            {% set fileName = customTag.value|preg_match('/("fileName":")([^"]*).*/') %}
+            {% if fileName|length == 3 %}
+                {% set fileName = fileName[2] %}
+            {% endif %}
+            {% if fileName|length %}
+                <div class="staticBasket staticBasketAttachment">
+                    {{ fileName }}
+                </div>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endmacro %}

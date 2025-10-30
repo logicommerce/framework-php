@@ -1,0 +1,24 @@
+{% if route.type != constant('SDK\\Enums\\RouteType::USER') and
+    route.type != constant('SDK\\Enums\\RouteType::ACCOUNT') %}
+
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+
+    <div class="form-check formFieldGroup userFieldGroup useShippingAddressGroup" {% if args.forceUseShippingAddress == true %}hidden{% endif %}>
+        {% set input = input|replace({ 
+            (classWildcard): 'useShippingAddressCheck formCheckboxField userCheckboxField formField form-check-input'  ,
+            (attributeWildcard): '', 
+            'formField userField': '',
+        }) %}
+
+        {% if args.forceUseShippingAddress == true %}
+            {{ input|replace({ 
+                'value="0"': 'value="1" checked',
+                'value="1"': 'value="1" checked'
+            }) }}
+        {% else %}
+            {{ input|raw }}
+        {% endif %}
+    </div>
+
+{% endif %}

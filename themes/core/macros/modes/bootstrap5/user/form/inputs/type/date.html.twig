@@ -1,0 +1,33 @@
+
+<div class="form-group formFieldGroup userFieldGroup {{ groupClassList }}">
+    {%- if 'customTags' in name -%} 
+        {% set classSufix = 'CustomTags' -%}
+    {%- else -%}
+        {% set classSufix = '' -%}
+    {%- endif -%}
+    {%- set titleLabelRegex = input|preg_match('/<\\s*label[^>]*>(.*?)<\\s*\\/\\s*label>/') -%}
+    {%- set titleLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::BIRTH_DATE')] -%}
+    {%- if titleLabelRegex|length > 1 -%}
+        {%- set titleLabel = titleLabelRegex[1] -%}
+    {%- endif -%}
+	<div class="user{{ classSufix }} input-group date" 
+		 data-datetimepicker="{{ definitionElement.id }}ViewDateValue" 
+		 data-language="{{ route.language }}" 
+		 data-years='1910-{{ "now"|date("Y") }}' 
+		 data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+		 data-submit="{{ definitionElement.id }}"  
+		 data-format="{{ getJSDatePattern() }}"
+	>
+		<label for="{{ definitionElement.id }}ViewDateValue" class="form-label">{{- titleLabel -}}</label>
+		{% if definitionElement.value|length %}
+			{%- set dateValue = definitionElement.value|date(getTwigDatePattern()) -%}
+		{% else %}
+			{%- set dateValue = "" -%}
+		{% endif %}
+		<input type="text" value="{{ dateValue }}" {{definitionElement.disabled ? 'disabled' : ''}} class="form-control formField userField" id="{{ definitionElement.id }}ViewDateValue" {% if definitionElement.required %}data-validation="required"{% endif %}>
+		<span class="input-group-addon input-group-text">
+			<svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+		</span>
+	</div>
+    <input type="hidden" value="{{ definitionElement.value }}" {{definitionElement.disabled ? 'disabled' : ''}} class="user{{ classSufix }}DateValue" id="{{ definitionElement.id }}" name="{{ definitionElement.id }}">
+</div>

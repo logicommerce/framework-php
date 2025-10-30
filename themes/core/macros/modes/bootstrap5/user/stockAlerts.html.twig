@@ -1,0 +1,46 @@
+{% macro stockAlerts(args) %}
+    {%- if args.stockAlerts.items|length -%}
+        <form id="unsubscribeStockAlertForm" method="POST" data-lc-form="unsubscribeStockAlertForm" action="/product/unsubscribe/stock">
+            {%- for stockAlert in args.stockAlerts.items -%}
+                <div class="stockAlerts stockAlertsRecord" data-lc-stock-alert-id="{{ stockAlert.id }}">
+                    <div class="stockAlertsHeader stockAlertsHeader1">
+                        <div class="stockAlertsDate">
+                            <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::STOCK_ALERTS_DATE')] }}</span>
+                            <span class="val">{{ localizedDateTime(stockAlert.subscriptionDate) }}</span>
+                        </div>
+                    </div>
+                    <div class="stockAlertsHeader stockAlertsHeader2">
+                        <div class="stockAlertsEmail">
+                            <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::STOCK_ALERTS_EMAIL')] }}</span> <span class="val">{{ stockAlert.email }}</span>
+                        </div>
+                        {%- if args.allowRemove -%}
+                            <div class="stockAlertsDelete">
+                                <button data-lc-stock-alert-id="{{ stockAlert.id }}" class="unsubscribeStockAlertButton" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::STOCK_ALERTS_DELETE')] }}"></button>
+                            </div>
+                        {%- endif -%}
+                    </div>
+                    <div class="stockAlertsProduct">
+                        {%- set imageSrc = stockAlert.product.images.smallImage|default(stockAlert.product.images.mediumImage)|default(stockAlert.product.images.largeImage)|default('') -%}
+                        {%- if imageSrc|length -%}
+                            <a class="stockAlertsProductImage" href="{{ stockAlert.product.url }}" title="{{ stockAlert.product.name|escape }}" target="_blank">
+                                <img src="{{ imageSrc }}" alt="{{ stockAlert.product.name|escape }}" class="img-fluid">
+                            </a>
+                        {%- endif -%}
+                        <div class="stockAlertsProductInfo">                  
+                            <a class="stockAlertsProductName" href="{{ stockAlert.product.url }}" target="_blank">{{ stockAlert.product.name }}</a>
+                            {%- if stockAlert.product.productCombination.combinationValues|length -%}
+                                <ul class="stockAlertsProductOptions">
+                                    {%- for combinationValue in stockAlert.product.productCombination.combinationValues -%}
+                                        <li>{{ combinationValue.optionName }}: {{ combinationValue.valueName }}</li>
+                                    {%- endfor -%}
+                                </ul>
+                            {%- endif -%}
+                        </div>
+                    </div>
+                </div>
+            {%- endfor -%}
+        </form>
+    {% else %}
+        <div class="stockAlertsNoSubscriptions">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::STOCK_ALERTS_NO_SUBSCRIPTIONS')] }}</div>
+    {% endif %}
+{% endmacro stockAlerts %}

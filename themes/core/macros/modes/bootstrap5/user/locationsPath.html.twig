@@ -1,0 +1,66 @@
+{%- macro locationsPath(args) -%}
+	{% import _self as self %}
+
+	<div class="resultLocationsPath">
+		
+		{%- set lastLocationId = "" -%}
+		{%- set fieldPrefix = "" -%}
+		{% if args.fieldName|length > 0 %}
+			{%- set fieldPrefix = args.fieldName ~ '_' -%}
+		{% endif %}
+
+		{%- set locationCompletePath = "" -%}
+		{%- set fieldsLevel = [constant('FWK\\Enums\\Parameters::STATE'), constant('FWK\\Enums\\Parameters::CITY'), constant('FWK\\Enums\\Parameters::POSTAL_CODE')]-%}
+		{%- set locationlabels = [languageSheet[constant('FWK\\Enums\\LanguageLabels::STATE')], languageSheet[constant('FWK\\Enums\\LanguageLabels::CITY')], languageSheet[constant('FWK\\Enums\\LanguageLabels::POSTAL_CODE')]]-%}
+
+		{%- set locationCompleteTextPath = '' -%}
+
+
+		<div class="locationCompletePath" lc-data='{{ outputJsonHtmlString(args.selectedIds.items) }}'>
+			{%- for level in args.selectedIds.items -%}
+				{%- set labelLevel = locationlabels[(level.level - 1)] -%}
+				{%- set fieldName = fieldsLevel[(level.level - 1)] -%}
+				{%- set locationCompleteTextPath = locationCompleteTextPath ~ '<div class="locationText locationText' ~ fieldPrefix ~ fieldName ~ '">' ~ labelLevel ~ ": " ~ level.value ~ "</div>" -%}
+				<input type="hidden" class="locationField"  name="{{ fieldPrefix ~ fieldName }}" value="{{ level.value }}">
+				{%- set lastLocationId = level.locationId -%}
+			{%- endfor -%}
+
+			{%- for level in args.locationMaxLevel..args.fieldsMaxLevel -%}
+				{%- if level > args.locationMaxLevel -%}
+					{%- set fieldName = fieldsLevel[(level - 1)] -%}
+					{%- set fieldCompleteName = fieldPrefix ~ fieldName -%}
+					{%- set labelLevel = locationlabels[(level - 1)] -%}
+					{%- set fieldValue = attribute(args, fieldName) -%}
+					{%- if fieldValue|length > 0 -%}
+						<input type="hidden" name="{{ fieldCompleteName }}" value="{{ fieldValue }}">
+						{%- set locationCompleteTextPath = locationCompleteTextPath ~ '<div class="locationText locationText' ~ fieldCompleteName ~ '">' ~ labelLevel ~ ": " ~ fieldValue ~ "</div>" -%}
+					{% else %}
+						{%- set locationCompleteTextPath = locationCompleteTextPath ~ '<div class="locationText locationText' ~ fieldCompleteName ~ '">' ~ labelLevel ~ ": {{" ~ fieldCompleteName ~ "}}</div>" -%}
+					{%- endif -%}
+				{%- endif -%}
+			{%- endfor -%}
+
+			<input type="hidden" class="locationField" name="{{ fieldPrefix }}locationList" value="{{ lastLocationId }}">
+			{{ locationCompleteTextPath }}
+		</div>
+
+		<div class="locationAdditionalFields">
+			{%- for level in args.locationMaxLevel..args.fieldsMaxLevel -%}
+				{%- if level > args.locationMaxLevel -%}
+					{%- set fieldName = fieldsLevel[(level - 1)] -%}
+					{%- set fieldCompleteName = fieldPrefix ~ fieldName -%}
+					{%- set labelLevel = locationlabels[(level - 1)] -%}
+					{%- set fieldValue = attribute(args, fieldName) -%}
+					{%- if fieldValue|length == 0 -%}
+						<div class="formFieldGroup userFieldGroup">
+							<label for="{{ fieldCompleteName }}">{{ labelLevel }}{% if level <= args.fieldsMaxRequiredLevel %}{{ constant('REQUIRED_FIELD_HTML_FLAG') }}{% endif %}</label>
+							<input onfocusout="checkLocationAdditionalFields.bind(this)()" type="text" name="{{ fieldCompleteName }}" id="{{ fieldCompleteName }}" class="form-control formField userField locationAdditionalField locationField {% if level <= args.fieldsMaxRequiredLevel %}required{% endif %}" data-lc="" maxlength="50" {% if level <= args.fieldsMaxRequiredLevel %}required data-validation="required"{% endif %} autocomplete="off">
+						</div>
+					{%- endif -%}
+				{%- endif -%}
+			{%- endfor -%}
+		</div>
+	</div>
+{%- endmacro locationsPath -%}
+
+

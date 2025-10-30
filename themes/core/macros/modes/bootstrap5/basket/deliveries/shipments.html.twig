@@ -1,0 +1,69 @@
+{% macro shipments(args, delivery, warningsContent) %}
+    <div class="basketSelector deliverySelector delivery {% if delivery.selected %}deliverySelected{% endif %}">
+        <div class="deliveryType">
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELIVERY_TITLE_SHIPPING')] -}}
+        </div>
+        <div class="shipments">
+            <div class="delivery">
+                {{- warningsContent -}}
+
+                {%- set uid = random(10000000, 99999999) -%}
+                {%- for shipment in delivery.shipments -%}
+                    <div class="shipment">
+                        {%- if args.showProducts -%}
+                            <div class="deliveryProductsTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS')] -}}</div>
+                            <ul class="products">
+                                {%- for shipmentRow in shipment.rows -%}
+                                    <li data-hash="{{- shipmentRow.basketRowData.hash -}}">
+                                        <span class="productName">{{- shipmentRow.basketRowData.basketRow.name -}}</span>
+                                        <span class="productQuantity">{{- shipmentRow.quantity -}}</span>
+                                    </li>
+                                {%- endfor -%}
+                            </ul>
+                        {%- endif -%}
+                        <div class="shippings">
+                            {%- set labelUid = random(10000000, 99999999) -%}
+                            {%- for shipping in shipment.shippings -%}
+                                <div class="shipping shippingSelector basketSelector {% if shipping.selected %}basketSelectorSelected shippingSelectorSelected{% endif %}" data-shipper="{{- shipping.type.shipper.id -}}">
+                                    <input class="basketSelector shippingTypeSelector form-check-input"
+                                        type="radio"
+                                        disabled {# enable after add event listener in lc.forms.js #}
+                                        autocomplete="off"
+                                        name="shippingType_{{- uid -}}"
+                                        value="{{- shipping.hash -}}"
+                                        data-lc-shipping-hash="{{- shipping.hash -}}"
+                                        data-lc-shipment-hash="{{- shipment.hash -}}"
+                                        data-lc-delivery-type="{{- delivery.type -}}"
+                                        data-lc-delivery-hash="{{- delivery.hash -}}"
+                                        id="shippingType_{{- labelUid -}}"
+                                        {% if shipping.selected %}checked="checked"{%- endif -%}
+                                    >
+                                    <label class="basketSelectorName shippingSelectorName" for="shippingType_{{- labelUid -}}">
+                                        <span class="shipperName">{{- shipping.type.shipper.language.name -}}</span>
+                                        <span class="shipperNameSpacer">-</span>
+                                        <span class="shippingTypeName">{{- shipping.type.language.name -}}</span>
+                                        {% if args.showDescription == true and shipping.type.language.description|length %}
+                                            <span class="shippingTypeDescription">{{- shipping.type.language.description -}}</span>
+                                        {% endif %}
+                                    </label>
+                                    {%- if args.showLogo and shipping.type.shipper.logo|length > 0 -%}
+                                        <img class="shippingImage" src="{{ settings.generalSettings.cdnImages }}{{- shipping.type.shipper.logo -}}">
+                                    {%- endif -%}
+                                    <label class="basketSelectorPrice shippingSelectorPrice" for="shippingType_{{- labelUid -}}">
+                                        {%- if args.showTaxIncluded -%}
+                                            {{- outputHtmlCurrency(shipping.pricesWithTaxes.price) -}}
+                                        {%- else -%}
+                                            {{- outputHtmlCurrency(shipping.prices.price) -}}
+                                        {%- endif -%}
+                                    </label>
+                                </div>
+                                {%- set labelUid = labelUid + 1 -%}
+                            {%- endfor -%}
+                        </div>
+                    </div>
+                    {%- set uid = uid + 1 -%}
+                {%- endfor -%}
+            </div>
+        </div>
+    </div>
+{% endmacro shipments %}

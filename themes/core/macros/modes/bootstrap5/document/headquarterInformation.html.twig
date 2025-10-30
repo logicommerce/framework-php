@@ -1,0 +1,24 @@
+{%- macro headquarterInformation(args) -%}
+    {%- set headquarter = args.document.headquarter -%}
+    {%- import _self as self -%}
+    <div class="headquarterInformation">
+        {{- self.outputField(headquarter.name, 'name') -}}
+        {{- self.outputField(headquarter.vat, 'vat') -}}
+        {{- self.outputField(headquarter.address, 'address') -}}
+        {{- self.outputField(headquarter.phone, 'phone') -}}
+        {{- self.outputField(headquarter.email, 'email') -}}
+        {%- if headquarter.postalCode|trim|length > 0 and headquarter.city|trim|length > 0 %}
+            {{- self.outputField(headquarter.postalCode ~ ' - ' ~ headquarter.city, 'postalCode-city') -}}
+        {%- else %}
+            {{- self.outputField(headquarter.postalCode, 'postalCode') -}}
+            {{- self.outputField(headquarter.city, 'city') -}}
+        {%- endif -%}
+        {{- self.outputField(headquarter.state, 'state') -}}
+    </div>
+{%- endmacro -%}
+
+{%- macro outputField(field, class) -%}
+    {%- if field|trim|length > 0 -%}
+        <p class="headquarterInformation {{ class }}HeadquarterInformation">{{- field -}}</p>
+    {%- endif -%}
+{%- endmacro -%}

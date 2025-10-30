@@ -1,0 +1,62 @@
+{% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+{% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+
+{% set groupClassList = 'userFieldGroup' ~ name|ucfirst %}
+{% if 'customTag' in name %}
+    {% set groupClassList = 'userFieldGroupCustomTag' %}
+    {% set customTagUid = name|preg_match('/^' ~ constant('FWK\\Enums\\Parameters::CUSTOM_TAGS') ~ '_(.*)_\\d+$/') %}
+
+    {% if customTagUid[1] is defined %}
+        {% set groupClassList = groupClassList ~ ' ' ~ customTagUid[1] %}
+    {% else %}
+        {% set groupClassList = 'userFieldGroup' ~ name|ucfirst %}
+    {% endif %}
+{% endif %}
+
+{% if definitionElement.type == constant('FWK\\Core\\Form\\Elements\\Inputs\\InputHidden::TYPE') %}
+    {{ input|replace({ (classWildcard): '', (attributeWildcard): '' })|raw }}
+{% elseif definitionElement.type == constant('FWK\\Core\\Form\\Elements\\Inputs\\InputDate::TYPE') %}
+    {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/type/date.html.twig' with { 
+        input: input, name: name, definitionElement: definitionElement, groupClassList: groupClassList
+    } %}
+{% elseif definitionElement.type == constant('FWK\\Core\\Form\\Elements\\Inputs\\InputRadio::TYPE') %}
+    {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/type/radio.html.twig' with { 
+        input: input, name: name, definitionElement: definitionElement, groupClassList: groupClassList
+    } %}
+{% elseif definitionElement.type == constant('FWK\\Core\\Form\\Elements\\Inputs\\InputFile::TYPE') %}
+    {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/type/file.html.twig' with { 
+        input: input, name: name, definitionElement: definitionElement, groupClassList: groupClassList
+    } %}
+{% else %}
+    {% if name == constant('FWK\\Enums\\Parameters::COUNTRY') %} 
+        {% set attributeValue = 'onChange="changeCountryFields.bind(this)()"' %}
+        {% set classValue = 'addressUserCountryField address-complete' %}
+    {% else %}
+        {% set attributeValue = '' %}
+        {% set classValue = '' %}
+    {% endif %}
+
+    {% if name == constant('FWK\\Enums\\Parameters::POSTAL_CODE') %} 
+        <div class="form-group formFieldGroup userFieldGroup userFieldGroup{{ name|ucfirst }}Required">
+            {{ input|replace({ 
+                (classWildcard): classValue, 
+                (attributeWildcard): attributeValue 
+            })|raw }}
+        </div>
+        <div class="form-group formFieldGroup userFieldGroup userFieldGroup{{ name|ucfirst }}">
+            {{ input|replace({ 
+                (classWildcard): classValue, 
+                (attributeWildcard): attributeValue,
+                (constant('REQUIRED_FIELD_HTML_FLAG')): attributeValue,
+                'required': ''
+            })|raw }}
+        </div>
+    {% else %}
+        <div class="form-group formFieldGroup userFieldGroup {{ groupClassList }}">
+            {{ input|replace({ 
+                (classWildcard): classValue, 
+                (attributeWildcard): attributeValue 
+            })|raw }}
+        </div>
+    {% endif %}
+{% endif %}

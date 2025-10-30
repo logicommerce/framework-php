@@ -1,0 +1,27 @@
+{%- macro comments(args) -%}
+    {%- import _self as self -%}
+    {%- if args.comments|length -%}
+        <div class="productCommentsContainer">
+            {%- for comment in args.comments -%}
+                <div class="blogPostComment">
+                    <div class="author">
+                        <div class="nick">{{- comment.nick -}}</div>
+                    </div>
+                    <div class="date">{{- formatDateTime(comment.dateAdded) -}}</div>
+                    <div class="comment">{{- comment.comment -}}</div>
+                    {# 
+                        TODO: Suscribe to post comments feature
+                        TODO: Response comments
+                        <a class="answerLink" datafluidevent="click" datafluidfunction="toggleBlogAnswer" datafluiddata='{"id":#ARGUMENTS.blogPostId#{{ comment.id }},"blogPostId":#ARGUMENTS.blogPostId#,"parentId":{{ comment.id }},"htmlFramework":"#ARGUMENTS.htmlFramework#"}'>#REQUEST.languageSheet.answerLink#</a>
+                        <div class="answerForm answerForm#ARGUMENTS.blogPostId#{{ comment.id }}" style="display: none;"></div>
+                    #}
+                    {%- if comment.answers|length -%}
+                        <div class="responses">
+                            {{ self.comments({ comments: comment.answers }) }}
+                        </div>
+                    {%- endif -%}
+                </div>
+            {%- endfor -%}
+        </div>
+    {%- endif -%}
+{%- endmacro -%}

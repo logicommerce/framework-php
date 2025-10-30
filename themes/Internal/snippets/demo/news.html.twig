@@ -1,0 +1,43 @@
+{#{ dump(news) }#}
+
+{% if (news is iterable and news|length > 0 ) or (news is not iterable and news is not null) %}
+    
+    <table border=1>
+    	<tr>
+    		<th>Loop Index</th>
+    		<th>Id pieceOfNews.id</th>
+    		<th>Public id pieceOfNews.pId</th>
+
+    		<th>Name pieceOfNews.name</th>
+			<th>Comments pieceOfNews.comments</th>
+    		<th>Priority pieceOfNews.priority</th>
+    		<th>Active pieceOfNews.active</th>
+    		<th>DateAdded pieceOfNews.dateAdded</th>
+			<th>PublicationDate pieceOfNews.publicationDate</th>
+    		<th>SmallImage pieceOfNews.smallImage</th>
+    		<th>LargeImage pieceOfNews.largeImage</th>
+    		
+    		<th>By Language keywords pieceOfNews.language.keywords</th>
+    		<th>By Language particularTitle pieceOfNews.language.particularTitle</th>
+    		<th>By Language metaDescription pieceOfNews.language.metaDescription</th>
+    		<th>By Language urlSeo pieceOfNews.language.urlSeo</th>
+    		
+    		<th>By Language title pieceOfNews.language.title</th>
+    		<th>By Language shortText pieceOfNews.language.shortText</th>
+    		<th>By Language pageText pieceOfNews.language.pageText</th>
+    		<th>By Language addGenericTitle pieceOfNews.language.addGenericTitle</th>
+
+    	</tr>
+    	
+        {% if news is iterable %}
+        	{% for pieceOfNews in news %}
+        	    {% include '/snippets/demo/pieceOfNews.html.twig' with {'pieceOfNews' : pieceOfNews, 'index' : loop.index0} only %}
+        	{% endfor %}
+        {% else %}
+            {% include '/snippets/demo/pieceOfNews.html.twig' with {'pieceOfNews' : news} only %}
+        {% endif %}
+    	
+    </table>
+{% else %}
+	no items
+{% endif %}    

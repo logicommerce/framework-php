@@ -1,0 +1,15 @@
+{% macro definition(productBundle, args) %}
+    {%- set showName = args.showBundleDefinitionName -%}
+    {%- set showDescription = args.showBundleDefinitionDescription -%}
+
+    {%- if (productBundle.language.name|length and showName == true) or (productBundle.language.description|length and showDescription == true) -%}
+        <div class="product-bundle-header">
+            {%- if productBundle.language.name|length and showName == true -%}
+                <div class="product-bundle-name heading">{{ productBundle.language.name }}</div>
+            {%- endif -%}
+            {%- if productBundle.language.description|length and showDescription == true -%}
+                <div class="product-bundle-description">{{ productBundle.language.description }}</div>
+            {%- endif -%}
+        </div>
+    {%- endif -%}
+{% endmacro %}

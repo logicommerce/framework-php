@@ -1,0 +1,5 @@
+{% for value in option.values %}
+    <a class="view-attachment" data-lc-event="click" style="" data-lc-attachment-path="{{value}}" onclick="LC.dataEvents.openAttachmentPath(event)">{{ value|split('_', 2)|last }}</a>
+    {% if not loop.last %},&nbsp;{% endif %}
+{% endfor %}
+

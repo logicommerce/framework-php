@@ -1,0 +1,395 @@
+{#- @documentation
+    {
+        "name": "contactForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de contacto"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario de contacto para pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.page as pageMacros %} |{{ pageMacros.contactForm({ |form: formProductContact |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Page/Macro/ContactForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/page/contactForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro contactForm(args) -%}
+    {{ addTimerDebugFlag('pageMacros-contactForm',true) }}
+    {%- set viewParameters = viewHelpers.page.contactFormMacro(args) -%}
+
+    {%- from "macros/form.twig" import legalCheck as legalCheckMacro -%}
+    {%- set legalCheck -%}
+        {{ legalCheckMacro({}) }}
+    {%- endset -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/page/contactForm.html.twig' as modePage -%}
+    {{- modePage.contactForm(viewParameters, legalCheck) -}}
+    {{ addTimerDebugFlag('pageMacros-contactForm',false) }}
+{%- endmacro contactForm -%}
+
+{#- @documentation
+    {
+        "name": "newsletterForm",
+        "description": [
+            {
+                "es": "Pinta el formulario del boletin"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario del boletin a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.page as pageMacros %} |{{ pageMacros.contactForm({ |form: form |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Page/Macro/NewsletterForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/page/newsletterForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro newsletterForm(args) -%}
+    {{ addTimerDebugFlag('pageMacros-newsletterForm',true) }}
+    {%- set viewParameters = viewHelpers.page.newsletterFormMacro(args) -%}
+
+    {%- from "macros/form.twig" import legalCheck as legalCheckMacro -%}
+    {%- set legalCheck -%}
+        {{ legalCheckMacro({}) }}
+    {%- endset -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/page/newsletterForm.html.twig' as modePage -%}
+    {{- modePage.newsletterForm(viewParameters, legalCheck) -}}
+    {{ addTimerDebugFlag('pageMacros-newsletterForm',false) }}
+{%- endmacro newsletterForm -%}
+
+{#- @documentation
+    {
+        "name": "pageContent",
+        "description": [
+            {
+                "es": "Pinta el contenido de la pagina"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "page",
+                "description": [
+                    {
+                        "es": "Objeto page, pagina para pintar contenido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "Page",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "data",
+                "description": [
+                    {
+                        "es": "Pinta la pagina dependiendo del valor que se le pase"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "SDK/Enums/PageType::SITEMAP",
+                        "description": [
+                            {
+                                "es": "Pinta un categoriesTree"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/PageType::PRIVACY_POLICY",
+                        "description": [
+                            {
+                                "es": "Importa las politicas de privacidad(legalCheck)"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/PageType::TERMS_OF_USE(legalCheck)",
+                        "description": [
+                            {
+                                "es": "Importa lo terminos de uso"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/PageType::SUBPAGES",
+                        "description": [
+                            {
+                                "es": "Importa una subpage"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/PageType::NEWSLETTER",
+                        "description": [
+                            {
+                                "es": "Importa un boletin informativo(newsletterForm)"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/PageType::CONTACT",
+                        "description": [
+                            {
+                                "es": "Importa un formulario de contacto(contactForm)"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.page as pageMacros %} |{{ pageMacros.pageContent({ |page: page |data: arrData |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Page/Macro/PageContent.php",
+        "relatedCoreFiles": [{
+                "files": "macros/modes/{{coreMode}}/page/contactForm.html.twig",
+                "description": [
+                    {
+                        "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            },
+            {
+                "files": "macros/modes/{{coreMode}}/page/newsletterForm.html.twig",
+                "description": [
+                    {
+                        "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ]
+            },
+            {
+                "files": "macros/modes/{{coreMode}}/page/subpages.html.twig",
+                "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro pageContent(args) -%}
+    {{ addTimerDebugFlag('pageMacros-pageContent',true) }}
+    {%- set viewParameters = viewHelpers.page.pageContentMacro(args) -%}
+    {%- if viewParameters.page.pageType is constant('SDK\\Enums\\PageType::SITEMAP') and viewParameters.data.sitemap is defined -%}
+        {%- from "macros/category.twig" import categoriesTree -%}
+        {{- categoriesTree({
+            categories: viewParameters.data.sitemap
+        }) -}}
+    {%- elseif viewParameters.page.pageType in [
+        constant('SDK\\Enums\\PageType::PRIVACY_POLICY'),
+        constant('SDK\\Enums\\PageType::TERMS_OF_USE')
+    ] and viewParameters.data.legalText is defined -%}
+        {{- viewParameters.data.legalText -}}
+    {%- elseif viewParameters.page.pageType is constant('SDK\\Enums\\PageType::SUBPAGES') and viewParameters.page.subpages|length -%}
+        {%- import _self as selfMacros -%}
+        {{- selfMacros.subpages({
+            subpages: viewParameters.page.subpages
+        }) -}}
+    {%- elseif viewParameters.page.pageType is constant('SDK\\Enums\\PageType::NEWSLETTER') and viewParameters.data.form is defined -%}
+        {%- import _self as selfMacros -%}
+        {{- selfMacros.newsletterForm({
+            form: viewParameters.data.form
+        }) -}}
+    {%- elseif viewParameters.page.pageType is constant('SDK\\Enums\\PageType::CONTACT') and viewParameters.data.form is defined -%}
+        {%- import _self as selfMacros -%}
+        {{- selfMacros.contactForm({
+            form: viewParameters.data.form
+        }) -}}
+    {%- endif -%}
+    {{ addTimerDebugFlag('pageMacros-pageContent',false) }}
+{%- endmacro pageContent -%}
+
+{#- @documentation
+    {
+        "name": "subpages",
+        "description": [
+            {
+                "es": "Pinta las subpaginas que le pasen"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "subpages",
+                "description": [
+                    {
+                        "es": "Array con las subpages a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.page as pageMacros %} |{{ pageMacros.subpages({ |subpages: arrSubpages |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Page/Macro/Subpages.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/page/subpages.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro subpages(args) -%}
+    {{ addTimerDebugFlag('pageMacros-subpages',true) }}
+    {%- set viewParameters = viewHelpers.page.subpagesMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/page/subpages.html.twig' as modePage -%}
+    {{- modePage.subpages(viewParameters) -}}
+    {{ addTimerDebugFlag('pageMacros-subpages',false) }}
+{%- endmacro subpages -%}
+
+{#- @documentation
+    {
+        "name": "sendMailForm",
+        "description": [
+            {
+                "es": "Genera el formulario para enviar un email"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, del formulario que se desea mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |||{% import macrosCore.page as pageMacros %} |||{{ pageMacros.sendMailForm({ |||form: formProductContact |||}) }} |||",
+        "viewHelper": "FWK/ViewHelpers/Page/Macro/sendMailForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/page/sendMailForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro sendMailForm(args) -%}
+    {{ addTimerDebugFlag('pageMacros-sendMailForm',true) }}
+    {%- set viewParameters = viewHelpers.page.sendMailFormMacro(args) -%}
+
+    {%- from "macros/form.twig" import legalCheck as legalCheckMacro -%}
+    {%- set legalCheck -%}
+        {{ legalCheckMacro({}) }}
+    {%- endset -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/page/sendMailForm.html.twig' as modePage -%}
+    {{- modePage.sendMailForm(viewParameters, legalCheck) -}}
+    {{ addTimerDebugFlag('pageMacros-sendMailForm',false) }}
+{%- endmacro sendMailForm -%}

@@ -1,0 +1,17 @@
+{%- macro printableContent(args) -%}
+    <button 
+        class="btn btn-secondary printContent" data-lc-event="click" data-lc-function="printContent" 
+        data-lc-data='{{- outputJsonHtmlString({
+            windowAttributes: args.windowAttributes,
+            hrefType: args.hrefType,
+            title: args.title,
+            contentId: 'content-to-print',
+        }) -}}'
+    >
+        <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRINT')] }}</span>
+    </button>
+
+	<div id="content-to-print">
+        {{- args.content -}}
+	</div>
+{%- endmacro printableContent -%}

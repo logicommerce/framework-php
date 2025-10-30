@@ -1,0 +1,31 @@
+{% macro buttonProductComparison(args) %}
+
+	{%- if settings.catalogSettings.productComparisonActive -%}
+		{% set productComparisonData = {
+			id: args.product.id,
+			labelAdd: args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_FROM_PRODUCT_COMPARISON')] : '',
+			labelDelete: args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_PRODUCT_COMPARISON')] : '',
+			showLabel: args.showLabel
+		} %}
+
+		<button 
+			style="display: none"
+			type="button"
+			class="productButton productComparisonButton productComparisonButton{{ args.product.id }} productComparisonButtonAdded {% if args.allowDelete == true %}productComparisonButtonDelete{% endif %} {{ args.class }}" 
+			data-product-comparison='{{ outputJsonHtmlString(productComparisonData|merge({'type':'delete'})) }}' 
+			{% if args.allowDelete == true %} autocomplete="off" {% else %} disabled="disabled" {% endif %}
+		>
+            {{ args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_FROM_PRODUCT_COMPARISON')] : '' }}
+		</button>
+
+		<button 
+			type="button" 
+			class="productButton productComparisonButton productComparisonButton{{ args.product.id }} productComparisonButtonAdd {{ args.class }}" 
+			data-product-comparison='{{ outputJsonHtmlString(productComparisonData|merge({'type':'add'})) }}' 
+			autocomplete="off"
+		>
+			{{ args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_PRODUCT_COMPARISON')] : '' }}
+		</button>
+	{%- endif -%}
+
+{% endmacro buttonProductComparison %}

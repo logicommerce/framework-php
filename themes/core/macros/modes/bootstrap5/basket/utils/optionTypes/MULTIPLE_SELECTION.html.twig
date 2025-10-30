@@ -1,0 +1,9 @@
+{% for value in option.valueList %}
+    {% if value.value|length and showOptionValuesName == '' or showOptionValuesName == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_OPTION_VALUES_NAME_SHOW_NAME') %}
+        {{ value.value|striptags }}
+    {% elseif value.shortDescription|length and showOptionValuesName == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::SHOW_OPTION_VALUES_NAME_SHOW_DESCRIPTION') %}
+        {{ value.shortDescription|striptags }}
+    {% endif %}
+    
+    {% if not loop.last %},&nbsp;{% endif %}
+{% endfor %}

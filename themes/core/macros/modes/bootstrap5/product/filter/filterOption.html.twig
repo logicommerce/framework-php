@@ -1,0 +1,66 @@
+{%- macro filter(filters, appliedFilters, configuration, filterItemTemplate) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/option.html.twig' as filterProductMacro -%}
+
+    {%- for filter in filters.filterOption -%}
+        {%- if filter.values|length -%}
+            {%- set uid = random(10000000, 99999999) -%}
+            {%- set parsedControlType = '' -%}
+            {%- for typePart in filter.type|split('_') -%}
+                {%- set parsedControlType = parsedControlType ~ typePart|lower|ucfirst -%}
+            {%- endfor -%}
+            
+            {%- set elements -%}
+                {{- filterProductMacro.elements(filter, appliedFilters) -}}
+            {%- endset -%}
+
+            {%- set badgeAppliedFilters -%}
+                {%- set nAppliedFilters = 0 -%}
+                {%- for value in filter.values -%}
+                    {%- set optionValue = value.value|url_encode -%}
+                    {%- set selected = 
+                        appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')] is defined 
+                        and (
+                            (
+                                appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode] is defined 
+                                and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode]|map(af => af|url_encode) 
+                            ) or (
+                                appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode] is defined 
+                                and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode]|map(af => af|url_encode) 
+                            )
+                        )
+                    -%}
+                    {%- if selected -%}
+                        {%- set nAppliedFilters = nAppliedFilters + 1 -%}
+                    {%- endif %}
+                {%- endfor %}
+                <span class="n-applied-filter n-{{ nAppliedFilters }} badge rounded-pill bg-primary">{{ nAppliedFilters }}</span>
+            {%- endset -%}
+
+            {%- set blockClass = "filterBlock optionsFilterBlock optionType" ~ parsedControlType -%}
+
+            {%- if filterItemTemplate != null -%}
+                {{- filterItemTemplate|replace({
+                    '{{blockClassWildcard}}': blockClass,
+                    '{{dataAttributesWildcard}}': "data-option='" ~ outputJsonHtmlString({ type: filter.type }) ~ "'",
+                    '{{uidWildcard}}': uid,
+                    '{{nameWildcard}}': filter.name,
+                    '{{badgeAppliedFiltersWildcard}}': badgeAppliedFilters,
+                    '{{elementsWildcard}}': elements,
+                }) -}}
+            {%- else -%}
+                <div class="{{- blockClass -}}">
+                    <div class="filterBlockTitle optionsFilterBlockTitle">
+                        {{- filter.name -}}
+                        {{- badgeAppliedFilters -}}
+                    </div>
+
+                    <div class="filterElements optionsFilterElements">
+                        {{- elements -}}
+                    </div>
+                </div>
+            {%- endif -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+{%- endmacro -%}

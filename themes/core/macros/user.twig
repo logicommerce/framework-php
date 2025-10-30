@@ -1,0 +1,5332 @@
+{#- @documentation
+    {
+        "name": "addressBook",
+        "description": [
+            {
+                "es": "Pinta todas las direcciones del usuario y boton de añadir nueva direccion"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "billingAddresses",
+                "description": [
+                    {
+                        "es": "Coleccion de direcciones de facturacion de tipo SDK\\Dtos\\User\\BillingAddress"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "shippingAddresses",
+                "description": [
+                    {
+                        "es": "Coleccions de direcciones de envio de tipo SDK\\Dtos\\User\\ShippingAddress"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "selectMode",
+                "description": [
+                    {
+                        "es": "Forma de seleccionar direccion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Basket/Macro/AddressBook::SELECT_MODE_BUTTON",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/AddressBook::SELECT_MODE_RADIO",
+                        "description": [
+                            {
+                                "es": "Seleccionar con check circular"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/AddressBook::SELECT_MODE_BUTTON",
+                        "description": [
+                            {
+                                "es": "Seleccionar con boton"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showAddNewBilling",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de añadir direccion de facturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showAddNewShipping",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de añadir direccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showEditBilling",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de editar direccion de facturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showEditShipping",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de editar direccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDeleteBilling",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de eliminar direccion de facturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDeleteShipping",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de eliminar direccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.addressBook({ |billingAddresses: billingAddresses, |shippingAddresses: shippingAddresses,|selectMode: constant('FWK\\ViewHelpers\\User\\Macro\\AddressBook::SELECT_MODE_RADIO') |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/AddressBook.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/addressBook.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro addressBook(args) %}
+    {{ addTimerDebugFlag('userMacros-addressBook',true) }}
+    {% set viewParameters = viewHelpers.user.addressBookMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/addressBook.html.twig' as modeUser %}
+    {{ modeUser.addressBook(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros-addressBook',false) }}
+{% endmacro addressBook %}
+
+{#- @documentation
+    {
+        "name": "addressForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de direccion"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "selectedCountry",
+                "description": [
+                    {
+                        "es": "Objeto CountrySettings, pais del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Settings\\CountrySettings",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "selectedCountryLocations",
+                "description": [
+                    {
+                        "es": "Primer nivel de localizacion del pais seleccionado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "prefix",
+                "description": [
+                    {
+                        "es": "Seleccionar si es envio o facturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/User/Macro/AddressForm::BILLING_PREFIX",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/AddressForm::BILLING_PREFIX",
+                        "description": [
+                            {
+                                "es": "Direccion de facturacion"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/AddressForm::SHIPPING_PREFIX",
+                        "description": [
+                            {
+                                "es": "Direccion de envio"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "addressBook",
+                "description": [
+                    {
+                        "es": "Pintar el addressBook"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.addressForm({ |form: userAddressBookForm, |prefix: prefix, |selectedCountry: defaultSelectedCountry, |selectedCountryLocations: defaultSelectedCountryLocations |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/AddressForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/addressForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro addressForm(args) %}
+    {{ addTimerDebugFlag('userMacros-addressForm',true) }}
+    {% set viewParameters = viewHelpers.user.addressFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/addressForm.html.twig' as modeUser %}
+    {{ modeUser.addressForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros-addressForm',false) }}
+{% endmacro addressForm %}
+
+{#- @documentation
+    {
+        "name": "addShoppingListRowNotesModal",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta la modal que es necesaria para el correcto funcionamiento de editShoppingListRowNotes"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, furmulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Indica si se ha de mostrar el header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "headerTitle",
+                "description": [
+                    {
+                        "es": "Define el texto a mostrar en el título header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "dialogClasses",
+                "description": [
+                    {
+                        "es": "Define las clases a usar en la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "element",
+                "description": [
+                    {
+                        "es": "Elemento que se usa para completar los datos de la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\Element",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.addShoppingListRowNotesModal({ |form: formShoppingListRowNotes, |showHeader: true,|headerTitle: languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROW_EDIT_BUTTON')] |dialogClasses: 'modal-lg modal-dialog-centered modal-fullscreen-sm-down'|}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/addShoppingListRowNotesModal.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/addShoppingListRowNotesModal.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro addShoppingListRowNotesModal(args) %}
+    {{ addTimerDebugFlag('userMacros_addShoppingListRowNotesModal',true) }}
+    {% set viewParameters = viewHelpers.user.addShoppingListRowNotesModalMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/addShoppingListRowNotesModal.html.twig' as modeUser %}
+    {{ modeUser.addShoppingListRowNotesModal(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_addShoppingListRowNotesModal',false) }}
+{% endmacro addShoppingListRowNotesModal %}
+
+{#- @documentation
+    {
+        "name": "buttonShoppingListRows",
+        "description": [
+            {
+                "es": "Boton de la lista de deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "type",
+                "description": [
+                    {
+                        "es": "Define el comportamiento del boton"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/ButtonShoppingListRows::TYPE_DELETE",
+                        "description": [
+                            {
+                                "es": "Borrar de deseados"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/ButtonShoppingListRows::TYPE_SEND",
+                        "description": [
+                            {
+                                "es": "Enviar a la cesta"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se muestra en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.buttonShoppingListRows({  |type: constant('FWK\\ViewHelpers\\User\\Macro\\ButtonShoppingListRows::TYPE_DELETE'), |class: 'btn btn-primary' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/ButtonShoppingListRows.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/buttonShoppingListRows.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonShoppingListRows(args) %}
+    {{ addTimerDebugFlag('userMacros_buttonShoppingListRows',true) }}
+    {% set viewParameters = viewHelpers.user.buttonShoppingListRowsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/user/buttonShoppingListRows.html.twig' as modeUser %}
+    {{ modeUser.buttonShoppingListRows(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_buttonShoppingListRows',false) }}
+{% endmacro buttonShoppingListRows %}
+
+{#- @documentation
+    {
+        "name": "buttonWishlist",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Boton de la lista de deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "type",
+                "description": [
+                    {
+                        "es": "Define el comportamiento del boton"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/ButtonWishlist::TYPE_DELETE",
+                        "description": [
+                            {
+                                "es": "Borrar de deseados"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/ButtonWishlist::TYPE_SEND",
+                        "description": [
+                            {
+                                "es": "Enviar a la cesta"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se muestra en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.buttonWishlist({  |type: constant('FWK\\ViewHelpers\\User\\Macro\\ButtonWishlist::TYPE_DELETE'), |class: 'btn btn-primary' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/ButtonWishlist.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/buttonWishlist.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttonWishlist(args) %}
+    {{ addTimerDebugFlag('userMacros_buttonWishlist',true) }}
+    {% set viewParameters = viewHelpers.user.buttonWishlistMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/user/buttonWishlist.html.twig' as modeUser %}
+    {{ modeUser.buttonWishlist(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_buttonWishlist',false) }}
+{% endmacro buttonWishlist %}
+
+{#- @documentation
+    {
+        "name": "changePasswordForm",
+        "description": [
+            {
+                "es": "Pinta el formulario para cambiar la contraseña"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.changePasswordForm({ |form: formChangePassword |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/ChangePasswordForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/changePasswordForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro changePasswordForm(args) %}
+    {{ addTimerDebugFlag('userMacros_changePasswordForm',true) }}
+    {% set viewParameters = viewHelpers.user.changePasswordFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/changePasswordForm.html.twig' as modeUser %}
+    {{ modeUser.changePasswordForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_changePasswordForm',false) }}
+{% endmacro changePasswordForm %}
+
+{#- @documentation
+    {
+        "name": "customerOrders",
+        "description": [
+            {
+                "es": "Pinta el pedido del cliente"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "orders",
+                "description": [
+                    {
+                        "es": "Coleccion de pedidos realizados por el cliente de tipo SDK\\Dtos\\User\\UserOrder"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.customerOrders({ |orders: controllerItem, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/CustomerOrder.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/customerOrder.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro customerOrders(args) %}
+    {{ addTimerDebugFlag('userMacros_customerOrders',true) }}
+    {% set viewParameters = viewHelpers.user.customerOrdersMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/customerOrders.html.twig' as modeUser %}
+    {{ modeUser.customerOrders(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_customerOrders',false) }}
+{% endmacro customerOrders %}
+
+{#- @documentation
+    {
+        "name": "deleteAccountForm",
+        "description": [
+            {
+                "es": "Formulario para eliminar la cuenta del usuario"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.deleteAccountForm({  |form: formDeleteAccount |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/DeleteAccountForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/deleteAccountForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro deleteAccountForm(args) %}
+    {{ addTimerDebugFlag('userMacros_deleteAccountForm',true) }}
+    {% set viewParameters = viewHelpers.user.deleteAccountFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/deleteAccountForm.html.twig' as modeUser %}
+    {{ modeUser.deleteAccountForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_deleteAccountForm',false) }}
+{% endmacro deleteAccountForm %}
+
+{#- @documentation
+    {
+        "name": "deleteShoppingListRowsForm",
+        "description": [
+            {
+                "es": "Pinta el formulario para eliminar la lista de deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, furmulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "products",
+                "description": [
+                    {
+                        "es": "Array de productos de la lista de deseados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.deleteShoppingListRowsForm({ |form: formDeleteMultipleShoppingRowsList, |products: controllerItem.items |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/DeleteShoppingListRowsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/deleteShoppingListRowsForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro deleteShoppingListRowsForm(args) %}
+    {{ addTimerDebugFlag('userMacros_deleteShoppingListRowsForm',true) }}
+    {% set viewParameters = viewHelpers.user.deleteShoppingListRowsFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/deleteShoppingListRowsForm.html.twig' as modeUser %}
+    {{ modeUser.deleteShoppingListRowsForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_deleteShoppingListRowsForm',false) }}
+{% endmacro deleteShoppingListRowsForm %}
+
+{#- @documentation
+    {
+        "name": "deleteWishlistForm",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta el formulario para eliminar la lista de deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, furmulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "products",
+                "description": [
+                    {
+                        "es": "Array de productos de la lista de deseados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.deleteWishlistForm({ |form: formDeleteMultipleWishlist, |products: controllerItem.items |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/DeleteWishlistForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/deleteWishlistForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro deleteWishlistForm(args) %}
+    {{ addTimerDebugFlag('userMacros_deleteWishlistForm',true) }}
+    {% set viewParameters = viewHelpers.user.deleteWishlistFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/deleteWishlistForm.html.twig' as modeUser %}
+    {{ modeUser.deleteWishlistForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_deleteWishlistForm',false) }}
+{% endmacro deleteWishlistForm %}
+
+{#- @documentation
+    {
+        "name": "deleteShoppingListRowsModal",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta la modal que es necesaria para el correcto funcionamiento de editShoppingListRowNotes"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, furmulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Indica si se ha de mostrar el header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "headerTitle",
+                "description": [
+                    {
+                        "es": "Define el texto a mostrar en el título header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "dialogClasses",
+                "description": [
+                    {
+                        "es": "Define las clases a usar en la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "element",
+                "description": [
+                    {
+                        "es": "Elemento que se usa para completar los datos de la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\Element",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.deleteShoppingListRowsModal({ |form: formShoppingListRowNotes, |showHeader: true,|headerTitle: languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROW_EDIT_BUTTON')] |dialogClasses: 'modal-lg modal-dialog-centered modal-fullscreen-sm-down'|}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/deleteShoppingListRowsModal.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/deleteShoppingListRowsModal.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro deleteShoppingListRowsModal(args) %}
+    {{ addTimerDebugFlag('userMacros_deleteShoppingListRowsModal',true) }}
+    {% set viewParameters = viewHelpers.user.deleteShoppingListRowsModalMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/deleteShoppingListRowsModal.html.twig' as modeUser %}
+    {{ modeUser.deleteShoppingListRowsModal(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_deleteShoppingListRowsModal',false) }}
+{% endmacro deleteShoppingListRowsModal %}
+
+{#- @documentation
+    {
+        "name": "editShoppingListRowNotesModal",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta la modal que es necesaria para el correcto funcionamiento de editShoppingListRowNotes"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, furmulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Indica si se ha de mostrar el header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "headerTitle",
+                "description": [
+                    {
+                        "es": "Define el texto a mostrar en el título header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "dialogClasses",
+                "description": [
+                    {
+                        "es": "Define las clases a usar en la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "element",
+                "description": [
+                    {
+                        "es": "Elemento que se usa para completar los datos de la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\Element",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.editShoppingListRowNotesModal({ |form: formShoppingListRowNotes, |showHeader: true,|headerTitle: languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROW_EDIT_BUTTON')] |dialogClasses: 'modal-lg modal-dialog-centered modal-fullscreen-sm-down'|}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/editShoppingListRowNotesModal.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/editShoppingListRowNotesModal.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro editShoppingListRowNotesModal(args) %}
+    {{ addTimerDebugFlag('userMacros_editShoppingListRowNotesModal',true) }}
+    {% set viewParameters = viewHelpers.user.editShoppingListRowNotesModalMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/editShoppingListRowNotesModal.html.twig' as modeUser %}
+    {{ modeUser.editShoppingListRowNotesModal(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_editShoppingListRowNotesModal',false) }}
+{% endmacro editShoppingListRowNotesModal %}
+
+{#- @documentation
+    {
+        "name": "filterShoppingListRowsForm",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta el formulario para filtrar la lista de deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "applicableFilters",
+                "description": [
+                    {
+                        "es": "Configuracion de los filtros aplicables"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Theme\\Dtos\\ApplicableFilters",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "appliedFilters",
+                "description": [
+                    {
+                        "es": "Filtros aplicados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "defaultParametersValues",
+                "description": [
+                    {
+                        "es": "Array con con los parametros por defecto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "autosubmit",
+                "description": [
+                    {
+                        "es": "Los filtros seleccionados se aplican automaticamente"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.filterShoppingListRowsForm({ |applicableFilters: themeConfiguration.shoppingList.rowsList.applicableFilters, |appliedFilters: shoppingListRowsFilter, |defaultParametersValues: themeConfiguration.shoppingList.rowsList.defaultParametersValues, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/filterShoppingListRowsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/filterShoppingListRowsForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro filterShoppingListRowsForm(args) %}
+    {{ addTimerDebugFlag('userMacros_filterShoppingListRowsForm',true) }}
+    {% set viewParameters = viewHelpers.user.filterShoppingListRowsFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/filterShoppingListRowsForm.html.twig' as modeUser %}
+    {{ modeUser.filterShoppingListRowsForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_filterShoppingListRowsForm',false) }}
+{% endmacro filterShoppingListRowsForm %}
+
+{#- @documentation
+    {
+        "name": "locationsPath",
+        "description": [
+            {
+                "es": "Pinta la direccion de la localizacion del nombre del campo introducido"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "fieldName",
+                "description": [
+                    {
+                        "es": "Nombre del campo del que queremos la direccion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "countryCode",
+                "description": [
+                    {
+                        "es": "Codigo del pais del campo buscado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "country",
+                "description": [
+                    {
+                        "es": "Pais del campo buscado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "state",
+                "description": [
+                    {
+                        "es": "Estado del campo buscado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "city",
+                "description": [
+                    {
+                        "es": "Ciudad del campo buscado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "postalCode",
+                "description": [
+                    {
+                        "es": "Codigo postal del campo buscado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "selectedIds",
+                "description": [
+                    {
+                        "es": "Coleccion de ids seleccionadas"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.locationsPath({ | 'fieldName': controllerItem. |fieldName, |'selectedIds': controllerItem.selectedIds, |'countryCode': controllerItem.countryCode, |'country': controllerItem.country, |'state': controllerItem.state, |'city': controllerItem.city, |'postalCode': controllerItem.postalCode |}) }}|",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/LocationsPath.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/locationsPath.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro locationsPath(args) %}
+    {{ addTimerDebugFlag('userMacros_locationsPath',true) }}
+    {% set viewParameters = viewHelpers.user.locationsPathMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/locationsPath.html.twig' as modeUser %}
+    {{ modeUser.locationsPath(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_locationsPath',false) }}
+{% endmacro locationsPath %}
+
+{#- @documentation
+    {
+        "name": "loginForm",
+        "description": [
+            {
+                "es": "Pinta un formulario de inicio de sesion"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario a pintar para iniciar sesion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra o no la etiqueta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showPlaceholder",
+                "description": [
+                    {
+                        "es": "Muestra el marcador de posicion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "redirect",
+                "description": [
+                    {
+                        "es": "Direccion a la que te redirige la entrada"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "lostPasswordRedirect",
+                "description": [
+                    {
+                        "es": "Direccion a la que redirige para recuperar la contraseña"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "registerRedirect",
+                "description": [
+                    {
+                        "es": "Direcciona la que te redirige al registrarte"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showLostPasswordLink",
+                "description": [
+                    {
+                        "es": "Muestra el link para recuterar la contraseñla"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showCreateAccountLink",
+                "description": [
+                    {
+                        "es": "Muestra el link para crear una cuenta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "userWarnings",
+                "description": [
+                    {
+                        "es": "Indica la lista de advertencias que tiene el ususario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.loginForm({  |form: formLogin,  |registerRedirect: constant('FWK\\Enums\\RouteType::USER')  |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/LoginForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/loginForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro loginForm(args) %}
+    {{ addTimerDebugFlag('userMacros_loginForm',true) }}
+    {% set viewParameters = viewHelpers.user.loginFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/loginForm.html.twig' as modeUser %}
+    {{ modeUser.loginForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_loginForm',false) }}
+{% endmacro loginForm %}
+
+{#- @documentation
+    {
+        "name": "lostPasswordForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de contraseña perdida"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.lostPasswordForm({ |form: formLostPassword |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/LostPasswordForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/lostPasswordForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro lostPasswordForm(args) %}
+    {{ addTimerDebugFlag('userMacros_lostPasswordForm',true) }}
+    {% set viewParameters = viewHelpers.user.lostPasswordFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/lostPasswordForm.html.twig' as modeUser %}
+    {{ modeUser.lostPasswordForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_lostPasswordForm',false) }}
+{% endmacro lostPasswordForm %}
+
+{#- @documentation
+    {
+        "name": "oauthCallback",
+        "description": [
+            {
+                "es": "Devuelve el contenido a mostrar en la llamada de respuesta de oauth"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "checkoutLoginRedirect",
+                "description": [
+                    {
+                        "es": "Ruta a donde hacer la redirección en el caso de hacer login desde el checkout. El valor por defecto es '', en tal caso, recargará la página donde esté, de proporcionarle algún valor, redirigirá a dicha ruta"                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "commonLoginRedirect",
+                "description": [
+                    {
+                        "es": "Ruta a donde hacer la redirección en el caso de hacer login desde cualquier parte, excepto en el checkout. El valor por defecto es '', en tal caso, recargará la página donde esté, de proporcionarle algún valor, redirigirá a dicha ruta"                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.oauthCallback({ |commonLoginRedirect: outePaths.getPath(constant('FWK\\Enums\\RouteType::USER')) |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/oauthCallback.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/oauthCallback.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro oauthCallback(args) %}
+    {{ addTimerDebugFlag('userMacros_oauthCallback',true) }}
+    {% set viewParameters = viewHelpers.user.oauthCallbackMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/oauthCallback.html.twig' as modeUser %}
+    {{ modeUser.oauthCallback(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_oauthCallback',false) }}
+{% endmacro oauthCallback %}
+
+{#- @documentation
+    {
+        "name": "orderRmas",
+        "description": [
+            {
+                "es": "Pinta el rastreo de devolucion de pedidos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "rmas",
+                "description": [
+                    {
+                        "es": "Productos en proceso de rma"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "true"
+            },
+            {
+                "param": "userId",
+                "description": [
+                    {
+                        "es": "Id del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            },
+            {
+                "param": "orderId",
+                "description": [
+                    {
+                        "es": "Id del pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "showRmasActions",
+                "description": [
+                    {
+                        "es": "Array de acciones del pedido que se mostraran al usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/OrderRmas::ACTION_RMA",
+                        "description": [
+                            {
+                                "es": "Mostrar el rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/OrderRmas::ACTION_RMA_PDF",
+                        "description": [
+                            {
+                                "es": "Mostrar el pdf de rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ],  
+            },
+            {
+                "param": "showRmasIcons",
+                "description": [
+                    {
+                        "es": "Array de iconos de las acciones del pedido que se mostraran al usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/OrderRmas::ACTION_RMA",
+                        "description": [
+                            {
+                                "es": "Mustra el icono de rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/OrderRmas::ACTION_RMA_PDF",
+                        "description": [
+                            {
+                                "es": "Muestra el icon del pdf de rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "documentView",
+                "description": [
+                    {
+                        "es": "Modo de visualizacion del documento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/User/Macro/OrderRmas::POPUP",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/OrderRmas::POPUP",
+                        "description": [
+                            {
+                                "es": "Mostrar el documento en una ventana emergente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/OrderRmas::WINDOW",
+                        "description": [
+                            {
+                                "es": "Mostrar el documento en la propia ventana"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.orderRmas({  |rmas: controllerItem.rmas.items, |userId: session.user.id, |showRmasActions:[ |constant('FWK\\ViewHelpers\\User\\Macro\\OrderRmas::ACTION_RMA'), |constant('FWK\\ViewHelpers\\User\\Macro\\OrderRmas::ACTION_RMA_PDF'), |], |showRmasIcons:[ |constant('FWK\\ViewHelpers\\User\\Macro\\OrderRmas::ACTION_RMA'), |constant('FWK\\ViewHelpers\\User\\Macro\\OrderRmas::ACTION_RMA_PDF'), |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/OrderRmas.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/orderRmas.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro orderRmas(args) %}
+    {{ addTimerDebugFlag('userMacros_orderRmas',true) }}
+    {% set viewParameters = viewHelpers.user.orderRmasMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/orderRmas.html.twig' as modeUser %}
+    {{ modeUser.orderRmas(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_orderRmas',false) }}
+{% endmacro orderRmas %}
+
+{#- @documentation
+    {
+        "name": "orders",
+        "description": [
+            {
+                "es": "Muestra los pedidos para un usuario determinado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "orders",
+                "description": [
+                    {
+                        "es": "Coleccion de pedidos del usuario de tipo SDK\\Dtos\\User\\UserOrder"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "userId",
+                "description": [
+                    {
+                        "es": "Id del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            },
+            {
+                "param": "showOrderStates",
+                "description": [
+                    {
+                        "es": "Mostrar estados del pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "SDK/Enums/OrderStatus::INCOMING",
+                        "description": [
+                            {
+                                "es": "El pedido esta en camino"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::COMPLETED",
+                        "description": [
+                            {
+                                "es": "El pedido ha sido completado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::DENIED",
+                        "description": [
+                            {
+                                "es": "El pedido ha sido denegado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::INCIDENTS",
+                        "description": [
+                            {
+                                "es": "Incidentes con el pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::IN_PROCESS",
+                        "description": [
+                            {
+                                "es": "El pedido esta en proceso"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::DELETED",
+                        "description": [
+                            {
+                                "es": "El pedido esta siendo eliminado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/OrderStatus::CONFIRM_DELETED",
+                        "description": [
+                            {
+                                "es": "Eliminacion del pedido confirmada"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showOrderActions",
+                "description": [
+                    {
+                        "es": "Array de acciones del pedido que se mostraran al usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_VIEW",
+                        "description": [
+                            {
+                                "es": "Ver el pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_VIEW_PDF",
+                        "description": [
+                            {
+                                "es": "Ver el pdf del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_RECOVER",
+                        "description": [
+                            {
+                                "es": "Recuperacion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_DELIVERY_NOTE",
+                        "description": [
+                            {
+                                "es": "Ver notas de entrega"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_DELIVERY_NOTE_PDF",
+                        "description": [
+                            {
+                                "es": "Pdf de las notas de entrega"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_INVOICE",
+                        "description": [
+                            {
+                                "es": "Ver factura del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_INVOICE_PDF",
+                        "description": [
+                            {
+                                "es": "Ver pdf de la factura del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_RETURN",
+                        "description": [
+                            {
+                                "es": "Devolver pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_RETURN_TRACING",
+                        "description": [
+                            {
+                                "es": "Seguimiento de la devolucion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ] 
+            },
+            {
+                "param": "showOrderIcons",
+                "description": [
+                    {
+                        "es": "Array de iconos de las acciones del pedido que se mostraran al usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_VIEW",
+                        "description": [
+                            {
+                                "es": "Icono de ver el pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_VIEW_PDF",
+                        "description": [
+                            {
+                                "es": "Icono de ver el pdf del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_RECOVER",
+                        "description": [
+                            {
+                                "es": "Icono de recuperacion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_DELIVERY_NOTE",
+                        "description": [
+                            {
+                                "es": "Icono de ver notas de entrega"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_DELIVERY_NOTE_PDF",
+                        "description": [
+                            {
+                                "es": "Icono de ver pdf de las notas de entrega"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_INVOICE",
+                        "description": [
+                            {
+                                "es": "Icono de ver factura del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_INVOICE_PDF",
+                        "description": [
+                            {
+                                "es": "Icono de ver pdf de la factura del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_RETURN",
+                        "description": [
+                            {
+                                "es": "Icono de devolver pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::ACTION_RETURN_TRACING",
+                        "description": [
+                            {
+                                "es": "Icono de seguimiento de la devolucion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "documentView",
+                "description": [
+                    {
+                        "es": "Modo de visualizacion del documento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/User/Macro/Orders::POPUP",
+                "required": "true",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::POPUP",
+                        "description": [
+                            {
+                                "es": "Mostrar los documentos en una ventana emergente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::WINDOW",
+                        "description": [
+                            {
+                                "es": "Mostrar los documentos en la propia ventana"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "returnProductView",
+                "description": [
+                    {
+                        "es": "Modo de visualizacion de la devolucion del pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/User/Macro/Orders::POPUP",
+                "required": "true",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::POPUP",
+                        "description": [
+                            {
+                                "es": "Mostrar la informacion del producto en una ventana emergente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::WINDOW",
+                        "description": [
+                            {
+                                "es": "Mostrar la informacion del pedido en la propia ventana"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "returnTracingView",
+                "description": [
+                    {
+                        "es": "Modo de visualizacion del seguimiento de la devolucion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/User/Macro/Orders::POPUP",
+                "required": "true",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::POPUP",
+                        "description": [
+                            {
+                                "es": "Mostrar el seguimiento de devolucion del pedido en una ventana emergente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::WINDOW",
+                        "description": [
+                            {
+                                "es": "Mostrar el seguimiento de devolucion del pedido en la apropia ventana"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showStatus",
+                "description": [
+                    {
+                        "es": "Criterio por el qual muestra el estado y/o subestado de pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "true",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::SHOW_STATUS_ALL",
+                        "description": [
+                            {
+                                "es": "Muestra el estado y subestado de pedido. (El subestado si existe)"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::SHOW_STATUS_ONLY",
+                        "description": [
+                            {
+                                "es": "Muestra solo el estado principal del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Orders::SHOW_STATUS_PRIORITY_SUBSTATUS",
+                        "description": [
+                            {
+                                "es": "Muestra el estado del pedido pero si tiene subestado, este se muestra en su lugar."
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.orders({ |orders: controllerItem, |userId: session.user.id, |showOrderStates:[ |constant('SDK\\Enums\\OrderStatus::DENIED'), |constant('SDK\\Enums\\OrderStatus::INCIDENTS'), |constant('SDK\\Enums\\OrderStatus::INCOMING'), |constant('SDK\\Enums\\OrderStatus::IN_PROCESS'), |constant('SDK\\Enums\\OrderStatus::COMPLETED'), |constant('SDK\\Enums\\OrderStatus::DELETED'), |constant('SDK\\Enums\\OrderStatus::CONFIRM_DELETED') |], |showOrderActions:[ |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RECOVER'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_DELIVERY_NOTE'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_DELIVERY_NOTE_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_INVOICE'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_INVOICE_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RETURN'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RETURN_TRACING') |], |showOrderIcons:[ |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RECOVER'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_DELIVERY_NOTE'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_DELIVERY_NOTE_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_INVOICE'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_INVOICE_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RETURN') , |constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RETURN_TRACING')  |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/Orders.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/orders.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro orders(args) %}
+    {{ addTimerDebugFlag('userMacros_orders',true) }}
+    {% set viewParameters = viewHelpers.user.ordersMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/orders.html.twig' as modeUser %}
+    {{ modeUser.orders(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_orders',false) }}
+{% endmacro orders %}
+
+{#- @documentation
+    {
+        "name": "orderShipments",
+        "description": [
+            {
+                "es": "Muestra las expediciones de un pedido para un usuario determinado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "order",
+                "description": [
+                    {
+                        "es": "Pedido del usuario de tipo SDK\\Dtos\\User\\UserOrder"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\UserOrder",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.orderShipments({ |order: controllerItem |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/OrderShipments.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/orderShipments.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro orderShipments(args) %}
+    {{ addTimerDebugFlag('userMacros_orderShipments',true) }}
+    {% set viewParameters = viewHelpers.user.orderShipmentsMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/orderShipments.html.twig' as modeUser %}
+    {{ modeUser.orderShipments(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_orderShipments',false) }}
+{% endmacro orderShipments %}
+
+{#- @documentation
+    {
+        "name": "orderTrackings",
+        "description": [
+            {
+                "es": "Muestra los trackings de las expediciones de un pedido para un usuario determinado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "shipments",
+                "description": [
+                    {
+                        "es": "Array de shipments"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "itemClass",
+                "description": [
+                    {
+                        "es": "Atributo class para cada tracker"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "userOrderActionWrap",
+                "required": "false"
+            },
+            {
+                "param": "showContainer",
+                "description": [
+                    {
+                        "es": "Añade a todos los items un container o no"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.orderTrackings({ |order: controllerItem |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/OrderTrackings.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/orderTrackings.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro orderTrackings(args) %}
+    {{ addTimerDebugFlag('userMacros_orderTrackings',true) }}
+    {% set viewParameters = viewHelpers.user.orderTrackingsMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/orderTrackings.html.twig' as modeUser %}
+    {{ modeUser.orderTrackings(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_orderTrackings',false) }}
+{% endmacro orderTrackings %}
+
+{#- @documentation
+    {
+        "name": "panel",
+        "description": [
+            {
+                "es": "Panel del menu del usuario"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "itemList",
+                "description": [
+                    {
+                        "es": "Selecciona los items a mostrar y el orden"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "FWK/ViewHelpers/User/Macro/Panel::ITEMS_LIST",
+                "required": "false"
+            },
+            {
+                "param": "icons",
+                "description": [
+                    {
+                        "es": "Permite definir un icono para cada item"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.panel({ |itemsList: [ |['user', 'addressBook', 'changePassword'],  |['shoppingList', 'stockAlerts', 'orders', 'paymentCards'],  |['logout', 'deleteAccount'] |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/Panel.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/panel.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro panel(args) %}
+    {{ addTimerDebugFlag('userMacros_panel',true) }}
+    {% set viewParameters = viewHelpers.user.panelMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/panel.html.twig' as modeUser %}
+    {{ modeUser.panel(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_panel',false) }}
+{% endmacro panel %}
+
+{#- @documentation
+    {
+        "name": "paymentCards",
+        "description": [
+            {
+                "es": "Pinta la lista de tarjetas de pago"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "paymentCards",
+                "description": [
+                    {
+                        "es": "Array con los plugins"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "true",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/PaymentCards::USER_PLUGIN_PAYMENT_TOKENS",
+                        "description": [
+                            {
+                                "es": "Usar el plugin de token de pago"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/PaymentCards::PLUGINS_PROPERTIES",
+                        "description": [
+                            {
+                                "es": "Usar plugins de propiedad"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.paymentCards({ |paymentCards: controllerItem |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/PaymentCards.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/paymentCards.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro paymentCards(args) %}
+    {{ addTimerDebugFlag('userMacros_paymentCards',true) }}
+    {% set viewParameters = viewHelpers.user.paymentCards(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/paymentCards.html.twig' as modeUser %}
+    {{ modeUser.paymentCards(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_paymentCards',false) }}
+{% endmacro paymentCards %}
+
+{#- @documentation
+    {
+        "name": "returnRequestForm",
+        "description": [
+            {
+                "es": "Pinta el formulario para la filas de documentos de la orden de devolucion"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "returnProducts",
+                "description": [
+                    {
+                        "es": "Coleccion de productos devueltos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "returnRequestForm",
+                "description": [
+                    {
+                        "es": "Objeto returnRequestForm, formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "returnPointsContent",
+                "description": [
+                    {
+                        "es": "Contenido para mostrar los puntos de recogida. Se puede usar la macro de core util.physicalLocations para generar este contenido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros%} |{{- userMacros.returnRequestForm({  |returnProducts: controllerItem.returnProducts,  |returnRequestForm: controllerItem.returnRequestForm, |showImage: true, |showOptions: true |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/ReturnRequestForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/returnRequestForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro returnRequestForm(args) %}
+    {{ addTimerDebugFlag('userMacros_returnRequestForm',true) }}
+    {% set viewParameters = viewHelpers.user.returnRequestFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/returnRequestForm.html.twig' as modeUser %}
+    {{ modeUser.returnRequestForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_returnRequestForm',false) }}
+{% endmacro returnRequestForm %}
+
+{#- @documentation
+    {
+        "name": "rmas",
+        "description": [
+            {
+                "es": "Emite el rmas para un usuario determinado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "rmas",
+                "description": [
+                    {
+                        "es": "Coleccion de rmas con las devoluciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "userId",
+                "description": [
+                    {
+                        "es": "Id del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            },
+            {
+                "param": "showRmasStates",
+                "description": [
+                    {
+                        "es": "Mostrar estados del pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "SDK/Enums/RMAStatus::PENDING",
+                        "description": [
+                            {
+                                "es": "Pendiente de rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/RMAStatus::AUTHORIZED",
+                        "description": [
+                            {
+                                "es": "Rma autorizado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/RMAStatus::NO_AUTHORIZED",
+                        "description": [
+                            {
+                                "es": "Rma no autorizado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/RMAStatus::INCIDENTS",
+                        "description": [
+                            {
+                                "es": "Incidendes con la rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/RMAStatus::IN_PROCESS",
+                        "description": [
+                            {
+                                "es": "Rma en proceso"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/RMAStatus::DELETED",
+                        "description": [
+                            {
+                                "es": "Rma eliminado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/RMAStatus::ACCEPTED",
+                        "description": [
+                            {
+                                "es": "Rma aceptada"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/RMAStatus::DENIED",
+                        "description": [
+                            {
+                                "es": "Rma denegada"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "SDK/Enums/RMAStatus::COMPLETED",
+                        "description": [
+                            {
+                                "es": "Rma completada"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showRmasActions",
+                "description": [
+                    {
+                        "es": "Array de acciones que se mostraran al usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA",
+                        "description": [
+                            {
+                                "es": "Ver el rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_PDF",
+                        "description": [
+                            {
+                                "es": "Ver pdf del rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_RETURNS",
+                        "description": [
+                            {
+                                "es": "Ver rmas devueltas"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_RETURNS_PDF",
+                        "description": [
+                            {
+                                "es": "Ver pdf de las rmas devueltas"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_CORRECTIVE_INVOICE",
+                        "description": [
+                            {
+                                "es": "Ver factura correctiva del rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_CORRECTIVE_INVOICE_PDF",
+                        "description": [
+                            {
+                                "es": "Ver pdf de la factura correctiva"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showRmasIcons",
+                "description": [
+                    {
+                        "es": "Array de iconos de las acciones que se mostraran al usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA",
+                        "description": [
+                            {
+                                "es": "Icono del rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_PDF",
+                        "description": [
+                            {
+                                "es": "Icono del pdf del rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_RETURNS",
+                        "description": [
+                            {
+                                "es": "Icono de rmas devueltas"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_RETURNS_PDF",
+                        "description": [
+                            {
+                                "es": "Icono del pdf de las rmas devueltas"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_CORRECTIVE_INVOICE",
+                        "description": [
+                            {
+                                "es": "Icono de la factura correctiva del rma"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::ACTION_RMA_CORRECTIVE_INVOICE_PDF",
+                        "description": [
+                            {
+                                "es": "Icono del pdf de la factura correctiva"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "documentView",
+                "description": [
+                    {
+                        "es": "Modo de visualizacion del documento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/User/Macro/Rmas::POPUP",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::POPUP",
+                        "description": [
+                            {
+                                "es": "Mostrar los documentos en una ventana emergente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/Rmas::WINDOW",
+                        "description": [
+                            {
+                                "es": "Mostrar los documentos en la propia ventana"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.rmas({ |rmas: controllerItem, |userId: session.user.id, |showRmasStates:[ |constant('SDK\\Enums\\RMAStatus::INCIDENTS'), |constant('SDK\\Enums\\RMAStatus::PENDING'), |constant('SDK\\Enums\\RMAStatus::AUTHORIZED'), |constant('SDK\\Enums\\RMAStatus::NO_AUTHORIZED'), |constant('SDK\\Enums\\RMAStatus::IN_PROCESS'), |constant('SDK\\Enums\\RMAStatus::ACCEPTED'), |constant('SDK\\Enums\\RMAStatus::DENIED'), |constant('SDK\\Enums\\RMAStatus::COMPLETED'), |constant('SDK\\Enums\\RMAStatus::DELETED') |], |showRmasActions:[ |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE_PDF'), |], |showRmasIcons:[ |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS_PDF'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE'), |constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE_PDF'), |], |documentView: constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::WINDOW'), |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/Rmas.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/rmas.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro rmas(args) %}
+    {{ addTimerDebugFlag('userMacros_rmas',true) }}
+    {% set viewParameters = viewHelpers.user.rmasMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/rmas.html.twig' as modeUser %}
+    {{ modeUser.rmas(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_rmas',false) }}
+{% endmacro rmas %}
+
+{#- @documentation
+    {
+        "name": "redeemRewardPoints",
+        "description": [
+            {
+                "es": "Pinta balance de reward points del usuario"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "rewardPoints",
+                "description": [
+                    {
+                        "es": "ElementCollection con los rewardPoints del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+                
+            },
+            {
+                "param": "showPending",
+                "description": [
+                    {
+                        "es": "Muestra o no los reward points pendientes de confirmar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDistribution",
+                "description": [
+                    {
+                        "es": "Muestra o no el detalle de los reward points disponibles"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.redeemRewardPoints({ |rewardPoints: controllerItem |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/RedeemRewardPoints.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/redeemRewardPoints.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro redeemRewardPoints(args) %}
+    {{ addTimerDebugFlag('userMacros_redeemRewardPoints',true) }}
+    {% set viewParameters = viewHelpers.user.redeemRewardPointsMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/redeemRewardPoints.html.twig' as modeUser %}
+    {{ modeUser.redeemRewardPoints(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_redeemRewardPoints',false) }}
+{% endmacro redeemRewardPoints %}
+
+{#- @documentation
+    {
+        "name": "redeemVouchers",
+        "description": [
+            {
+                "es": "Pinta los vouchers del usuario"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "vouchers",
+                "description": [
+                    {
+                        "es": "ElementCollection con los vouchers del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+                
+            },
+            {
+                "param": "showCode",
+                "description": [
+                    {
+                        "es": "Muestra el codigo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+                
+            },
+            {
+                "param": "showAvailableBalance",
+                "description": [
+                    {
+                        "es": "Muestra el saldo disponible"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+                
+            },
+            {
+                "param": "showExpirationDate",
+                "description": [
+                    {
+                        "es": "Muestra la fecha de caducidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+                
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.redeemVouchers({ |vouchers: controllerItem |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/RedeemVouchers.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/redeemVouchers.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro redeemVouchers(args) %}
+    {{ addTimerDebugFlag('userMacros_redeemVouchers',true) }}
+    {% set viewParameters = viewHelpers.user.redeemVouchersMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/redeemVouchers.html.twig' as modeUser %}
+    {{ modeUser.redeemVouchers(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_redeemVouchers',false) }}
+{% endmacro redeemVouchers %}
+
+{#- @documentation
+    {
+        "name": "salesAgentCustomers",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta a los clientes del agente de venta"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "salesAgentCustomers",
+                "description": [
+                    {
+                        "es": "Coleccion de clientes del agente de venta de tipo SDK\\Dtos\\User\\SalesAgentCustomer"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "parameters",
+                "description": [
+                    {
+                        "es": "Parametros a mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::PID",
+                        "description": [
+                            {
+                                "es": "Mostrar el PID"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::EMAIL",
+                        "description": [
+                            {
+                                "es": "Muestra el email"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::NAME",
+                        "description": [
+                            {
+                                "es": "Muestra el nombre y apellidos o nombre de la empresa"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::NAME",
+                        "description": [
+                            {
+                                "es": "Muestra el nombre y apellidos o nombre de la empresa"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::COMPANY",
+                        "description": [
+                            {
+                                "es": "Muestra la compañia"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::NIF",
+                        "description": [
+                            {
+                                "es": "Muestra el NIF"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::ADDRESS",
+                        "description": [
+                            {
+                                "es": "Muestra la direccion"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::CITY",
+                        "description": [
+                            {
+                                "es": "Muestra la ciudad"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::STATE",
+                        "description": [
+                            {
+                                "es": "Muestra el estado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::COUNTRY",
+                        "description": [
+                            {
+                                "es": "Muestra el pais"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::PHONE",
+                        "description": [
+                            {
+                                "es": "Muestra el telefono"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::TOTAL_AMOUNT",
+                        "description": [
+                            {
+                                "es": "Muestra la cantidad total"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::COMMISSION_AMOUNT",
+                        "description": [
+                            {
+                                "es": "Muestra la cantidad de la comision"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::PENDING_AMOUNT",
+                        "description": [
+                            {
+                                "es": "Muestra la cantidad pendiente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers::ACTIONS",
+                        "description": [
+                            {
+                                "es": "Muestra las acciones"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "request",
+                "description": [
+                    {
+                        "es": "Array con las solicitudes"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "availableActions",
+                "description": [
+                    {
+                        "es": "Array con las las acciones disponibles, y el orden en el que se quieren mostar dentro de la zona de acciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[FWK/ViewHelpers/User/Macro/SalesAgentCustomers::ACTION_SALES_AGENT_SALES, FWK/ViewHelpers/User/Macro/SalesAgentCustomers::ACTION_LOGIN_SIMULATION]",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.salesAgentCustomers({ |salesAgentCustomers: controllerItem.salesAgentCustomers,  |parameters: [ |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentCustomers::PID'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentCustomers::COMPANY'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentCustomers::NIF'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentCustomers::CITY'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentCustomers::TOTAL_AMOUNT'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentCustomers::COMMISSION_AMOUNT'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentCustomers::PENDING_AMOUNT'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentCustomers::ACTIONS'), |], |request: controllerItem.salesAgentCustomersFormRequest |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/SalesAgentCustomers.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/salesAgentCustomers.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro salesAgentCustomers(args) %}
+    {{ addTimerDebugFlag('userMacros_salesAgentCustomers',true) }}
+    {% set viewParameters = viewHelpers.user.salesAgentCustomersMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/salesAgentCustomers.html.twig' as modeUser %}
+    {{ modeUser.salesAgentCustomers(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_salesAgentCustomers',false) }}
+{% endmacro salesAgentCustomers %}
+
+{#- @documentation
+    {
+        "name": "salesAgentCustomersForm",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Formulario para pintar clientes del agente de ventas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario que se quiere aplicar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore macrosCore.user as userMacros %} |{{- userMacros.salesAgentCustomersForm({ |form: controllerItem.salesAgentCustomersForm |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/SalesAgentCustomersForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/salesAgentCustomersForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro salesAgentCustomersForm(args) %}
+    {{ addTimerDebugFlag('userMacros_salesAgentCustomersForm',true) }}
+    {% set viewParameters = viewHelpers.user.salesAgentCustomersFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/salesAgentCustomersForm.html.twig' as modeUser %}
+    {{ modeUser.salesAgentCustomersForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_salesAgentCustomersForm',false) }}
+{% endmacro salesAgentCustomersForm %}
+
+{#- @documentation
+    {
+        "name": "salesAgentSales",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta las ventas del agente de ventas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "salesAgentSales",
+                "description": [
+                    {
+                        "es": "Coleccion de ventas del agente de ventas de tipo SDK\\Dtos\\User\\SalesAgentSales"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "parameters",
+                "description": [
+                    {
+                        "es": "Parametros a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentSales::PID",
+                        "description": [
+                            {
+                                "es": "Muestra el PID"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentSales::CLIENT",
+                        "description": [
+                            {
+                                "es": "Muestra el cliente"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentSales::DATE",
+                        "description": [
+                            {
+                                "es": "Muestra la fecha"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentSales::STATUS",
+                        "description": [
+                            {
+                                "es": "Muestra el estado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentSales::TOTAL",
+                        "description": [
+                            {
+                                "es": "Muestra el total de la venta"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentSales::COMMISSION",
+                        "description": [
+                            {
+                                "es": "Muestra la comission de la venta"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentSales::PAID",
+                        "description": [
+                            {
+                                "es": "Muestra si esta pagado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/SalesAgentSales::VIEW_ORDER",
+                        "description": [
+                            {
+                                "es": "Muestra el pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMAcros %} |{{ userMacros.salesAgentSales({ |salesAgentSales: controllerItem.salesAgentSales, |parameters: [ |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::PID'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::CLIENT'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::DATE'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::STATUS'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::TOTAL'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::COMMISSION'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::PAID'), |constant('FWK\\ViewHelpers\\User\\Macro\\SalesAgentSales::VIEW_ORDER'), |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/SalesAgentSales.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/salesAgentSales.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro salesAgentSales(args) %}
+    {{ addTimerDebugFlag('userMacros_salesAgentSales',true) }}
+    {% set viewParameters = viewHelpers.user.salesAgentSalesMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/salesAgentSales.html.twig' as modeUser %}
+    {{ modeUser.salesAgentSales(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_salesAgentSales',false) }}
+{% endmacro salesAgentSales %}
+
+{#- @documentation
+    {
+        "name": "salesAgentSalesForm",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta el formulario del agente de ventas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario a usar puede venir de FWK\\Core\\Form\\FormFactory::getSalesAgentSales()"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCores.user as userMAcros%} |{{ userMacros.salesAgentSalesForm({ |form: controllerItem.salesAgentSalesForm |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/SalesAgentSalesForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/salesAgentSalesForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro salesAgentSalesForm(args) %}
+    {{ addTimerDebugFlag('userMacros_salesAgentSalesForm',true) }}
+    {% set viewParameters = viewHelpers.user.salesAgentSalesFormMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/salesAgentSalesForm.html.twig' as modeUser %}
+    {{ modeUser.salesAgentSalesForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_salesAgentSalesForm',false) }}
+{% endmacro salesAgentSalesForm %}
+
+{#- @documentation
+    {
+        "name": "sendShoppingListRowsForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de envio de la lista de deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "products",
+                "description": [
+                    {
+                        "es": "Array con los productos a enviar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.sendShoppingListRowsForm({ |form: formSendShoppingListRows, |products: controllerItem.items |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/sendShoppingListRowsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/sendShoppingListRowsForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro SendShoppingListRowsForm(args) %}
+    {{ addTimerDebugFlag('userMacros_SendShoppingListRowsForm',true) }}
+    {% set viewParameters = viewHelpers.user.sendShoppingListRowsFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/sendShoppingListRowsForm.html.twig' as modeUser %}
+    {{ modeUser.sendShoppingListRowsForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_SendShoppingListRowsForm',false) }}
+{% endmacro SendShoppingListRowsForm %}
+
+{#- @documentation
+    {
+        "name": "sendShoppingListRowsModal",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta la modal que es necesaria para el correcto funcionamiento de editShoppingListRowNotes"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, furmulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Indica si se ha de mostrar el header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "headerTitle",
+                "description": [
+                    {
+                        "es": "Define el texto a mostrar en el título header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "dialogClasses",
+                "description": [
+                    {
+                        "es": "Define las clases a usar en la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "element",
+                "description": [
+                    {
+                        "es": "Elemento que se usa para completar los datos de la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\Element",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.sendShoppingListRowsModal({ |form: formShoppingListRowNotes, |showHeader: true,|headerTitle: languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROW_EDIT_BUTTON')] |dialogClasses: 'modal-lg modal-dialog-centered modal-fullscreen-sm-down'|}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/sendShoppingListRowsModal.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/sendShoppingListRowsModal.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro sendShoppingListRowsModal(args) %}
+    {{ addTimerDebugFlag('userMacros_sendShoppingListRowsModal',true) }}
+    {% set viewParameters = viewHelpers.user.sendShoppingListRowsModalMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/sendShoppingListRowsModal.html.twig' as modeUser %}
+    {{ modeUser.sendShoppingListRowsModal(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_sendShoppingListRowsModal',false) }}
+{% endmacro sendShoppingListRowsModal %}
+
+{#- @documentation
+    {
+        "name": "setShoppingListModal",
+        "deprecated": "true",
+        "description": [
+            {
+                "es": "Pinta la modal que es necesaria para el correcto funcionamiento de editShoppingListRowNotes"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, furmulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Indica si se ha de mostrar el header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "headerTitle",
+                "description": [
+                    {
+                        "es": "Define el texto a mostrar en el título header"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "dialogClasses",
+                "description": [
+                    {
+                        "es": "Define las clases a usar en la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "element",
+                "description": [
+                    {
+                        "es": "Elemento que se usa para completar los datos de la modal"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\Element",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.setShoppingListModal({ |form: formShoppingListRowNotes, |showHeader: true,|headerTitle: languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROW_EDIT_BUTTON')] |dialogClasses: 'modal-lg modal-dialog-centered modal-fullscreen-sm-down'|}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/setShoppingListModal.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/setShoppingListModal.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro setShoppingListModal(args) %}
+    {{ addTimerDebugFlag('userMacros_setShoppingListModal',true) }}
+    {% set viewParameters = viewHelpers.user.setShoppingListModalMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/setShoppingListModal.html.twig' as modeUser %}
+    {{ modeUser.setShoppingListModal(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_setShoppingListModal',false) }}
+{% endmacro setShoppingListModal %}
+
+{#- @documentation
+    {
+        "name": "sendWishlistForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de envio de la lista de deseados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "products",
+                "description": [
+                    {
+                        "es": "Array con los productos a enviar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.sendWishlistForm({ |form: formSendWishlist, |products: controllerItem.items |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/SendWishlistForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/sendWishlistForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro sendWishlistForm(args) %}
+    {{ addTimerDebugFlag('userMacros_sendWishlistForm',true) }}
+    {% set viewParameters = viewHelpers.user.sendWishlistFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/sendWishlistForm.html.twig' as modeUser %}
+    {{ modeUser.sendWishlistForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_sendWishlistForm',false) }}
+{% endmacro sendWishlistForm %}
+
+
+{#- @documentation
+    {
+        "name": "shoppingListAddNoteButton",
+        "description": [
+            {
+                "es": "Pinta el botón para poder añadir una nota a una lista de favoritos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "shoppingList",
+                "description": [
+                    {
+                        "es": "Lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\ShoppingList",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se muestra en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "rowTemplate",
+                "description": [
+                    {
+                        "es": "Template que se usará para generar la nueva línea que se meterá en el listado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "true"
+            },
+            {
+                "param": "containerId",
+                "description": [
+                    {
+                        "es": "Identificador del contenedor, donde seencuentan todas las lineas del listado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "true"
+            },
+            {
+                "param": "totalItems",
+                "description": [
+                    {
+                        "es": "Número total de elementos en la lista, se usará para marcár el máximo usable en la prioridad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.shoppingListAddNoteButton({ |shoppingList: shoppingList, |rowTemplate: 'snippets/lists/ShoppingListRowNoteList.html.twig', |containerId: 'shoppingListRowsContainer', |class: 'btn btn-secondary', |totalItems: shoppingList.pagination.totalItems |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/shoppingListAddNoteButton.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/shoppingListAddNoteButton.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro shoppingListAddNoteButton(args) %}
+    {{ addTimerDebugFlag('userMacros_shoppingListAddNoteButton',true) }}
+    {% set viewParameters = viewHelpers.user.shoppingListAddNoteButtonMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/shoppingListAddNoteButton.html.twig' as modeUser %}
+    {{ modeUser.shoppingListAddNoteButton(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_shoppingListAddNoteButton',false) }}
+{% endmacro shoppingListAddNoteButton %}
+
+
+{#- @documentation
+    {
+        "name": "shoppingListForm",
+        "description": [
+            {
+                "es": "Pinta el formulario para editar o crear una lista de compra"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "shoppingList",
+                "description": [
+                    {
+                        "es": "Elemento de la lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\ShoppingList",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.shoppingListForm({ |form: shoppingListForm, |shoppingList: shoppingList |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/shoppingListForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/shoppingListForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro shoppingListForm(args) %}
+    {{ addTimerDebugFlag('userMacros_shoppingListForm',true) }}
+    {% set viewParameters = viewHelpers.user.shoppingListFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/shoppingListForm.html.twig' as modeUser %}
+    {{ modeUser.shoppingListForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_shoppingListForm',false) }}
+{% endmacro shoppingListForm %}
+
+{#- @documentation
+    {
+        "name": "shoppingListDeleteButton",
+        "description": [
+            {
+                "es": "Pinta el botón para poder eliminar una lista de favoritos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "shoppingList",
+                "description": [
+                    {
+                        "es": "Lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\ShoppingList",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se muestra en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.shoppingListDeleteButton({ |shoppingList: shoppingList, |class: 'btn btn-secondary' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/shoppingListDeleteButton.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/shoppingListDeleteButton.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro shoppingListDeleteButton(args) %}
+    {{ addTimerDebugFlag('userMacros_shoppingListDeleteButton',true) }}
+    {% set viewParameters = viewHelpers.user.shoppingListDeleteButtonMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/shoppingListDeleteButton.html.twig' as modeUser %}
+    {{ modeUser.shoppingListDeleteButton(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_shoppingListDeleteButton',false) }}
+{% endmacro shoppingListDeleteButton %}
+
+{#- @documentation
+    {
+        "name": "shoppingListEditButton",
+        "description": [
+            {
+                "es": "Pinta el botón para poder editar una lista de favoritos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "shoppingList",
+                "description": [
+                    {
+                        "es": "Lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\ShoppingList",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se muestra en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "totalItems",
+                "description": [
+                    {
+                        "es": "Número total de la listas, se usará para marcár el máximo usable en la prioridad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.shoppingListEditButton({ |shoppingList: shoppingList, |class: 'btn btn-secondary', |totalItems: session.shoppingList.shoppingLists.items|length |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/shoppingListEditButton.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/shoppingListEditButton.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro shoppingListEditButton(args) %}
+    {{ addTimerDebugFlag('userMacros_shoppingListEditButton',true) }}
+    {% set viewParameters = viewHelpers.user.shoppingListEditButtonMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/shoppingListEditButton.html.twig' as modeUser %}
+    {{ modeUser.shoppingListEditButton(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_shoppingListEditButton',false) }}
+{% endmacro shoppingListEditButton %}
+
+{#- @documentation
+    {
+        "name": "shoppingListRowDeleteButton",
+        "description": [
+            {
+                "es": "Pinta el botón para poder eliminar un elemento de una lista de favoritos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "shoppingListRow",
+                "description": [
+                    {
+                        "es": "Elemento de la lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\ShoppingListRow",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se muestra en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "containerId",
+                "description": [
+                    {
+                        "es": "Identificado del contenedor que contiene el elemento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "true"
+            },
+            {
+                "param": "shoppingListId",
+                "description": [
+                    {
+                        "es": "Identificado de la shopping list de donde se quiere eliminar el product"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.shoppingListRowDeleteButton({ |shoppingListRow: row, |class: 'btn btn-secondary', |containerId: 'shoppingListRowContainer' ~ row.id, |shoppingListId: shoppingListId | }) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/shoppingListRowDeleteButton.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/shoppingListRowDeleteButton.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro shoppingListRowDeleteButton(args) %}
+    {{ addTimerDebugFlag('userMacros_shoppingListRowDeleteButton',true) }}
+    {% set viewParameters = viewHelpers.user.shoppingListRowDeleteButtonMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/shoppingListRowDeleteButton.html.twig' as modeUser %}
+    {{ modeUser.shoppingListRowDeleteButton(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_shoppingListRowDeleteButton',false) }}
+{% endmacro shoppingListRowDeleteButton %}
+
+{#- @documentation
+    {
+        "name": "shoppingListRowEditButton",
+        "description": [
+            {
+                "es": "Pinta el botón para poder editar las notas de un elemento de una lista de favoritos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "shoppingListRow",
+                "description": [
+                    {
+                        "es": "Elemento de la lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\ShoppingListRow",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se muestra en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "totalItems",
+                "description": [
+                    {
+                        "es": "Número total de elementos de la lista, se usará para marcár el máximo usable en la prioridad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.shoppingListRowEditButton({ |shoppingListRow: row, |class: 'btn btn-secondary', |totalItems: shoppingList.pagination.totalItems |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/shoppingListRowEditButton.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/shoppingListRowEditButton.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro shoppingListRowEditButton(args) %}
+    {{ addTimerDebugFlag('userMacros_shoppingListRowEditButton',true) }}
+    {% set viewParameters = viewHelpers.user.shoppingListRowEditButtonMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/shoppingListRowEditButton.html.twig' as modeUser %}
+    {{ modeUser.shoppingListRowEditButton(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_shoppingListRowEditButton',false) }}
+{% endmacro shoppingListRowEditButton %}
+
+{#- @documentation
+    {
+        "name": "shoppingListRowMoveButton",
+        "description": [
+            {
+                "es": "Pinta el botón para poder mover un elemento de una lista de favoritos a otra lista"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "shoppingListRow",
+                "description": [
+                    {
+                        "es": "Elemento de la lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\ShoppingListRow",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre personalizado de la clase que se muestra en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "containerId",
+                "description": [
+                    {
+                        "es": "Identificado del contenedor que contiene el elemento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "true"
+            },            
+            {
+                "param": "shoppingLists",
+                "description": [
+                    {
+                        "es": "Colección con las listas de favoritos del usuario, cada uno de los elemento ha de ser un SDK\\Dtos\\User\\ShoppingList"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.shoppingListRowMoveButton({ |shoppingListRow: row, |class: 'btn btn-secondary', |containerId: 'shoppingListRowContainer' ~ row.id, |shoppingLists: movableShoppingLists |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/shoppingListRowMoveButton.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/shoppingListRowMoveButton.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro shoppingListRowMoveButton(args) %}
+    {{ addTimerDebugFlag('userMacros_shoppingListRowMoveButton',true) }}
+    {% set viewParameters = viewHelpers.user.shoppingListRowMoveButtonMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/shoppingListRowMoveButton.html.twig' as modeUser %}
+    {{ modeUser.shoppingListRowMoveButton(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_shoppingListRowMoveButton',false) }}
+{% endmacro shoppingListRowMoveButton %}
+
+{#- @documentation
+    {
+        "name": "shoppingListRowNotesForm",
+        "description": [
+            {
+                "es": "Pinta el formulario para editar las notas de un elemento de una lista de compra"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "shoppingListRow",
+                "description": [
+                    {
+                        "es": "Elemento de la lista de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\User\\ShoppingListRow",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.shoppingListRowNotesForm({ |form: shoppingListRowNotesForm, |shoppingListRow: row |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/shoppingListRowNotesForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/shoppingListRowNotesForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro shoppingListRowNotesForm(args) %}
+    {{ addTimerDebugFlag('userMacros_shoppingListRowNotesForm',true) }}
+    {% set viewParameters = viewHelpers.user.shoppingListRowNotesFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/shoppingListRowNotesForm.html.twig' as modeUser %}
+    {{ modeUser.shoppingListRowNotesForm(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_shoppingListRowNotesForm',false) }}
+{% endmacro shoppingListRowNotesForm %}
+
+{#- @documentation
+    {
+        "name": "smallNewsletterForm",
+        "description": [
+            {
+                "es": "Pinta el formulario del boletin informativo pequeño"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra la eiqueta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showPlaceolder",
+                "description": [
+                    {
+                        "es": "Muestra el marcador de posicion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "disableValidationMessages",
+                "description": [
+                    {
+                        "es": "Desactiva el mensage de validacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "hiddeWithLogin",
+                "description": [
+                    {
+                        "es": "Oculta el formulario en si el usuario está registrado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "addLegalCheck",
+                "description": [
+                    {
+                        "es": "Añade el check de Política de privacidad y Condiciones de uso"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.smallNewsletterForm({  |form: formNewsletter |showLabel: false,  |showPlaceholder: true,  |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/SmallNewsletterForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/smallNewsletterForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro smallNewsletterForm(args) %}
+    {{ addTimerDebugFlag('userMacros_smallNewsletterForm',true) }}
+    {% set viewParameters = viewHelpers.user.smallNewsletterFormMacro(args) %}
+    {% if viewParameters.form is defined and viewParameters.form is not null %}
+        {% set legalCheck = '' %}
+        {% if viewParameters.addLegalCheck %}
+            {% from "macros/form.twig" import legalCheck as legalCheckMacro %}
+            {% set legalCheck %}
+                {{ legalCheckMacro({}) }}
+            {% endset %}
+        {% endif %}
+        {% import 'macros/modes/' ~ coreMode ~ '/user/smallNewsletterForm.html.twig' as modeUser %}
+        {{ modeUser.smallNewsletterForm(viewParameters, legalCheck) }}
+    {% endif %}
+    {{ addTimerDebugFlag('userMacros_smallNewsletterForm',false) }}
+{% endmacro smallNewsletterForm %}
+
+{#- @documentation
+    {
+        "name": "stockAlerts",
+        "description": [
+            {
+                "es": "Pinta la tabla con las alertas de stock"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "stockAlerts",
+                "description": [
+                    {
+                        "es": "Coleccion de elementos de tipo SDK\\Dtos\\User\\UserStockAlert que se desea mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "allowRemove",
+                "description": [
+                    {
+                        "es": "Determina si se puede mostra el botón para eliminar la alerta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.stockAlerts({ |stockAlerts: stockAlerts, |allowRemove: true |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/StockAlerts.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/stockAlerts.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro stockAlerts(args) %}
+    {{ addTimerDebugFlag('userMacros_stockAlerts',true) }}
+    {% set viewParameters = viewHelpers.user.stockAlertsMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/stockAlerts.html.twig' as modeUser %}
+    {{ modeUser.stockAlerts(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_stockAlerts',false) }}
+{% endmacro stockAlerts %}
+
+{#- @documentation
+    {
+        "name": "subscriptions",
+        "description": [
+            {
+                "es": "Pinta la tabla con las subcripciones del usuario actual"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "subscriptions",
+                "description": [
+                    {
+                        "es": "Coleccion de elementos de tipo SDK\\Dtos\\User\\UserStockAlert que se desea mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "allowUnsubscribe",
+                "description": [
+                    {
+                        "es": "Determina si se puede mostra el botón para darse de baja"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.subscriptions({ |subscriptions: subscriptions |}) }} |",
+        "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.subscriptions({ |subscriptions: subscriptions, |allowUnsubscribe: true |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/subscriptions.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/subscriptions.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro subscriptions(args) %}
+    {{ addTimerDebugFlag('userMacros_subscriptions',true) }}
+    {% set viewParameters = viewHelpers.user.subscriptionsMacro(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/user/subscriptions.html.twig' as modeUser %}
+    {{ modeUser.subscriptions(viewParameters) }}
+    {{ addTimerDebugFlag('userMacros_subscriptions',false) }}
+{% endmacro subscriptions %}
+
+{#- @documentation
+    {
+        "name": "userForm",
+        "description": [
+            {
+                "es": "Emite el formulario del usuario"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "routeType",
+                "description": [
+                    {
+                        "es": "Path del tipo de documento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto form, formulario a usar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "selectedCountry",
+                "description": [
+                    {
+                        "es": "Pais seleccionado por el usuario, si routeType es identico a USER_CREATE_ACCOUNT o a CHECKOUT_CREATE_ACCOUNT pasa a ser required: true"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Settings\\CountrySettings",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "selectedCountryLocations",
+                "description": [
+                    {
+                        "es": "Primer nivel de localizacion del pais seleccionado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "showCreateAccountCheck",
+                "description": [
+                    {
+                        "es": "Mostrar el check de crear una cuenta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showShippingAddress",
+                "description": [
+                    {
+                        "es": "Mostrar el check de usar una direccion de envio diferente"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showCustomTagsTitle",
+                "description": [
+                    {
+                        "es": "Mostrar el titulo de las etiquetas de user"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "forceUseShippingAddress",
+                "description": [
+                    {
+                        "es": "Forzar el usar una direccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "billingAddresses",
+                "description": [
+                    {
+                        "es": "Coleccion de direcciones de facturacion de tipo SDK\\Dtos\\User\\BillingAddress. Si session no es null, se encuentra el usuario y routeType es identico a CHECKOUT_CUSTOMER o a CHECKOUT_CUSTOMER_NEW_REGISTER pasa a ser required: true"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "shippingAddresses",
+                "description": [
+                    {
+                        "es": "Coleccion de direcciones de envio de tipo SDK\\Dtos\\User\\ShippingAddress. Si session no es null, se encuentra el usuario y routeType es identico a CHECKOUT_CUSTOMER o a CHECKOUT_CUSTOMER_NEW_REGISTER pasa a ser required: true"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "selectMode",
+                "description": [
+                    {
+                        "es": "Selecciona el modo en que quieres que se muestre"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/User/Macro/AddressBook::SELECT_MODE_BUTTON",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/AddressBook::SELECT_MODE_BUTTON",
+                        "description": [
+                            {
+                                "es": "Boton normal"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/User/Macro/AddressBook::SELECT_MODE_RADIO",
+                        "description": [
+                            {
+                                "es": "Boton check circular"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showAddNewBilling",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de añadir direccion de facturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showAddNewShipping",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de añadir direccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showEditBilling",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de editar direccion de facturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showEditShipping",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de editar direccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDeleteBilling",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de eliminar direccion de facturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDeleteShipping",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de eliminar direccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.user as userMacros %} |{{- userMacros.userForm({ |form: customerForm, |selectedCountry: defaultSelectedCountry, |selectedCountryLocations: defaultSelectedCountryLocations, |billingAddresses: addresses.billingAddresses, |shippingAddresses: addresses.shippingAddresses, |selectMode: constant('FWK\\ViewHelpers\\User\\Macro\\AddressBook::SELECT_MODE_RADIO') |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/User/Macro/UserForm",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/user/userForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro userForm(args) %}
+    {{ addTimerDebugFlag('userMacros_userForm',true) }}
+    {% set viewParameters = viewHelpers.user.userFormMacro(args|merge({ routeType: route.type })) %}
+
+    {% from "macros/form.twig" import legalCheck as legalCheckMacro %}
+    {% set legalCheck %}
+		{{ legalCheckMacro({}) }}
+	{% endset %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/userForm.html.twig' as modeUser %}
+    {{ modeUser.userForm(viewParameters, legalCheck) }}
+    {{ addTimerDebugFlag('userMacros_userForm',false) }}
+{% endmacro userForm %}

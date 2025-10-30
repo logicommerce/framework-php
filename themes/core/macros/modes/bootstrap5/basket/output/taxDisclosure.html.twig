@@ -1,0 +1,116 @@
+{% macro taxDisclosure(args) %}
+    {% if args.showTaxDisclosure == true %}
+        <table class="table basketDisclosure">
+            <thead class="basketDisclosure">
+                <tr class="basketTitle basketDisclosureTitle">
+                    {% if args.disclosure.hasDiscounts == true %}
+                        <td class="basketTitle basketDisclosureTitle basketDisclosureSubtotalTitle">
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SUBTOTAL')] }}
+                        </td>
+                        <td class="basketTitle basketDisclosureTitle basketDisclosureDiscountsTitle">
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DISCOUNTS')] }}
+                        </td>
+                    {% endif %}
+
+                    <td class="basketTitle basketDisclosureTitle basketDisclosureBaseTitle">
+                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TAX_BASE')] }}
+                    </td>
+
+                    {% if args.disclosure.applyTax %}
+                        <td class="basketTitle basketDisclosureTitle basketDisclosureTaxTitle">
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VAT')] }}
+                        </td>
+
+                        {% if args.disclosure.applyRE %}      
+                            <td class="basketTitle basketDisclosureTitle basketDisclosureRETitle">
+                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RE')] }}
+                            </td>
+                        {% endif %}
+                    {% endif %}
+                
+                    <td class="basketTitle basketDisclosureTitle basketDisclosureTotalTitle">
+                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TOTAL')] }}
+                    </td>
+                </tr>
+            </thead>
+
+            <tbody class="basketDisclosure">
+                {% for basketTax in args.basket.taxes %}
+                    {% set taxTotalPrice = ((basketTax.base - basketTax.discount) * basketTax.taxRate / 100) + ((basketTax.base - basketTax.discount) * basketTax.reRate / 100) %}
+                    {% if 
+                        basketTax.base > 0 and 
+                        (
+                            args.showTaxesZeroTotalIncrement == true or 
+                            (args.showTaxesZeroTotalIncrement == false and taxTotalPrice > 0)
+                        )
+                    %}
+                        <tr class="basketDisclosure">
+                            {% if args.disclosure.hasDiscounts == true %}
+                                <td class="basket basketDisclosure basketPrice basketDisclosurePrice basketDisclosureSubtotal">
+                                    {{ outputHtmlCurrency(basketTax.base) }}
+                                </td>
+                                <td class="basket basketDisclosure basketPrice basketDisclosurePrice basketDisclosureDiscount">
+                                    {{ outputHtmlCurrency(-basketTax.discount) }}
+                                </td>
+                            {% endif %}
+
+                            <td class="basket basketDisclosure basketPrice basketDisclosurePrice basketDisclosureBase">
+                                {% set taxBase = basketTax.base - basketTax.discount %}
+                                {{ outputHtmlCurrency(taxBase <= 0 ? 0 : taxBase) }}
+                            </td>
+
+                            {% if args.disclosure.applyTax == true %}
+                                <td class="basket basketDisclosure basketDisclosureTaxRate">{{ basketTax.taxRate|round(1, 'floor') }} %</td>
+
+                                {% if args.disclosure.applyRE == true %}      
+                                    <td class="basket basketDisclosure basketDisclosureRETax">{{ basketTax.reRate|round(1, 'floor') }} %</td>
+                                {% endif %}
+                            {% endif %}
+
+                            <td class="basket basketDisclosure basketPrice basketDisclosureTotal">
+                                {{ outputHtmlCurrency(taxTotalPrice <= 0 ? 0 : taxTotalPrice) }}
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+
+            <tfoot class="basketDisclosure">
+                {% set totalWithoutVouchers = args.basket.totals.total + args.basket.totals.totalVouchers %}
+                {% set totalWithVouchers = args.basket.totals.total %}
+
+                {% if totalWithoutVouchers != totalWithVouchers and args.basket.totals.totalVouchers != 0 -%}
+                    <tr class="basketFooter basketDisclosureFooter basketDisclosureTotalWithoutVoucher">
+                        <td class="basket basketFooter basketDisclosureFooter basketTotalWithoutVoucherText" {% if args.disclosure.colspan > 0 %} colspan="{{ args.disclosure.colspan }}" {% endif %}>
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TOTAL_WITHOUT_VOUCHERS')] }}
+                        </td>
+                        <td class="basket basketFooter basketDisclosureFooter basketPrice basketDisclosurePrice basketTotalWithoutVoucher">
+                            {{ outputHtmlCurrency(totalWithoutVouchers) }}
+                        </td>
+                    </tr>
+                    
+                    <tr class="basketFooter basketDisclosureFooter basketDisclosureTotalVoucher">
+                        <td class="basket basketFooter basketDisclosureFooter basketDisclosureVoucherText" {% if args.disclosure.colspan > 0 %} colspan="{{ args.disclosure.colspan }}" {% endif %}>
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFT_CODE')] }}
+                        </td>
+                        <td class="basket basketFooter basketDisclosureFooter basketPrice basketDisclosurePrice basketVoucher">
+                            {{ outputHtmlCurrency(-args.basket.totals.totalVouchers) }}
+                        </td>
+                    </tr>
+                {% endif %}
+
+                <tr class="basketFooter basketDisclosureFooter basketDisclosureTotal">
+                    <td class="basket basketFooter basketDisclosureFooter basketDisclosureTotalText" {% if args.disclosure.colspan > 0 %} colspan="{{ args.disclosure.colspan }}" {% endif %}>
+                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TOTAL')] }}
+                    </td>
+                    <td class="basket basketFooter basketDisclosureFooter basketPrice basketDisclosurePrice basketTotal">
+                    	{{ outputHtmlCurrency(args.basket.totals.total) }}
+                    	{# FIXME en algun cas la linia de sota cuadra i el total total no. #}
+                        {# {{ outputHtmlCurrency(args.basket.totals.subtotal + args.basket.totals.totalTaxes) }} #}
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+
+    {% endif %}
+{% endmacro %}

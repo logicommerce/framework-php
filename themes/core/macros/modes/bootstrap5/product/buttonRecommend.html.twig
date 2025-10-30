@@ -1,0 +1,10 @@
+
+{% macro buttonRecommend(args) %}
+
+	<div class="{{ args.classType }}DetailButtonContainer {{ args.classType }}DetailRecommendButtonContainer">
+		<button id="buttonRecommend{{ args.classType|capitalize }}_{{ args.id }}" type="button" class="{{ args.class }} {{ args.classType }}DetailButton {{ args.classType }}DetailRecommendButton" data-bs-toggle="modal" data-bs-target="#{{ args.classType }}Recommend" data-lc-required='{ "el": "#{{ args.classType }}Recommend", "macro": "buttonRecommend" }'>
+			{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RECOMMEND_ITEM')] }}
+		</button>
+	</div>
+
+{% endmacro %}

@@ -1,0 +1,31 @@
+<table class="table gridOptions gridOptionsTable table-bordered">
+    <thead>
+        <tr>
+            <th class="gridOptionsNames">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_GRID_HEADER_2X2')]|replace({ "{{opcion1}}": firstOption.name,"{{opcion2}}": secondOption.name}) -}}</th>
+            {% for firstOptionValue in firstOption.valueIds %}
+                <th>
+                    <b>{{- optionValues[firstOptionValue].value -}}</b>
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for secondOptionValue in secondOption.valueIds %}
+        <tr>
+            <th>
+                <b>{{- optionValues[secondOptionValue].value -}}</b>
+            </th>   
+            {% for firstOptionValue in firstOption.valueIds %}
+                <td class="basket basketQuantity">
+                    {%- if firstOptionValue > secondOptionValue -%}
+                        {% set gridCell = row.grid[secondOptionValue ~ '-' ~ firstOptionValue] %}
+                    {%- else -%}
+                        {% set gridCell = row.grid[firstOptionValue ~ '-' ~ secondOptionValue] %}
+                    {%- endif -%}
+                    {{ gridCell.quantityOutput(args.quantityPlugin, args.selectableBoxRows, args.editable)|replace({ '{{className}}': 'form-control' }) }}
+                </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

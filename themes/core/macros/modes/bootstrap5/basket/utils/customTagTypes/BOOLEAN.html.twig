@@ -1,0 +1,5 @@
+{% if customTag.value == 1 %}
+    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] }}
+{% else %}
+    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] }}
+{% endif %}

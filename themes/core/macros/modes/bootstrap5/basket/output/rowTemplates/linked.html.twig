@@ -1,0 +1,137 @@
+{% macro linked(args, basketRow) %}
+    {# variables #}
+    {% set parentName = basketRow.parentItem.name %}
+    {% set linkWildcard = basketRow.urlSeo %}
+    {% set imageWildcard = basketRow.images.smallImage %}
+    {% set nameWildcard = basketRow.name|striptags %}
+    {% set skuWildcard = basketRow.combination.sku ? basketRow.combination.sku : basketRow.codes.sku %}
+    {% set brandWildcard = basketRow.brandName %}
+    {% set manufacturerSkuWildcard = basketRow.codes.manufacturerSku %}
+    {% set productHashWildcard = basketRow.hash %}
+    {% set lblDeleteRowWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ROW')] %}
+    {% set lblDeleteWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')] %}
+    {% set productStockIdWildcard = basketRow.stocks.id %}
+
+    {% set optionsWildcard %}
+        {% if args.showOptions == true %}
+            {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemOptions.html.twig' as modeBasket %}
+            {{ modeBasket.outputItemOptions(basketRow.options, 'basket', args.showOptionValuesName, args.showOptionValuesSku) }}
+        {% endif %}
+    {% endset %}
+
+    {% set customTagsWildcard %}
+        {% if args.showCustomTags == true %}
+            {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemCustomTags.html.twig' as modeBasket %}
+            {{ modeBasket.outputItemCustomTags(basketRow.customTagValues, args.showCustomTagPositions) }}
+        {% endif %}
+    {% endset %}
+
+    {%- set discountsWildcard -%}
+        {% if args.showDiscounts == true and basketRow.appliedDiscounts|length %}
+            {% import 'macros/modes/' ~ coreMode ~ '/basket/output/productDiscounts.html.twig' as modeBasket %}
+            {{ modeBasket.outputDiscounts(basketRow.appliedDiscounts, args.showTaxIncluded, args.showDiscountName, args.showDiscountValue, args.showZeroDiscount) }}
+        {% endif %}
+    {%- endset -%}
+
+    {% set warningsWildcard %}
+        {% if args.showWarnings == true %}
+            {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/warnings.html.twig' as basketWarnings %}
+            {{ basketWarnings.basketWarningsBlock(
+                args.warningsBlockItems, args.showWarnings, args.errorWarningPosition, args.warningWarningPosition, args.infoWarningPosition, 
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::WARNING_POSITION_LINE'), [productHashWildcard]
+            ) }}
+        {% endif %}
+    {% endset %}
+
+    {# end variables #}
+
+    {% if args.productsTemplate != null %}
+        
+        {{ args.productsTemplate|replace({
+            '{{parentName}}': parentName,
+            '{{link}}': linkWildcard,
+            '{{image}}': imageWildcard,
+            '{{name}}': nameWildcard,
+            '{{sku}}': skuWildcard,
+            '{{brand}}': brandWildcard,
+            '{{manufacturerSku}}': manufacturerSkuWildcard,
+            '{{productHash}}': productHashWildcard,
+            '{{lblDeleteRow}}': lblDeleteRowWildcard,
+            '{{lblDelete}}': lblDeleteWildcard,
+            '{{productStockId}}': productStockIdWildcard,
+            '{{options}}': optionsWildcard,
+            '{{customTags}}': customTagsWildcard,
+            '{{discounts}}': discountsWildcard,
+            '{{warnings}}': warningsWildcard
+        }) }}
+
+    {% else %}{# default template #}
+
+        {% if args.showImage == true %}
+            <div class="basketProductImage">
+                {% if args.linkable == true %}
+                    <a class="basketProductImage" href="{{ linkWildcard }}">
+                        <img class="productSmallImage basketProductImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </a>
+                {% else %}
+                    <span class="basketProductImage">
+                        <img class="productSmallImage basketProductImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="basketProductInfo">
+
+            <span class="parentName">
+                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LINKED_PARENT')]|replace({ '{{parentName}}': parentName }) }}
+            </span>
+
+            <span class="basketProductName">
+                {% if args.linkable == true %}
+                    <a href="{{ linkWildcard }}" title="{{ nameWildcard }}">{{ nameWildcard }}</a>
+                {% else %}
+                    {{ nameWildcard }}
+                {% endif %}
+            </span>
+
+            {% if args.showBrand == true and brandWildcard|length %}
+                <span class="basketProductBrand">{{ brandWildcard }}</span>
+            {% endif %}
+
+            {% if args.showSku == true and skuWildcard|length %}
+                <span class="basketProductSku">{{ skuWildcard }}</span>
+            {% endif %}
+
+            {% if args.showManufacturerSku == true and manufacturerSkuWildcard|length %}
+                <span class="basketProductManufacturerSku">{{ manufacturerSkuWildcard }}</span>
+            {% endif %}
+
+            {% if args.editable == true %}
+                <a role="button" href="#" class="basketDeleteRow" data-lc-basketDeleteRow="{{ productHashWildcard }}" title="{{ lblDeleteRowWildcard }}">
+                    <span class="basketDeleteRowIcon glyphicon glyphicon-trash"></span>
+                    <span class="basketDeleteRowText">{{ lblDeleteWildcard }}</span>
+                </a>
+            {% endif %}
+
+            {% if args.showProductStockId == true and productStockIdWildcard|length %}
+                <span class="basketProductStockId">{{ productStockIdWildcard }}</span>
+            {% endif %}
+
+            {{ optionsWildcard }}
+
+            {{ customTagsWildcard }}
+
+            {% if args.showDiscounts == true and discountsWildcard|length %}
+                <span class="basketProductDiscounts">
+                    <span class="basketProductDiscountsTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_ITEM_DISCOUNTS_TITLE')] }}</span>
+                    {{ discountsWildcard }}
+                </span>
+            {% endif %}
+
+            {{ warningsWildcard }}
+        </div>
+
+    {% endif %}{# end default template #}
+
+{% endmacro linked %}

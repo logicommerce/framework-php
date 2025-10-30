@@ -1,0 +1,28 @@
+{%- macro fields(fields, user, address) -%}
+    {%- import _self as self -%}
+    {%- for field in fields -%}
+        {%- if field == 'name' -%}
+            {{- self.fieldName(field, address.firstName ~ ' ' ~ address.lastName) -}}
+        {%- elseif field == 'nif' -%}
+            {%- if address.vat|trim|length -%}
+                {{- self.fieldName(field, address.vat) -}}
+            {%- elseif address.nif|trim|length -%}
+                {{- self.fieldName(field, address.nif) -}}
+            {%- endif -%}
+        {%- elseif field == 'address' -%}
+            {{- self.fieldName(field, address.address ~ ' ' ~ address.addressAdditionalInformation ~ ' ' ~ address.number) -}}
+        {%- elseif field == 'city' -%}
+            {{- self.fieldName(field, address.zip ~ ' ' ~ address.city) -}}
+        {%- elseif field == 'email' and attribute(user, field) is defined -%}
+            {{- self.fieldName(field, attribute(user, field)) -}}
+        {%- elseif attribute(address, field) is defined -%}
+            {{- self.fieldName(field, attribute(address, field)) -}}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro fieldName(fieldName, fieldValue) -%}
+    {%- if fieldValue|trim|length -%}
+        <p class="customerInformation customer{{- fieldName|capitalize -}}">{{- fieldValue -}}</p>
+    {%- endif -%}
+{%- endmacro -%}

@@ -1,0 +1,122 @@
+{% macro buyForm(args) %}
+    {%- set dataBundle = {
+        grouping: args.bundleGrouping,
+        bundleId: args.bundleId,
+    } -%}
+
+    <form id="buyBundleForm{{ args.bundleGrouping.id }}" method="post" data-lc-form="buyBundleForm" data-lc-bundle='{{ outputJsonHtmlString(dataBundle) }}' class="buyBundleForm{{ args.class|length ? ' ' ~ args.class : '' }}">
+        <input type="hidden" name="id" value="{{ args.bundleGrouping.id }}">
+
+        {%- if args.shoppingListRowId > 0 -%}
+			<input type="hidden" name="shoppingListRowId" value="{{ args.shoppingListRowId }}" />
+		{%- endif -%}
+
+        <div class="bundle-items">
+            {{- args.bundleGroupingContent -}}
+
+            <div class="bundle-item bundle-item-form item-index-{{ (args.bundleGrouping.items|length) + 1 }}">
+                {%- if args.showBundleBuyTitle|length -%}
+                    <div class="bundle-buy-title">{{- args.showBundleBuyTitle -}}</div>
+                {%- endif -%}
+
+                {%- if args.showQuantity -%}
+                    <div class="bundle-form-quantity">
+                        {%- if args.showQuantitySelectableBox -%}
+                            <select class="quantitySelect buyFormQuantity form-select {{ args.class }}" name="quantity">
+                                {%- for optionIndex in range(args.minQuantity, args.maxQuantity) -%}
+                                    <option value="{{- optionIndex -}}">{{- optionIndex -}}</option>
+                                {%- endfor -%}
+                            </select>
+                        {%- else -%}
+                            <input 
+                                type="text" 
+                                data-validation="number" 
+                                data-validation-allowing="range[{{- args.minQuantity -}};{{- args.maxQuantity -}}]" 
+                                class="buyFormQuantity {{ args.class }}"  
+                                name="quantity" 
+                                value="{{- args.minQuantity -}}" 
+                                data-input="true" 
+                                min="{{- args.minQuantity -}}" 
+                                max="{{- args.maxQuantity -}}"
+                                {%- if args.quantityPlugin %} data-lc-quantity="quantity" {% endif -%}
+                            >
+                        {%- endif -%}
+                    </div>
+                {%- else -%}
+                    <input type="hidden" name="quantity" value="1">
+                {%- endif -%}
+
+                <div class="bundle-total-price">
+                    {%- if args.showPrice -%}
+                        {%- set class = 'bundleGrouping-price' -%}
+                        {%- set htmlPrice = outputHtmlCurrency(getBuyPrice(args.bundleGrouping, false, args.priceWithTaxes)) -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/property/prices.html.twig' as modeProduct -%}
+                        {{- modeProduct.prices(class, htmlPrice, args.taxText, args.priceWithTaxes, args.isAlternativePrice) -}}
+                    {% endif %}
+                    {%- if args.showBasePrice -%}
+                        {%- set class = 'bundleGrouping-basePrice' -%}
+                        {%- set basePrice = getBuyPrice(args.bundleGrouping, true, args.priceWithTaxes) -%}
+                        {%- set retailPrice = getBuyPrice(args.bundleGrouping, false, args.priceWithTaxes) -%}
+                        {%- if retailPrice < basePrice -%}
+                            {%- set htmlPrice = outputHtmlCurrency(basePrice) -%}
+                            {%- import 'macros/modes/' ~ coreMode ~ '/product/property/prices.html.twig' as modeProduct -%}
+                            {{- modeProduct.prices(class, htmlPrice, args.taxText, args.priceWithTaxes, args.isAlternativePrice) -}}
+                        {%- endif -%}
+                    {%- endif -%}
+                    {%- if args.showSaving -%}
+                        {%- set class = 'bundleGrouping-saving' -%}
+                        {%- set basePrice = getBuyPrice(args.bundleGrouping, true, args.priceWithTaxes) -%}
+                        {%- set retailPrice = getBuyPrice(args.bundleGrouping, false, args.priceWithTaxes) -%}
+                        {%- if retailPrice < basePrice -%}
+                            {%- set savingPrice = basePrice - retailPrice -%}
+                            {%- set savingPercent = savingPrice * 100 / basePrice -%}
+                            <span class="bundleGrouping-saving">
+                                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SAVING_BUNDLE_TEXT')]|replace({ 
+                                    '{{savingPercent}}': '<span class="percent">' ~ savingPercent|round(2, 'floor') ~ '</span>',
+                                    '{{savingPrice}}': outputHtmlCurrency(savingPrice)
+                                }) -}}
+                            </span>
+                        {%- endif -%}
+                    {%- endif -%}
+                </div>
+
+                <div class="bundle-form-submit">
+                    <button 
+                        type="submit" 
+                        disabled="true"
+                        id="buyFormSubmit{{ args.bundleGrouping.id }}" 
+                        data-show-label="{{ args.showLabel == true ? 'true' : 'false' }}" 
+                        class="buyFormSubmit buyBundleFormSubmit buy btn btn-primary initializeDisabled"
+                        {% if args.formButtonHook|length %}
+                            data-lc-formButton="{{ args.formButtonHook }}"
+                        {% endif %}
+                    >
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BUY')] -}}
+                    </button>
+                    {% if args.expressCheckout == true %}       
+                        {%- for expressCheckoutPlugin in args.expressCheckoutPlugins -%}
+                        {% set args = args | merge({'id': args.bundleGrouping.id}) %}
+                            {%- include 'plugins/' ~ ucwords(expressCheckoutPlugin.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/product/expressCheckoutBuyFormSubmit.html.twig' ignore missing with {args: args, plugin: expressCheckoutPlugin} -%}
+                        {%- endfor -%}
+                    {% endif %}
+                </div>
+
+                {%- if args.shoppingListButton|length or args.buttonRecommend|length -%}
+                    <div class="bundle-form-actions">
+                        {%- if args.shoppingListButton|length -%}
+                            <div class="bundle-form-shopping-list">
+                                {{- args.shoppingListButton -}}
+                            </div>
+                        {%- endif -%}
+
+                        {%- if args.buttonRecommend|length -%}
+                            <div class="bundle-form-button-recommend">
+                                {{- args.buttonRecommend -}}
+                            </div>
+                        {%- endif -%}
+                    </div>
+                {%- endif -%}
+            </div>
+        </div>
+    </form>
+{% endmacro %}

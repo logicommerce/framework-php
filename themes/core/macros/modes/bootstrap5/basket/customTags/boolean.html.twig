@@ -1,0 +1,14 @@
+{% macro boolean(customTag, showForm) %}
+    {% if showForm == true %}
+        <div class="formFieldRadioValue basketFieldRadioValue">
+            <label class="formFieldRadioName">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')]|capitalize }}</label>
+            <input type="radio" name="customTags_{{ customTag.id }}" value="1" {% if customTag.value == "true" or customTag.value == "1" %}checked="checked"{% endif %}>
+        </div>
+        <div class="formFieldRadioValue basketFieldRadioValue">
+            <label class="formFieldRadioName">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')]|capitalize }}</label>
+            <input type="radio" name="customTags_{{ customTag.id }}" value="0" {% if customTag.value == "false" or customTag.value == "0" %}checked="checked"{% endif %}>
+        </div>
+    {% else %}
+        <div class="staticBasketBooleanValue">{{ customTag.value == 1 ? constant('FWK\\Enums\\LanguageLabels::YES')|capitalize : constant('FWK\\Enums\\LanguageLabels::NO')|capitalize }}</div>
+    {% endif %}
+{% endmacro %}

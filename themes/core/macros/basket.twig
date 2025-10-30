@@ -1,0 +1,3468 @@
+{#- @documentation
+    {
+	"name": "asyncOrder",
+	"description": [
+        {
+			"es": "Imprime el código HTML necesario para continuar con la validación asíncrona del pedido"
+		},
+		{
+			"en": "++"
+		}
+	],
+	"parameters": [
+        {
+			"param": "validationResponse",
+			"description": [
+                {
+					"es": "Objeto resultante de haber hecho la peticion Loader::service(Services::ORDER)->validatePayment(). En FWK\\Controllers\\Checkout\\AsyncOrderController se lo pasa a la vista en la variable self::CONTROLLER_ITEM"
+				},
+				{
+					"en": "++"
+				}
+			],
+			"type": "SDK\\Dtos\\PaymentValidationResponse",
+			"default": "null",
+            "required": "true"
+		},
+		{
+			"param": "postParameters",
+			"description": [
+                {
+					"es": "Array con los parámetros recividos vía POST. En FWK\\Controllers\\Checkout\\AsyncOrderController se lo pasa a la vista en la variable self::POST_PARAMETERS"
+				},
+				{
+					"en": "++"
+				}
+			],
+			"type": "array",
+			"default": "[]",
+            "required": "false"
+		},
+		{
+			"param": "getParameters",
+			"description": [
+                {
+					"es": "Array con los parámetros recividos vía GET. En FWK\\Controllers\\Checkout\\AsyncOrderController se lo pasa a la vista en la variable self::GET_PARAMETERS"
+				},
+				{
+					"en": "++"
+				}
+			],
+			"type": "array",
+			"default": "[]",
+            "required": "false"
+		}
+	],
+	"example": " {% import macrosCore.basket as basketMacros %} |{{- basketMacros.asyncOrder({ |validationResponse: constant('FWK\\Core\\Controllers\\Controller::CONTROLLER_ITEM'), |postParameters: constant('FWK\\Controllers\\Checkout\\AsyncOrderController::POST_PARAMETERS'), |getParameters: constant('FWK\\Controllers\\Checkout\\AsyncOrderController::GET_PARAMETERS') |}) -}}|",
+	"viewHelper": "FWK/ViewHelpers/Basket/Macro/AsyncOrder.php",
+	"relatedCoreFiles": [{
+		"files": "macros/modes/{{coreMode}}/basket/asyncOrder.html.twig",
+		"description": [{
+				"es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+			},
+			{
+				"en": "++"
+			}
+		]
+	}]
+}
+@endDocumentation -#}
+{%- macro asyncOrder(args) -%}
+    {% set spacelessContent %}
+        {{ addTimerDebugFlag('basketMacros-asyncOrder',true) }}
+        {% set viewParameters = viewHelpers.basket.asyncOrderMacro(args) %}
+        {% import 'macros/modes/' ~ coreMode ~ '/basket/asyncOrder.html.twig' as modeBasket %}
+        {{ modeBasket.asyncOrder(viewParameters) }}
+        {{ addTimerDebugFlag('basketMacros-asyncOrder',false) }}
+    {% endset %}
+    {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+{%- endmacro asyncOrder -%}
+
+{#- @documentation
+    {
+        "name": "basketContent",
+        "description": [
+            {
+                "es": "Funcion principal que muestra la cesta durante el proceso de compra"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "editable",
+                "description": [
+                    {
+                        "es": "Define si la cesta es editable o no"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "saveForLater",
+                "description": [
+                    {
+                        "es": "Define si la cesta muestra el botón saveForLater o no. Solo se muestra si el usuario ha hecho login"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "editableGifts",
+                "description": [
+                    {
+                        "es": "Define si los regalos son editables o no"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false" 
+            },
+            {
+                "param": "quantityPlugin",
+                "description": [
+                    {
+                        "es": "Usar o no el plugin de cantidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showShippingSection",
+                "description": [
+                    {
+                        "es": "Mostrar o no la seccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false" 
+            },
+            {
+                "param": "showSelectableBox",
+                "description": [
+                    {
+                        "es": "Mostra la caja de seleccion de cantidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "selectableBoxRows",
+                "description": [
+                    {
+                        "es": "Maximo seleccionable en la caja de cantidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "5",
+                "required": "false"
+            },
+            {
+                "param": "showWarnings",
+                "description": [
+                    {
+                        "es": "Mostrar o no las advertencias"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showWarningsBlock",
+                "description": [
+                    {
+                        "es": "Mostrar o no bloques de advertencias"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "hiddenWarningCodes",
+                "description": [
+                    {
+                        "es": "Esconde una lista de warning codes"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "errorWarningPosition",
+                "description": [
+                    {
+                        "es": "Define la posicion del aviso de error"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_HEADER",
+                "required": "false",
+                "availableValues": [     
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_HEADER",
+                        "description": [
+                            {
+                                "es": "Posicionar en el encabezado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_LINE",
+                        "description": [
+                            {
+                                "es": "Posicionar en linea"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }   
+                ]
+            },
+            {
+                "param": "warningWarningPosition",
+                "description": [
+                    {
+                        "es": "Define la posicion del aviso de advertencia"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_HEADER",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_HEADER",
+                        "description": [
+                            {
+                                "es": "Posicionar en el encabezado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_LINE",
+                        "description": [
+                            {
+                                "es": "Posicionar en linea"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "infoWarningPosition",
+                "description": [
+                    {
+                        "es": "Define la posicion del aviso de informacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_HEADER",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_HEADER",
+                        "description": [
+                            {
+                                "es": "Posicionar en el encabezado"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::WARNING_POSITION_LINE",
+                        "description": [
+                            {
+                                "es": "Posicionar en linea"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showCustomTagPosition",
+                "description": [
+                    {
+                        "es": "Define la posicion de las customTags"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "required": "false",
+                "default": "[]"  
+            },
+            {
+                "param": "showDiscountValue",
+                "description": [
+                    {
+                        "es": "Define como mostrar el valor de descuento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_BOTH",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_VALUE",
+                        "description": [
+                            {
+                                "es": "Mostrar el valor del descuento en valor numerico"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_PERCENTAGE",
+                        "description": [
+                            {
+                                "es": "Mostrar el valor del descuento en porcentaje"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_BOTH",
+                        "description": [
+                            {
+                                "es": "Mostrar el valor del descuento en ambos formatos"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_NONE",
+                        "description": [
+                            {
+                                "es": "No mostrar el valord del descuento"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "additionalItems",
+                "description": [
+                    {
+                        "es": "Añade articulos adicionales al documento de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::ADDITIONAL_ITEMS_PRESENTATION",
+                "required": "false"
+            },
+            {
+                "param": "mode",
+                "description": [
+                    {
+                        "es": "Modo de la salida de la cesta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::MODE_DISCLOSURE",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::MODE_DISCLOSURE",
+                        "description": [
+                            {
+                                "es": "La sesta sale de forma divulgada"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::MODE_CASH_TICKET",
+                        "description": [
+                            {
+                                "es": "La cesta sale en modo billete de efectivo"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "linkable",
+                "description": [
+                    {
+                        "es": "Define si los productos tienen links o no"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "required": "false",
+                "default": "true"  
+            },
+            {
+                "param": "showOptions",
+                "description": [
+                    {
+                        "es": "Define si mostrar o no las opciones del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "required": "false",
+                "default": "true"  
+            },
+            {
+                "param": "showOptionValuesName",
+                "description": [
+                    {
+                        "es": "Define que se muestra en las opciones del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::SHOW_OPTION_VALUES_NAME_SHOW_NAME",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::SHOW_OPTION_VALUES_NAME_NOT_SHOW",
+                        "description": [
+                            {
+                                "es": "No mostrar el nombre de los parametros de las opciones del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::SHOW_OPTION_VALUES_NAME_SHOW_NAME",
+                        "description": [
+                            {
+                                "es": "Muestra el nombre de los parametros de las opciones del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::SHOW_OPTION_VALUES_NAME_SHOW_DESCRIPTION",
+                        "description": [
+                            {
+                                "es": "Mostrar descripcion de los parametros de las opciones del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showOptionValuesSku",
+                "description": [
+                    {
+                        "es": "Mostrar en las opciones del producto Sku"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showZeroDiscount",
+                "description": [
+                    {
+                        "es": "Mostrar o no el descuento 0"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false" 
+            },
+            {
+                "param": "giftsPresentation",
+                "description": [
+                    {
+                        "es": "Define como mostrar los regalos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::GIFTS_PRESENTATION_PRODUCTS_BLOCK",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::GIFTS_PRESENTATION_PRODUCTS_BLOCK",
+                        "description": [
+                            {
+                                "es": "Mostrar los productos en bloques"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::GIFTS_PRESENTATION_INDEPENDENT",
+                        "description": [
+                            {
+                                "es": "Mostrar los productos independientes"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showTaxDisclosure",
+                "description": [
+                    {
+                        "es": "Mostrar o no la declaracion de impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showTaxIncluded",
+                "description": [
+                    {
+                        "es": "Muestra el precio con los impuestos incluidos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showTaxName",
+                "description": [
+                    {
+                        "es": "Mostrar o no el nombre de los impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "tableClass",
+                "description": [
+                    {
+                        "es": "Define la tabla de clases para el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "shoePrices",
+                "description": [
+                    {
+                        "es": "Mostrar o no los precios"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showImage",
+                "description": [
+                    {
+                        "es": "Mostrar o no las imagenes de los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showSku",
+                "description": [
+                    {
+                        "es": "Mostrar o no el codigo Sku del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bol",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showManufacturerSku",
+                "description": [
+                    {
+                        "es": "Mostrar o no el codigo Sku de la manufacturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showAsGridUniqueDimension",
+                "description": [
+                    {
+                        "es": "Cambia el comportamiento por defecto de la cuadricula de opciones. Por defecto tanto si tenemos una como dos opciones en cuadricula se mostrará un array en dos dimensiones. Puede forzarse a una sola dimensión, que generará todas las combinaciones."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showCustomTags",
+                "description": [
+                    {
+                        "es": "Mostrar o no las etiquetas personalizadas"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showDevolutionButton",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton para realizar devoluciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showDiscounts",
+                "description": [
+                    {
+                        "es": "Mostrar o no los descuentos de los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDiscountName",
+                "description": [
+                    {
+                        "es": "Muestra o no el nombre de los descuentos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showZeroShipping",
+                "description": [
+                    {
+                        "es": "Mostrar la los envios cero(sin contaminacion) de los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showZeroPayment",
+                "description": [
+                    {
+                        "es": ""
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showFreeTaxMessage",
+                "description": [
+                    {
+                        "es": "Mostrar el mensage de libre de impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showPreviousPrice",
+                "description": [
+                    {
+                        "es": "Mostrar o no el precio anterior"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showPercentDifference",
+                "description": [
+                    {
+                        "es": "Mostrar o no la diferencia de precios en porcentaje"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showPriceDifference",
+                "description": [
+                    {
+                        "es": "Mostrar o no la diferencia de los precios"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showProductStockId",
+                "description": [
+                    {
+                        "es": "Mostrar o no el id del producto en stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showFooter",
+                "description": [
+                    {
+                        "es": "Mostrar o no el pie de pagina"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "productTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productsBundleTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productsBundleItemTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para productos en bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productsGiftTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para los productos de regalo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productSelectableGiftTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para la seleccion de productos de regalo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "routeType",
+                "description": [
+                    {
+                        "es": "Define el path del tipo que es"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "totalProductDiscounts",
+                "description": [
+                    {
+                        "es": "Define los descuentos totales del productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "float",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "showTaxesZeroTotalIncrement",
+                "description": [
+                    {
+                        "es": "Mostrar o no el incremento total del libre de impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "mergeGridDiscounts",
+                "description": [
+                    {
+                        "es": "Agrupa por identificado de descuento los descuentos aplicados sobre los elementos del grid"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showLockedStocks",
+                "description": [
+                    {
+                        "es": "Determina se se han de mostrar los bloqueos de stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showLockedStocksDescription",
+                "description": [
+                    {
+                        "es": "Determina se se han de mostrar las descripciones de los bloqueos de stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{- basketMacros.basketContent({ |basket: basket, |editable: true, |quantityPlugin: true, |mode: constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::MODE_DISCLOSURE'), |showDiscounts: true, |showDiscountName: true |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/BasketContent.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/basketContent.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro basketContent(args) %}
+    {{ addTimerDebugFlag('basketMacros-basketContent',true) }}
+    {% set viewParameters = viewHelpers.basket.basketContentMacro(args|merge({ routeType: route.type })) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/basketContent.html.twig' as modeBasket %}
+    {{ modeBasket.basketContent(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-basketContent',false) }}
+{% endmacro basketContent %}
+
+{#- @documentation
+    {
+        "name": "basketForm",
+        "description": [
+            {
+                "es": "Genera un formulario para la cesta"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "content",
+                "description": [
+                    {
+                        "es": "Contenido del formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se ve en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.basketForm({ |content: contentBasketForm, |class: 'test-class' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/BasketForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/basketForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro basketForm(args) %}
+    {{ addTimerDebugFlag('basketMacros-basketForm',true) }}
+    {% set viewParameters = viewHelpers.basket.basketFormMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/basketForm.html.twig' as modeBasket %}
+    {{ modeBasket.basketForm(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-basketForm',false) }}
+{% endmacro basketForm %}
+
+{#- @documentation
+    {
+        "name": "buttons",
+        "description": [
+            {
+                "es": "Pinta botones de accion dentro de la cesta en 3 pasos de pago"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con los objetos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showRecalculated",
+                "description": [
+                    {
+                        "es": "Mostrar el boton de recalcular en la cesta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showClear",
+                "description": [
+                    {
+                        "es": "Mostrar el boton de limpiar en la cesta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showContinue",
+                "description": [
+                    {
+                        "es": "Mostrar el boton de continuar en la cesta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "submitAccion",
+                "description": [
+                    {
+                        "es": "Pagina a la que redirige al entregar formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Enums/RouteType::CHECKOUT_END_ORDER",
+                "required": "false"
+            },
+            {
+                "param": "classList",
+                "description": [
+                    {
+                        "es": "Nombre de la clase personalizado para el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "backLocation",
+                "description": [
+                    {
+                        "es": "url del boton de volver atras"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "forceDisable",
+                "description": [
+                    {
+                        "es": "Fuerza que el atributo submit este desactivado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "errorCode",
+                "description": [
+                    {
+                        "es": "Define el codigo de error"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.buttons({ |basket: controllerItem |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/Buttons.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/buttons.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro buttons(args) %}
+    {{ addTimerDebugFlag('basketMacros-buttons',true) }}
+    {% set viewParameters = viewHelpers.basket.buttonsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/buttons.html.twig' as modeBasket %}
+    {{ modeBasket.buttons(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-buttons',false) }}
+{% endmacro buttons %}
+
+
+{#- @documentation
+    {
+        "name": "comment",
+        "description": [
+            {
+                "es": "Permite al usuario introducir comentarios mientras esta en la cesta si tiene productos agregados"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, la cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "forceOutput",
+                "description": [
+                    {
+                        "es": "Se puede comentar desde la cesta sin tener producto agregado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showPlaceholder",
+                "description": [
+                    {
+                        "es": "Muestra los marcadores de posicion para los comentarios"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.comment({ |basket: basketObj, |forceOutput: false, |showPlaceholder: true |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/Comment.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/comment.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro comment(args) %}
+    {{ addTimerDebugFlag('basketMacros-comment',true) }}
+    {% set viewParameters = viewHelpers.basket.commentMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/comment.html.twig' as modeBasket %}
+    {{ modeBasket.comment(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-comment',false) }}
+{% endmacro comment %}
+
+{#- @documentation
+    {
+        "name": "customTags",
+        "description": [
+            {
+                "es": "Pinta las etiquetas personalizadas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "customTags",
+                "description": [
+                    {
+                        "es": "Coleccion de etiquetas que se quieren mostrar. Espera una coleccion de elementos de tipo SDK\\Core\\Dtos\\CustomTag"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showPositions",
+                "description": [
+                    {
+                        "es": "Define la posicion para las tags, si no tiene nada, todas las posiciones estan permitidas"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "useCalendar",
+                "description": [
+                    {
+                        "es": "Usar o no el calendario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showFormFields",
+                "description": [
+                    {
+                        "es": "Muestra los campos del formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "saveButtonSubmitAction",
+                "description": [
+                    {
+                        "es": "Si se le da valor, muestra un botón para guardar el formularo. El valor que se le puede dar ha de ser un RouteType valido, y será hacia donde se redirija la petición tras guardar los cambios"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.customTags({ |basket: basketObj, |customTags: customTagsObj, |showPositions: [], |useCalendar: true, |showFormFields: true, |saveButtonSubmitAction: route.type|}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/CustomTags.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/customTags.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro customTags(args) %}
+    {{ addTimerDebugFlag('basketMacros-customTags',true) }}
+    {% set viewParameters = viewHelpers.basket.customTagsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags.html.twig' as modeBasket %}
+    {{ modeBasket.customTags(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-customTags',false) }}
+{% endmacro customTags %}
+
+
+{#- @documentation
+    {
+        "name": "deleteDiscountCodes",
+        "description": [
+            {
+                "es": "Muestra los vales aplicados sobre la cesta enviada junto con el botón para poder eliminarlos"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con todos los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{- basketMacros.deleteDiscountCodes({ |basket: controllerItem |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/DeniedOrderMessage.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/deleteDiscountCodes.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro deleteDiscountCodes(args) %}
+    {{ addTimerDebugFlag('basketMacros-deleteDiscountCodes',true) }}
+    {% set viewParameters = viewHelpers.basket.deleteDiscountCodesMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/deleteDiscountCodes.html.twig' as modeBasket %}
+    {{ modeBasket.deleteDiscountCodes(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-deleteDiscountCodes',false) }}
+{% endmacro deleteDiscountCodes %}
+
+{#- @documentation
+    {
+        "name": "deliveries",
+        "description": [
+            {
+                "es": "Muetsra las entregas"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con todos los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "deliveries",
+                "description": [
+                    {
+                        "es": "Coleccion de metodos de entrega a mostrar. Espera una coleccion de elementos de tipo SDK\\Dtos\\Basket\\Delivery"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "physicalLocations",
+                "description": [
+                    {
+                        "es": "Coleccion de ubicaciones mostrar. Espera una coleccion de elementos de tipo SDK\\Dtos\\Catalog\\PhysicalLocation. Por defecto no es requerido, pero si existe un delivery de tipo picking, es obligatorio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "pickupPointProviders",
+                "description": [
+                    {
+                        "es": "Coleccion proveerdores mostrar para obtenes la colección de ubicaciones a mostrar. Espera una coleccion de elementos de tipo SDK\\Dtos\\Documents\\PickupPointProviders."
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "ElementCollection",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showTitle",
+                "description": [
+                    {
+                        "es": "Muestrar el titulo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showLogo",
+                "description": [
+                    {
+                        "es": "Muestra el logo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showTaxIncluded",
+                "description": [
+                    {
+                        "es": "Muestra el precio con los impuestos añadidos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showDescription",
+                "description": [
+                    {
+                        "es": "Muestra la descripcion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showPickup",
+                "description": [
+                    {
+                        "es": "Muestra para recoger"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showProducts",
+                "description": [
+                    {
+                        "es": "Muestra o no los productos por cada shipment"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showWarnings",
+                "description": [
+                    {
+                        "es": "Muestra o no las advertencias"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showSelectPickingDescription",
+                "description": [
+                    {
+                        "es": "Muestra o no un texto descriptivo al lado de cada botón de selección de punto de recogida"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros%} |{{- basketMacros.deliveries({ |basket: basket, |deliveries: deliveries, |showPickup: false, |showTitle: true, |showLogo: true, |showTaxIncluded: true |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/Deliveries.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/deliveries.html.php",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro deliveries(args) %}
+    {{ addTimerDebugFlag('basketMacros-deliveries',true) }}
+    {% set viewParameters = viewHelpers.basket.deliveriesMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/deliveries.html.twig' as modeBasket %}
+    {{ modeBasket.deliveries(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-deliveries',false) }}
+{% endmacro deliveries %}
+
+{#- @documentation
+    {
+        "name": "deniedOrderMessage",
+        "description": [
+            {
+                "es": "Pinta el mensaje de pedido denegado"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con todos los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "errorCode",
+                "description": [
+                    {
+                        "es": "El codigo de error a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+             {
+                "param": "errorFields",
+                "description": [
+                    {
+                        "es": "Los campos en los que hay errores"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\ErrorFields",
+                "default": "''",
+                "required": "false"
+            },
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{- basketMacros.deniedOrderMessage({ |basket: controllerItem,errorCode: errorCode |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/DeniedOrderMessage.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/deniedOrderMessage.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro deniedOrderMessage(args) %}
+    {{ addTimerDebugFlag('basketMacros-deniedOrderMessage',true) }}
+    {% set viewParameters = viewHelpers.basket.deniedOrderMessageMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/deniedOrderMessage.html.twig' as modeBasket %}
+    {{ modeBasket.deniedOrderMessage(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-deniedOrderMessage',false) }}
+{% endmacro deniedOrderMessage %}
+
+{#- @documentation
+    {
+        "name": "endOrder",
+        "description": [
+            {
+                "es": "Finaliza el pedido"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "payResponse",
+                "description": [
+                    {
+                        "es": "Objeto payResponse, espera una confirmacion de pago"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\PayResponse",
+                "default": "null",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.endOrder({ |payResponse: controllerItem  |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/EndOrder.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/endOrder.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro endOrder(args) %}
+    {{ addTimerDebugFlag('basketMacros-endOrder',true) }}
+    {% set viewParameters = viewHelpers.basket.endOrderMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/endOrder.html.twig' as modeBasket %}
+    {{ modeBasket.endOrder(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-endOrder',false) }}
+{% endmacro endOrder %}
+
+{#- @documentation
+    {
+        "name": "OSCForm",
+        "description": [
+            {
+                "es": "Genera un formulario de OSC"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "content",
+                "description": [
+                    {
+                        "es": "Contenido html del formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de la clase personalizado que se muestra en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.OSCForm({ |content: twigSetVariable,  |class: 'test-class' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/OSCForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/OSCForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro OSCForm(args) -%}
+    {%- set viewParameters = viewHelpers.basket.OSCFormMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/basket/OSCForm.html.twig' as modeBasket -%}
+    {{- modeBasket.OSCForm(viewParameters) -}}
+{%- endmacro OSCForm -%}
+
+{#- @documentation
+    {
+        "name": "OSCModule",
+        "description": [
+            {
+                "es": "Genera el modulo OSC"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "content",
+                "description": [
+                    {
+                        "es": "Contenido html dentro del modulo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se muestra en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "type",
+                "description": [
+                    {
+                        "es": "El tipo de modulo OSC"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false",
+                "availableValues": [
+			        {
+                        "value": "FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_BASKET",
+                        "description": [
+                            {
+                                "es": "Genera un modulo de cesta"
+                            },
+                            {
+                                "en": "++"
+                            }
+		    	        ]
+                    },
+			        {
+                        "value": "FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_USER_FORM",
+                        "description": [
+                            {
+                                "es": "Genera un modulo de formulario de usuario"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+			        {
+                        "value": "FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_PAYMENTS",
+                        "description": [
+                            {
+                                "es": "Genera un modulo de pagos"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+			        {
+                        "value": "FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_SHIPPINGS",
+                        "description": [
+                            {
+                                "es": "Genera un modulo de envio"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+			        {
+                        "value": "FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_COMMENTS",
+                        "description": [
+                            {
+                                "es": "Genera un modulo de comentarios"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+			        {
+                        "value": "FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_DISCOUNTS",
+                        "description": [
+                            {
+                                "es": "Genera un modulo de descuentos"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+			        {
+                        "value": "FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_LEGAL_CHECK",
+                        "description": [
+                            {
+                                "es": "Genera un modulo de confirmaciones legales"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+			        {
+                        "value": "FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_BUTTONS",
+                        "description": [
+                            {
+                                "es": "Genera un modulo de botones"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+		        ]
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.OSCModule({ |content: twigSetVariable, |class: 'test-class', |type: constant('FWK\\ViewHelpers\\Basket\\Macro\\OSCModule::TYPE_USER_FORM') |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/OSCModule.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/OSCModule.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro OSCModule(args) -%}
+    {%- set viewParameters = viewHelpers.basket.OSCModuleMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/basket/OSCModule.html.twig' as modeBasket -%}
+    {{- modeBasket.OSCModule(viewParameters) -}}
+{%- endmacro OSCModule -%}
+
+{#- @documentation
+    {
+        "name": "lockedStocksContent",
+        "description": [
+            {
+                "es": "Crea las bases(envoltura) para una miniBasket"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "showRenewButton",
+                "description": [
+                    {
+                        "es": "Indica si se ha de mostrar el boton para renovar los stocks bloqueados. Por defecto usa el valor configurado en el Theme::getInstance()->getConfiguration()->getCommerce()->getLockedStock()->getShowExtendButton(). Si se le pasa el valor 'true', tambien se validará que este activo el bloqueo de stock y que este habilidata la extension por usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showDescription",
+                "description": [
+                    {
+                        "es": "Muestra la descripción larga del bloqueo de stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se mostrara en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "expiresAtExtendMinutes",
+                "description": [
+                    {
+                        "es": "Quantity of minutes you want to extend the expiration time of the indicated locked stock timer. Si no se indica, por defecto usara el valor de lockedStockTimerDefaultExtensionMinutes"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "expiresAtExtendMinutesUponUserRequest",
+                "description": [
+                    {
+                        "es": "Especifica si la actualización para extender el tiempo de expiración ha sido solicitada por una solicitud del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "popup",
+                "description": [
+                    {
+                        "es": "Especifica si se han de usar las labels de popup"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "expired",
+                "description": [
+                    {
+                        "es": "Fuerza que se muestre el stock bloqueado como expirado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "lockedStockTimer",
+                "description": [
+                    {
+                        "es": "Timer con la definicion del bloqueo de stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\BasketLockedStockTimers",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.lockedStocksContent({ |showDescription: true |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/LockedStocksContent.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/lockedStocksContent.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro lockedStocksContent(args) %}
+    {{ addTimerDebugFlag('basketMacros-lockedStocksContent',true) }}
+    {% set viewParameters = viewHelpers.basket.lockedStocksContentMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/lockedStocksContent.html.twig' as modeBasket %}
+    {{ modeBasket.lockedStocksContent(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-lockedStocksContent',false) }}
+{% endmacro lockedStocksContent %}
+
+{#- @documentation
+    {
+        "name": "miniBasketWrap",
+        "description": [
+            {
+                "es": "Crea las bases(envoltura) para una miniBasket"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "content",
+                "description": [
+                    {
+                        "es": "Contenido html dentro de miniBasketWrap"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showTaxIncluded",
+                "description": [
+                    {
+                        "es": "Muestra el precio con los impuestos incluidos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se mostrara en html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.miniBasketWrap({ |basket: basketObj, |content: twigSetVariable, |showPaymentSystem: true, |showShipping: true, |showTaxIncluded: true, |class: '' |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/MiniBasketWrap.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/miniBasketWrap.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro miniBasketWrap(args) %}
+    {{ addTimerDebugFlag('basketMacros-miniBasketWrap',true) }}
+    {% set viewParameters = viewHelpers.basket.miniBasketWrapMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/miniBasketWrap.html.twig' as modeBasket %}
+    {{ modeBasket.miniBasketWrap(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-miniBasketWrap',false) }}
+{% endmacro miniBasketWrap %}
+
+{#- @documentation
+    {
+        "name": "miniBasketContent",
+        "description": [
+            {
+                "es": "Pinta el contenido de la miniBasket"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showTaxIncluded",
+                "description": [
+                    {
+                        "es": "Muestra el precio con los impuestos incluidos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showTotal",
+                "description": [
+                    {
+                        "es": "Muestra el precio total de la cesta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "linkable",
+                "description": [
+                    {
+                        "es": "Define si el nombre del producto en la cesta lleva al producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showPaymentSystem",
+                "description": [
+                    {
+                        "es": "Muestra el sistema de pago"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showShipping",
+                "description": [
+                    {
+                        "es": "Muestra el envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showCustomTags",
+                "description": [
+                    {
+                        "es": "Muestra las etiquetas personalizadas"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showCustomTagPositions",
+                "description": [
+                    {
+                        "es": "Define la posicion de las customTags"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "showDeleteItems",
+                "description": [
+                    {
+                        "es": "Activa el poder quitar objetos de la cesta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showImage",
+                "description": [
+                    {
+                        "es": "Muestra la imagen en la miniBasket"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showBrand",
+                "description": [
+                    {
+                        "es": "Muestra el nombre de la marca"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showSku",
+                "description": [
+                    {
+                        "es": "Muestra el sku(numero de referencia unico del producto)"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showOptions",
+                "description": [
+                    {
+                        "es": "Muestra las opciones en la miniBasket"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Muestra el encabezamiento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showFooter",
+                "description": [
+                    {
+                        "es": "Muestra el pie de pagina"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showOptionValue",
+                "description": [
+                    {
+                        "es": "Seleccione como mostrar las opciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Basket/Macro/MiniBasketContent::SHOW_OPTION_VALUES_NAME_SHOW_NAME",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/MiniBasketContent::SHOW_OPTION_VALUES_NAME_NOT_SHOW",
+                        "description": [
+                            {
+                                "es": "Muestra las opciones sin mostrar el nombre de cada opcion"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/MiniBasketContent::SHOW_OPTION_VALUES_NAME_SHOW_NAME",
+                        "description": [
+                            {
+                                "es": "Muestra las opciones mostrando el nombre de cada opcion"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/MiniBasketContent::SHOW_OPTION_VALUES_NAME_SHOW_DESCRIPTION",
+                        "description": [
+                            {
+                                "es": "Muestra las opciones mostrando una descipcion de ellas"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showTotalDiscounts",
+                "description": [
+                    {
+                        "es": "Muestra el total de los descuentos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showItemNameDiscounts",
+                "description": [
+                    {
+                        "es": "Muestra el descuento en el nombre del item"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showZeroDiscount",
+                "description": [
+                    {
+                        "es": "Mostrar descuento 0"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showItemValueDiscounts",
+                "description": [
+                    {
+                        "es": "Define el valor del descuento del item"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_NONE",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_VALUE",
+                        "description": [
+                            {
+                                "es": "Muestra el valor del descuento numerico"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_PERCENTAGE",
+                        "description": [
+                            {
+                                "es": "Muestra el descuento en procentaje"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_BOTH",
+                        "description": [
+                            {
+                                "es": "Muestra el valor del descuento numerico y en porcentaje"
+                            },
+                            {
+                                "en": "++"  
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/BasketContent::SHOW_DISCOUNT_VALUE_NONE",
+                        "description": [
+                            {
+                                "es": "No muestra el descuento"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showTotalVouchers",
+                "description": [
+                    {
+                        "es": "Mostrar el total de los vales"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de la clase personalizado que se muestra en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "gripOptionsClassPrefix",
+                "description": [
+                    {
+                        "es": "Prefijo para ls clases a la hora de pintar las opciones del grid"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "editable",
+                "description": [
+                    {
+                        "es": "Define si es editable"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "quantityPlugin",
+                "description": [
+                    {
+                        "es": "Activa el quantityPlugin"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showSelectableBox",
+                "description": [
+                    {
+                        "es": "Muestra las caja seleccionables"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "selectableBoxRows",
+                "description": [
+                    {
+                        "es": "Maximo agregable del mismo producto pero con diferentes caracteristicas"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "5",
+                "required": "false"
+            },
+            {
+                "param": "showGifts",
+                "description": [
+                    {
+                        "es": "Muestra los productos de regalo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showLockedStocks",
+                "description": [
+                    {
+                        "es": "Determina se se han de mostrar los bloqueos de stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showLockedStocksDescription",
+                "description": [
+                    {
+                        "es": "Determina se se han de mostrar las descripciones de los bloqueos de stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.miniBasketContent({ |basket: basketObj, |showTaxIncluded: false, |showTotal: true, |linkable: true, |showPaymentSystem: true, |showShipping: true, |showCustomTags: false, |showCustomTagPositions: [], |showDeleteItem: true, |showImage: true, |showSku: false, |showOptions: true, |showHeader: true, |showFooter: true, |showOptionValuesName: constant('FWK\\ViewHelpers\\Basket\\Macro\\miniBasketContent::SHOW_OPTION_VALUES_NAME_SHOW_NAME'), |showTotalDiscounts: true, |showTotalVouchers: true, |class: '', |editable: false, |quantityPlugin: false, |showSelectableBox: false, |selectableBoxRows: 5 |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/MiniBasketContent.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/miniBasketContent.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro miniBasketContent(args) %}
+    {{ addTimerDebugFlag('basketMacros-miniBasketContent',true) }}
+    {% set viewParameters = viewHelpers.basket.miniBasketContentMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/miniBasketContent.html.twig' as modeBasket %}
+    {{ modeBasket.miniBasketContent(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-miniBasketContent',false) }}
+{% endmacro miniBasketContent %}
+
+{#- @documentation
+    {
+        "name": "paymentSystems",
+        "description": [
+            {
+                "es": "Permite al usuario seleccionar el metodo de pago"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "paymentSystems",
+                "description": [
+                    {
+                        "es": "Sistemas de pago de tipo SDK\\Dtos\\Factories\\PaymentSystemFactory"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showTaxIncluded",
+                "description": [
+                    {
+                        "es": "Mostrar el precio con los impuestos añadidos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showTitle",
+                "description": [
+                    {
+                        "es": "Mostrar o no el titulo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showZeroPrice",
+                "description": [
+                    {
+                        "es": "Mostrar o no el precio 0"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDescription",
+                "description": [
+                    {
+                        "es": "Mostrar o no la descripcion de los metodos de pago"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showImage",
+                "description": [
+                    {
+                        "es": "Mostrar o no las imagenes mientras se selecciona el metodo de pago"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore macrosCore.basket as basketMacros %} |{{- basketMacros.paymentSystems({  |basket: basket,  |paymentSystems: paymentSystems |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/PaymentSystems.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/paymentSystems.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro paymentSystems(args) %}
+    {{ addTimerDebugFlag('basketMacros-paymentSystems',true) }}
+    {% set viewParameters = viewHelpers.basket.paymentSystemsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/paymentSystems.html.twig' as modeBasket %}
+    {{ modeBasket.paymentSystems(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-paymentSystems',false) }}
+{% endmacro paymentSystems %}
+
+{#- @documentation
+    {
+        "name": "redeemRewardPoints",
+        "description": [
+            {
+                "es": "Permite al usuario indicar la cantidad de puntos de recompensa que desea añadir a ña cesta"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "rewardPoints",
+                "description": [
+                    {
+                        "es": "ElementCollection con los rewardPoints del usuario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Core\\Dtos\\ElementCollection",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "maxAvailableRewardPoints",
+                "description": [
+                    {
+                        "es": "Array donde se puede indicar para cada reward point disponible, el máximo de puntos que se pueden usar. Identificadon cada rewardPoint por su Id público"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "quantityPlugin",
+                "description": [
+                    {
+                        "es": "Usar o no el plugin de cantidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showSelectableBox",
+                "description": [
+                    {
+                        "es": "Mostra la caja de seleccion de cantidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se ve en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showRewardPointsHeader",
+                "description": [
+                    {
+                        "es": "Muestra o no el nombre y descripcion de los rewardPoints"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.redeemRewardPoints({ |basket: session.basket, rewardPoints: userRewardPoints, maxAvailableRewardPoints: {'ePoint_1': 100, 'ePoint_2': 200} |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/RedeemRewardPoints.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/redeemRewardPoints.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro redeemRewardPoints(args) %}
+    {{ addTimerDebugFlag('basketMacros-redeemRewardPoints',true) }}
+    {% set viewParameters = viewHelpers.basket.redeemRewardPointsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/redeemRewardPoints.html.twig' as modeBasket %}
+    {{ modeBasket.redeemRewardPoints(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-redeemRewardPoints',false) }}
+{% endmacro redeemRewardPoints %}
+
+{#- @documentation
+    {
+        "name": "rewardPoints",
+        "description": [
+            {
+                "es": "Muestra el resumen puntos de recompensa aplicados y/o ganados en la cesta"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se ve en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Muestra o no el nombre y descripcion de los reward points"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.rewardPoints({ |basket: session.basket, rewardPoints: userRewardPoints, maxAvailableRewardPoints: {'ePoint_1': 100, 'ePoint_2': 200} |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/RewardPoints.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/rewardPoints.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro rewardPoints(args) %}
+    {{ addTimerDebugFlag('basketMacros-rewardPoints',true) }}
+    {% set viewParameters = viewHelpers.basket.rewardPointsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/rewardPoints.html.twig' as modeBasket %}
+    {{ modeBasket.rewardPoints(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-rewardPoints',false) }}
+{% endmacro rewardPoints %}
+
+{#- @documentation
+    {
+        "name": "steps",
+        "description": [
+            {
+                "es": "Pasos a seguir en un pedido"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "steps",
+                "description": [
+                    {
+                        "es": "Array con los pasos del pedido"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": " |FWK/ViewHelpers/Basket/Macro/Setps::STEP_BASKET, |FWK/ViewHelpers/Basket/Macro/Setps::STEP_CUSTOMER, |FWK/ViewHelpers/Basket/Macro/Setps::STEP_PAYMENT_AND_ASHIPPING, |FWK/ViewHelpers/Basket/Macro/Setps::STEP_CONFIRM_ORDER |",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": " FWK/ViewHelpers/Basket/Macro/Setps::STEP_BASKET",
+                        "description": [
+                            {
+                                "es": "Muestra los productos de la cesta"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/Setps::STEP_CUSTOMER",
+                        "description": [
+                            {
+                                "es": "Usuario que desea realizar pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/Setps::STEP_PAYMENT_AND_ASHIPPING",
+                        "description": [
+                            {
+                                "es": "Paso de pago y facturación"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Basket/Macro/Setps::STEP_CONFIRM_ORDER",
+                        "description": [
+                            {
+                                "es": "Confirmacion del pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "routeType",
+                "description": [
+                    {
+                        "es": "Path de redireccion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showNumbers",
+                "description": [
+                    {
+                        "es": "Muestra el numero de los pasos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.steps({ |steps: [ |constant('FWK\\ViewHelpers\\Basket\\Macro\\Setps::STEP_BASKET'), |constant('FWK\\ViewHelpers\\Basket\\Macro\\Setps::STEP_CUSTOMER'), |constant('FWK\\ViewHelpers\\Basket\\Macro\\Setps::STEP_PAYMENT_AND_ASHIPPING'), |constant('FWK\\ViewHelpers\\Basket\\Macro\\Setps::STEP_CONFIRM_ORDER') |] |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/Steps.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/steps.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro steps(args) %}
+    {{ addTimerDebugFlag('basketMacros-steps',true) }}
+    {% set viewParameters = viewHelpers.basket.stepsMacro(args|merge({ routeType: route.type })) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/steps.html.twig' as modeBasket %}
+    {{ modeBasket.steps(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-steps',false) }}
+{% endmacro steps %}
+
+{#- @documentation
+    {
+        "name": "voucherForm",
+        "description": [
+            {
+                "es": "Permite al usuario introducir codigo de descuento"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "basket",
+                "description": [
+                    {
+                        "es": "Objeto basket, cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Basket\\Basket",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "forceOutput",
+                "description": [
+                    {
+                        "es": "Muestra el formulario sin objetos en la cesta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.basket as basketMacros %} |{{ basketMacros.voucherForm({ |basket: controllerItem |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Basket/Macro/VoucherForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/basket/voucherForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro voucherForm(args) %}
+    {{ addTimerDebugFlag('basketMacros-voucherForm',true) }}
+    {% set viewParameters = viewHelpers.basket.voucherFormMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/voucherForm.html.twig' as modeBasket %}
+    {{ modeBasket.voucherForm(viewParameters) }}
+    {{ addTimerDebugFlag('basketMacros-voucherForm',false) }}
+{% endmacro voucherForm %}

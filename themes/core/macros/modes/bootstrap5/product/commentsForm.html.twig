@@ -1,0 +1,64 @@
+{% macro commentsForm(args, legalCheck) %}
+	{% if args.output %}
+		<div id="productRateCommentFormContainer" class="productRateCommentFormContainer {{ args.configuration.formClass }}">
+			{% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+			{% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+
+			{% for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) %}
+				{% if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') %}
+					{{ element|replace({ (attributeWildcard): 'data-lc-form="productAddCommentForm"' }) }}
+					<div class="form-message"></div>
+				{% elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') %}
+					{{ element }}
+				{% elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') %}
+					{{ legalCheck }}
+					<div class="productRateCommentFormSendBtn">
+						{{ element|replace({ (classWildcard): '' }) }}
+					</div>
+				{% elseif name == constant('FWK\\Enums\\Parameters::NICK') %}
+					<div class="form-group productRateCommentFormNick">
+						{% set fillFnAttr = "" %}
+						{% set fillFnClass = "" %}
+						{% if name in themeConfiguration.commerce.availableFillDataFields|split(',') %}
+							{% set fillFnAttr = 'data-fill-fn="get' ~ ucwords(name) ~ '"' %}   
+							{% set fillFnClass = "js-fill-data" %}
+						{% endif %}
+						{{- element|replace({ 
+							(classWildcard): fillFnClass,
+							(attributeWildcard): fillFnAttr 
+						}) -}}					
+					</div>
+				{% elseif name == constant('FWK\\Enums\\Parameters::IP_STRICT') %}
+					{{ element|replace({ (attributeWildcard) : 'value="' ~ (args.configuration.ipStrict ? 1 : 0) ~ '"' }) }}
+				{% elseif name == constant('FWK\\Enums\\Parameters::COMMENT') %}
+					<div class="form-group productRateCommentFormCommentArea">
+						{{ element|replace({ (classWildcard) : '', (attributeWildcard): '' }) }}
+					</div>
+				{% elseif name == constant('FWK\\Enums\\Parameters::RATING') %}
+					<div class="form-group productRateCommentFormStars">
+						<label for="productCommentsNickField">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VALORATE_RATE')] }}</label>
+						<div class="productViewValorationContainer productRateValorationContainer" id="productCommentsStarsField">
+							{{- outputHtmlRating(args.configuration.defaultRatingAmount, true) -}}
+						</div>
+						<div class="Valoration">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::AVERAGE_VALORATION_ONE')] }}:<span id="valorationValue">{{ args.configuration.defaultRatingAmount }}</span></div>
+					</div>
+					{{ element|replace({ (attributeWildcard) : 'value="' ~ args.configuration.defaultRatingAmount ~ '"' }) }}
+				{% else %}
+					{{ element|replace({ (attributeWildcard): '' }) }}
+				{% endif %}
+			{% endfor %}
+		</div>
+	{% endif %}
+
+	{% if not args.output and not session.user.id and not themeConfiguration.forms.comments.anonymousRatingEnabled %}
+		<div id="productFormCommentAccountRequired" class="commentFormAccountRequired">
+			<div class="accountRequiredBlock">
+				<div class="questionText">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::COMMENT_ACCOUNT_REQUIRED')] -}}</div>
+				<div class="questionButtons">
+					<button type="button" class="btn btn-secondary questionButton questionButtonClose" data-bs-dismiss="modal"> {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] }} </button>
+					<a class="btn btn-primary questionButton questionButtonLogin" href="{{- routePaths.getPath(constant('FWK\\Enums\\RouteType::USER')) -}}" rel="nofollow" role="button">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] -}}</a>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endmacro commentsForm %}

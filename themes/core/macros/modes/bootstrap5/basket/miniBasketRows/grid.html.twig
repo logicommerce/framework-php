@@ -1,0 +1,152 @@
+{%- macro grid(args, basketItem) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemOptions.html.twig' as modeBasket -%}
+    {%- from 'macros/modes/' ~ coreMode ~ '/basket/miniBasketRows/gridEditable.html.twig' import gridEditable -%}
+
+    {% set rows = session.basketGridProducts[basketItem.id].rows %}
+    {% set options = session.basketGridProducts[basketItem.id].options %}
+    {% set optionValues = session.basketGridProducts[basketItem.id].optionValues %}
+    {% set gridOptionIds = session.basketGridProducts[basketItem.id].gridOptionIds %}
+    {% set gridOptionValueIds = session.basketGridProducts[basketItem.id].gridOptionValueIds %}
+
+    {%- if args.showImage == true -%}
+        <span class="miniBasketItemImage">
+            {%- if args.linkable == true -%}
+                <a href="{{ basketItem.urlSeo }}">
+            {%- endif -%}
+                <img src="{{ basketItem.images.smallImage }}" alt="{{ basketItem.name|striptags }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';" class="miniBasketItemImage img-fluid">
+            {%- if args.linkable == true -%}
+                </a>
+            {%- endif -%}
+        </span>
+    {%- endif -%}
+
+    {%- if args.showDeleteItem == true and args.editable == false -%}
+        {% set gridHashes = [] %}
+        {% for rowId in rows|keys %}
+            {% for gridRow in rows[rowId].grid %}
+                {%- if gridRow.hash|length -%}
+                    {%- set gridHashes = array_add(gridHashes, gridRow.hash) -%}
+                {%- endif -%}
+            {% endfor %}
+        {% endfor %}
+        <a class="miniBasketItemDelete" href="#" role="button" data-lc-mini-basket-delete-grid='{{ outputJsonHtmlString(gridHashes) }}' aria-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ROW')] }}" >
+            <span aria-hidden="true" class="miniBasketItemDeleteIcon glyphicon glyphicon-trash"></span>
+        </a>
+    {%- endif -%}
+
+    <div class="miniBasketItemContent" data-lc-grid-product-id="{{basketItem.id}}">
+        {%- if args.editable == false -%}
+            <span class="miniBasketItemNum">{{ basketItem.quantityOutput|replace({ '{{className}}': 'form-control' }) }}</span>
+        {%- endif -%}
+
+        {% set spacelessContent %}
+            <span class="miniBasketItemName">
+                {%- if args.linkable == true -%}
+                    <a href="{{ basketItem.urlSeo }}">
+                {%- endif -%}
+                    {{- basketItem.name|striptags -}}
+                {%- if args.linkable == true -%}
+                    </a>
+                {%- endif -%}
+            </span>
+        {% endset %}
+        {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+
+        {%- if args.showBrand == true and basketItem.brandName|length -%}
+            <span class="miniBasketItemBrandName">{{ basketItem.brandName }}</span>
+        {%- endif -%}
+
+        {%- if args.showCustomTags == true -%}
+            <div class="miniBasketCustomTags">
+                {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemCustomTags.html.twig' as modeBasket -%}
+                {{- modeBasket.outputItemCustomTags(basketItem.customTagValues, args.showCustomTagPositions) -}}
+            </div>
+        {%- endif -%}
+
+        {% for option in session.basketGridProducts[basketItem.id].noCombinableOptions %}
+            <div class="{{ args.gripOptionsClassPrefix }}Option">
+                <span class="{{ args.gripOptionsClassPrefix }}OptionName">{{ option.name|striptags }}</span>
+                {{ modeBasket.outputOptionValue(option, args.gripOptionsClassPrefix) }}
+            </div>
+        {% endfor %}
+
+            {% for rowId in rows|keys %}
+                {% set gridHashes = [] %}
+                {% for gridRow in rows[rowId].grid %}
+                    {%- if gridRow.hash|length -%}
+                            {%- set gridHashes = array_add(gridHashes, gridRow.hash) -%}
+                    {%- endif -%}
+                {% endfor %}
+
+                {%- if gridHashes|length -%}
+                    <div class="combinationGrid">
+                        {%- if args.editable == true -%}
+                            <div class="miniBasketItemQuantity miniBasketItemQuantityTotal">
+                                <div class="miniBasketQuantityText">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')] }}</div>
+                                <div class="miniBasketQuantityValue">{{ rows[rowId].totalQuantity }}</div>
+                            </div>
+                        {%- endif -%}
+                        {%- if rowId != 0 and args.editable == false -%}                    
+                            {%- set rowNoGridValues = rowId|split('-') -%}
+                            <div class="miniBasketOptions">
+                                <div class="{{ args.gripOptionsClassPrefix }}Options">
+                                    {% for rowNoGridValueId in rowNoGridValues %}
+                                        {%- set option = optionValues[rowNoGridValueId] -%}
+                                        <div class="{{ args.gripOptionsClassPrefix }}Option">
+                                            <span class="{{ args.gripOptionsClassPrefix }}OptionName">{{ options[option.optionId].name|striptags }}</span>
+                                            <span class="{{ args.gripOptionsClassPrefix }}OptionValue">{{ option.value }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {%- endif -%}
+                        <div class="miniBasketGrid">
+                            {%- if args.editable == false -%}
+                                {% for gridRowId in rows[rowId].grid|keys %}
+                                    {%- set rowGridValues = gridRowId|split('-') -%}
+                                    {%- if rows[rowId].grid[gridRowId].quantity > 0 -%}
+                                        <div class="cellGrid">
+                                            
+                                                <div class="{{ args.gripOptionsClassPrefix }}Options">
+                                                    {% for rowGridValueId in rowGridValues %}
+                                                        {%- set option = optionValues[rowGridValueId] -%}
+                                                        <div class="{{ args.gripOptionsClassPrefix }}Option">
+                                                            <span class="{{ args.gripOptionsClassPrefix }}OptionName">{{ options[option.optionId].name|striptags }}</span>
+                                                            <span class="{{ args.gripOptionsClassPrefix }}OptionValue">{{ option.value }}</span>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                                <div class="{{ args.gripOptionsClassPrefix }}quantity">
+                                                    <span class="miniBasketGridQuantity">
+                                                        {{ rows[rowId].grid[gridRowId].quantity }}
+                                                    </span>
+                                                </div>
+                                        </div>
+                                    {%- endif -%}
+                                {% endfor %}
+                            {%- else -%}
+                                {%- if rows[rowId].totalQuantity > 0 -%}
+                                    {{ gridEditable(args, basketItem, rowId, rows[rowId], options, optionValues, gridOptionIds, gridOptionValueIds) }}
+                                {%- endif -%}
+                            {%- endif -%}
+                        </div>
+
+                        <div class="miniBasketItemPrice miniBasketItemPriceTotal">
+                            {%- set basketItemTotal = rows[rowId].subtotal -%}
+                            {%- if args.showTaxIncluded == true -%}
+                                {%- set basketItemTotal = rows[rowId].total -%}
+                            {%- endif -%}
+                            {%- if basketItemTotal != 0 -%}
+                                {{- outputHtmlCurrency(basketItemTotal) -}}
+                            {%- else -%}
+                                {{- outputHtmlCurrency(0) -}}
+                            {%- endif -%}
+                        </div>
+                    </div>
+                {%- endif -%}
+            {% endfor %}
+        
+    </div>
+
+{%- endmacro grid -%}

@@ -1,0 +1,94 @@
+{%- macro bundle(args, basketRow) -%}
+    {# variables #}
+    {%- set nameWildcard = basketRow.name|striptags -%}
+    {%- set imageWildcard -%}
+        {%- for basketBundleItem in basketRow.items -%}
+            <span class="wrap">
+                <img src="{{ basketBundleItem.images.smallImage }}" alt="{{ basketBundleItem.name|striptags }}" title="{{ basketBundleItem.name|striptags }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';" class="basketBundleImage img-fluid">
+            </span>
+        {%- endfor -%}
+    {%- endset -%}
+    {%- set bundleHashWildcard = basketRow.hash -%}
+    {%- set lblDeleteRowWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ROW')] -%}
+    {%- set lblDeleteWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')] -%}
+    {%- set lblSaveForLaterButtonWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::SAVE_FOR_LATER_BUTTON')] -%}
+
+    {%- set viewPackBtnWildcard -%}
+        <button class="basketViewBundle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#brCollap{{ basketRow.hash }}" aria-expanded="false" aria-controls="brCollap{{ basketRow.hash }}">
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_VIEW_PACK')] -}}
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>
+        </button>
+    {%- endset -%}
+
+    {% set warningsWildcard %}
+        {% if args.showWarnings == true %}
+            {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/warnings.html.twig' as basketWarnings %}
+            {{ basketWarnings.basketWarningsBlock(
+                args.warningsBlockItems, args.showWarnings, args.errorWarningPosition, args.warningWarningPosition, args.infoWarningPosition, 
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::WARNING_POSITION_LINE'), [bundleHashWildcard]
+            ) }}
+        {% endif %}
+    {% endset %}
+    {# end variables #}
+
+    {%- if args.productsBundleTemplate != null -%}
+
+        {{- args.productsBundleTemplate|replace({
+            '{{image}}': imageWildcard,
+            '{{name}}': nameWildcard,
+            '{{bundleHash}}': bundleHashWildcard,
+            '{{lblDeleteRow}}': lblDeleteRowWildcard,
+            '{{lblDelete}}': lblDeleteWildcard,
+            '{{lblSaveForLaterRow}}': lblSaveForLaterRowWildcard,
+            '{{lblSaveForLater}}': lblSaveForLaterWildcard,
+            '{{viewPackBtn}}': viewPackBtnWildcard,
+            '{{warningsWildcard}}': warningsWildcard
+        }) -}}
+
+    {%- else -%}{# default template #}
+
+        {%- if args.showImage == true -%}
+            <span class="basketBundleImage">
+                <button class="basketBundleImageBtn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#brCollap{{ basketRow.hash }}" aria-expanded="false" aria-controls="brCollap{{ basketRow.hash }}">
+                    {{- imageWildcard -}}
+                </button>
+            </span>
+        {%- endif -%}
+
+        <div class="basketBundleInfo">
+            <span class="basketBundleName">
+                {{- nameWildcard -}}
+            </span>
+
+            {%- if args.editable == true -%}
+                <a role="button" href="#" class="basketDeleteRow" data-lc-basketDeleteRow="{{ bundleHashWildcard }}" title="{{ lblDeleteRowWildcard }}">
+                    <span class="basketDeleteRowIcon glyphicon glyphicon-trash"></span>
+                    <span class="basketDeleteRowText">{{ lblDeleteWildcard }}</span>
+                </a>
+            {%- endif -%}
+
+            {%- if args.saveForLater == true -%}
+                <button type="button"  id="saveForLaterRowButton_{{bundleHashWildcard}}" class="btn btn-secondary saveForLaterRowButton" data-lc-basketSaveForLaterRow='{{ bundleHashWildcard }}'>
+                    <span>{{ lblSaveForLaterButtonWildcard }}</span>
+                </button>
+            {%- endif -%}
+
+            {{- viewPackBtnWildcard -}}
+        </div>
+
+        <div class="basketBundleItems collapse" id="brCollap{{ basketRow.hash }}">
+            {%- import 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/bundleItem.html.twig' as basketRowBundleItem -%}
+            {%- for basketBundleItem in basketRow.items -%}
+                <div class="basketBundleItem">
+                    {{- basketRowBundleItem.bundleItem(args, basketBundleItem) -}}
+                </div>    
+            {%- endfor -%}
+        </div>
+
+        <div class="basketBundleInfo">
+            {{ warningsWildcard }}
+        </div>
+
+    {%- endif -%}{# end default template #}
+
+{%- endmacro bundle -%}

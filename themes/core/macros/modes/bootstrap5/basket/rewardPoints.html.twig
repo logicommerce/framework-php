@@ -1,0 +1,23 @@
+{% macro rewardPoints(args) %}
+    {%- if args.basket.rewardPoints|length -%}
+        <div class="rewardPointsSummary {{- args.class|length ? ' ' ~ args.class : '' -}}">
+            {%- for rewardPoint in args.basket.rewardPoints -%}
+                <div class="rewardPointsItem">
+                    {%- if args.showHeader -%}
+                        <div class="rewardPointsItemName">{{ rewardPoint.language.name }}</div>
+                        {%- if rewardPoint.language.description|length -%}
+                            <div class="rewardPointsItemDesc">{{ rewardPoint.language.description }}</div>
+                        {%- endif -%}
+                    {%- endif -%}
+
+                    <div class="rewardPointsTotalEarning">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_TOTAL_EARNING')]|replace({
+                            '{{name}}': '<span class="name">' ~ rewardPoint.language.name ~ '</span>',
+                            '{{value}}': '<span class="value">' ~ rewardPoint.summary.totalEarned ~ '</span>',
+                        }) -}}
+                    </div>
+                </div>
+            {%- endfor -%}
+        </div>
+    {%- endif -%}
+{% endmacro rewardPoints %}

@@ -1,0 +1,12 @@
+{% import macrosCore.user as userMacros %}
+
+{{ userMacros.locationsPath({ 
+    'fieldName': controllerItem.fieldName,
+    'selectedIds': controllerItem.selectedIds,
+    'countryCode': controllerItem.countryCode,
+    'country': controllerItem.country,
+    'state': controllerItem.state,
+    'city': controllerItem.city,
+    'postalCode': controllerItem.postalCode
+}) }}
+

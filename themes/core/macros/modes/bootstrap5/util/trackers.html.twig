@@ -1,0 +1,19 @@
+{%- macro trackers(args) -%}
+    
+    {%- for tracker in args.trackers -%}
+        {%- set scripts = tracker.scripts -%}
+        {%- if args.ambience != constant('SDK\\Enums\\TrackerAmbience::ALL') -%}
+            {%- set scripts = scripts|filter(script => script.ambience == args.ambience) -%}
+        {%- endif -%}
+        {%- if args.position|trim|length -%}
+            {%- set scripts = scripts|filter(script => script.position == args.position) -%}
+        {%- endif -%}
+        {%- if args.type|trim|length -%}
+            {%- set scripts = scripts|filter(script => script.type == args.type) -%}
+        {%- endif -%}
+        {%- for script in scripts -%}
+            {{- script.code -}}
+        {%- endfor -%}
+    {%- endfor -%}
+
+{%- endmacro trackers -%}

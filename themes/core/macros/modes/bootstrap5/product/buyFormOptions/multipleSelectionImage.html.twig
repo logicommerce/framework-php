@@ -1,0 +1,39 @@
+{% macro multipleSelectionImage(option, optionIdName, args) %}
+
+    <div class="productOption productOptionCheckbox productOptionImage productOption{{ optionIdName }} productOptionPId_{{option.pId}}" data-lc-product-option='{{ outputJsonHtmlString({ id: optionIdName, name: option.language.name, pId: option.pId }) }}'>
+        
+        {% if args.showImageOptions == true and option.image|length > 0 %}
+            <div class="productOptionContainerImage" title="{{ option.language.prompt|default(option.language.name) }}">
+				<img src="{{ option.image }}" alt="{{ option.language.prompt|default(option.language.name|escape) }}">
+			</div>
+        {% endif %}
+        
+        <div class="productOptionPrompt" title="{{ option.language.prompt|default(option.language.name|escape) }}">{{ option.language.prompt|default(option.language.name) }}</div>
+        
+        <div class="productOptionValues">
+            {% for optionValue in option.values %}
+                <div class="productOptionValue productOptionValue{{ loop.index }} productOptionCheckboxValue productOptionImageValue" data-lc-product-option-value='{{ outputJsonHtmlString({ id: optionValue.id, value: optionValue.language.value, combinable: option.combinable }) }}'>
+
+                    {% set uid = random(10000000, 99999999) %}
+                    <label class="productOptionValueName" for="optionValue_{{ uid }}_{{ optionValue.id }}">
+                        <img src="{{ optionValue.images.smallImage }}" class="productOptionValueImage" alt="{{ optionValue.language.value }}">
+                    </label>
+                    <input 
+                        type="checkbox" id="optionValue_{{ uid }}_{{ optionValue.id }}" name="optionValue{{ optionIdName }}" class="productOptionCheckboxValue" value="{{ optionValue.id }}"
+                        {% if optionValue.id in option.selectedOptionValueId %}
+                            checked="checked"
+                        {% endif %}    
+                        autocomplete="off"
+                    >
+
+                    {% if args.showShortDescription == true and optionValue.language.shortDescription|length > 0 %}
+                        <div class="productOptionValueDescription productOptionShortDescription">{{ optionValue.language.shortDescription }}</div>
+                    {% endif %}
+                    {% if args.showLongDescription == true and optionValue.language.longDescription|length > 0 %}
+                        <div class="productOptionValueDescription productOptionLongDescription">{{ optionValue.language.longDescription }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endmacro %}

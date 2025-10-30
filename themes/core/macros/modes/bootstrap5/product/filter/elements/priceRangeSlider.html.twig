@@ -1,0 +1,19 @@
+{%- macro elements(filters, appliedFilters, fromValue, toValue, minValue, maxValue) -%}
+    <div class="pricesFilterElement filterElementRange">
+        <input 
+            type="text" 
+            class="filterSliderRange visually-hidden" 
+            name="{{ constant('FWK\\Enums\\Parameters::PRICE_RANGE') }}" 
+            value="{{ fromValue }}{{ constant('FWK\\Core\\FilterInput\\FilterInput::REGEX_VALIDATE_RANGE_SEPARATOR') }}{{ toValue }}" 
+            data-lc-range-slider="true" 
+            data-min="{{ minValue }}" 
+            data-max="{{ maxValue }}"
+            data-from="{{ fromValue }}"
+            data-to="{{ toValue }}"
+            data-type="double" 
+            data-grid="true" 
+            data-grid-num="1" 
+            data-skin="round" {# http://ionden.com/a/plugins/ion.rangeSlider/skins.html #}
+        >
+    </div>
+{%- endmacro -%}

@@ -1,0 +1,27 @@
+    <table border=1>
+    	<tr>
+    		<th>Loop Index</th>
+    		<th>Id area.id</th>
+    		<th>Public id area.pId</th>
+    		<th>CategoryRole area.categoryRole</th>
+    		<th>BrandRole area.brandRole</th>
+    		<th>Position area.Position</th>
+    		<th>Active area.active</th>
+    		<th>Priority area.priority</th>
+    		<th>Language Name area.language.name</th>
+    		<th>Language Description area.language.description</th>
+    		<th>Language keywords area.language.keywords</th>
+    		<th>Language particularTitle area.language.particularTitle</th>
+    		<th>Language metaDescription area.language.metaDescription</th>
+    		<th>Language urlSeo area.language.urlSeo</th>
+    	</tr>
+    	{% if areas is iterable %}
+        	{% for area in areas %}
+    	        {% include '/snippets/demo/area.html.twig' with {'area' : area, 'index' : loop.index0} only %}
+    	    {% endfor %}
+        {% else %}
+            {% include '/snippets/demo/area.html.twig' with {'area' : areas} only %}
+        {% endif %}
+    </table>
+    
+    

@@ -1,0 +1,41 @@
+<div class="contentTd">
+	{% if (categories is iterable and categories|length > 0 )%}
+    	<table border=1>
+    		<tr>
+    			<th>Category</th>
+    			<th>Value</th>
+    		</tr>	
+	        {% for category in categories %}
+			<tr>
+				<td>{{ loop.index0 }}</td>
+				<td>
+                	<table border=1>
+                		<tr>
+                			<th>Label</th>
+                			<th>Value</th>
+                		</tr>
+                		<tr>
+                			<td>id</td>
+                			<td>{{ category.id }}</td>
+                		</tr>
+                		<tr>
+                			<td>name</td>
+                			<td>{{ category.name }}</td>
+                		</tr>
+                		<tr>
+                			<td>priority</td>
+                			<td>{{ category.priority }}</td>
+                		</tr>
+					 </table>
+				</td>
+			</tr>
+    	    {% endfor %}
+    	</table>
+	{% else %}
+		no categories
+	{% endif %}
+</div>
+
+
+
+

@@ -1,0 +1,40 @@
+{% macro registeredUserSelector(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/account/registeredUsers.html.twig' as registeredUsers %}
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %} 
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+
+  <div>
+    <div id="registeredUserSelectorContainer">
+        <div id="registeredUserSelector" class="d-flex flex-column">
+            <div class="form-group formFieldGroup userFieldGroup"> 
+                <label for="registeredUserSelect" class="form-label">
+                    {{ languageSheet[constant('SITE\\Enums\\LanguageLabels::SELECT_USER')] }}
+                    <span class="required">*</span>
+                </label>
+                <input type="text" id="registeredUserSelect" name="registeredUserSelect" class="form-select" data-lc-function="registeredUserSelector" data-lc-event="click" data-format="{{ getJSDatePattern() }}" data-account-id="{{ args.accountId }}" data-validation="required" required readonly>
+            </div>
+            <div class="mb-4" id="registeredUserSelectorContent" style="display:none;">
+                <div class="mb-3">
+                    <div class="form-group formFieldGroup userFieldGroup"> 
+                        <label for="registeredUserSelect" class="form-label">
+                            {{ languageSheet[constant('SITE\\Enums\\LanguageLabels::' ~ settings.registeredUsersSettings.keyCriteria)] }}
+                        </label>
+                        <input type="text" class="form-control registeredUserSearch" onkeyup="searchRegistredUser(this, '{{ args.accountId }}', this.value, '{{getJSDatePattern()}}', false)"  placeholder="{{languageSheet[constant('SITE\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH')]}}">
+                    </div>
+                </div>
+
+                <div id="registredUserResultsContainer" class="list-group overflow-auto">
+                    
+                </div>
+                <input type="hidden" name="registeredUserId" id="registeredUserId" maxlength="255" autocomplete="off">
+            </div>
+        </div>
+        <div id="selectedRegisteredUserSummary" class="d-none mb-4" >
+           
+        </div>
+    </div>
+   
+  </div>
+
+{% endmacro registeredUserSelector %}

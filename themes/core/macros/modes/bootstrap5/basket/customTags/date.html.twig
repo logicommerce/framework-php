@@ -1,0 +1,47 @@
+{% macro date(customTag, showForm) %}
+
+    {% set customTagValue = customTag.defaultValue %}
+    {% set customTagValue = '' %}
+    {% if customTag.value|length %}
+        {% set customTagValue = customTag.value %}
+    {% endif %}
+
+    {% if showForm == true  %}
+        {% set spacelessContent %}
+            <div class="input-group date" 
+                data-datetimepicker="basketCustomTag{{ customTag.id }}"
+                data-language="{{ route.language }}" 
+                data-years="1910-{{ 'now'|date('Y') }}" 
+                data-weekStart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+                data-submit="customTags_{{ customTag.id }}"  
+                data-format="{{ getJSDatePattern() }}" 
+                {% if customTag.minValue is defined and customTag.minValue|length %}
+                    data-startdate="{{ customTag.minValue|date(getTwigDatePattern()) }}"
+                {% endif %}
+                {% if customTag.maxValue is defined and customTag.maxValue|length %}
+                    data-enddate="{{ customTag.maxValue|date(getTwigDatePattern()) }}"
+                {% endif %}
+            >
+                {% if customTagValue|length %}
+                    {%- set dateValue = customTagValue|date(getTwigDatePattern()) -%}
+                {% else %}
+                    {%- set dateValue = "" -%}
+                {% endif %}
+
+                <input type="text" value="{{ dateValue }}" class="form-control formField userField" id="basketCustomTag{{ customTag.id }}" name="basketCustomTag{{ customTag.id }}"
+                    {% if customTag.required == true %}
+                        data-validation="required"
+                    {% endif %}
+                >
+                <span class="input-group-addon input-group-text">
+                    <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+                </span>
+            </div>
+            <input type="hidden" value="{{ customTagValue }}" id="customTags_{{ customTag.id }}" name="customTags_{{ customTag.id }}" >
+        {% endset %}
+        {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+    {% else %}
+        <div class="staticUserDateValue">{{ customTagValue }}</div>
+    {% endif %}
+{% endmacro %}
+

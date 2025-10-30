@@ -1,0 +1,79 @@
+{% macro orderRmas(args) %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+    
+    <div class="rmaTableResponsive">
+
+        <div class="rmaRequestTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING')] }}</div>
+
+        <table class="table">
+            <thead>
+                <tr class="grid userRmaRequest rmaRequestHeader rmaRequestsGroup">
+                    <td class="gridHeader userRmaRequestHeader userRmaRequestHeaderNumber">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_NUMBER')] }}</td>
+                    <td class="gridHeader userRmaRequestHeader userRmaRequestHeaderDateOrdered">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_DATE_ORDERED')] }}</td>
+                    <td class="gridHeader userRmaRequestHeader userRmaRequestHeaderState">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_STATUS')] }}</td>
+                    <td class="gridHeader userRmaRequestHeader userRmaRequestHeaderActions">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_ACTIONS')] }}</td>
+                </tr>
+            </thead>
+            <tbody>
+                {% set lcData = {
+                    session: isSessionLoggedIn()
+                } %}
+                {% for rma in args.rmas %}
+                    {% set lcData = lcData|merge({
+                        documentId: rma.id,
+                        token: '',
+                        pdf: false
+                    }) %}
+                    <tr class="grid userRmaRequest rmaRequestBody rmaRequestsGroup">
+                        <td class="grid userRmaRequest userRmaRequestOrderNumber">
+                            <div class="title-td-mv">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_NUMBER')] }}</div>
+                            <div class="clearfix wrp">{{ rma.documentNumber }}</div>
+                        </td>
+                        <td class="grid userRmaRequest userRmaRequestDateOrdered">
+                            <div class="title-td-mv">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_DATE_ORDERED')] }}</div>
+                            <div class="clearfix wrp">{{ formatDateTime(rma.date) }}</div>
+                        </td>
+                        <td class="grid userRmaRequest userRmaRequestStatus">
+                            <div class="title-td-mv">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_STATUS')] }}</div>
+                            <div class="clearfix wrp">
+                                {% set status = languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_STATUS_' ~ rma.status)] %}
+                                {% if rma.substatus|length > 0 %}
+                                    {% set status = status ~ ' / ' ~ rma.substatus %}
+                                {% endif %}
+                                {{ status }}
+                            </div>
+                        </td>
+                        <td class="grid userRmaRequest userRmaRequestActions">
+                            <div class="title-td-mv">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_ACTIONS')] }}</div>
+                            <div class="wrp order-links">
+                                {# view rma #}
+                                {% set lcData = lcData|merge({'documentType':'rma'}) %}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\OrderRmas::ACTION_RMA') in args.showRmasActions %}
+                                    <div class="userOrderActionWrap">
+                                        <button class="btn btn-link userOrderAction rma" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\OrderRmas::ACTION_RMA') in args.showRmasIcons %}
+                                                <img src="{{ iconsPath ~ 'viewRma' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA')] }}">
+                                            {% endif %}
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA')] }}</span>
+                                        </button>
+                                    </div>
+                                {% endif %}
+                                {# view rma pdf #}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\OrderRmas::ACTION_RMA_PDF') in args.showRmasActions %}
+                                    <div class="userOrderActionWrap">
+                                        <button class="btn btn-link userOrderAction rmaPdf" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData|merge({'pdf':true})) }}'>
+                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\OrderRmas::ACTION_RMA_PDF') in args.showRmasIcons %}
+                                                <img src="{{ iconsPath ~ 'viewRmaPdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_PDF')] }}">
+                                            {% endif %}
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_PDF')] }}</span>
+                                        </button>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro orderRmas %}

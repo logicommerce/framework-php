@@ -1,0 +1,66 @@
+{% macro productComparison(args) %}
+    {%- from 'macros/modes/' ~ coreMode ~ '/product/productComparison/product.html.twig' import product as productTemplate -%}
+
+    {%- set products = args.productComparison.items -%}
+    <section class="module module-product-comparison">
+        <div class="container-md">
+            <h1 class="product-comparison-title">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_COMPARISON_TITLE')] }}</h1>
+            
+            {%- if args.productComparison.items|length -%}
+                {%- set productsIdList = [] -%}
+                {%- for product in args.productComparison.items -%}
+                    {%- set productsIdList = productsIdList|merge([product.id]) -%}
+                {%- endfor -%}
+                
+                <div class="table-responsive">
+                    <table id="comparison-table" class="table table-bordered">
+                        <colgroup class="table-column-group">
+                            {%- set colsNumber = args.tableItems -%}
+                            {%- if args.productComparison.items|length > colsNumber -%}
+                                {%- set colsNumber = args.productComparison.items|length -%}
+                            {%- endif -%}
+                            {%- set colWidth = 85 / colsNumber -%}
+
+                            <col width="15%" class="col-prod-group">
+                            {%- for i in 1..colsNumber -%}
+                                {%- if loop.index > args.productComparison.items|length -%}
+                                    <col width="{{ colWidth }}%" class="col-prod-col responsive-col">
+                                {%- else -%}
+                                    <col width="{{ colWidth }}%" class="col-prod-col">
+                                {%- endif -%}
+                            {%- endfor -%}
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th></th>
+                                {%- for product in args.productComparison.items -%}
+                                    <td class="product-list-col" data-lc-product-comparison-item="{{- product.id -}}">
+                                        {{- productTemplate(product, args) -}}
+                                    </td>
+                                {%- endfor -%}
+                            </tr>
+                            {%- for customTag in args.customTagsValues -%}
+                                <tr>
+                                    <th>{{ customTag.name }}</th>
+                                    {%- for prodId in productsIdList -%}
+                                        <td data-lc-product-comparison-item="{{- prodId -}}">
+                                            {%- set productCustomTag = customTag.values|filter(value => prodId == value.prodId)|first -%}
+                                            {%- if productCustomTag|length -%}
+                                                {{- productCustomTag.value -}}
+                                            {%- else -%}
+                                                -
+                                            {%- endif -%}
+                                        </td>
+                                    {%- endfor -%}
+                                </tr>
+                            {%- endfor -%}
+                        </tbody>
+                    </table>
+                </div>
+            {%- else -%}
+                <div class="empty-text">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NO_PRODUCTS_IN_COMPARISON')] }}</div>
+            {%- endif -%}
+        </div>
+    </section>
+
+{% endmacro productComparison %}

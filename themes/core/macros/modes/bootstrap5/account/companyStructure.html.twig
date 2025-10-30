@@ -1,0 +1,391 @@
+{% macro companyStructure(args) %}
+    <!-- Drag badge indicator -->
+    <div id="companyStructureDragBadge"></div>
+
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+    {% if args.companyStructure is defined and args.companyStructure is not null %}
+        {# Check if companyStructure is ElementCollection with items or a single node #}
+        {% if args.companyStructure.items is defined %}
+            {# It's an ElementCollection - check if it has items #}
+            {% if args.companyStructure.items|length > 0 %}
+                <div class="userCompanyStructure userCompanyStructureWithData" id="companyStructureTree">
+                    <div class="companyStructureTree">
+                        {% for companyNode in args.companyStructure.items %}
+                            {{ _self.renderCompanyNode(companyNode, args.currentUser, args.permissions, args.availableActions, true, iconsPath, 0, true, false) }}
+                        {% endfor %}
+                    </div>
+                    
+                    {# Loading overlay for moving nodes #}
+                    <div id="companyStructureLoading" class="company-structure-loading d-none">
+                        <div class="loading-overlay">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOADING')] ?? 'Loading...' }}</span>
+                            </div>
+                            <div class="loading-text">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MOVING')] ?? 'Moving...' }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                {# ElementCollection is empty - show no data message #}
+                <div class="userCompanyStructure userCompanyStructureEmpty">
+                    <div class="clearfix empty-text">
+                        <i class="fa fa-building" aria-hidden="true"></i>
+                        <p>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_COMPANY_STRUCTURE_NO_DATA_AVAILABLE')] ?? 'No company structure data available' }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            {# It's a single CompanyStructureTreeNode #}
+            <div class="userCompanyStructure userCompanyStructureWithData" id="companyStructureTree">
+                <div class="companyStructureTree">
+                    {{ _self.renderCompanyNode(args.companyStructure, args.currentUser, args.permissions, args.availableActions, true, iconsPath, 0, true, false) }}
+                </div>
+                
+                {# Loading overlay for moving nodes #}
+                <div id="companyStructureLoading" class="company-structure-loading d-none">
+                    <div class="loading-overlay">
+                        <div class="loading-spinner">⟳</div>
+                        <div class="loading-text">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MOVING')] ?? 'Moving...' }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="userCompanyStructure userCompanyStructureEmpty">
+            <div class="clearfix empty-text">
+                <span class="empty-building-icon">🏢</span>
+                <p>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_COMPANY_STRUCTURE_NO_DATA_AVAILABLE')] ?? 'No company structure data available' }}</p>
+            </div>
+        </div>
+    {% endif %}
+{% endmacro companyStructure %}
+
+{% macro renderCompanyNode(node, currentUser, permissions, availableActions, isRoot, iconsPath, level, isLastChild, isInUsedAccountBranch) %}
+    {# Check if this is the used account - compare user ID with node ID or check account.id #}
+    {% set isUsedAccount = currentUser and ((currentUser.account is defined and currentUser.account and currentUser.account.id == node.id) or (currentUser.id == node.id)) %}
+    {% set hasChildren = node.subCompanyDivisions and node.subCompanyDivisions.items|length > 0 %}
+    {% set canExpand = hasChildren or node.hasSubCompanyDivisionsToLoad %}
+    {% set canDrag = not isRoot and not isUsedAccount %} {# Only sub-accounts of used account can be dragged #}
+
+    {# Track if we are inside the used account branch #}
+    {% set nowInUsedBranch = isUsedAccount or isInUsedAccountBranch %}
+
+    {# Full actions: ONLY used account OR descendants of used account (NOT root unless it IS the used account) #}
+    {% set hasFullActions = isUsedAccount or isInUsedAccountBranch %}
+    
+    {% set lcData = {
+        accountId: node.id,
+        accountName: node.name,
+        isRoot: isRoot,
+        isUsed: isUsedAccount,
+        level: level,
+        canExpand: canExpand,
+        canDrag: canDrag,
+        hasSubDivisionsToLoad: node.hasSubCompanyDivisionsToLoad ?? false
+    } %}
+    
+    {% set nodeClasses = 'userCompanyStructureNode companyStructureLevel' ~ level %}
+    {% if isRoot %}
+        {% set nodeClasses = nodeClasses ~ ' companyStructureRoot' %}
+    {% endif %}
+    {% if isUsedAccount %}
+        {% set nodeClasses = nodeClasses ~ ' companyStructureUsed' %}
+    {% endif %}
+    {# Nodes are expanded by default - no collapsed class #}
+    
+    <div class="{{ nodeClasses }}"
+         id="companyNode{{ node.id }}"
+         data-node-id="{{ node.id }}"
+         data-lc='{{ outputJsonHtmlString(lcData) }}'>
+
+        <div class="userCompanyStructureNodeHeader">
+            <div class="userCompanyStructureNodeMain">
+                <div class="userCompanyStructureNodeLeft">
+                    {# Drag Handle - Only visible if canDrag, otherwise spacer for alignment (except root) #}
+                    {% if canDrag %}
+                        <span class="userCompanyStructureDragHandle" draggable="true" title="Arrastrar para mover">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="9" cy="5" r="1"></circle>
+                                <circle cx="9" cy="12" r="1"></circle>
+                                <circle cx="9" cy="19" r="1"></circle>
+                                <circle cx="15" cy="5" r="1"></circle>
+                                <circle cx="15" cy="12" r="1"></circle>
+                                <circle cx="15" cy="19" r="1"></circle>
+                            </svg>
+                        </span>
+                    {% elseif not isRoot %}
+                        {# Spacer to maintain alignment when drag handle is not present (but not for root) #}
+                        <span class="userCompanyStructureDragHandleSpacer"></span>
+                    {% endif %}
+
+                    {# Expand/Collapse Icon Button #}
+                    <button type="button"
+                            class="userCompanyStructureToggleBtn {{ canExpand ? 'expandable' : 'not-expandable' }}"
+                            {% if canExpand %}
+                                data-lc-event="click"
+                                data-lc-function="toggleCompanyNode"
+                                data-lc-data='{{ outputJsonHtmlString(lcData) }}'
+                            {% endif %}>
+                        {% if canExpand %}
+                            {# Expanded state (minus icon) - VISIBLE by default #}
+                            <div class="relative toggle-minus">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building2 w-5 h-5 text-gray-600">
+                                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+                                    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+                                    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+                                    <path d="M10 6h4"></path>
+                                    <path d="M10 10h4"></path>
+                                    <path d="M10 14h4"></path>
+                                    <path d="M10 18h4"></path>
+                                </svg>
+                                <div class="absolute -bottom-1 -right-1 rounded-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bg-white lucide lucide-circle-minus w-3 h-3 text-gray-600">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M8 12h8"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            {# Collapsed state (plus icon) - HIDDEN by default #}
+                            <div class="relative toggle-plus d-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building2 w-5 h-5 text-gray-600">
+                                    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+                                    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+                                    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+                                    <path d="M10 6h4"></path>
+                                    <path d="M10 10h4"></path>
+                                    <path d="M10 14h4"></path>
+                                    <path d="M10 18h4"></path>
+                                </svg>
+                                <div class="absolute -bottom-1 -right-1 rounded-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="bg-white lucide lucide-circle-plus w-3 h-3 text-gray-600">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path d="M8 12h8"></path>
+                                        <path d="M12 8v8"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        {% else %}
+                            {# Simple building without toggle - always gray according to reference #}
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building2 w-5 h-5 text-gray-600">
+                                <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+                                <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+                                <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+                                <path d="M10 6h4"></path>
+                                <path d="M10 10h4"></path>
+                                <path d="M10 14h4"></path>
+                                <path d="M10 18h4"></path>
+                            </svg>
+                        {% endif %}
+                    </button>
+
+                    {# Company/Division Name #}
+                    <div class="userCompanyStructureNodeName">
+                        <span class="companyStructureNodeTitle {{ isRoot ? 'fw-bold' : '' }} {{ isUsedAccount ? 'text-primary fw-bold' : '' }}">
+                            {{ node.name }}
+                            {% if isUsedAccount %}
+                                <span class="used-indicator text-primary">[{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::USED')] }}]</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {# Action Links #}
+                <div class="userCompanyStructureActions">
+                    {# Botón de tres puntos para mobile #}
+                    <button type="button" class="actions-menu-toggle" data-node-id="{{ node.id }}">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="5" r="1"></circle>
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                        </svg>
+                    </button>
+
+                    {# Dropdown menu para mobile #}
+                    <div class="actions-dropdown-menu" id="actionsMenu{{ node.id }}">
+                        {% if hasFullActions %}
+                            <button type="button" class="action-dropdown-item"
+                                    data-lc-event="click"
+                                    data-lc-function="editAccount"
+                                    data-lc-data='{{ outputJsonHtmlString({accountName: node.name, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'>
+                                <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
+                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] }}</span>
+                            </button>
+                            <button type="button" class="action-dropdown-item"
+                                    data-lc-event="click"
+                                    data-lc-function="manageEmployees"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'>
+                                <svg class="icon icon-employees"><use xlink:href="#icon-employees"></use></svg>
+                                <span>{%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}{%- else -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}{%- endif -%}</span>
+                            </button>
+                            <button type="button" class="action-dropdown-item"
+                                    data-lc-event="click"
+                                    data-lc-function="viewOrders"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'>
+                                <svg class="icon icon-edit"><use xlink:href="#icon-orders"></use></svg>
+                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_ORDERS_ACCOUNTS')] }}</span>
+                            </button>
+                            <button type="button" class="action-dropdown-item"
+                                    data-lc-event="click"
+                                    data-lc-function="saveDivision"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'>
+                                <svg class="icon icon-add"><use xlink:href="#icon-plus"></use></svg>
+                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_COMPANY_STRUCTURE_ADD_DIVISION')] }}</span>
+                            </button>
+                            {% if not isUsedAccount %}
+                                <button type="button" class="action-dropdown-item action-danger"
+                                        data-lc-event="click"
+                                        data-lc-function="deleteDivision"
+                                        data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'>
+                                    <svg class="icon icon-delete" style="color: #333 !important; fill: #333 !important;"><use xlink:href="#icon-trash"></use></svg>
+                                    <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')] }}</span>
+                                </button>
+                            {% endif %}
+                        {% elseif isRoot %}
+                            <button type="button" class="action-dropdown-item"
+                                    data-lc-event="click"
+                                    data-lc-function="editAccount"
+                                    data-lc-data='{{ outputJsonHtmlString({accountName: node.name, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'>
+                                <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
+                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] }}</span>
+                            </button>
+                            <button type="button" class="action-dropdown-item"
+                                    data-lc-event="click"
+                                    data-lc-function="manageEmployees"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'>
+                                <svg class="icon icon-employees"><use xlink:href="#icon-employees"></use></svg>
+                                <span>{%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}{%- else -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}{%- endif -%}</span>
+                            </button>
+                        {% endif %}
+                    </div>
+
+                    {# Acciones inline para desktop/tablet #}
+                    <div class="actions-inline">
+                        {% if hasFullActions %}
+                            {# Used account and sub-divisions actions: Edit | Employees | Orders | Add division | Delete #}
+                            <button type="button" class="action-link action-edit"
+                                    data-lc-event="click"
+                                    data-lc-function="editAccount"
+                                    data-lc-data='{{ outputJsonHtmlString({accountName: node.name, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'
+                                    data-bs-toggle="tooltip"
+                                    title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] }}">
+                                <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
+                            </button>
+                            <span class="action-separator">|</span>
+                            <button type="button" class="action-link action-employees"
+                                    data-lc-event="click"
+                                    data-lc-function="manageEmployees"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'
+                                    data-bs-toggle="tooltip"
+                                    title="{%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}
+                                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}
+                                            {%- else -%}
+                                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}
+                                            {%- endif -%}
+                                        ">
+                                <svg class="icon icon-employees"><use xlink:href="#icon-employees"></use></svg>
+                            </button>
+                            <span class="action-separator">|</span>
+                            <button type="button" class="action-link action-orders"
+                                    data-lc-event="click"
+                                    data-lc-function="viewOrders"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'
+                                    data-bs-toggle="tooltip"
+                                    title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_ORDERS_ACCOUNTS')] }}">
+                                <svg class="icon icon-edit"><use xlink:href="#icon-orders"></use></svg>
+                            </button>
+                            <span class="action-separator">|</span>
+                            <button type="button" class="action-link action-add"
+                                    data-lc-event="click"
+                                    data-lc-function="saveDivision"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'
+                                    data-bs-toggle="tooltip"
+                                    title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_COMPANY_STRUCTURE_ADD_DIVISION')]}}">
+                                <svg class="icon icon-add"><use xlink:href="#icon-plus"></use></svg>
+                            </button>
+                            {% if not isUsedAccount %}
+                                <span class="action-separator">|</span>
+                                <button type="button" class="action-link action-delete"
+                                        data-lc-event="click"
+                                        data-lc-function="deleteDivision"
+                                        data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'
+                                        data-bs-toggle="tooltip"
+                                        title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')] }}">
+                                    <svg class="icon icon-delete"><use xlink:href="#icon-trash"></use></svg>
+                                </button>
+                            {% endif %}
+                        {% elseif isRoot %}
+                            {# Root company (not used account) actions: Only Edit | Employees #}
+                            <button type="button" class="action-link action-edit"
+                                    data-lc-event="click"
+                                    data-lc-function="editAccount"
+                                    data-lc-data='{{ outputJsonHtmlString({accountName: node.name, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'
+                                    data-bs-toggle="tooltip"
+                                    title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] }}">
+                                <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
+                            </button>
+                            <span class="action-separator">|</span>
+                            <button type="button" class="action-link action-employees"
+                                    data-lc-event="click"
+                                    data-lc-function="manageEmployees"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'
+                                    data-bs-toggle="tooltip"
+                                    title="{%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}
+                                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}
+                                            {%- else -%}
+                                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}
+                                            {%- endif -%}
+                                        ">
+                                    <svg class="icon icon-employees"><use xlink:href="#icon-employees"></use></svg>
+                            </button>
+                        {% endif %}
+                    </div>
+                    {# Path nodes (from root to used account) have NO actions according to spec #}
+                </div>
+            </div>
+        </div>
+        
+        {# Loading indicator for lazy loading #}
+        <div class="lazy-loading-indicator d-none" id="lazyLoading{{ node.id }}">
+            <div class="d-flex align-items-center gap-2">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOADING')] ?? 'Loading...' }}</span>
+                </div>
+                <span class="text-muted">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOADING')] ?? 'Loading...' }}</span>
+            </div>
+        </div>
+        
+        {# Children container #}
+        {% if hasChildren %}
+            <div class="userCompanyStructureChildren" id="childrenContainer{{ node.id }}">
+                {% for childIndex, subNode in node.subCompanyDivisions.items %}
+                    {% set isLastChildNode = childIndex == (node.subCompanyDivisions.items|length - 1) %}
+                    {{ _self.renderCompanyNode(subNode, currentUser, permissions, availableActions, false, iconsPath, level + 1, isLastChildNode, nowInUsedBranch) }}
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {# Lazy load children container #}
+        {% if node.hasSubCompanyDivisionsToLoad %}
+            <div class="userCompanyStructureLazyChildren d-none" id="lazyChildrenContainer{{ node.id }}">
+                <!-- Lazy loaded children will be inserted here -->
+            </div>
+        {% endif %}
+        
+        {# Pagination for load more items #}
+        {% if node.subCompanyDivisions and node.subCompanyDivisions.pagination and node.subCompanyDivisions.pagination.hasMore %}
+            <div class="userCompanyStructurePagination">
+                <button type="button" class="userCompanyStructureLoadMore" 
+                        data-lc-event="click" 
+                        data-lc-function="loadMoreDivisions"
+                        data-lc-data='{{ outputJsonHtmlString({
+                            accountId: node.id,
+                            currentPage: node.subCompanyDivisions.pagination.currentPage,
+                            nextPage: node.subCompanyDivisions.pagination.currentPage + 1
+                        }) }}'>
+                    <i class="fa fa-chevron-down me-1" aria-hidden="true"></i>
+                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOAD_MORE_ITEMS')] ?? 'Load more items...' }}
+                </button>
+            </div>
+        {% endif %}
+    </div>
+{% endmacro renderCompanyNode %}

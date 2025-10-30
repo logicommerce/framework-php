@@ -1,0 +1,1386 @@
+{#- @documentation
+    {
+        "name": "billingInformation",
+        "description": [
+            {
+                "es": "Emite la informacion del documento de facturacion"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "document",
+                "description": [
+                    {
+                        "es": "Documento base para emitir la informacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Documents\\Document",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "fields",
+                "description": [
+                    {
+                        "es": "Informacion de fields para emitir en el documento, tienen que coincidir"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": " |name, |nif, |address, |city, |state, |country, |email, |mobile|",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{ documentMacros.billingInformation({ |document: order, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/BillingInformation.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/billingInformation.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro billingInformation(args) -%}
+    {{ addTimerDebugFlag('documentMacros-billingInformation',true) }}
+    {%- set viewParameters = viewHelpers.document.billingInformationMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/document/billingInformation.html.twig' as modeDocument -%}
+    {{- modeDocument.billingInformation(viewParameters) -}}
+    {{ addTimerDebugFlag('documentMacros-billingInformation',false) }}
+{%- endmacro billingInformation -%}
+
+{#- @documentation
+    {
+        "name": "buttons",
+        "description": [
+            {
+                "es": "Configura los botones que se muestran al realizar la compra"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "orderID",
+                "description": [
+                    {
+                        "es": "Id de la compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "int",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "showBackButton",
+                "description": [
+                    {
+                        "es": "Muestra el boton de volver atras"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showPrintButton",
+                "description": [
+                    {
+                        "es": "Muestra el boton para imprimir pdf"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "classList",
+                "description": [
+                    {
+                        "es": "Añade una clase html adicional"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "token",
+                "description": [
+                    {
+                        "es": "Pinta el documento token"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{ documentMacros.buttons({ |orderId: controllerItem.id |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/Buttons.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/buttons.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro buttons(args) -%}
+    {{ addTimerDebugFlag('documentMacros-buttons',true) }}
+    {%- set viewParameters = viewHelpers.document.buttonsMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/document/buttons.html.twig' as modeDocument -%}
+    {{- modeDocument.buttons(viewParameters) -}}
+    {{ addTimerDebugFlag('documentMacros-buttons',false) }}
+{%- endmacro buttons -%}
+
+{#- @documentation
+    {
+        "name": "confirmOrder",
+        "description": [
+            {
+                "es": "Confirma la salida del pedido"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "order",
+                "description": [
+                    {
+                        "es": "Objeto order, con la informacion del pedido realizado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Documents\\Order",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "confirmOrderPlugins",
+                "description": [
+                    {
+                        "es": "Objeto ElementCollection, con posibles plugins tipo CONFIRM_ORDER"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "false"
+            },
+            {
+                "param": "showTansactionId",
+                "description": [
+                    {
+                        "es": "Muestra la id de la transaccion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showAuthNumber",
+                "description": [
+                    {
+                        "es": "Muestra el numero de autenticacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{ documentMacros.confirmOrder({ |order: controllerItem, |confirmOrderPlugins: confirmOrderPlugins |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/ConfirmOrder.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/confirmOrder.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro confirmOrder(args) -%}
+    {{ addTimerDebugFlag('documentMacros-confirmOrder',true) }}
+    {%- set viewParameters = viewHelpers.document.confirmOrderMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/document/confirmOrder.html.twig' as modeDocument -%}
+    {{- modeDocument.confirmOrder(viewParameters) -}}
+    {{ addTimerDebugFlag('documentMacros-confirmOrder',false) }}
+{%- endmacro confirmOrder -%}
+
+{#- @documentation
+    {
+        "name": "document",
+        "description": [
+            {
+                "es": "Muestra el documento cuando se realiza la compra"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "document",
+                "description": [
+                    {
+                        "es": "Objeto docuement, documento base a mostrar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Documents\\Document",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "additionalItems",
+                "description": [
+                    {
+                        "es": "Añade articulos adicionales al documento de compra"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::ADDITIONAL_ITEMS_PRESENTATION",
+                "required": "false"
+            },
+            {
+                "param": "mode",
+                "description": [
+                    {
+                        "es": "Modo de la salida de la cesta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::MODE_DISCLOSURE",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::MODE_DISCLOSURE",
+                        "description": [
+                            {
+                                "es": "La sesta sale de forma divulgada"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::MODE_CASH_TICKET",
+                        "description": [
+                            {
+                                "es": "La cesta sale en modo billete de efectivo"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "linkable",
+                "description": [
+                    {
+                        "es": "Define si los productos tienen links o no"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showOptions",
+                "description": [
+                    {
+                        "es": "Define si mostrar o no las opciones del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showOptionValuesName",
+                "description": [
+                    {
+                        "es": "Define que se muestra en las opciones del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::SHOW_OPTION_VALUES_NAME_SHOW_NAME",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::SHOW_OPTION_VALUES_NAME_NOT_SHOW",
+                        "description": [
+                            {
+                                "es": "No mostrar el nombre de los parametros de las opciones del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::SHOW_OPTION_VALUES_NAME_SHOW_NAME",
+                        "description": [
+                            {
+                                "es": "Muestra el nombre de los parametros de las opciones del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::SHOW_OPTION_VALUES_NAME_SHOW_DESCRIPTION",
+                        "description": [
+                            {
+                                "es": "Mostrar descripcion de los parametros de las opciones del producto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showOptionValuesSku",
+                "description": [
+                    {
+                        "es": "Mostrar en las opciones del producto Sku"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showZeroDiscount",
+                "description": [
+                    {
+                        "es": "Mostrar o no el descuento 0"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showBrand",
+                "description": [
+                    {
+                        "es": "Mostrar o no la marca del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "giftsPresentation",
+                "description": [
+                    {
+                        "es": "Define como mostrar los regalos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::GIFTS_PRESENTATION_PRODUCTS_BLOCK",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::GIFTS_PRESENTATION_PRODUCTS_BLOCK",
+                        "description": [
+                            {
+                                "es": "Mostrar los productos en bloques"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/Core/ViewHelpers/Basket/Macro/BaseOutput::GIFTS_PRESENTATION_INDEPENDENT",
+                        "description": [
+                            {
+                                "es": "Mostrar los productos independientes"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showTaxDisclosure",
+                "description": [
+                    {
+                        "es": "Mostrar o no la declaracion de impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showTaxIncluded",
+                "description": [
+                    {
+                        "es": "Muestra el precio con los impuestos incluidos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "showTaxName",
+                "description": [
+                    {
+                        "es": "Mostrar o no el nombre de los impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "tableClass",
+                "description": [
+                    {
+                        "es": "Define la tabla de clases para el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showPrices",
+                "description": [
+                    {
+                        "es": "Mostrar o no los precios"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showImage",
+                "description": [
+                    {
+                        "es": "Mostrar o no las imagenes de los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showSku",
+                "description": [
+                    {
+                        "es": "Mostrar o no el codigo Sku del producto"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bol",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showManufacturerSku",
+                "description": [
+                    {
+                        "es": "Mostrar o no el codigo Sku de la manufacturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showCustomTags",
+                "description": [
+                    {
+                        "es": "Mostrar o no las etiquetas personalizadas"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showDevolutionButton",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton para realizar devoluciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showDiscounts",
+                "description": [
+                    {
+                        "es": "Mostrar o no los descuentos de los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDiscountName",
+                "description": [
+                    {
+                        "es": "Muestra o no el nombre de los descuentos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showDiscountValue",
+                "description": [
+                    {
+                        "es": "Muestra o no el valor de los descuentos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showZeroShipping",
+                "description": [
+                    {
+                        "es": "Mostrar la los envios cero(sin contaminacion) de los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showZeroPayment",
+                "description": [
+                    {
+                        "es": ""
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showFreeTaxMessage",
+                "description": [
+                    {
+                        "es": "Mostrar el mensage de libre de impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showPreviousPrice",
+                "description": [
+                    {
+                        "es": "Mostrar o no el precio anterior"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showPercentDifference",
+                "description": [
+                    {
+                        "es": "Mostrar o no la diferencia de precios en porcentaje"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showPriceDifference",
+                "description": [
+                    {
+                        "es": "Mostrar o no la diferencia de los precios"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showProductStockId",
+                "description": [
+                    {
+                        "es": "Mostrar o no el id del producto en stock"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showFooter",
+                "description": [
+                    {
+                        "es": "Mostrar o no el pie de pagina"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "productTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para los productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productsBundleTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productsBundleItemTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para productos en bundle"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productsGiftTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para los productos de regalo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "productSelectableGiftTemplate",
+                "description": [
+                    {
+                        "es": "Define la plantilla para la seleccion de productos de regalo"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "null",
+                "required": "false"
+            },
+            {
+                "param": "routeType",
+                "description": [
+                    {
+                        "es": "Define el path del tipo que es"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "totalProductDiscounts",
+                "description": [
+                    {
+                        "es": "Define los descuentos totales del productos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "float",
+                "default": "0",
+                "required": "false"
+            },
+            {
+                "param": "showTaxesZeroTotalIncrement",
+                "description": [
+                    {
+                        "es": "Mostrar o no el incremento total del libre de impuestos"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "mergeRows",
+                "description": [
+                    {
+                        "es": "Fusiona las filas de tipo PRODUCT que sean del mismo producto pero con distintas opciones"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{- documentMacros.document({ |document: order |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/Document.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/document.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro document(args) -%}
+    {{ addTimerDebugFlag('documentMacros-document',true) }}
+    {%- set viewParameters = viewHelpers.document.documentMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/document/document.html.twig' as modeDocument -%}
+    {{- modeDocument.document(viewParameters) -}}
+    {{ addTimerDebugFlag('documentMacros-document',false) }}
+{%- endmacro document -%}
+
+{#- @documentation
+    {
+        "name": "documentInformation",
+        "description": [
+            {
+                "es": "Genera un documento de informacion del pedido"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "document",
+                "description": [
+                    {
+                        "es": "Objeto documento, con la informacion base necesaria"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Documents\\Document",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showTransactionId",
+                "description": [
+                    {
+                        "es": "Muestra la id de la transaccion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "showAuthNumber",
+                "description": [
+                    {
+                        "es": "Muestra el numero de autenticacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "documentType",
+                "description": [
+                    {
+                        "es": "Define el tipo del documento"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Document/Macro/DocumentInformation::TYPE_ORDER",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Document/Macro/DocumentInformation::TYPE_ORDER",
+                        "description": [
+                            {
+                                "es": "Genera un documento de tipo pedido"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Document/Macro/DocumentInformation::TYPE_RMA",
+                        "description": [
+                            {
+                                "es": "Genera un documento de autorizacion de devolucion de mercancia"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Document/Macro/DocumentInformation::TYPE_RETURN",
+                        "description": [
+                            {
+                                "es": "Genera un documento de pedido devuelto"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Document/Macro/DocumentInformation::TYPE_CORRECTIVE_INVOICE",
+                        "description": [
+                            {
+                                "es": "Genera un documento de factura correctiva"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{ documentMacros.documentInformation({  |document: returns, |documentType: constant('FWK\\ViewHelpers\\Document\\Macro\\DocumentInformation::TYPE_RETURN'), |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/DocumentInformation.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/documentInformation.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro documentInformation(args) -%}
+    {{ addTimerDebugFlag('documentMacros-documentInformation',true) }}
+    {%- set viewParameters = viewHelpers.document.documentInformationMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/document/documentInformation.html.twig' as modeDocument -%}
+    {{- modeDocument.documentInformation(viewParameters) -}}
+    {{ addTimerDebugFlag('documentMacros-documentInformation',false) }}
+{%- endmacro documentInformation -%}
+
+{#- @documentation
+    {
+        "name": "headquarterInformation",
+        "description": [
+            {
+                "es": "Emite la informacion de la sede"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "document",
+                "description": [
+                    {
+                        "es": "Documento base para emitir la informacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Documents\\Document",
+                "default": "null",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{ documentMacros.headquarterInformation({ |document: controllerItem |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/HeadquarterInformation.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/headquarterInformation.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro headquarterInformation(args) -%}
+    {{ addTimerDebugFlag('documentMacros-headquarterInformation',true) }}
+    {%- set viewParameters = viewHelpers.document.headquarterInformationMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/document/headquarterInformation.html.twig' as modeDocument -%}
+    {{- modeDocument.headquarterInformation(viewParameters) -}}
+    {{ addTimerDebugFlag('documentMacros-headquarterInformation',false) }}
+{%- endmacro headquarterInformation -%}
+
+{#- @documentation
+    {
+        "name": "rewardPoints",
+        "description": [
+            {
+                "es": "Muestra el resumen puntos de recompensa aplicados y/o ganados en el pedido"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "document",
+                "description": [
+                    {
+                        "es": "Objeto document, cesta con los productos que contenga"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Documents\\Document",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "class",
+                "description": [
+                    {
+                        "es": "Nombre de clase personalizado que se ve en el html"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "''",
+                "required": "false"
+            },
+            {
+                "param": "showHeader",
+                "description": [
+                    {
+                        "es": "Muestra o no el nombre y descripcion de los reward points"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showTotalRedeemed",
+                "description": [
+                    {
+                        "es": "Muestra o no el total de points gastados"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showTotalEarned",
+                "description": [
+                    {
+                        "es": "Muestra o no el total de points ganado"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{ documentMacros.rewardPoints({ |document: session.document, rewardPoints: userRewardPoints, maxAvailableRewardPoints: {'ePoint_1': 100, 'ePoint_2': 200} |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/RewardPoints.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/rewardPoints.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro rewardPoints(args) %}
+    {{ addTimerDebugFlag('documentMacros-rewardPoints',true) }}
+    {% set viewParameters = viewHelpers.document.rewardPointsMacro(args) %}
+    
+    {% import 'macros/modes/' ~ coreMode ~ '/document/rewardPoints.html.twig' as modeBasket %}
+    {{ modeBasket.rewardPoints(viewParameters) }}
+    {{ addTimerDebugFlag('documentMacros-rewardPoints',false) }}
+{% endmacro rewardPoints %}
+
+
+{#- @documentation
+    {
+        "name": "shippingInformation",
+        "description": [
+            {
+                "es": "Emite la informacion de envio si la hubiera"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "document",
+                "description": [
+                    {
+                        "es": "Documento base para emitir la informacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Documents\\Document",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "fields",
+                "description": [
+                    {
+                        "es": "Informacion de fields para emitir en el documento, deben coincidir"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "|name, |nif, |address, |city, |state, |country, |email, |mobile|",
+                "required": "false"
+            },
+            {
+                "param": "pickingFields",
+                "description": [
+                    {
+                        "es": "Informacion de picking fields para emitir en el documento, deben coincidir"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "|name, |address, |city, |state, |country, |email, |phone|",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{ documentMacros.shippingInformation({ |document: controllerItem, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/ShippingInformation.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/shippingInformation.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro shippingInformation(args) -%}
+    {{ addTimerDebugFlag('documentMacros-shippingInformation',true) }}
+    {%- set viewParameters = viewHelpers.document.shippingInformationMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/document/shippingInformation.html.twig' as modeDocument -%}
+    {{- modeDocument.shippingInformation(viewParameters) -}}
+    {{ addTimerDebugFlag('documentMacros-shippingInformation',false) }}
+{%- endmacro shippingInformation -%}
+
+{#- @documentation
+    {
+        "name": "pickingInformation",
+        "description": [
+            {
+                "es": "Emite la informacion de 'recogida en tienda' si la hubiera"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "document",
+                "description": [
+                    {
+                        "es": "Documento base para emitir la informacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Documents\\Document",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "fields",
+                "description": [
+                    {
+                        "es": "Informacion de fields para emitir en el documento, deben coincidir"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "|name, |address, |city, |state, |country, |email, |phone|",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.document as documentMacros %} |{{ documentMacros.pickingInformation({ |document: controllerItem, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Document/Macro/PickingInformation.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/document/pickingInformation.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro pickingInformation(args) -%}
+    {{ addTimerDebugFlag('documentMacros-pickingInformation',true) }}
+    {%- set viewParameters = viewHelpers.document.pickingInformationMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/document/pickingInformation.html.twig' as modeDocument -%}
+    {{- modeDocument.pickingInformation(viewParameters) -}}
+    {{ addTimerDebugFlag('documentMacros-pickingInformation',false) }}
+{%- endmacro pickingInformation -%}

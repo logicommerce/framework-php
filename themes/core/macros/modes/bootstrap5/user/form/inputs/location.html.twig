@@ -1,0 +1,106 @@
+{%- set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') -%}
+{%- set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') -%}
+{%- set postalCodesInCountry = selectedCountry.postalCodeType == constant('SDK\\Enums\\PostalCodeType::STATE_CITY_POSTAL_CODE') -%}
+
+<div class="form-group formFieldGroup userFieldGroup userFieldGroup{{ name|ucfirst }} addressUserField">
+    
+    <span class="formField userField userAddressBookField">
+    	{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATION_TITLE')] -}} 
+	    {{- constant('REQUIRED_FIELD_HTML_FLAG') -}}
+    </span>
+    <div class="addressData">
+        <div class="addressBlock addressBlockTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATION_SELECTED_DATA')] }}</div>
+        <div class="addressBlock addressBlockDetails"></div>
+        <div class="addressBlock addressBlockReset">
+	        <button class="btn btn-secondary resetCountrySelector" onclick="resetCountrySelector($(this).closest('.addressUserField'))" type="button">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATION_SELECT_BACK')] }}</button>
+        </div>
+    </div>
+    
+    <div class="addressBlockAdditionalFields"></div>
+    
+    <div class="countrySelectGroup">
+        {%- set onChange = 'onchange="loadLocations.bind(this)()"' -%}
+        {%- set autocomplete = 'autocomplete="off"' -%}
+        {%- set dataValidation = 'data-validation="required"' -%}
+        
+        {%- set dataLocationMode = 'data-location-mode="' ~ locationMode ~ '"' -%}
+        {% if userType|length == 0 and section|length == 0 %}
+            {%- set dataField = '' -%}
+            {%- set dataFieldName = 'data-field-name=""' -%}
+            {%- set dataFieldPrefix = "" -%}
+        {% else %}
+            {%- set dataField = userType ~ '_' ~ section -%}
+            {%- set dataFieldName = 'data-field-name="' ~ dataField ~ '"' -%}
+            {%- set dataFieldPrefix = dataField ~ '_' -%}
+        {% endif %}
+
+        {%- set attributes = [onChange, autocomplete, dataValidation, dataFieldName, dataLocationMode] -%}
+        {{- input|replace({ (classWildcard): 'countryField formField addressBookCountryField', (attributeWildcard): attributes|join(' ') })|raw -}}
+
+        <div class="countryModeButtons">
+            <ul class="nav nav-tabs countrySelectMode" role="tablist">
+                <li role="presentation" class="nav-item">
+                    <a href="#countrySuggestTab_{{ dataField }}" class="nav-link {% if postalCodesInCountry %}active{% endif %} countrySuggestTab" {% if not postalCodesInCountry %} hidden {% endif %} aria-controls="countrySuggestTab_{{ dataField }}" role="tab" data-bs-toggle="tab">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATION_SUGGEST_SELECTION')] }}</a>
+                </li>
+                <li role="presentation" class="nav-item">
+                    <a href="#countryManualTab_{{ dataField }}" class="nav-link {% if not postalCodesInCountry %}active{% endif %} countryManualTab" {% if not postalCodesInCountry %} hidden {% endif %} aria-controls="countryManualTab_{{ dataField }}" role="tab" data-bs-toggle="tab">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATION_MANUAL_SELECTION')] }}</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content countryModesContent">
+	        <div role="tabpanel" class="tab-pane fade {% if postalCodesInCountry %} active show {% endif %}" id="countrySuggestTab_{{ dataField }}">
+                <div class="locationSearchContainer">
+                    <div class="locationSearchGroup form-group">
+                        {% if locationMode == constant('FWK\\Services\\LmsService::LOCATION_SEARCH_ZIP_CITY') %}
+                            {% set searchLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::ZIP_OR_CITY')] %}
+                            {% set searchPlaceholder = languageSheet[constant('FWK\\Enums\\LanguageLabels::ZIP_OR_CITY_SEARCH')] %}
+                        {% else %}
+                            {% set searchLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::CITY')] %}
+                            {% set searchPlaceholder = languageSheet[constant('FWK\\Enums\\LanguageLabels::CITY_SEARCH')] %}
+                        {% endif %}
+                        <label for="{{dataFieldPrefix}}search" class="form-label">
+                            {{ searchLabel }}
+                        </label>
+                        <input id="{{dataFieldPrefix}}search" 
+                            class="form-control locationSearch formField" 
+                            type="text" 
+                            onfocus="onFocusNoSelectLocationSearch(this)" 
+                            onblur="onBlurNoSelectLocationSearch(this)" 
+                            data-lc-country="{{ selectedCountry.code }}" 
+                            data-field-name="{{ dataField }}" 
+                            onkeyup="searchLocations(this, this.value, false)" 
+                            placeholder="{{ searchPlaceholder }}" 
+                            autocomplete="off">
+                    </div>
+                    <div class="locationsResultsContainer"></div>
+                </div>
+            </div>
+
+	        <div role="tabpanel" class="tab-pane fade {% if not postalCodesInCountry %} active show {% endif %}" id="countryManualTab_{{ dataField }}">
+                <div class="locationSelector locationSelectorParent">
+                    {% if locationId > 0 %}
+                        <input name="locationList" type="text" value="{{ locationId }}" disabled>
+                    {%- elseif selectedCountryLocations|length -%}
+                        <select class="form-select locationField formField" name="{{ dataFieldPrefix }}locationList" autocomplete="off" onChange="loadLocations.bind(this)('{{ selectedCountry.code }}')">
+                            <option disabled selected>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCATION_SELECT_AN_OPTION')] }}</option>
+                            {%- for location in selectedCountryLocations -%}
+                                <option value="{{ location.locationId }}" data-lc='{{ outputJsonHtmlString(location) }}'>{{ location.value }}</option>
+                            {%- endfor -%}
+                        </select>
+                    {%- else -%}
+                        <div class="form-group formFieldGroup userFieldGroup userFieldGroupState">
+                            <label for="{{ dataFieldPrefix }}state">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::STATE')] }}{{ constant('REQUIRED_FIELD_HTML_FLAG') }}</label>
+                            <input onblur="setAddressCompleted.bind(this)()" type="text" class="form-control" id="{{ dataFieldPrefix }}state" name="{{ dataFieldPrefix }}state" data-validation="required" placeholder="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::STATE')] }}">
+                        </div>
+                        <div class="form-group formFieldGroup userFieldGroup userFieldGroupCity">
+                            <label for="{{ dataFieldPrefix }}city">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CITY')] }}{{ constant('REQUIRED_FIELD_HTML_FLAG') }}</label>
+                            <input onblur="setAddressCompleted.bind(this)()" type="text" class="form-control" id="{{ dataFieldPrefix }}city" name="{{ dataFieldPrefix }}city" data-validation="required" placeholder="Ciudad">
+                        </div>
+                    {%- endif -%}
+                    <div class="locationSelector"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

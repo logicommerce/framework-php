@@ -1,0 +1,21 @@
+{% macro longText(customTag, showForm) %}
+    {% if showForm == true %}
+        {% set spacelessContent %}
+            <textarea 
+                class="form-control formField basketField" 
+                name="customTags_{{ customTag.id }}" 
+                rows="5" 
+                cols="100" 
+                {% if customTag.required == true %} 
+                    data-validation="required" 
+                {% endif %}
+                {% if customTag.maxValue is defined and customTag.maxValue|length %}
+                    maxlength="{{ customTag.maxValue }}"
+                {% endif %}
+            >{{ customTag.value }}</textarea>
+        {% endset %}
+        {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+    {% else %}
+        <div class="staticBasketTextareaValue">{{ customTag.value }}</div>
+    {% endif %}
+{% endmacro %}

@@ -1,0 +1,10 @@
+{% macro shortText(productOption, args) %}
+	
+    {% if productOption.reference.values|length %}
+        <div class="productStaticOption productStaticOptionShortText">
+            <span class="staticOptionName">{{- productOption.option.language.name -}}</span>
+            <span class="staticOptionValue">{{- productOption.reference.values[0].value -}}</span>
+        </div>
+    {% endif %}
+
+{% endmacro %}

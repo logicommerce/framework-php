@@ -1,0 +1,22 @@
+[
+  "jquery-3.4.1.min.js",
+  "resources.js",
+  "lc/v1/lc.core.js",
+  "lc/v1/lc.forms.js",
+  "lc/v1/lc.plugins.js",
+  "lc/v1/lc.initialize.js",
+  "lc/v1/lc.events.js",
+  "lc/v1/lc.loadContentScroll.js",
+  "lc/v1/lc.oneStepCheckout.js",
+  "plugins/moment/moment.min.js",
+  "plugins/bootstrap-datetimepicker.min.js",
+  "plugins/jquery.debounce.throttle.js",
+  "jquery.form-validator.min.js",
+  "plugins/lcVatValidators.js",
+  "plugins/jquery.easing.js",
+  "plugins/js.cookie.js",
+  "plugins/jquery.slider.js",
+  "security.js",
+  "localize.js",
+  "registeredUser.js"
+]

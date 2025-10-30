@@ -1,0 +1,15 @@
+{% macro selector(customTag, showForm) %}
+    {% if showForm == true %}
+        <select name="customTags_{{ customTag.id }}" class="form-select formField userField" {% if customTag.required == true %} data-validation="required" {% endif %}>          
+            {% for selectableValue in customTag.selectableValues %}
+                <option value="{{ selectableValue.id }}" {% if selectableValue.id == customTag.value %} selected {% endif %}>{{ selectableValue.value }}</option>
+            {% endfor %}
+        </select>
+    {% else %}
+        {% for selectableValue in customTag.selectableValues %}
+            {% if selectableValue.id == customTag.value %}
+                <div class="staticUserSelectableValue">{{ selectableValue.value }}</div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endmacro %}

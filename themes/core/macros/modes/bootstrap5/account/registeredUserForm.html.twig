@@ -1,0 +1,75 @@
+{% macro registeredUserForm(args, legalCheck) %}
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %} 
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+	{%- set disabled = session.basket.mode.type == constant('SDK\\Enums\\SessionUsageModeType::SALES_AGENT_SIMULATION') ? 'disabled' : '' -%}
+
+	<div class="userFormContainer formUser">
+		{%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+			{%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+				{{ element|replace({ (attributeWildcard): 'data-lc-form="registeredUserForm"' }) }}
+				<div class="userFieldGroup">
+			{%- elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') -%}
+				{{ element }}
+				</div>
+			{%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') and disabled == '' -%}
+                {{- legalCheck -}}
+				<div class="formField formButton userFieldGroup form-group formFieldGroup">
+					{{ element|replace({ (classWildcard): '', (attributeWildcard) : '' }) }}
+				</div>
+			{%- elseif name == constant('FWK\\Enums\\Parameters::GENDER') -%}
+				{% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/gender.html.twig' with {
+                    name: name,                
+                    input: element
+                } %}
+			{%- elseif name == constant('FWK\\Enums\\Parameters::IMAGE') -%}
+                {#<div class="form-group formFieldGroup">
+                    <div class="input-group file">
+                        {{ element|replace({ (classWildcard): '', (attributeWildcard): 'readonly' }) }}
+                        <label class="input-group-btn mb-0">
+                            <span class="input-group-addon input-group-text h-100">
+                                <div class="image-upload-name"></div>
+                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')] }}
+                                <input type="file"
+                                    name="registeredUserFormImageUpload"
+                                    class="sr-only"
+                                    data-fluid-accept="jpg,jpeg,gif,png"
+                                    data-fluid-max-size="{{ constant('ATTACHMENT_MAX_SIZE') }}"
+                                    accept="image/*"
+									{{ disabled }}
+                                    tabindex="-1">
+                            </span>
+                        </label>
+                    </div>
+                </div>#}
+			{%- elseif name == constant('FWK\\Enums\\Parameters::BIRTHDAY') -%}
+				<div class="form-group formFieldGroup userFieldGroup">
+                    <div class="input-group date" 
+                        data-datetimepicker="viewDateValue{{ name|ucfirst }}" 
+                        data-language="{{ route.language }}" 
+                        data-years='1910-{{ "now"|date("Y") }}' 
+                        data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+                        data-submit="{{ name }}"  
+                        data-format="{{ getJSDatePattern() }}">
+                        <label class="form-label" for="viewDateValue{{ name|ucfirst }}">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BIRTH_DATE')] -}}</label>
+                        <input type="text" value="{{ args.form.definitionElements[name].value|date(getTwigDatePattern()) }}" class="form-control formField viewDateValue" {{disabled}} id="viewDateValue{{ name|ucfirst }}" autocomplete="off">
+                        <span class="input-group-addon input-group-text">
+                            <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+                        </span>
+                    </div>
+                    <input type="hidden" value="{{ args.form.definitionElements[name].value }}" class="DateValue" id="{{ name }}" name="{{ name }}" data-optional="true">
+                </div>
+			{%- elseif name == constant('FWK\\Enums\\Parameters::FIRST_NAME') 
+				or name == constant('FWK\\Enums\\Parameters::LAST_NAME')
+				or name == constant('FWK\\Enums\\Parameters::EMAIL')
+				or name == constant('FWK\\Enums\\Parameters::USERNAME')
+				or name == constant('FWK\\Enums\\Parameters::P_ID')
+				or name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_ID')
+				or name == constant('FWK\\Enums\\Parameters::ACCOUNT_ID') -%}
+				<div class="formField userFieldGroup form-group formFieldGroup">
+					{{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
+				</div>
+			{%- endif -%}
+		{%- endfor -%}
+	</div>
+{% endmacro registeredUserForm %}

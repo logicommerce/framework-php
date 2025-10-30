@@ -1,0 +1,8 @@
+{% macro buyFormProductOffset(args) %}
+
+	{% if args.showOrderBox == true %}
+		{# See lc.forms.js -> LC.BuyForm.onChange #}
+		<div class="productOffsetMessage{{ args.class|length ? ' ' . args.class : '' }}"></div>
+	{% endif %}
+
+{% endmacro %}

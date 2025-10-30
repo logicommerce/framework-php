@@ -1,0 +1,88 @@
+{#- @documentation
+    {
+        "name": "legalCheck",
+        "description": [
+            {
+                "es": "Pinta las politicas legales de uso y privacidad"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "chekboxPosition",
+                "description": [
+                    {
+                        "es": "Posicion del check de las politicas legales de uso y privacidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "FWK/ViewHelpers/Form/Macro/LegalCheck::CHECKBOX_POSITION_BEFORE",
+                "required": "false",
+                "availableValues": [
+                    {
+                        "value": "FWK/ViewHelpers/Form/Macro/LegalCheck::CHECKBOX_POSITION_BEFORE",
+                        "description": [
+                            {
+                                "es": "Pinta el check antes de las politicas legales de usa y privacidad"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    },
+                    {
+                        "value": "FWK/ViewHelpers/Form/Macro/LegalCheck::CHECKBOX_POSITION_AFTER",
+                        "description": [
+                            {
+                                "es": "Pinta el check despues de las politicas legales de uso y privacidad"
+                            },
+                            {
+                                "en": "++"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "param": "showCheck",
+                "description": [
+                    {
+                        "es": "Muestra o no el check de las politicas legales de uso y privacidad"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.form as formMacros%} |{{ formMacros.legalCheck({ |checkboxPosition: 'before', |showCheck: true |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Form/Macro/LegalCheck.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/form/legalCheck.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{% macro legalCheck(args) %}
+    {{ addTimerDebugFlag('formMacros-legalCheck',true) }}
+    {% set viewParameters = viewHelpers.form.legalCheckMacro(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/form/legalCheck.html.twig' as modeForm %}
+    {{ modeForm.legalCheck(viewParameters) }}
+    {{ addTimerDebugFlag('formMacros-legalCheck',false) }}
+{% endmacro legalCheck %}

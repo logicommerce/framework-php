@@ -1,0 +1,241 @@
+{% macro rmas(args) %}
+    {% if args.userId > 0 %}
+        {% if args.rmas.items|length > 0 %}
+            {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+            <div class="userOrders userOrdersWithOrders userOrdersRmas">
+                {% set lcData = {
+                    session: isSessionLoggedIn()
+                } %}
+                {% for rma in args.rmas.items %}
+                    {% set lcData = lcData|merge({
+                        documentId: rma.id,
+                        token: '',
+                        pdf: false
+                    }) %}
+                    
+                    {# if showRmasStates[] is empty, print all states #}
+                    {% if rma.status in args.showRmasStates or args.showRmasStates is empty %}
+                        <div class="userOrder">
+                            <div class="userOrderHeader userOrderHeader1">
+                                <div class="userOrderDate">
+                                    <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_ORDERED')] }}</span> <span class="val">{{ formatDateTime(rma.date) }}</span>
+                                </div>
+                            </div>
+                            <div class="userOrderHeader userOrderHeader2">
+                                <div class="userOrderNum">
+                                    <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_NUMBER')] }}</span> <span class="val">{{ rma.documentNumber }}</span>
+                                </div>
+                                {% set status = languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_STATUS_' ~ rma.status)] %}
+                                {% if rma.substatus|length > 0 %}
+                                    {% set status = status ~ ' / ' ~ rma.substatus %}
+                                {% endif %}
+                                <div class="userOrderStatus">
+                                    <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TRACING_STATUS')] }}</span> <span class="val">{{ status }}</span>
+                                </div>
+                            </div>
+                            <div class="userOrderActions">
+                                {# view rma #}
+                                {% set lcData = lcData|merge({ 'documentType':'rma' }) %}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA') in args.showRmasActions %}
+                                    <div class="userOrderActionWrap">
+                                        <button id="viewRMAButton" class="btn btn-link userOrderAction rma" 
+                                            {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::POPUP') %}
+                                                data-bs-toggle="modal" data-bs-target="#popuprma{{ rma.id }}" data-lc-function="viewDocumentPopup" 
+                                            {% elseif args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::WINDOW') %}
+                                                data-lc-function="viewDocument" 
+                                            {% endif %}
+                                            data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA') in args.showRmasIcons %}
+                                            	<img src="{{ iconsPath ~ 'viewRma' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA')] }}">
+                                            {% endif %} 	
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA')] }}</span>
+                                        </button>
+                                    </div>
+
+                                    {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::POPUP') %}
+                                        <div class="lcModal modal fade popuprmaModal" id="popuprma{{ rma.id }}" tabindex="-1" aria-labelledby="popuprma{{ rma.id }}Title" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <div id="popuprma{{ rma.id }}Title" class="popup-order-title heading">
+                                                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_PRODUCTS')] }} {{ rma.documentNumber -}}
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="viewpopuprma{{ rma.id }}" class="lcModalContainer"></div>
+                                                    </div>
+                                                    <div class="modal-footer ">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-secondary lcModalClose"
+                                                            data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                {% endif %}
+
+                                {# view rma pdf #}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_PDF') in args.showRmasActions %}
+                                    <div class="userOrderActionWrap">
+                                        <button class="btn btn-link userOrderAction rma" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData|merge({'pdf':true})) }}'>
+                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_PDF') in args.showRmasIcons %}
+                                            	<img src="{{ iconsPath ~ 'viewRmaPdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_PDF')] }}">
+                                            {% endif %} 
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_PDF')] }}</span>
+                                        </button>
+                                    </div>
+                                {% endif %}
+
+                                {% if rma.returns is not empty %}
+
+                                    {% for return in rma.returns %}
+                                        {% set lcData = lcData|merge({ 'documentType':'return' }) %}
+                                        {% set lcData = lcData|merge({
+                                            documentId: return.id,
+                                        }) %}
+
+                                        {# view returns #}
+                                        {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS') in args.showRmasActions %}
+                                            <div class="userOrderActionWrap">
+                                                <button id="viewReturnButton" class="btn btn-link userOrderAction return" 
+                                                    {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::POPUP') %}
+                                                        data-bs-toggle="modal" data-bs-target="#popupreturn{{ return.id }}" data-lc-function="viewDocumentPopup" 
+                                                    {% elseif args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::WINDOW') %}
+                                                        data-lc-function="viewDocument" 
+                                                    {% endif %}
+                                                    data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                                    {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS') in args.showRmasIcons %}
+                                                        <img src="{{ iconsPath ~ 'viewReturn' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_RETURNS')] }}">
+                                                    {% endif %} 
+                                                    <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_RETURNS')] }}</span>
+                                                </button>
+                                            </div>
+
+                                            {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::POPUP') %}
+                                                <div class="lcModal modal fade popupreturnModal" id="popupreturn{{ return.id }}" tabindex="-1" aria-labelledby="popupreturn{{ return.id }}Title" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <div id="popupreturn{{ return.id }}Title" class="popup-order-title heading">
+                                                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_RETURNS')] }} {{ return.documentNumber -}}
+                                                                </div>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div id="viewpopupreturn{{ return.id }}" class="lcModalContainer"></div>
+                                                            </div>
+                                                            <div class="modal-footer ">
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-secondary lcModalClose"
+                                                                    data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+
+                                        {% endif %}
+
+                                        {# view returns pdf #}
+                                        {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS_PDF') in args.showRmasActions %}
+                                            <div class="userOrderActionWrap">
+                                                <button class="btn btn-link userOrderAction returnsPdf" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData|merge({'pdf':true})) }}'>
+                                                    {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS_PDF') in args.showRmasIcons %}
+                                                        <img src="{{ iconsPath ~ 'viewReturnPdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_RETURNS_PDF')] }}">
+                                                    {% endif %} 
+                                                    <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_RETURNS_PDF')] }}</span>
+                                                </button>
+                                            </div>
+                                        {% endif %}
+
+                                        {% if return.correctiveInvoices is not empty %}
+
+                                            {% for correctiveInvoice in return.correctiveInvoices %}
+                                                
+                                                {% set lcData = lcData|merge({ 'documentType':'correctiveInvoice' }) %}
+                                                {% set lcData = lcData|merge({
+                                                    documentId: correctiveInvoice.id,
+                                                }) %}
+                                            
+                                                {# view corrective invoice #}
+                                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE') in args.showRmasActions %}
+                                                    <div class="userOrderActionWrap">
+                                                        <button class="btn btn-link userOrderAction correctiveInvoice" 
+                                                            {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::POPUP') %}
+                                                                data-bs-toggle="modal" data-bs-target="#popupcorrectiveInvoice{{ correctiveInvoice.id }}" data-lc-function="viewDocumentPopup" 
+                                                            {% elseif args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::WINDOW') %}
+                                                                data-lc-function="viewDocument" 
+                                                            {% endif %}
+                                                            data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE') in args.showRmasIcons %}
+                                                                <img src="{{ iconsPath ~ 'viewCorrectiveInvoice' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_CORRECTIVE_INVOICE')] }}">
+                                                            {% endif %} 	
+                                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_CORRECTIVE_INVOICE')] }}</span>
+                                                        </button>
+                                                    </div>
+
+                                                    {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::POPUP') %}
+                                                        <div class="lcModal modal fade popupcorrectiveInvoiceModal" id="popupcorrectiveInvoice{{ correctiveInvoice.id }}" tabindex="-1" aria-labelledby="popupcorrectiveInvoice{{ correctiveInvoice.id }}Title" aria-hidden="true">
+                                                            <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <div id="popupcorrectiveInvoice{{ correctiveInvoice.id }}Title" class="popup-order-title heading">
+                                                                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_CORRECTIVE_INVOICE')] }} {{ correctiveInvoice.documentNumber -}}
+                                                                        </div>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <div id="viewpopupcorrectiveInvoice{{ correctiveInvoice.id }}" class="lcModalContainer"></div>
+                                                                    </div>
+                                                                    <div class="modal-footer ">
+                                                                        <button
+                                                                            type="button"
+                                                                            class="btn btn-secondary lcModalClose"
+                                                                            data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+
+                                                {% endif %}
+
+                                                {# view corrective invoice pdf #}
+                                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE_PDF') in args.showRmasActions %}
+                                                    <div class="userOrderActionWrap">
+                                                        <button class="btn btn-link userOrderAction correctiveInvoicePdf" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData|merge({'pdf':true})) }}'>
+                                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE_PDF') in args.showRmasIcons %}
+                                                                <img src="{{ iconsPath ~ 'viewCorrectiveInvoicePdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_CORRECTIVE_INVOICE_PDF')] }}">
+                                                            {% endif %} 
+                                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_RMA_CORRECTIVE_INVOICE_PDF')] }}</span>
+                                                        </button>
+                                                    </div>
+                                                {% endif %}
+
+                                            {% endfor %}
+                                        
+                                        {% endif %}
+                                        
+                                    {% endfor %}
+                                    
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+        {% else %}
+            <div class="userOrders userOrdersEmpty userOrdersEmptyRmas">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::USER_NO_ORDERS')] }}</div>
+        {% endif %}
+    {% endif %}
+
+{% endmacro rmas %}

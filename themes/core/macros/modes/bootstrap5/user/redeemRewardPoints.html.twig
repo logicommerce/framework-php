@@ -1,0 +1,66 @@
+{% macro redeemRewardPoints(args) %}
+    {%- if args.rewardPoints.items|length -%}
+        {%- for rewardPoint in args.rewardPoints.items -%}
+            {%- set name = rewardPoint.language.name -%}
+            <div class="rewardPoint rewardPointsRecord">
+                <div class="rewardPointHeader">
+                    <span class="name">{{ rewardPoint.language.name }}</span>
+                    {%- if rewardPoint.language.description|length -%}
+                        <span class="description">{{ rewardPoint.language.description }}</span>
+                    {%- endif -%}
+                </div>
+                <div class="rewardPoint rewardPointsBalance">
+                    <div class="rewardPointPending">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_AVAILABLE')]|replace({
+                            '{{name}}': '<span class="name">' ~ name ~ '</span>', 
+                            '{{value}}': '<span class="value">' ~ rewardPoint.available ~ '</span>',
+                        }) -}}
+                    </div>
+                    <div class="rewardPointEarned">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_EARNED')]|replace({
+                            '{{name}}': '<span class="name">' ~ name ~ '</span>', 
+                            '{{value}}': '<span class="value">' ~ rewardPoint.earned ~ '</span>',
+                        }) -}}
+                    </div>
+                    <div class="rewardPointRedeemed">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_REDEEMED')]|replace({
+                            '{{name}}': '<span class="name">' ~ name ~ '</span>', 
+                            '{{value}}': '<span class="value">' ~ rewardPoint.redeemed ~ '</span>',
+                        }) -}}
+                    </div>
+                    {%- if args.showPending == true -%}
+                        <div class="rewardPointPending">
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_PENDING')]|replace({
+                                '{{name}}': '<span class="name">' ~ name ~ '</span>', 
+                                '{{value}}': '<span class="value">' ~ rewardPoint.pending ~ '</span>',
+                            }) -}}
+                        </div>
+                    {%- endif -%}
+                </div>
+                {%- if args.showDistribution == true and rewardPoint.availables|length -%}
+                    <div class="rewardPoint rewardPointDistribution">
+                        <div class="rewardPointDistribution title">
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_DISTRIBUTION')]|replace({ 
+                                '{{name}}': '<span class="name">' ~ name ~ '</span>',
+                                '{{value}}': '<span class="value">' ~ rewardPoint.available ~ '</span>',
+                            }) -}}
+                        </div>
+                        <div class="rewardPointDistribution detail">
+                            {%- for available in rewardPoint.availables -%}
+                                <div class="rewardPointDistributionAvailable">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_DISTRIBUTION_DETAIL')]|replace({ 
+                                        '{{name}}': '<span class="name">' ~ name ~ '</span>',
+                                        '{{value}}': '<span class="value">' ~ available.value ~ '</span>', 
+                                        '{{date}}': '<span class="date">' ~ formatDate(available.expirationDate) ~ '</span>',
+                                    }) -}}
+                                </div>
+                            {%- endfor -%}
+                        </div>
+                    </div>
+                {%- endif -%}
+            </div>
+        {%- endfor -%}
+    {%- else -%}
+        <div class="rewardPointsEmpty">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_NO_BALANCE')] }}</div>
+    {%- endif -%}
+{% endmacro redeemRewardPoints %}

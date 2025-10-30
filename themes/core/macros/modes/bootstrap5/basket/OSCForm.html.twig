@@ -1,0 +1,5 @@
+{%- macro OSCForm(args) -%}
+	<form action="{{- routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalCheckout::NEXT_STEP')) -}}" method="post" id="oneStepCheckout" data-lc-form="oneStepCheckout" class="oneStepCheckout {{ args.class -}}">
+		{{- args.content -}}
+	</form>
+{%- endmacro OSCForm -%}

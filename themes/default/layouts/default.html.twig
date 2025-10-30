@@ -1,0 +1,53 @@
+{%- set ENVIRONMENT_CORE = constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_CORE') -%}
+{%- set TOOLS_CORE_PATH = getAssetsPath(ENVIRONMENT_CORE) ~ '/tools' -%}
+{%- set THIS_PAGE = route.type|lower|split('_')|reduce((acc, routeType) => acc ~ (routeType|ucfirst), '')|lcfirst -%}
+
+<!doctype html>
+<html lang="{{- route.language -}}">
+    <head>
+        {{- includeCssAssets(ENVIRONMENT_CORE, 'default_bs5') -}}
+        {{- includeCssAssets([ 
+            TOOLS_CORE_PATH ~ '/bootstrap/5.3.1/bootstrap.min.css',
+            TOOLS_CORE_PATH ~ '/bootstrap/css/bootstrap-datetimepicker.min.css',
+            TOOLS_CORE_PATH ~ '/ion.rangeSlider.css'    
+        ]) -}}
+        <script>let themeConfiguration = {{- themeConfiguration|json_encode|raw -}};</script>
+    </head>
+
+    <body class="lcContent-{{- THIS_PAGE -}} logged{{- isSessionLoggedIn() ? 'In' : 'Out' -}}" data-lc-page="{{- THIS_PAGE -}}">
+
+        <div class="commerce-content commerce-content-{{- THIS_PAGE }}">
+            <div class="commerce-content-inset">
+                <main id="main-content-layout-1" class="main-content layout-1">
+                    <div class="content-modules">
+                    {%- block content -%}{%- endblock content -%}
+                    </div>
+                </main>
+            </div>
+        </div>
+        <div id="lcNotify" tabindex="-1"></div>
+
+        {%- set coreAssets = [ 
+            TOOLS_CORE_PATH ~ '/jquery-3.7.0.min.js',
+            TOOLS_CORE_PATH ~ '/modernizr.min.js',
+            TOOLS_CORE_PATH ~ '/bootstrap/5.3.1/bootstrap.bundle.min.js',
+            TOOLS_CORE_PATH ~ '/resources.js',
+            routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalResources::ENVIRONMENT_JS'))~'?hash='~cacheHash,
+        ] -%}
+        {%- set coreAssets = coreAssets|merge(getPluginMoment(route.language)) -%}
+        {%- set coreAssets = coreAssets|merge([
+            TOOLS_CORE_PATH ~ '/plugins/jquery.debounce.throttle.js',
+            TOOLS_CORE_PATH ~ '/plugins/bootstrap-datetimepicker.min.js',
+            TOOLS_CORE_PATH ~ '/jquery.form-validator.min.js',
+            TOOLS_CORE_PATH ~ '/security.js',
+            TOOLS_CORE_PATH ~ '/localize.js',
+            TOOLS_CORE_PATH ~ '/registeredUser.js',
+        ]) -%}
+        {{- includeJsAssets(coreAssets) -}}
+        {{- includeJsAssets([
+            routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalResources::CUSTOMIZE_JS')) ~ '?type=' ~ route.type ~ '&id=' ~ route.id,
+        ]) -}}
+        {{- includeJsAssets(ENVIRONMENT_CORE) -}}
+
+    </body>
+</html>

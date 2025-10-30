@@ -1,0 +1,37 @@
+{% macro number(customTag, showForm) %}
+    
+    {%- set customTagValue = customTag.value -%}
+    {% if customTagValue matches '/[0-9]+(\.[0-9]+)?(e|E)[0-9]+/' %}
+        {%- set customTagValue = customTagValue|number_format(0, '.', '') -%}
+    {% else %}
+        {% set splitValue = customTagValue|split('.') %}
+        {%- if splitValue[1] == 0 -%}
+            {%- set customTagValue = splitValue[0] -%}
+        {%- endif -%}
+    {%- endif -%}
+    
+    {% if showForm == true %}
+        {% set spacelessContent %}
+            <input 
+                type="number" 
+                class="form-control formField basketField validate-numeric" 
+                id="basketCustomTag{{ customTag.id }}" 
+                {% if customTag.required == true %} 
+                    data-validation="required" 
+                {% endif %} 
+                name="customTags_{{ customTag.id }}" 
+                value="{{ customTagValue }}" 
+                {% if customTag.minValue is defined and customTag.minValue|length %} 
+                    min="{{ customTag.minValue }}" 
+                {% endif %}
+                {% if customTag.maxValue is defined and customTag.maxValue|length %} 
+                    max="{{ customTag.maxValue }}"
+                    onKeyUp="if (this.value > {{ customTag.maxValue }}) { this.value = '{{ customTag.maxValue }}'; }{% if customTag.minValue is defined and customTag.minValue|length %} else if (this.value < {{ customTag.minValue }}) { this.value = '{{ customTag.minValue }}'; }{% endif %}"
+                {% endif %}
+            >
+        {% endset %}
+        {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+    {% else %}
+        <div class="staticBasketNumericValue">{{ customTagValue }}</div>
+    {% endif %}
+{% endmacro %}

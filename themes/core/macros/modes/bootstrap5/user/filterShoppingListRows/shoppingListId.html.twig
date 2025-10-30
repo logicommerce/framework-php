@@ -1,0 +1,14 @@
+{%- macro filter(appliedFilters, configuration) -%}
+
+    {%- if session.shoppingList.shoppingLists|length > 1 -%}
+        <div class="form-group filterElement shoppingListIdCriteriaFilterElement">
+            <label class="filterElement shoppingListIdCriteriaFilterElement" for="shoppingListIdCriteriaFE">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_CRITERIA')] }}</label>
+            <select class="shoppingListIdSelect form-select" id="shoppingListIdCriteriaFE" name="{{ constant('FWK\\Enums\\Parameters::ID') }}">
+                {%- for shoppingList in session.shoppingList.shoppingLists -%}
+                    <option value="{{- shoppingList.id -}}" {%- if shoppingList.id == appliedFilters.id %} selected="selected" {%- endif -%}>{{- shoppingList.name -}}</option>
+                {%- endfor -%}
+            </select>
+        </div>
+    {%- endif -%}
+
+{%- endmacro -%}

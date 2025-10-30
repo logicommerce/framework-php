@@ -1,0 +1,445 @@
+{% macro orders(args) %}
+
+    {% import 'macros/modes/' ~ coreMode ~ '/user/rmas.html.twig' as macroRmas %}
+    
+    {% if args.userId > 0 %}
+        {% if args.orders.items|length > 0 %}
+            {%- set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' -%}
+
+            <div class="userOrders userOrdersWithOrders">
+                {%- set lcData = {
+                    session: isSessionLoggedIn()
+                } -%}
+
+                {% for order in args.orders.items %}
+                    {% set lcData = lcData|merge({
+                        documentId: order.id,
+                        token: '',
+                        pdf: false
+                    }) %}
+
+                    {# if showStates[] is empty, print all states #}
+                    {%- if order.status in args.showOrderStates or args.showOrderStates is empty -%}
+                        {%- set orderData = {
+                            orderId: order.id,
+                            status: order.status,
+                            substatus: order.substatus,
+                        } -%}
+                        <div class="userOrder userOrder{{ order.id }}" data-lc='{{ outputJsonHtmlString(orderData) }}'>
+                            <div class="userOrderHeader userOrderHeader1">
+                                <div class="userOrderDate">
+                                    <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DATE_ORDERED')] }}</span> <span class="val">{{ formatDateTime(order.date) }}</span>
+                                </div>
+                            </div>
+                            <div class="userOrderHeader userOrderHeader2">
+                                <div class="userOrderNum">
+                                    <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_NUMBER')] }}</span> <span class="val">{{ order.documentNumber }}</span>
+                                </div>
+
+                                {%- set statusOutput = '' -%}
+                                {%- set status = languageSheet[constant('FWK\\Enums\\LanguageLabels::STATUS_' ~ order.status)] %}
+                                {%- if args.showStatus == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::SHOW_STATUS_ONLY') -%}
+                                    {%- set statusOutput = status -%}
+                                {%- elseif args.showStatus == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::SHOW_STATUS_ALL') -%}
+                                    {%- set statusOutput = status -%}
+                                    {%- if order.substatus|length > 0 -%}
+                                        {%- set statusOutput = statusOutput ~ ' / ' ~ order.substatus -%}
+                                    {%- endif -%}
+                                {%- elseif args.showStatus == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::SHOW_STATUS_PRIORITY_SUBSTATUS') -%}
+                                    {%- set statusOutput = status -%}
+                                    {%- if order.substatus|length > 0 -%}
+                                        {%- set statusOutput = order.substatus -%}
+                                    {%- endif -%}
+                                {%- endif -%}
+
+                                <div class="userOrderStatus">
+                                    <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_STATUS')] }}</span> <span class="val">{{ statusOutput }}</span>
+                                </div> 
+                            </div>
+                            <div class="userOrderActions userOrderActions{{ order.id }}">
+                                {% set lcData = lcData|merge({ 'documentType':'order' }) %}
+                                {# view order #}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW') in args.showOrderActions %}
+                                    <div class="userOrderActionWrap">
+                                        <button class="btn btn-link userOrderAction viewOrder" 
+                                            {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::POPUP') %}
+                                                data-bs-toggle="modal" data-bs-target="#popupOrder{{ order.id }}" data-lc-function="viewDocumentPopup" 
+                                            {% elseif args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::WINDOW') %}
+                                                data-lc-function="viewDocument" 
+                                            {% endif %}
+                                            data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW') in args.showOrderIcons %}
+                                            	<img src="{{ iconsPath ~ 'viewOrder' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER')] }}">
+                                            {% endif %}
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER')] }}</span>
+                                        </button>
+                                    </div>
+
+                                    {# view order popup #}
+                                    {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::POPUP') %}
+                                        <div class="lcModal modal fade popupOrderModal" id="popupOrder{{ order.id }}" tabindex="-1" aria-labelledby="popupOrder{{ order.id }}Title" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <div id="popupOrder{{ order.id }}Title" class="popup-order-title heading">
+                                                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_NUMBER')] }} {{ order.documentNumber -}}
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="viewpopuporder{{ order.id }}" class="lcModalContainer">
+                                                            <div class="loading-document">
+                                                                <div class="spinner-border text-primary" role="status"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-secondary lcModalClose"
+                                                            data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                                 
+                                {# view order pdf #}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW_PDF') in args.showOrderActions %}
+                                    <div class="userOrderActionWrap">
+                                        <button class="btn btn-link userOrderAction viewOrderPdf" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData|merge({'pdf':true})) }}'>
+                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW_PDF') in args.showOrderIcons %}
+                                            	<img src="{{ iconsPath ~ 'viewOrderPdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER_PDF')] }}">
+                                            {% endif %} 
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER_PDF')] }}</span>
+                                        </button>
+                                    </div>
+                                {% endif %}
+                                
+                                {# recover order #}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RECOVER') in args.showOrderActions %}
+                                    <div class="userOrderActionWrap">
+                                        <button class="btn btn-link userOrderAction recoverOrder" data-lc-event="click" data-lc-function="recoverOrder" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                        	{% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RECOVER') in args.showOrderIcons %}
+                                            	<img src="{{ iconsPath ~ 'recoverOrder' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RECOVER_ORDER')] }}">
+                                            {% endif %} 
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RECOVER_ORDER')] }}</span>
+                                        </button>
+                                    </div>
+                                {% endif %}
+
+                                {# invoice #}
+                                {% set lcData = lcData|merge({ 'documentType': 'invoice' }) %}
+                                {% for invoice in order.invoices %}
+                                    {% set lcData = lcData|merge({ 'documentId': invoice.id }) %}
+                                    {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_INVOICE') in args.showOrderActions %}
+                                        
+                                        <div class="userOrderActionWrap">
+                                            <button class="btn btn-link userOrderAction invoice"
+                                                {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::POPUP') %}
+                                                    data-bs-toggle="modal" data-bs-target="#popupInvoice{{ invoice.id }}" data-lc-function="viewDocumentPopup" 
+                                                {% elseif args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::WINDOW') %}
+                                                    data-lc-function="viewDocument" 
+                                                {% endif %}
+                                                data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_INVOICE') in args.showOrderIcons %}
+                                                    <img src="{{ iconsPath ~ 'viewInvoice' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_INVOICE')] }} - {{ invoice.documentNumber }}">
+                                                {% endif %} 
+                                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_INVOICE')] }} - {{ invoice.documentNumber }}</span>
+                                            </button>
+                                        </div>
+
+                                        {# view invoice popup #}
+                                        {% if args.documentView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::POPUP') %}
+                                            <div class="lcModal modal fade popupInvoiceModal" id="popupInvoice{{ invoice.id }}" tabindex="-1" aria-labelledby="popupInvoice{{ invoice.id }}Title" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <div id="popupInvoice{{ invoice.id }}Title" class="popup-order-title heading">
+                                                                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::INVOICE_NUMBER')] }} {{ invoice.documentNumber -}}
+                                                            </div>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div id="viewpopupinvoice{{ invoice.id }}" class="lcModalContainer">
+                                                                <div class="loading-document">
+                                                                    <div class="spinner-border text-primary" role="status"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button
+                                                                type="button"
+                                                                class="btn btn-secondary lcModalClose"
+                                                                data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+
+                                    {% endif %}
+                                    {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_INVOICE_PDF') in args.showOrderActions %}
+                                        <div class="userOrderActionWrap">
+                                            <button class="btn btn-link userOrderAction invoicePDF" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData|merge({'pdf':true})) }}'>
+                                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_INVOICE_PDF') in args.showOrderIcons %}
+                                                    <img src="{{ iconsPath ~ 'viewInvoicePdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_INVOICE_PDF')] }} - {{ invoice.documentNumber }}">
+                                                {% endif %} 
+                                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_INVOICE_PDF')] }} - {{ invoice.documentNumber }}</span>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {# delivery note #}
+                                {# FIXME: no existeixen les deliveryNotes penjant de order aquí #}
+                                {% set lcData = lcData|merge({ 'documentType': 'deliveryNote' }) %}
+                                {% for deliveryNote in order.deliveryNotes %}
+                                    {% set lcData = lcData|merge({ 'documentId': deliveryNote.id }) %}
+                                    {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_DELIVERY_NOTE') in args.showOrderActions %}
+                                        <div class="userOrderActionWrap">
+                                            <button class="btn btn-link userOrderAction deliveryNote" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_DELIVERY_NOTE') in args.showOrderIcons %}
+                                                    <img src="{{ iconsPath ~ 'viewDeliveryNote' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_DELIVERY_NOTE')] }} - {{ deliveryNote.documentNumber }}">
+                                                {% endif %} 
+                                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_DELIVERY_NOTE')] }} - {{ deliveryNote.documentNumber }}</span>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                    {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_DELIVERY_NOTE_PDF') in args.showOrderActions %}
+                                        <div class="userOrderActionWrap">
+                                            <button class="btn btn-link userOrderAction deliveryNotePDF" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData|merge({'pdf':true})) }}'>
+                                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_DELIVERY_NOTE_PDF') in args.showOrderIcons %}
+                                                    <img src="{{iconsPath ~ 'viewDeliveryNotePdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_DELIVERY_NOTE_PDF')] }} - {{ deliveryNote.documentNumber }}">
+                                                {% endif %} 
+                                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_ORDER')] }} - {{ deliveryNote.documentNumber }}</span>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {# return order #}
+                                {% set lcData = lcData|merge({ 'documentType': 'returnForm' }) %}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RETURN') in args.showOrderActions and order.allowReturn %}
+                                    {% set lcData = lcData|merge({ 'documentId': order.id }) %}
+                                    <div class="userOrderActionWrap" id="returnOrderDiv">
+                                        <button class="btn btn-link userOrderAction viewOrder" 
+                                            {% if args.returnProductsView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::POPUP') %}
+                                                data-bs-toggle="modal" data-bs-target="#returnProductsPopup{{ order.id }}" data-lc-function="getReturnRequestForm" 
+                                            {% elseif args.returnProductsView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::WINDOW') %}
+                                                data-lc-function="viewDocument" 
+                                            {% endif %}
+                                            data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                            {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RETURN') in args.showOrderIcons %}
+                                            	<img src="{{ iconsPath ~ 'getReturn' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}">
+                                            {% endif %}
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_ORDER')] }}</span>
+                                        </button>
+                                    </div>
+
+                                    {# return order popup #}
+                                    {% if args.returnProductsView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::POPUP') %}
+                                        <div class="lcModal modal fade returnProductsPopupModal" id="returnProductsPopup{{ order.id }}" tabindex="-1" aria-labelledby="returnProductsPopupTitle{{ order.id }}" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-lg-down">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <div id="returnProductsPopupTitle{{ order.id }}" class="popup-order-title heading">
+                                                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_ORDER')] -}}
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="returnOrderPopup{{ order.id }}" class="lcModalContainer">
+                                                            <div class="loading-document">
+                                                                <div class="spinner-border text-primary" role="status"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-secondary lcModalClose"
+                                                            data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+
+                                {# return tracing #}                                
+                                {% set lcData = lcData|merge({ 'documentType': 'returnTracing' }) %}
+                                {% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RETURN_TRACING') in args.showOrderActions %}
+                                    {% set lcData = lcData|merge({ 'documentId': order.id }) %}
+                                    <div class="userOrderActionWrap returnTracing returnTracing{{ order.id }}" 
+                                        {% if order.rmas is empty %}
+                                            style="display: none"
+                                        {% endif %}
+                                        >
+                                        <button id="returnTracingButton" class="btn btn-link userOrderAction viewOrder" 
+                                            {% if args.returnTracingView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::POPUP') %}
+                                                data-bs-toggle="modal" data-bs-target="#returnTracingPopup{{ order.id }}" 
+                                            {% elseif args.returnTracingView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::WINDOW') %}
+                                                {# FIXME: aixo esta malament segur: #}
+                                                data-lc-event="click" data-lc-function="viewDocument" 
+                                            {% endif %}
+                                            data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
+                                        	{% if constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_RETURN_TRACING') in args.showOrderIcons %}
+                                            	<img src="{{ iconsPath ~ 'returnTracking' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}">
+                                            {% endif %}
+                                            <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_TRACING')] }}</span>
+                                        </button>
+                                    </div>
+
+                                    {# return tracing popup #}
+                                    {% if args.returnTracingView == constant('FWK\\ViewHelpers\\User\\Macro\\Orders::POPUP') %}
+                                        <div class="lcModal modal fade returnTracingPopup returnTracingPopup{{ order.id }}" id="returnTracingPopup{{ order.id }}" tabindex="-1" aria-labelledby="returnTracingPopup{{ order.id }}Title" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <div id="returnTracingPopup{{ order.id }}Title" class="popup-order-title heading">
+                                                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_TRACING')] }} {{ order.documentNumber -}}
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="lcModalContainer">
+                                                            {%- set actions = [
+                                                                constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA'),
+                                                                constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_PDF'),
+                                                                constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS'),
+                                                                constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_RETURNS_PDF'),
+                                                                constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE'),
+                                                                constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::ACTION_RMA_CORRECTIVE_INVOICE_PDF')
+                                                            ] -%}
+                                                            {{- macroRmas.rmas({
+                                                                rmas: { items: order.rmas, },
+                                                                userId: session.user.id,
+                                                                showRmasStates: [
+                                                                    constant('SDK\\Enums\\RMAStatus::INCIDENTS'),
+                                                                    constant('SDK\\Enums\\RMAStatus::PENDING'),
+                                                                    constant('SDK\\Enums\\RMAStatus::AUTHORIZED'),
+                                                                    constant('SDK\\Enums\\RMAStatus::NO_AUTHORIZED'),
+                                                                    constant('SDK\\Enums\\RMAStatus::IN_PROCESS'),
+                                                                    constant('SDK\\Enums\\RMAStatus::ACCEPTED'),
+                                                                    constant('SDK\\Enums\\RMAStatus::DENIED'),
+                                                                    constant('SDK\\Enums\\RMAStatus::COMPLETED'),
+                                                                    constant('SDK\\Enums\\RMAStatus::DELETED')             
+                                                                ],
+                                                                showRmasActions: actions,
+                                                                showRmasIcons: actions,
+                                                                documentView: constant('FWK\\ViewHelpers\\User\\Macro\\Rmas::WINDOW'),
+                                                            }) -}}
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-secondary lcModalClose"
+                                                            data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                {# incidences link #}
+                                {# TODO incidences link all system #}
+                                {#
+                                    {% if args.showIncidences == true %}
+                                        <div class="userOrderActionWrap">
+                                            <a class="btn btn-link userOrderAction incidencesLink" href="#helperEcommercePath('orderIncidences')#/#LOCAL.stcOrder.id#/">
+                                                <img src="{{ args.incidencesIcon|default(iconsPath ~ 'incidences' ~ constant('USER_ACTIONS_FILE_EXTENSION')) }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::INCIDENCES_ORDER')] }}">
+                                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::INCIDENCES_ORDER')] }}</span>
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                #}
+                                
+                            </div>
+
+                            {%- set validTrackingShipments = 0 -%}
+                            {%- for shipment in order.shipments -%}
+                                {%- set isValidTrackingUrl = false -%}
+                                {%- set hasWildcard = shipment.trackingUrl|preg_match_all('/trackingNumber/')|length -%}
+                                {%- if (shipment.trackingUrl|length and hasWildcard == 0) or (hasWildcard > 0 and shipment.trackingNumber|length) -%}
+                                    {%- set isValidTrackingUrl = true -%}
+                                {%- endif -%}
+                                {%- if isValidTrackingUrl or shipment.trackingNumber|length -%}
+                                    {%- set validTrackingShipments = validTrackingShipments + 1 -%}
+                                {%- endif -%}
+                            {%- endfor -%}
+                            {%- if (order.shipments is defined and order.shipments|length) and (validTrackingShipments or order.shipments|length > 1) -%}
+                                {%- set lcData = {
+                                    documentId: order.id,
+                                } -%}
+                                {%- set shipmentsDataContent -%}                                    
+                                    {%- if order.shipments|length > 1 -%}
+                                        <div class="userOrderActionWrap">
+                                            <a data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' data-bs-toggle="modal" data-bs-target="#popupShipmentsOrder{{ order.id }}" data-lc-function="viewAllShipments" class="btn btn-link userOrderAction viewAllShipments">
+                                                <img src="{{ iconsPath ~ 'viewShipments' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPPING_TRACKING')] }}">
+                                                <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_EXPEDITIONS')] }}</span>
+                                            </a>
+                                        </div>
+                                        
+                                        <div class="lcModal modal fade popupShipmentsOrder" id="popupShipmentsOrder{{ order.id }}" tabindex="-1" aria-labelledby="popupShipmentsOrder{{ order.id }}Title" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <div id="popupShipmentsOrder{{ order.id }}Title" class="popup-order-title heading">
+                                                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::USER_SHIPMENTS')] }} - {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_NUMBER')] }} {{ order.documentNumber -}}
+                                                        </div>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="viewShipmentsOrder{{ order.id }}" class="lcModalContainer">
+                                                            <div class="loading-document">
+                                                                <div class="spinner-border text-primary" role="status"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button
+                                                            type="button"
+                                                            class="btn btn-secondary lcModalClose"
+                                                            data-bs-dismiss="modal">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {%- endif -%}
+                                    {%- import 'macros/modes/' ~ coreMode ~ '/user/orderTrackings.html.twig' as modeUser -%}
+                                    {{- modeUser.orderTrackings({
+                                        shipments: order.shipments,
+                                        showContainer: false,
+                                    }) -}}
+                                {%- endset -%}
+
+                                {%- if shipmentsDataContent|trim|length -%}
+                                    <div class="userOrderShipments userOrderShipmentsHeader">
+                                        <div class="userOrderShipmentsTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::USER_SHIPMENTS')] -}}</div>
+                                        {%- if order.shipments|length > 1 -%}
+                                            <div class="userOrderShipmentsNum">
+                                                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::USER_SHIPMENTS_INFO')]|replace({ 
+                                                    '{{total}}': order.shipments|length 
+                                                }) }} <a role="button" class="userOrderShipmentsLink" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' data-bs-toggle="modal" data-bs-target="#popupShipmentsOrder{{ order.id }}" data-lc-function="viewAllShipments">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::USER_SHIPMENTS_INFO_LINK')] -}}</a>
+                                            </div>
+                                        {%- endif -%}
+                                    </div>
+
+                                    <div class="userOrderShipments userOrderShipmentsData">{{- shipmentsDataContent -}}</div>
+                                {%- endif -%}
+                            {%- endif -%}
+                        </div>
+                    {%- endif -%}
+
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="userOrders userOrdersEmpty">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::USER_NO_ORDERS')] }}</div>
+        {% endif %}
+    {% endif %}
+
+{% endmacro orders %}

@@ -1,0 +1,389 @@
+{#- @documentation
+    {
+        "name": "bloggerInformation",
+        "description": [
+            {
+                "es": "Pinta la información del blogger"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "blogger",
+                "description": [
+                    {
+                        "es": "Objeto blogger, con la informacion de quien realiza los comentarios"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "SDK\\Dtos\\Blog\\Blogger",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Permite mostrar o no la etiqueta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showName",
+                "description": [
+                    {
+                        "es": "Permite mostrar o no el nombre"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showDescription",
+                "description": [
+                    {
+                        "es": "Permite mostrar o no la descripción"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.blog as blogMacros %} |{{ blogMacros.tagsCloud({  |blogger: blogger, |showLabel: false, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Blog/Macro/BloggerInformation.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/blog/bloggerInformation.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro bloggerInformation(args) -%}
+    {{ addTimerDebugFlag('blogMacros-bloggerInformation',true) }}
+    {%- set viewParameters = viewHelpers.blog.bloggerInformationMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/blog/bloggerInformation.html.twig' as modeBlog -%}
+    {{ modeBlog.bloggerInformation(viewParameters) }}
+    {{ addTimerDebugFlag('blogMacros-bloggerInformation',false) }}
+{%- endmacro bloggerInformation -%}
+
+{#- @documentation
+    {
+        "name": "comments",
+        "description": [
+            {
+                "es": "Pinta comentarios en el blog"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "comments",
+                "description": [
+                    {
+                        "es": "Array con informacion de los comentarios"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "true"
+            }
+        ],
+        "example": " |{% import macrosCore.blog as blogMacros %} |{{- blogMacros.comments({ |comments: comments.items |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Blog/Macro/Comments.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/blog/comments.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro comments(args) -%}
+    {{ addTimerDebugFlag('blogMacros-comments',true) }}
+    {%- set viewParameters = viewHelpers.blog.commentsMacro(args) -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/blog/comments.html.twig' as modeProduct -%}
+    {{ modeProduct.comments(viewParameters) }}
+    {{ addTimerDebugFlag('blogMacros-comments',false) }}
+{%- endmacro comments -%}
+
+{#- @documentation
+    {
+        "name": "commentsForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de los comentarios"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "blogSettings",
+                "description": [
+                    {
+                        "es": "Configuracion del blog"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Theme\\Dtos\\FormComments",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto tipo formulario que quieras pintar, por ejemplo el que devuelve la funcion FWK\\Core\\Form\\FormFactory::getPostComment()"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showTitle",
+                "description": [
+                    {
+                        "es": "Muestra o no el titulo del formulario"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.blog as blogMacros %} |{{- blogMacros.commentsForm({ |form: formComment, |configuration: themeConfiguration.forms.comments |}) -}} |",
+        "viewHelper": "FWK/ViewHelpers/Blog/Macro/CommentsForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/blog/commentsForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro commentsForm(args) -%}
+    {{ addTimerDebugFlag('blogMacros-commentsForm',true) }}
+    {%- set viewParameters = viewHelpers.blog.commentsFormMacro(args) -%}
+
+    {%- from "macros/form.twig" import legalCheck as legalCheckMacro -%}
+    {%- set legalCheck -%}
+        {{ legalCheckMacro({}) }}
+    {%- endset -%}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/blog/commentsForm.html.twig' as modeBlog -%}
+    {{ modeBlog.commentsForm(viewParameters, legalCheck) }}
+    {{ addTimerDebugFlag('blogMacros-commentsForm',false) }}
+{%- endmacro commentsForm -%}
+
+{#- @documentation
+    {
+        "name": "subscribeForm",
+        "description": [
+            {
+                "es": "Pinta el formulario de subscripcion"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "form",
+                "description": [
+                    {
+                        "es": "Objeto de tipo formulario a pintar"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "FWK\\Core\\Form\\Form",
+                "default": "null",
+                "required": "true"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Muestra o no la etiqueta"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showPlaceholder",
+                "description": [
+                    {
+                        "es": "Muestra los marcadores de posicion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "false",
+                "required": "false"
+            },
+            {
+                "param": "disableValidationMessages",
+                "description": [
+                    {
+                        "es": "Deshabilita el mensaje de validacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.blog as blogMacros %} |{{ blogMacros.subscribeForm({  |showLabel: false, |showPlaceholder: true, |form: subscribeForm |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Blog/Macro/SubscribeForm.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/blog/subscribeForm.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro subscribeForm(args) -%}
+    {{ addTimerDebugFlag('blogMacros-subscribeForm',true) }}
+    {%- set viewParameters = viewHelpers.blog.subscribeFormMacro(args) -%}
+    
+    {% if viewParameters.form is not null %}
+        {%- from "macros/form.twig" import legalCheck as legalCheckMacro -%}
+        {%- set legalCheck -%}
+            {{ legalCheckMacro({}) }}
+        {%- endset -%}
+        {%- import 'macros/modes/' ~ coreMode ~ '/blog/subscribeForm.html.twig' as modeBlog -%}
+        {{ modeBlog.subscribeForm(viewParameters, legalCheck) }}
+    {% endif %}
+    {{ addTimerDebugFlag('blogMacros-subscribeForm',false) }}
+{%- endmacro subscribeForm -%}
+
+{#- @documentation
+    {
+        "name": "tagsCloud",
+        "description": [
+            {
+                "es": "Pinta las sugerencias al usuario en la busqueda(tag clouds)"
+            },
+            {
+                "en": "++"
+            }
+        ],
+        "parameters": [
+            {
+                "param": "tags",
+                "description": [
+                    {
+                        "es": "Contiene una array de etiquetas con las sugerencias"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "array",
+                "default": "[]",
+                "required": "true"
+            },
+            {
+                "param": "showLabel",
+                "description": [
+                    {
+                        "es": "Permite mostrar o no la etiqueta de las sugerencias"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            }
+        ],
+        "example": " |{% import macrosCore.blog as blogMacros %} |{{ blogMacros.tagsCloud({ |tags: tags, |showLabel: false, |}) }} |",
+        "viewHelper": "FWK/ViewHelpers/Blog/Macro/TagsCloud.php",
+        "relatedCoreFiles": [{
+            "files": "macros/modes/{{coreMode}}/blog/tagsCloud.html.twig",
+            "description": [
+                {
+                    "es": "Macro principal, importada segun el 'mode' que se haya definido en el Theme"
+                },
+                {
+                    "en": "++"
+                }
+            ]
+        }]
+    }
+@endDocumentation -#}
+{%- macro tagsCloud(args) -%}
+    {{ addTimerDebugFlag('blogMacros-tagsCloud',true) }}
+    {%- set viewParameters = viewHelpers.blog.tagsCloudMacro(args) -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/blog/tagsCloud.html.twig' as modeBlog -%}
+    {{ modeBlog.tagsCloud(viewParameters) }}
+    {{ addTimerDebugFlag('blogMacros-tagsCloud',false) }}
+{%- endmacro tagsCloud -%}

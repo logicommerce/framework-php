@@ -1,0 +1,36 @@
+{%- macro selector(option, optionIdName, args) -%}
+    <div class="productOption productOptionSelect productOption{{ optionIdName }} productOptionPId_{{ option.pId }}" data-lc-product-option='{{ outputJsonHtmlString({ id: optionIdName, name: option.language.name, pId: option.pId }) }}'>
+
+        {%- if args.showImageOptions == true and option.image|length > 0 -%}
+            <div class="productOptionContainerImage" title="{{ option.language.prompt|default(option.language.name|escape) }}">
+                <img src="{{ option.image }}" alt="{{ option.language.prompt|default(option.language.name|escape) }}">
+            </div>
+        {%- endif -%}
+
+        <div class="productOptionPrompt" title="{{ option.language.prompt|default(option.language.name|escape) }}">{{ option.language.prompt|default(option.language.name) }}</div>
+
+        <div class="productOptionValues">
+            <div class="productOptionValue productOptionSelectValue">
+                <select id="optionSelectValue{{ optionIdName }}" name="optionValue{{ optionIdName }}" title="{{ option.language.name|escape }}" class="productOptionSelectValue form-select" autocomplete="off">
+                    {%- set options -%}
+                        {%- set optionSelect = false -%}
+                        {%- for optionValue in option.values -%}
+                            {%- set selectedAttr = '' -%}
+                            {%- if optionValue.id == option.selectedOptionValueId -%}
+                                {%- set selectedAttr = ' selected' -%}
+                                {%- set optionSelect = true -%}
+                            {%- endif -%}
+                            <option value="{{ optionValue.id }}" {{- selectedAttr -}}>
+                                {{- optionValue.language.value -}}
+                            </option>
+                        {%- endfor -%}
+                    {%- endset -%}
+                    {%- if (option.required == false and option.values|length > 1) or (args.selectDefaults == false) or (optionSelect == false) -%}
+                        <option value="" {%- if not optionSelect %} selected {%- endif -%} {% if option.required == true %} disabled {% endif %}></option>
+                    {%- endif -%}
+                    {{- options -}}
+                </select>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

@@ -1,0 +1,55 @@
+{%- macro bundle(args, orderRow) -%}
+    {# variables #}
+    {%- set nameWildcard = orderRow.name|striptags -%}
+    {%- set imageWildcard -%}
+        {%- for orderBundleItem in orderRow.items -%}
+            <span class="wrap">
+                <img src="{{ orderBundleItem.image }}" alt="{{ orderBundleItem.name|striptags }}" title="{{ orderBundleItem.name|striptags }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';" class="orderBundleImage img-fluid">
+            </span>
+        {%- endfor -%}
+    {%- endset -%}
+    {%- set viewPackBtnWildcard -%}
+        <button class="orderViewBundle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#orCollap{{ orderRow.hash }}" aria-expanded="false" aria-controls="orCollap{{ orderRow.hash }}">
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_VIEW_PACK')] -}}
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>
+        </button>
+    {%- endset -%}
+    {# end variables #}
+
+    {%- if args.productsBundleTemplate != null -%}
+
+        {{- args.productsBundleTemplate|replace({
+            '{{image}}': imageWildcard,
+            '{{name}}': nameWildcard,
+            '{{viewPackBtn}}': viewPackBtnWildcard,
+        }) -}}
+
+    {%- else -%}{# default template #}
+
+        {%- if args.showImage == true -%}
+            <span class="orderBundleImage">
+                <button class="orderBundleImageBtn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#orCollap{{ orderRow.hash }}" aria-expanded="false" aria-controls="orCollap{{ orderRow.hash }}">
+                    {{- imageWildcard -}}
+                </button>
+            </span>
+        {%- endif -%}
+
+        <div class="orderBundleInfo">
+            <span class="orderBundleName">
+                {{- nameWildcard -}}
+            </span>
+
+            {{- viewPackBtnWildcard -}}
+        </div>
+
+        <div class="orderBundleItems collapse" id="orCollap{{ orderRow.hash }}">
+            {%- import 'macros/modes/' ~ coreMode ~ '/document/utils/rowTemplates/bundleItem.html.twig' as orderRowBundleItem -%}
+            {%- for orderBundleItem in orderRow.items -%}
+                <div class="orderBundleItem">
+                    {{- orderRowBundleItem.bundleItem(args, orderBundleItem) -}}
+                </div>    
+            {%- endfor -%}
+        </div>
+    {%- endif -%}{# end default template #}
+
+{%- endmacro bundle -%}

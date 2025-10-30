@@ -1,0 +1,52 @@
+{#{ dump(categories) }#}
+
+{% if (categories is iterable and categories|length > 0 ) or (categories is not iterable and categories is not null) %}
+    
+    <table border=1>
+    	<tr>
+    		<th>Loop Index</th>
+    		<th>Id category.id</th>
+    		<th>Public id category.pId</th>
+    		<th>ParentId category.parentId</th>
+    		<th>ProdFirst category.prodFirst</th>
+    		<th>TemplateId category.templateId</th>
+    		<th>AreaId category.areaId</th>
+    		<th>IncludeSubcategories category.includeSubcategories</th>
+    		<th>Featured category.featured</th>
+    		<th>Offer category.offer</th>
+    		<th>Priority category.priority</th>
+    		<th>DateAdded category.dateAdded</th>
+    		<th>PurchaseMode category.purchaseMode</th>
+    		
+    		<th>By Language keywords category.language.keywords</th>
+    		<th>By Language particularTitle category.language.particularTitle</th>
+    		<th>By Language metaDescription category.language.metaDescription</th>
+    		<th>By Language urlSeo category.language.urlSeo</th>
+    		
+    		<th>By Language destinationUrl category.language.destinationUrl</th>
+    		<th>By Language target category.language.target</th>
+    		<th>By Language largeImage category.language.largeImage</th>
+    		<th>By Language smallImage category.language.smallImage</th>
+    		<th>By Language shortDescription category.language.shortDescription</th>
+    		<th>By Language smallTitleImage category.language.smallTitleImage</th>
+    		<th>By Language largeTitleImage category.language.largeTitleImage</th>
+    		<th>By Language addGenericTitle category.language.addGenericTitle</th>
+    		<th>By Language name category.language.name</th>
+    		<th>By Language longDescription category.language.longDescription</th>
+    		
+    		<th>Subcategories[] category.subcategories[]</th>
+    		<th>CustomTags[] category.customTags[]</th>
+    	</tr>
+    	
+        {% if categories is iterable %}
+        	{% for category in categories %}
+        	    {% include '/snippets/demo/category.html.twig' with {'category' : category, 'index' : loop.index0} only %}
+        	{% endfor %}
+        {% else %}
+            {% include '/snippets/demo/category.html.twig' with {'category' : categories} only %}
+        {% endif %}
+    	
+    </table>
+{% else %}
+	no items
+{% endif %}    

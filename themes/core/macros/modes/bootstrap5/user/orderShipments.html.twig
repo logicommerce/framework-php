@@ -1,0 +1,57 @@
+{% macro orderShipments(args) %}
+    <div class="userOrderShipmentsContainer">
+        {%- for shipment in args.order.delivery.shipments -%}
+            <div class="userOrderShipment">
+                <div class="userOrderShipmentHeader userOrderShipmentHeader1">
+                    <div class="userOrderShipmentDate">
+                        <span class="lbl">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPEDITION_INCOMING_DATE')] -}}</span> <span class="val">{{- formatDateTime(shipment.incomingDate) -}}</span>
+                    </div>
+                </div>
+                <div class="userOrderShipmentHeader userOrderShipmentHeader2">
+                    <div class="userOrderShipmentNumber">
+                        <span class="lbl">
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPEDITION_COUNTER')]|replace({
+                                '{{index}}': loop.index,
+                                '{{length}}': loop.length,
+                            }) -}}
+                        </span>
+                    </div>
+                    {%- set status = languageSheet[constant('FWK\\Enums\\LanguageLabels::SHIPMENT_STATUS_' ~ shipment.status)] -%}
+                    <div class="userOrderShipmentStatus">
+                        <span class="lbl">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_STATUS')] -}}</span> <span class="val">{{- status -}}</span>
+                    </div>
+                </div>
+                <div class="userOrderShipmentBody">
+                    <div class="userOrderShipmentItems">
+                        {% import 'macros/modes/' ~ coreMode ~ '/document/utils/rowTemplates/product.html.twig' as orderProduct %}
+
+                        {%- for shipmentItem in shipment.items -%}
+                            {%- set findedItem = null -%}
+                            {%- for orderItem in args.order.items -%}
+                                {%- if shipmentItem.orderDetailId == orderItem.id -%}
+                                    {%- set findedItem = orderItem -%}
+                                {%- endif -%}
+                            {%- endfor -%}
+                            {%- if findedItem is not null -%}
+                                <div class="userOrderShipmentItem">
+                                    {{- orderProduct.product(
+                                        args,
+                                        findedItem,
+                                    ) -}}
+                                    <div class="userOrderShipmentItemQuantity">
+                                        &times;{{ findedItem.quantity -}}</span>
+                                    </div>
+                                </div>
+                            {%- endif -%}
+                        {%- endfor -%}
+                    </div>
+                    {%- import 'macros/modes/' ~ coreMode ~ '/user/orderTrackings.html.twig' as modeUser -%}
+                    {{- modeUser.orderTrackings({
+                        shipments: [shipment],
+                        showContainer: true,
+                    }) -}}
+                </div>
+            </div>
+        {%- endfor -%}
+    </div>
+{% endmacro orderShipments %}

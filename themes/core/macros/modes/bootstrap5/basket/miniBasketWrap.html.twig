@@ -1,0 +1,14 @@
+{% macro miniBasketWrap(args) %}
+
+	{% set dataMiniBasket = { 
+	    products: args.basket.totals.totalQuantity|default(0),
+	    total: args.showTaxIncluded ? args.basket.totals.total|default(0) : args.basket.totals.subtotal|default(0),
+	} %}
+	
+	<div id="miniBasket" class="miniBasket {{ args.class }}">
+		<div id="miniBasketContent" data-lc-mini-basket='{{ outputJsonHtmlString(dataMiniBasket) }}'>
+			{{ args.content }}
+		</div>
+	</div>
+	
+{% endmacro miniBasketWrap %}

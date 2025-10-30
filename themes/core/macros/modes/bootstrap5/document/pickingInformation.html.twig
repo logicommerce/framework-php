@@ -1,0 +1,30 @@
+{%- macro pickingInformation(args) -%}
+    {%- if args.document.delivery.physicalLocation -%}
+        {%- import _self as self -%}
+        <div class="customerInformation pickingInformation">
+            <p class="customerInformation customerInformationTitle">
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PICKING_ADDRESS')] -}}
+            </p>
+            {{- self.fields(args.fields, args.document.delivery.physicalLocation) -}}
+        </div>
+    {%- endif -%}
+{%- endmacro pickingInformation -%}
+
+{%- macro fields(fields, physicalLocation) -%}
+    {%- import _self as self -%}
+    {%- for field in fields -%}
+        {%- if field == 'city' -%}
+            {{- self.fieldName(field, physicalLocation.postalCode ~ ' ' ~ physicalLocation.city) -}}
+        {%- elseif field == 'email' and attribute(physicalLocation, field) is defined -%}
+            {{- self.fieldName(field, physicalLocation.email) -}}
+        {%- elseif attribute(physicalLocation, field) is defined -%}
+            {{- self.fieldName(field, attribute(physicalLocation, field)) -}}
+        {%- endif -%}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro fieldName(fieldName, fieldValue) -%}
+    {%- if fieldValue|trim|length -%}
+        <p class="pickingInformation picking{{- fieldName|capitalize -}}">{{- fieldValue -}}</p>
+    {%- endif -%}
+{%- endmacro -%}

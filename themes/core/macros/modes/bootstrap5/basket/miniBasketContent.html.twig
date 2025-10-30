@@ -1,0 +1,157 @@
+{%- macro miniBasketContent(args) -%}
+
+    <div id="miniBasketOutput" class="miniBasketOutput {{ args.class }}">
+        {%- if args.showHeader == true -%}
+            <div id="miniBasketHeader" class="miniBasketHeader">
+                <div class="miniBasketHeaderTitle">
+                    <a id="miniBasketModuleHeaderTitle" href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_BASKET')) }}">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MINI_BASKET')] }}</a>
+                </div>
+                <div class="miniBasketHeaderSubTitle">
+                    <a id="miniBasketModuleHeader" href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_BASKET')) }}">
+                        {%- set totalProducts = session.aggregateData.basket.totalProducts - session.aggregateData.basket.gifts -%}
+                        <span id="miniBasketProductUnits">{{ totalProducts }} {{ totalProducts > 1 ? languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT')] }}</span>
+                        {%- if session.aggregateData.basket.gifts > 0 -%}
+                            <span id="miniBasketGiftUnits"> + {{ session.aggregateData.basket.gifts }} {{ session.aggregateData.basket.products > 1 ? languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFTS')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFT')] }}</span>
+                        {%- endif -%}
+                        <span id="miniBasketProductSubtotal"> {{ args.basket.totals.total }}</span>
+                    </a>
+                </div>
+            </div>
+        {%- endif -%}
+
+        <div id="miniBasketBody" class="miniBasketBody">
+            {%- set basketItemCount = 0 -%}
+            {%- set gifts = [] -%}
+            {% set gridMountedProducts = []  %}
+            {%- set lockedStocksContent = '' -%}
+
+            {%- from 'macros/modes/' ~ coreMode ~ '/basket/miniBasketRows/product.html.twig' import product as basketRowProduct -%}
+            {%- from 'macros/modes/' ~ coreMode ~ '/basket/miniBasketRows/voucherPurchase.html.twig' import voucherPurchase as basketRowVoucherPurchase -%}
+            {%- from 'macros/modes/' ~ coreMode ~ '/basket/miniBasketRows/bundle.html.twig' import bundle as basketRowBundle -%}
+            {%- from 'macros/modes/' ~ coreMode ~ '/basket/miniBasketRows/linked.html.twig' import linked as basketRowLinked -%}
+            {%- from 'macros/modes/' ~ coreMode ~ '/basket/miniBasketRows/grid.html.twig' import grid as basketRowGrid -%}
+            {%- from 'macros/modes/' ~ coreMode ~ '/basket/lockedStocksContent.html.twig' import lockedStocksContent as lockedStocksContentMacro -%}
+
+            {%- for basketItem in args.basket.items -%}
+                {%- set basketItemCount = basketItemCount + 1 -%}
+                {%- if args.showLockedStocks and settings.basketStockLockingSettings.lockedStockTimerType == constant('SDK\\Enums\\LockedStockTimerType::PRODUCT') -%}
+                    {% set lockedStocksContent %}
+                        <div class="miniBasketLockedStock clearfix">
+                            {{- lockedStocksContentMacro({ 
+                                showDescription: args.showLockedStocksDescription, 
+                                lockedStockTimer: basketItem.lockedStockTimer }) 
+                            -}}
+                        </div>
+                    {% endset %}
+                {%- else -%}
+                    {% set lockedStocksContent = "" %}
+                {%- endif -%}
+
+                {%- if basketItem.type == constant('SDK\\Enums\\BasketRowType::PRODUCT') -%}
+                    {%- if not themeConfiguration.commerce.disableShowAsGridProductOptions 
+                        and session.basketGridProducts[basketItem.id] 
+                        and session.basketGridProducts[basketItem.id].gridOptionIds|length > 0 
+                    -%}
+                        {%- if not (basketItem.id in gridMountedProducts) -%}
+                            <div class="miniBasketItem miniBasketItemGrid clearfix" id="miniBasketItem_{{ basketItem.id }}">
+                                {{ lockedStocksContent }}
+                                {{ basketRowGrid(args, basketItem) }}
+                                {%- set gridMountedProducts = array_add(gridMountedProducts, basketItem.id) -%}
+                            </div>
+                        {%- endif -%}
+                    {%- else -%}
+                        <div class="miniBasketItem miniBasketItemProduct clearfix" id="{{ basketItem.htmlId }}">
+                            {{ lockedStocksContent }}
+                            {{- basketRowProduct(args, basketItem) -}}
+                        </div>
+                    {%- endif -%}
+                {%- elseif basketItem.type == constant('SDK\\Enums\\BasketRowType::VOUCHER_PURCHASE') -%}
+                    <div class="miniBasketItem miniBasketItemVoucherPurchase clearfix" id="{{ basketItem.htmlId }}">
+                        {{ lockedStocksContent }}
+                        {{- basketRowVoucherPurchase(args, basketItem) -}}
+                    </div>
+                {%- elseif basketItem.type == constant('SDK\\Enums\\BasketRowType::BUNDLE') -%}
+                    <div class="miniBasketItem miniBasketItemBundle clearfix" id="{{ basketItem.htmlId }}">
+                        {{ lockedStocksContent }}
+                        {{- basketRowBundle(args, basketItem) -}}
+                    </div>
+                {%- elseif basketItem.type == constant('SDK\\Enums\\BasketRowType::LINKED') -%}
+                    <div class="miniBasketItem miniBasketItemLinked clearfix" id="{{ basketItem.htmlId }}">
+                        {{ lockedStocksContent }}
+                        {{- basketRowLinked(args, basketItem) -}}
+                    </div>
+                {%- elseif args.showGifts -%}
+                    {%- set gifts = gifts|merge([basketItem]) -%}
+                {%- endif -%}
+            {%- else -%}
+                <span class="miniBasketEmpty">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EMPTY_BASKET')] }}</span>
+            {%- endfor -%}
+
+            {%- if gifts|length -%}
+                {%- from 'macros/modes/' ~ coreMode ~ '/basket/miniBasketRows/gift.html.twig' import gift as basketRowGift -%}
+                {%- for basketItem in gifts -%}
+                    <div class="miniBasketItem miniBasketGift clearfix" id="{{ basketItem.htmlId }}">
+                        {{- basketRowGift(args, basketItem) -}}
+                    </div>
+                {%- endfor -%}
+            {%- endif -%}
+        </div>
+
+        <div class="miniBasketTotals">
+            {%- if args.showPaymentSystem == true and args.basket.paymentSystem != null -%}
+                <div class="miniBasketPaymentSystem row">
+                    <div class="col col-md-7">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PAYMENT_SYSTEM')] }}</div>
+                    <div class="col col-md-5">{{ outputHtmlCurrency(args.basket.paymentSystem.price) }}</div>
+                </div>
+            {%- endif -%}
+
+            {%- if args.showShipping == true and args.basket.delivery != null -%}
+                <div class="miniBasketShowShipping row">
+                    <div class="col col-md-7">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOW_SHIPPING')] }}</div>
+                    {%- set totalShippingPrice = 0 -%}
+                    {%- for shipment in args.basket.delivery.shipments -%}
+                        {%- if args.showTaxIncluded == true -%}
+                            {%- set totalShippingPrice = totalShippingPrice + shipment.shipping.pricesWithTaxes.price -%}
+                        {%- else -%}
+                            {%- set totalShippingPrice = totalShippingPrice + shipment.shipping.prices.price -%}
+                        {%- endif -%}
+                    {%- endfor -%}
+                    <div class="col col-md-5">{{ outputHtmlCurrency(totalShippingPrice) }}</div>
+                </div>
+            {%- endif -%}
+
+            {%- if args.showTotalDiscounts == true -%}
+                <div class="miniBasketDiscounts row">
+                    <div class="col col-md-7">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DISCOUNTS')] }}</div>
+                    <div class="col col-md-5">{{ outputHtmlCurrency(-args.basket.totals.totalDiscounts) }}</div>
+                </div>
+            {%- endif -%}
+
+            {%- if args.showTotalVouchers == true -%}
+                <div class="miniBasketTotalVouchers row">
+                    <div class="col col-md-7">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFT_CODE')] }}</div>
+                    <div class="col col-md-5">{{ outputHtmlCurrency(-args.basket.totals.totalVouchers) }}</div>
+                </div>
+            {%- endif -%}
+
+            {%- if args.showTotal == true -%}
+                {%- set total = args.basket.totals.total -%}
+                {%- if args.showTaxIncluded == false -%}
+                    {%- set total = args.basket.totals.subtotal -%}
+                {%- endif %}
+
+                <div class="row miniBasketShowTotal {%- if args.basket.totals.totalTaxes > 0 %} miniBasketShowTaxIncluded {%- endif -%}">
+                    <div class="col col-md-7">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::TOTAL')] }}</div>
+                    <div class="col col-md-5">{{ outputHtmlCurrency(total) }}</div>
+                </div>
+            {%- endif -%}
+        </div>
+
+        {%- if args.showFooter == true -%}
+            <div class="miniBasketButtons">
+                <button type="button" class="btn btn-secondary miniBasketButton miniBasketContinueShopping">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MINI_BASKET_CONTINUE_SHOPPING')] }}</button>
+                <a href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_BASKET')) }}" class="btn btn-primary miniBasketButton miniBasketEndOrder">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MINI_BASKET_END_ORDER')] }}</a>
+            </div>
+        {%- endif -%}
+    </div>
+{%- endmacro miniBasketContent -%}

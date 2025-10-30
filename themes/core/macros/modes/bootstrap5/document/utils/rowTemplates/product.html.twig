@@ -1,0 +1,97 @@
+{% macro product(args, orderRow) %}
+    {# variables #}
+    {% set linkWildcard = orderRow.link %}
+    {% set imageWildcard = orderRow.image %}
+    {% set nameWildcard = orderRow.name|striptags %}
+    {% set brandWildcard = orderRow.brandName %}
+    {% set skuWildcard = orderRow.combination.sku ? orderRow.combination.sku : orderRow.codes.sku %}
+    {% set manufacturerSkuWildcard = orderRow.codes.manufacturerSku %}
+
+    {% set optionsWildcard %}
+        {% if args.showOptions %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/options.html.twig' as modeOrder %}
+            {{ modeOrder.options(orderRow.options, args.showOptionValuesName, args.showOptionValuesSku) }}
+        {% endif %}
+    {% endset %}
+
+    {% set customTagsWildcard %}
+        {% if args.showCustomTags %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/customTags.html.twig' as modeOrder %}
+            {{ modeOrder.customTags(orderRow.customTags, args) }}
+        {% endif %}
+    {% endset %}
+
+    {%- set discountsWildcard -%}
+        {% if args.showDiscounts and orderRow.discounts|length %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/discounts.html.twig' as modeOrder %}
+            {{ modeOrder.discounts(orderRow.discounts, args.showDiscountName, args.showDiscountValue, args.showTaxIncluded) }}
+        {% endif %}
+    {%- endset -%}
+
+    {%- set rmaReason -%}
+        {% if not orderRow.rmaReason is null %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/rmaReason.html.twig' as modeOrder %}
+            {{ modeOrder.rmaReason(orderRow.rmaReason) }}
+        {% endif %}
+    {%- endset -%}
+    {# end variables #}
+
+    {% if args.productsTemplate != null %}
+        {{ args.productsTemplate|replace({
+            '{{link}}': linkWildcard,
+            '{{image}}': imageWildcard,
+            '{{name}}': nameWildcard,
+            '{{sku}}': skuWildcard,
+            '{{brand}}': brandWildcard,
+            '{{manufacturerSku}}': manufacturerSkuWildcard,
+            '{{options}}': optionsWildcard,
+            '{{customTags}}': customTagsWildcard,
+            '{{discounts}}': discountsWildcard,
+            '{{rmaReason}}': rmaReason
+        }) }}
+    {% else %}{# default template #}
+        {% if args.showImage %}
+            <div class="orderProductImage">
+                {% if args.linkable %}
+                    <a class="orderProductImage" href="{{ linkWildcard }}">
+                        <img class="productSmallImage orderProductImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null; this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </a>
+                {% else %}
+                    <span class="orderProductImage">
+                        <img class="productSmallImage orderProductImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null; this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </span>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="orderProductInfo">
+            <span class="orderProductName">
+                {% if args.linkable %}
+                    <a href="{{ linkWildcard }}" title="{{ nameWildcard }}">{{ nameWildcard }}</a>
+                {% else %}
+                    {{ nameWildcard }}
+                {% endif %}
+            </span>
+            {%- if args.showBrand == true and brandWildcard|length -%}
+                <span class="orderProductBrand">{{ brandWildcard }}</span>
+            {%- endif -%}
+            {% if args.showSku and skuWildcard|length %}
+                <span class="orderProductSku">{{ skuWildcard }}</span>
+            {% endif %}
+            {% if args.showManufacturerSku and manufacturerSkuWildcard|length %}
+                <span class="orderProductManufacturerSku">{{ manufacturerSkuWildcard }}</span>
+            {% endif %}
+            {{ optionsWildcard }}
+            {{ customTagsWildcard }}
+            
+            {% if args.showDiscounts == true and discountsWildcard|length %}
+                <span class="orderProductDiscounts">
+                    <span class="orderProductDiscountsTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_ITEM_DISCOUNTS_TITLE')] }}</span>
+                    {{ discountsWildcard }}
+                </span>
+            {% endif %}
+
+            {{ rmaReason }}
+
+        </div>
+    {% endif %}{# end default template #}
+{% endmacro product %}

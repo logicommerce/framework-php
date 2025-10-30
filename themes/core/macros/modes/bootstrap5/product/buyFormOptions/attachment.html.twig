@@ -1,0 +1,81 @@
+{% macro attachment(option, optionIdName, args) %}
+    <div class="productOption productOptionAttachment productOption{{ optionIdName }} productOptionPId_{{option.pId}}" data-lc-product-option='{{ outputJsonHtmlString({ id: optionIdName, name: option.language.name, pId: option.pId }) }}'>
+        {% if args.showImageOptions == true and option.image|length > 0 %}
+            <div class="productOptionContainerImage" title="{{ option.language.prompt|default(option.language.name) }}">
+                <img src="{{ option.image }}" alt="{{ option.language.prompt|default(option.language.name) }}">
+            </div>
+        {% endif %}
+
+        {% set optionValueObj = {
+            maxSize: constant('ATTACHMENT_MAX_SIZE'),
+            className: 'productOptionAttachmentValue',
+            attachedClassName: 'productOptionAttachedValue',
+            id: 'optionValueInputFile' ~ optionIdName,
+            required: option.required,
+            attachment: option.optionReferenceValue,
+            minValues: option.minValues,
+            maxValues: option.maxValues
+        } %}
+
+        <div class="productOptionPrompt" title="{{ option.language.prompt|default(option.language.name) }}">{{ option.language.prompt|default(option.language.name) }}</div>
+
+        <div class="productOptionValues">
+            <div class="productOptionValue lcProductOptionAttachment" data-option-value="optionValue{{ optionIdName }}" data-options='{{ outputJsonHtmlString(optionValueObj) }}'>
+                {% for valueId in range(1, option.maxValues) %}
+                    <input type="hidden" class="productOptionAttachmentHiddenValue" id="optionValue{{ optionIdName }}_{{valueId}}" name="optionValue{{ optionIdName }}" value="{{option.optionReferenceValue}}">
+                {% endfor %}
+                <div class="productOptionAttachmentValue" id="productOptionAttachmentValue{{ optionIdName }}" {% if option.optionReferenceValue|length %} style="display: none"{% endif %}>
+                    <label class="form-label productOptionValueTitle lcProductOptionAttachment" for="{{ optionValueObj.id }}">
+                        {%- if option.maxValues > 1 -%}
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::UPLOAD_FILES')] }}
+                        {%- else -%}
+                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::UPLOAD_FILE')] }}
+                        {%- endif -%}
+                    </label>
+                    <input 
+                        type="file" 
+                        class="form-control {{ optionValueObj.className }}" 
+                        id="{{ optionValueObj.id }}" 
+                        {%- if args.useFilePlugin -%}
+                            data-lc-file-plugin='{{ outputJsonHtmlString({
+                                maxSize: constant('ATTACHMENT_MAX_SIZE'),
+                                minValues: option.minValues,
+                                maxValues: option.maxValues,
+                                attachedClassName: 'productOptionAttachedValue',
+                                id: optionValueObj.id,
+                                required: option.required,
+                                attachment: option.optionReferenceValue,
+                                disable: option.optionReferenceValue|length ? true : false,
+                                optionId: optionIdName,
+                                optionName: option.language.prompt|default(option.language.name),
+                                accept: args.attachmentAcceptAttribute
+                            }) }}'
+                        {%- endif -%}
+                        {% if optionValueObj.required %}required data-validation="required"{% endif %}
+                        {% if option.optionReferenceValue|length %} disabled {% endif %}
+                        autocomplete="off"
+                        {%- if option.maxValues > 1 -%}
+                            multiple
+                        {%- endif -%}
+                        {% if args.attachmentAcceptAttribute|length %} accept="{{args.attachmentAcceptAttribute}}"{% endif %}
+                    >
+                </div>
+                {% if option.optionReferenceValue|length %}
+                    {% set fileName = option.optionReferenceValue|split('_',2)[1] %}
+                {% else %}
+                    {% set fileName = "" %}
+                {% endif %}
+                <div class="productOptionAttachmentButtons" id="productOptionAttachmentButtons{{ optionIdName }}" {% if not fileName|length %}style="display: none"{% endif %}>
+                    {% for valueId in range(1, option.maxValues) %}
+                        <button type="button" id="viewOptionAttachment{{ optionIdName }}_{{valueId}}" class="view-attachment btn btn-secondary" data-lc-attachment-path="{{ option.optionReferenceValue }}" data-lc-event="click" data-lc-function="openAttachmentPath"> 
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ATTACH_FILE_OPEN')]|replace({ '{{fileName}}': fileName }) -}}
+                        </button>
+                    {% endfor %}
+                    <button type="button" class="new-attachment btn btn-secondary"> 
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ATTACH_FILE_NEW')] -}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

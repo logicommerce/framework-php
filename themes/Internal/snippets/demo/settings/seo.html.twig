@@ -1,0 +1,62 @@
+<div class="contentTd">
+	<table border=1>
+		<tr>
+			<th>Label</th><th>Value</th>
+		</tr>
+		<tr>
+			<td>languageInSubdirectory</td><td>{{ generalSettings.seoSettings.languageInSubdirectory?'Yes':'No' }}</td>
+		</tr>
+		<tr>
+			<td>productSettings</td>
+			<td>
+			    {% include '/snippets/demo/settings/itemSeoSettings.html.twig' with {'itemSeoSettings' : generalSettings.seoSettings.productSettings} only %}
+			</td>
+		</tr>
+		<tr>
+			<td>categorySettings</td>
+			<td>
+			    {% include '/snippets/demo/settings/itemSeoSettings.html.twig' with {'itemSeoSettings' : generalSettings.seoSettings.categorySettings} only %}
+			</td>
+		</tr>			
+		<tr>
+			<td>pageSettings</td>
+			<td>
+			    {% include '/snippets/demo/settings/itemSeoSettings.html.twig' with {'itemSeoSettings' : generalSettings.seoSettings.pageSettings} only %}
+			</td>
+		</tr>		
+		<tr>
+			<td>newsSettings</td>
+			<td>
+			    {% include '/snippets/demo/settings/itemSeoSettings.html.twig' with {'itemSeoSettings' : generalSettings.seoSettings.newsSettings} only %}
+			</td>
+		</tr>		
+		<tr>
+			<td>genericSettings</td>
+			<td>
+			    {% include '/snippets/demo/settings/itemSeoSettings.html.twig' with {'itemSeoSettings' : generalSettings.seoSettings.genericSettings} only %}
+			</td>
+		</tr>		
+		<tr>
+			<td>blogAuthorSettings</td>
+			<td>
+			    {% include '/snippets/demo/settings/itemSeoSettings.html.twig' with {'itemSeoSettings' : generalSettings.seoSettings.blogAuthorSettings} only %}
+			</td>
+		</tr>		
+		<tr>
+			<td>blogCategorySettings</td>
+			<td>
+			    {% include '/snippets/demo/settings/itemSeoSettings.html.twig' with {'itemSeoSettings' : generalSettings.seoSettings.blogCategorySettings} only %}
+			</td>
+		</tr>		
+		<tr>
+			<td>blogPostSettings</td>
+			<td>
+			    {% include '/snippets/demo/settings/itemSeoSettings.html.twig' with {'itemSeoSettings' : generalSettings.seoSettings.blogPostSettings} only %}
+			</td>
+		</tr>		
+	</table>
+</div>
+
+
+
+

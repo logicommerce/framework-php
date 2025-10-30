@@ -1,0 +1,40 @@
+{%- macro elements(filters, appliedFilters) -%}
+    {%- set currentPrice = filters.priceRange.min|round(0, 'floor') -%}
+    {%- set intervalPrice = max((filters.priceRange.max - currentPrice) // 5, 1) -%}
+    {%- set intervalMaxPrice = filters.priceRange.max|round(0, 'ceil') -%}
+    {%- set loops = min(4, intervalMaxPrice|round - currentPrice|round) -%}
+
+    <input type="hidden" name="minPrice" class="minPrice" value="{{ minValue }}">
+    <input type="hidden" name="maxPrice" class="maxPrice" value="{{ maxValue }}">
+
+    {%- for i in 0..loops -%}
+        {%- set rangeUid = random(10000000, 99999999) -%}
+        {%- set intervalFromPrice = currentPrice -%}
+        {%- set intervalToPrice = currentPrice + intervalPrice -%}
+        {%- set selected = false -%}
+
+        {%- if loop.index == 5 -%}
+            {%- set intervalToPrice = intervalMaxPrice -%}
+        {%- endif -%}
+
+        {%- if fromValue == intervalFromPrice and toValue == intervalToPrice -%}
+            {%- set selected = true -%}
+        {%- endif -%}
+
+        <div class="form-group form-check filterElement optionsFilterElement">
+            <input 
+                class="form-check-input filterElement optionsFilterElement" 
+                type="radio" 
+                name="{{ constant('FWK\\Enums\\Parameters::PRICE_RANGE') }}" 
+                {% if selected %} checked {% endif %}
+                value="{{ intervalFromPrice }}{{ constant('FWK\\Core\\FilterInput\\FilterInput::REGEX_VALIDATE_RANGE_SEPARATOR') }}{{ intervalToPrice }}" 
+                id="PRICER_{{ rangeUid }}"
+            >
+            <label class="form-check-label filterElement optionsFilterElement" for="PRICER_{{ rangeUid }}">
+                {{- outputHtmlCurrency(intervalFromPrice) }} - {{ outputHtmlCurrency(intervalToPrice) -}}
+            </label>
+        </div>
+
+        {%- set currentPrice = currentPrice + intervalPrice -%}
+    {%- endfor -%}
+{%- endmacro -%}

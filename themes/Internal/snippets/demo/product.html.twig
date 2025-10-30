@@ -1,0 +1,103 @@
+<tr>
+	<td>
+    	{% if index is defined %}
+        	{{ index }}
+        {% else %}
+        	No index    	
+        {% endif %}
+	</td>
+	
+	<td>
+    	<div class="contentTd">
+        	<table border=1>
+        		<tr><th>Label</th><th>Value</th></tr>
+        		<tr><td>id</td><td>{{ product.id }}</td></tr>
+        		<tr><td>pId</td><td>{{ product.pId }}</td></tr>
+        		<tr><td>totalStock</td><td>{{ product.totalStock }}</td></tr>
+        		<tr><td>purchaseMode</td><td>{{ product.purchaseMode }}</td></tr>
+        		<tr><td>shipping</td><td>{{ product.shipping?"Yes":"No" }}</td></tr>
+        		<tr><td>weight</td><td>{{ product.weight }}</td></tr>
+        		<tr><td>mainCategory</td><td>{{ product.mainCategory }}</td></tr>
+        		<tr><td>priceCategory</td><td>{{ product.priceCategory }}</td></tr>
+        		<tr><td>supplierId</td><td>{{ product.supplierId }}</td></tr>
+        		<tr><td>templateId</td><td>{{ product.templateId }}</td></tr>
+        		<tr><td>productPrice</td><td>{{ product.productPrice }}</td></tr>
+				<tr><td>optionsPrice</td><td>{{ product.optionsPrice }}</td></tr>
+				<tr><td>reverseChargeVat</td><td>{{ product.reverseChargeVat?"Yes":"No" }}</td></tr>
+        	</table>
+        </div>
+    </td>
+
+	<td>
+		{% if product.theme is null %}
+			Theme is null
+		{% else %}
+		    {% include '/snippets/demo/product/theme.html.twig' with {'theme' : product.theme} only %}
+		{% endif %}
+	</td>
+
+	<td>
+	    {% include '/snippets/demo/product/language.html.twig' with {'language' : product.language} only %}
+	</td>
+	<td>
+	    {% include '/snippets/demo/product/mainImages.html.twig' with {'mainImages' : product.mainImages} only %}
+	</td>
+	<td>
+	    {% include '/snippets/demo/product/definition.html.twig' with {'definition' : product.definition} only %}
+    </td>
+	<td>
+        {% include '/snippets/demo/product/brand.html.twig' with {'brand' : product.brand} only %}
+    </td>
+	<td>
+		<div class="pending">product.discounts API</div>
+		
+	    {% include '/snippets/demo/product/discounts.html.twig' with {'discounts' : product.discounts} only %}
+    </td>
+
+
+	<td>
+	    {% include '/snippets/demo/product/codes.html.twig' with {'codes' : product.codes} only %}
+	</td>
+
+	<td>
+		{% include '/snippets/demo/product/shipping.html.twig' with {'shippingTypeIds' : product.shippingTypeIds, 'shippingCalculation' : product.shippingCalculation } only %}
+	</td>
+
+	<td>
+	    {% include '/snippets/demo/product/options.html.twig' with {'options' : product.options} only %}
+	</td>
+	
+	<td>
+	    <div class="pending">product.stoks.previsions API</div>
+        {% include '/snippets/demo/product/combinations.html.twig' with {'combinations' : product.combinations} only %}
+	</td>
+	
+	<td>
+        {% include '/snippets/demo/product/categories.html.twig' with {'categories' : product.categories} only %}
+    </td>
+    
+    <td>
+        {% include '/snippets/demo/product/categoryProperties.html.twig' with {'categoryProperties' : product.categoryProperties} only %}
+    </td>
+
+	<td>
+	    {% include '/snippets/demo/product/itemPrice.html.twig' with {'itemPrice' : product.prices} only %}
+	</td>
+	<td
+        {% include '/snippets/demo/product/taxes.html.twig' with {'taxes' : product.taxes} only %}
+    </td>
+	<td>
+	    {% include '/snippets/demo/product/itemPrice.html.twig' with {'itemPrice' : product.pricesWithTaxes} only %}
+	</td>
+
+
+	<td>
+		<div class="pending">product.customTags API</div>
+	    <div class="contentTd">{% include '/snippets/demo/customTags.html.twig' with {'customTags' : product.customTags} only %}</div>
+	</td>
+	
+	
+
+</tr>
+    		
+

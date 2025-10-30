@@ -1,0 +1,48 @@
+{%- macro filter(filters, appliedFilters, configuration, filterItemTemplate) -%}
+    
+    {%- set filterItems = filters.categoryIdList -%}
+    {%- if route.type == constant('FWK\\Enums\\RouteType::CATEGORY') -%}
+        {%- set filterItems = filters.categoryIdList|filter(cat => cat.parentId == route.id) -%}
+    {%- endif -%}
+
+    {%- if filterItems|length -%}
+        {%- set selectedIds = appliedFilters[constant('FWK\\Enums\\Parameters::CATEGORY_ID_LIST')]|split(',')|default([]) -%}
+        {%- set uid = random(10000000, 99999999) -%}
+        
+        {%- set elements -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/category.html.twig' as filterProductMacro -%}
+            {{- filterProductMacro.elements(filterItems, appliedFilters, selectedIds) -}}
+        {%- endset -%}
+
+        {%- set badgeAppliedFilters -%}
+            {%- set nAppliedFilters = 0 -%}
+            {%- for filter in filterItems|filter(filter => filter.id in selectedIds) -%}
+                {%- set nAppliedFilters = nAppliedFilters + 1 -%}
+            {%- endfor -%}
+            <span class="n-applied-filter n-{{ nAppliedFilters }} badge rounded-pill bg-primary">{{ nAppliedFilters }}</span>
+        {%- endset -%}
+
+        {%- set blockClass = 'filterBlock categoriesFilterBlock' -%}
+        {%- set filterName = languageSheet[constant('FWK\\Enums\\LanguageLabels::CATEGORIES')] -%}
+
+        {%- if filterItemTemplate != null -%}
+            {{- filterItemTemplate|replace({
+                '{{blockClassWildcard}}': blockClass,
+                '{{dataAttributesWildcard}}': "",
+                '{{uidWildcard}}': uid,
+                '{{nameWildcard}}': filterName,
+                '{{badgeAppliedFiltersWildcard}}': badgeAppliedFilters,
+                '{{elementsWildcard}}': elements,
+            }) -}}
+        {%- else -%}
+            <div class="{{- blockClass -}}">
+                <div class="filterBlockTitle categoriesFilterBlockTitle">{{- filterName -}}{{- badgeAppliedFilters -}}</div>
+
+                <div class="filterElements categoriesFilterElements">
+                    {{- elements -}}
+                </div>
+            </div>
+        {%- endif -%}
+    {%- endif -%}
+    
+{%- endmacro -%}

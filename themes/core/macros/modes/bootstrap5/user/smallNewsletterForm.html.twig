@@ -1,0 +1,36 @@
+{% macro smallNewsletterForm(args, legalCheck) %}
+
+	{% if not (isSessionLoggedIn() and args.hiddeWithLogin == true) %}
+		{% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+		{% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+		{% for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+			{% if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') %}
+				{{ element|replace({ (attributeWildcard): 'data-lc-form="newsletterForm"' }) }}
+				<div class="form-message"></div>
+					<div class="smallNewsletter">
+			{% elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') or name == constant('FWK\\Enums\\Parameters::TYPE') or name == constant('FWK\\Enums\\Parameters::CAPTCHA_TOKEN') %}
+					{{ element }}
+			{% elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') %}
+					{{ legalCheck }}
+					<div class="moduleField moduleButton smallNewsletterModuleField smallNewsletterSubmitContainer">
+						{{ element|replace({ (classWildcard): '' }) }}
+					</div>
+				</div>
+			{%- else -%}
+					<div class="form-group moduleField smallNewsletterModuleField smallNewsletter{{- ucwords(name) -}}Container">
+						{% set fillFnAttr = "" %}
+						{% set fillFnClass = "" %}
+						{% if name in themeConfiguration.commerce.availableFillDataFields|split(',') %}
+							{% set fillFnAttr = 'data-fill-fn="get' ~ ucwords(name) ~ '"' %}   
+							{% set fillFnClass = "js-fill-data" %}
+						{% endif %}
+						{{- element|replace({ 
+							(classWildcard): fillFnClass,
+							(attributeWildcard): fillFnAttr 
+						}) -}}
+					</div>
+			{%- endif -%}
+		{% endfor %}
+	{% endif %}
+
+{% endmacro smallNewsletterForm %}

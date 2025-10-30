@@ -1,0 +1,28 @@
+{% extends layout %}
+
+{% import macrosCore.util  as core  %}
+
+{#
+{% import "forms.html" as forms %}
+<p>{{ forms.input('username') }}</p>
+
+
+{% from 'forms.html' import input as input_field %}
+<dd>{{ input_field('username') }}</dd>
+<dd>{{ input_field('password', '', 'password') }}</dd>
+#}
+
+{% block body %}   
+	<body>		
+		<br>
+		FWK<br>
+	    {{ core.recomended(1) }}<br>
+	    {{ core.recomended(2) }}<br>
+		<br>
+		Site overide<br>	    
+	    {{ core.search(1) }}<br>
+	    {{ core.search(2) }}<br>
+		
+	</body>		
+{% endblock body %}
+

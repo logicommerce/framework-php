@@ -1,0 +1,13 @@
+{%- macro buttonClearProductsFilter(args) -%}
+
+    {%- if args.output == true -%}
+        {%- set paramsToDelete = args.hrefAllParams -%}
+        {%- if route.type == constant('FWK\\Enums\\RouteType::SEARCH') -%}
+            {%- set paramsToDelete = paramsToDelete|filter(value => value != constant('FWK\\Enums\\Parameters::Q')) -%}
+        {%- endif -%}
+        <a href="{{ deleteParamsFromRequest(paramsToDelete) }}" class="{{ args.class|length ? args.class : 'btn btn-primary' }} clearFilterButton">
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLEAR_FILTER')] -}}
+        </a>
+    {%- endif -%}
+
+{%- endmacro -%}

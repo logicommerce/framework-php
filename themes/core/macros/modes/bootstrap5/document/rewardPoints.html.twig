@@ -1,0 +1,37 @@
+{% macro rewardPoints(args) %}
+    {%- if args.document.rewardPoints|length -%}
+        <div class="rewardPointsSummary {{- args.class|length ? ' ' ~ args.class : '' -}}">
+            {%- for rewardPoint in args.document.rewardPoints -%}
+                <div class="rewardPointsItem">
+                    {%- if args.showHeader -%}
+                        <div class="rewardPointsItemName">{{ rewardPoint.language.name }}</div>
+                        {%- if rewardPoint.language.description|length -%}
+                            <div class="rewardPointsItemDesc">{{ rewardPoint.language.description }}</div>
+                        {%- endif -%}
+                    {%- endif -%}
+
+                    {%- if args.showTotalRedeemed or args.showTotalEarned -%}
+                        <div class="rewardPointsItemData">
+                            {%- if args.showTotalRedeemed -%}
+                                <div class="totalRedeemed">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_REDEEMED')]|replace({
+                                        '{{name}}': '<span class="name">' ~ rewardPoint.language.name ~ '</span>',
+                                        '{{value}}': '<span class="value">' ~ rewardPoint.summary.totalRedeemed ~ '</span>',
+                                    }) -}}
+                                </div>
+                            {%- endif -%}
+                            {%- if args.showTotalEarned -%}
+                                <div class="totalEarned">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::REWARD_POINTS_EARNED')]|replace({
+                                        '{{name}}': '<span class="name">' ~ rewardPoint.language.name ~ '</span>',
+                                        '{{value}}': '<span class="value">' ~ rewardPoint.summary.totalEarned ~ '</span>',
+                                    }) -}}
+                                </div>
+                            {%- endif -%}
+                        </div>
+                    {%- endif -%}
+                </div>
+            {%- endfor -%}
+        </div>
+    {%- endif -%}
+{% endmacro rewardPoints %}

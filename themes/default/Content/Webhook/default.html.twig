@@ -1,0 +1,7 @@
+{% import macrosCore.util as utilMacros %}
+
+{{- utilMacros.webhookMacro({
+    webhookResponse: controllerItem,
+    postParameters: postParameters,
+    getParameters: getParameters
+}) -}}

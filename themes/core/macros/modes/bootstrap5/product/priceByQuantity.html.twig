@@ -1,0 +1,24 @@
+{% macro priceByQuantity(args) %}
+
+    {%- if args.product.definition.showPrice == true and args.pricesByQuantity|length -%}
+        <div class="priceByQuantity" data-lc-data='{{ outputJsonHtmlString(args.pricesByQuantity) }}'>
+            <table class="{{ args.tableClassName|default('table') }}">
+                <tbody>
+                    {%- for priceByQuantity in args.pricesByQuantity['base'] -%}
+                        <tr>
+                            <td class="messageColumn">{{- priceByQuantity.message -}}</td>
+                            <td class="priceColumn" {%- if args.product.definition.offer == true and priceByQuantity.basePrice > priceByQuantity.retailPrice and priceByQuantity.retailPrice != 0 %} data-base-price="{{- priceByQuantity.basePrice -}}" {%- endif -%}>
+                                {%- if args.product.definition.offer == true and priceByQuantity.basePrice > priceByQuantity.retailPrice and priceByQuantity.retailPrice != 0 -%}
+                                    {{- outputHtmlCurrency(priceByQuantity.retailPrice) -}}
+                                {%- else -%}
+                                    {{- outputHtmlCurrency(priceByQuantity.basePrice) -}}
+                                {%- endif -%}
+                            </td>
+                        </tr>
+                    {%- endfor -%}
+                </tbody>
+            </table>
+        </div>
+    {%- endif -%}
+
+{% endmacro %}

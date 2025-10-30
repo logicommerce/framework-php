@@ -1,0 +1,121 @@
+{%- macro expressCheckout(args) -%}
+    {%- if args.expressCheckoutPlugins|length -%}
+        <div class="express-checkout {{ args.class }}">
+            {%- if session.basket.expressCheckout and session.basket.expressCheckout.pluginAccountId > 0 -%}
+                {%- set expressCheckoutPluginName = '' -%}
+                {%- set expressCheckoutPluginModule = '' -%}
+                {%- for expressCheckoutPlugin in args.expressCheckoutPlugins -%}
+                    {%- if session.basket.expressCheckout.pluginAccountId == expressCheckoutPlugin.id -%}
+                        {%- set expressCheckoutPluginName = expressCheckoutPlugin.name -%}
+                        {%- set expressCheckoutPluginModule = expressCheckoutPlugin.module -%}
+                    {%- endif -%}
+                {%- endfor -%}
+                <div class="express-checkout-account">
+                    {% set lcData = {
+                        id: session.basket.expressCheckout.pluginAccountId,
+                        pluginModule: expressCheckoutPluginModule,
+                        action: 'update'
+                    } %}
+                    <div class="express-checkout update">
+                        <a class="paypal-express-checkout-plugin express-checkout-plugin update" href="#" data-lc-function="expressCheckout" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPRESS_CHECKOUT_UPDATE')] -}}</a>
+                    </div>
+                    <div id="expressCheckoutBillingAddressContainer" class="express-checkout billing">
+                        <div class="title">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPRESS_CHECKOUT_BILLING_ADDRESS')] -}}</div>
+                        <div class="content">
+                            <div class="address">
+                                <div class="addressInfo">
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.name|length -%}
+                                        <div class="name">{{session.basket.expressCheckout.customer.invoicingAddress.name}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.address|length -%}
+                                        <div class="address">{{session.basket.expressCheckout.customer.invoicingAddress.address}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.number|length -%}
+                                        <div class="number">{{session.basket.expressCheckout.customer.invoicingAddress.number}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.addressAdditionalInformation|length -%}
+                                        <div class="addressAdditionalInformation">{{session.basket.expressCheckout.customer.invoicingAddress.addressAdditionalInformation}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.mobile|length -%}
+                                        <div class="mobile">{{session.basket.expressCheckout.customer.invoicingAddress.mobile}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.phone|length -%}
+                                        <div class="phone">{{session.basket.expressCheckout.customer.invoicingAddress.phone}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.city|length -%}
+                                        <div class="city">{{session.basket.expressCheckout.customer.invoicingAddress.city}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.state|length -%}
+                                        <div class="state">{{session.basket.expressCheckout.customer.invoicingAddress.state}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.country|length -%}
+                                        <div class="country">{{getCountryNameByCountryCode(session.basket.expressCheckout.customer.invoicingAddress.location.geographicalZone.countryCode)}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.invoicingAddress.postalCode|length -%}
+                                        <div class="postalCode">{{session.basket.expressCheckout.customer.invoicingAddress.postalCode}}</div>
+                                    {%- endif -%}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="expressCheckoutShippingAddressContainer" class="express-checkout shipping">
+                        <div class="title">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPRESS_CHECKOUT_SHIPPING_ADDRESS')] -}}</div>
+                        <div class="content">
+                            <div class="address">
+                                <div class="addressInfo">
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.name|length -%}
+                                        <div class="name">{{session.basket.expressCheckout.customer.shippingAddress.name}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.address|length -%}
+                                        <div class="address">{{session.basket.expressCheckout.customer.shippingAddress.address}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.number|length -%}
+                                        <div class="number">{{session.basket.expressCheckout.customer.shippingAddress.number}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.addressAdditionalInformation|length -%}
+                                        <div class="addressAdditionalInformation">{{session.basket.expressCheckout.customer.shippingAddress.addressAdditionalInformation}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.mobile|length -%}
+                                        <div class="mobile">{{session.basket.expressCheckout.customer.shippingAddress.mobile}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.phone|length -%}
+                                        <div class="phone">{{session.basket.expressCheckout.customer.shippingAddress.phone}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.city|length -%}
+                                        <div class="city">{{session.basket.expressCheckout.customer.shippingAddress.city}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.state|length -%}
+                                        <div class="state">{{session.basket.expressCheckout.customer.shippingAddress.state}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.country|length -%}
+                                        <div class="country">{{getCountryNameByCountryCode(session.basket.expressCheckout.customer.shippingAddress.location.geographicalZone.countryCode)}}</div>
+                                    {%- endif -%}
+                                    {%- if session.basket.expressCheckout.customer.shippingAddress.postalCode|length -%}
+                                        <div class="postalCode">{{session.basket.expressCheckout.customer.shippingAddress.postalCode}}</div>
+                                    {%- endif -%}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% set lcData = {
+                        id: session.basket.expressCheckout.pluginAccountId,
+                        pluginModule: expressCheckoutPluginModule,
+                        action: 'logout'
+                    } %}
+                    <div class="express-checkout logout">
+                        <a class="paypal-express-checkout-plugin express-checkout-plugin logout btn btn-secondary" href="#" data-lc-function="expressCheckout" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPRESS_CHECKOUT_LOGOUT')]|replace({ '{{pluginName}}': expressCheckoutPluginName }) -}}</a>
+                    </div>
+                </div>
+            {%- elseif session.basket.items|length > 0 -%}
+                <div class="express-checkout-login">
+                    {%- if args.showTitle -%}
+                        <div class="title">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPRESS_CHECKOUT_TITLE')] }}</div>
+                    {%- endif -%}
+                    {%- for expressCheckoutPlugin in args.expressCheckoutPlugins -%}
+                        {%- include 'plugins/' ~ ucwords(expressCheckoutPlugin.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/util/expressCheckoutLogin.html.twig' ignore missing with {args: args, expressCheckoutPlugin: expressCheckoutPlugin} -%}
+                    {%- endfor -%}
+                </div>                
+            {%- endif -%}
+        </div>
+    {%- endif -%}
+{%- endmacro expressCheckout -%}

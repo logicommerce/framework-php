@@ -1,0 +1,145 @@
+{% macro grid(args, basketRow, rowId, row, options, optionValues, gridOptionIds, gridOptionValueIds, noCombinableOptions) %}
+
+    {% set gridHashes = [] %}
+    {% for gridRow in row.grid %}
+        {%- if gridRow.hash|length -%}
+                {%- set gridHashes = array_add(gridHashes, gridRow.hash) -%}
+        {%- endif -%}
+    {% endfor %}
+
+    {# variables #}
+    {%- set linkWildcard = basketRow.urlSeo -%}
+    {%- set imageWildcard = basketRow.images.smallImage -%}
+    {%- set nameWildcard = basketRow.name|striptags -%}
+    {%- set brandWildcard = basketRow.brandName -%}
+    {%- set manufacturerSkuWildcard = basketRow.codes.manufacturerSku -%}
+    {%- set productHashesWildcard = gridHashes -%}
+    {%- set lblDeleteRowWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ROW')] -%}
+    {%- set lblDeleteWildcard = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')] -%}
+
+    {% set grid %}
+        {%- if gridOptionIds|length == 2 -%}
+            {% set firstOption = options[gridOptionIds[0]] %}
+            {% set secondOption = options[gridOptionIds[1]] %}
+            {%- if args.showAsGridUniqueDimension == false -%}
+                {%- include 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid/twoDimTwoOptions.html.twig' -%}
+            {%- else -%}
+                {%- include 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid/oneDimTwoOptions.html.twig' -%}
+            {%- endif -%}
+        {%- else -%}
+            {% set firstOption = options[gridOptionIds[0]] %}
+
+            {%- if args.showAsGridUniqueDimension == false -%}
+                {%- include 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid/twoDimOneOption.html.twig' -%}
+            {%- else -%}
+                {%- include 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid/oneDimOneOption.html.twig' -%}
+            {%- endif -%}
+        {%- endif -%}
+    {% endset %}
+
+    {% set optionsWildcard %}
+       {%- set rowNoGridValues = rowId|split('-') -%}
+        <div class="basketOptions">
+            <div class="{{ classPrefix }}Options">
+                {{ noCombinableOptions }}
+                {% for rowNoGridValueId in rowNoGridValues %}
+                    {%- set option = optionValues[rowNoGridValueId] -%}
+                    <div class="{{ classPrefix }}Option">
+                        <span class="{{ classPrefix }}OptionName">{{ options[option.optionId].name|striptags }}</span>
+                        <span class="{{ classPrefix }}OptionValue">{{ option.value }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endset %}
+
+    {% set customTagsWildcard %}
+        {% if args.showCustomTags == true %}
+            {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemCustomTags.html.twig' as modeBasket %}
+            {{ modeBasket.outputItemCustomTags(basketRow.customTagValues, args.showCustomTagPositions) }}
+        {% endif %}
+    {% endset %}
+
+    {% set warningsWildcard %}
+        {% if args.showWarnings == true %}
+            {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/warnings.html.twig' as basketWarnings %}
+            {{ basketWarnings.basketWarningsBlock(
+                args.warningsBlockItems, args.showWarnings, args.errorWarningPosition, args.warningWarningPosition, args.infoWarningPosition, 
+                constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::WARNING_POSITION_LINE'), gridHashes
+            ) }}
+        {% endif %}
+    {% endset %}
+
+    {# end variables #}
+
+    {% if args.productsTemplate != null %}
+        
+        {{ args.productsTemplate|replace({
+            '{{link}}': linkWildcard,
+            '{{image}}': imageWildcard,
+            '{{name}}': nameWildcard,
+            '{{brand}}': brandWildcard,
+            '{{manufacturerSku}}': manufacturerSkuWildcard,
+            '{{productHashes}}': productHashesWildcard,
+            '{{lblDeleteRow}}': lblDeleteRowWildcard,
+            '{{lblDelete}}': lblDeleteWildcard,
+            '{{lblSaveForLaterRow}}': lblSaveForLaterRowWildcard,
+            '{{lblSaveForLater}}': lblSaveForLaterWildcard,
+            '{{options}}': optionsWildcard,
+            '{{customTags}}': customTagsWildcard,
+            '{{warnings}}': warningsWildcard,
+            '{{grid}}': grid
+        }) }}
+
+    {% else %}{# default template #}
+
+        {% if args.showImage == true %}
+            <div class="basketProductImage">
+                {% if args.linkable == true %}
+                    <a class="basketProductImage" href="{{ linkWildcard }}">
+                        <img class="productSmallImage basketProductImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </a>
+                {% else %}
+                    <span class="basketProductImage">
+                        <img class="productSmallImage basketProductImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </span>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <div class="basketProductInfo">
+            <span class="basketProductName">
+                {% if args.linkable == true %}
+                    <a href="{{ linkWildcard }}" title="{{ nameWildcard }}">{{ nameWildcard }}</a>
+                {% else %}
+                    {{ nameWildcard }}
+                {% endif %}
+            </span>
+
+            {% if args.showBrand == true and brandWildcard|length %}
+                <span class="basketProductBrand">{{ brandWildcard }}</span>
+            {% endif %}
+
+            {% if args.showManufacturerSku == true and manufacturerSkuWildcard|length %}
+                <span class="basketProductManufacturerSku">{{ manufacturerSkuWildcard }}</span>
+            {% endif %}
+
+            {{ optionsWildcard }}
+
+            {{ grid }}
+
+            {% if args.editable == true %}
+                <a role="button" href="#" class="basketDeleteRow" data-lc-basketDeleteRows='{{ outputJsonHtmlString(productHashesWildcard) }}' title="{{ lblDeleteRowWildcard }}">
+                    <span class="basketDeleteRowIcon glyphicon glyphicon-trash"></span>
+                    <span class="basketDeleteRowText">{{ lblDeleteWildcard }}</span>
+                </a>
+            {% endif %}
+
+            {{ customTagsWildcard }}
+
+            {{ warningsWildcard }}
+        </div>
+
+    {% endif %}{# end default template #}
+
+{% endmacro grid %}

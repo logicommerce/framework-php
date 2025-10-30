@@ -1,0 +1,100 @@
+{%- macro bundleItem(args, bundleItem) -%}
+    {# variables #}
+    {%- set linkWildcard = bundleItem.link -%}
+    {%- set imageWildcard = bundleItem.image -%}
+    {%- set nameWildcard = bundleItem.name|striptags -%}
+    {%- set skuWildcard = bundleItem.combination.sku ? bundleItem.combination.sku : bundleItem.codes.sku -%}
+    {%- set brandWildcard = bundleItem.brandName -%}
+    {%- set manufacturerSkuWildcard = bundleItem.codes.manufacturerSku -%}
+    {%- set productStockIdWildcard = bundleItem.stocks.id -%}
+
+    {%- set optionsWildcard -%}
+        {%- if args.showOptions -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/document/utils/options.html.twig' as modeOrder -%}
+            {{- modeOrder.options(bundleItem.options, args.showOptionValuesName, args.showOptionValuesSku) -}}
+        {%- endif -%}
+    {%- endset -%}
+
+    {%- set customTagsWildcard -%}
+        {%- if args.showCustomTags -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/document/utils/customTags.html.twig' as modeOrder -%}
+            {{- modeOrder.customTags(bundleItem.customTags, args) -}}
+        {%- endif -%}
+    {%- endset -%}
+
+    {%- set discountsWildcard -%}
+        {%- if args.showDiscounts == true and bundleItem.discounts|length -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/document/utils/discounts.html.twig' as modeOrder -%}
+            {{- modeOrder.discounts(bundleItem.discounts, args.showDiscountName, args.showDiscountValue, args.showTaxIncluded) -}}
+        {%- endif -%}
+    {%- endset -%}
+
+    {# end variables #}
+
+    {%- if args.productsBundleItemTemplate != null -%}
+        {{- args.productsBundleItemTemplate|replace({
+            '{{link}}': linkWildcard,
+            '{{image}}': imageWildcard,
+            '{{name}}': nameWildcard,
+            '{{sku}}': skuWildcard,
+            '{{brand}}': brandWildcard,
+            '{{manufacturerSku}}': manufacturerSkuWildcard,
+            '{{productStockId}}': productStockIdWildcard,
+            '{{options}}': optionsWildcard,
+            '{{customTags}}': customTagsWildcard,
+            '{{discounts}}': discountsWildcard
+        }) -}}
+    {%- else -%}{# default template -#}
+
+        {%- if args.showImage -%}
+            <span class="orderBundleImage">
+                {%- if args.linkable -%}
+                    <a class="orderBundleImage" href="{{ linkWildcard }}">
+                        <img class="productSmallImage orderBundleImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null; this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </a>
+                {%- else -%}
+                    <span class="orderBundleImage">
+                        <img class="productSmallImage orderBundleImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null; this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </span>
+                {%- endif -%}
+            </span>
+        {%- endif -%}
+
+        <div class="orderBundleProductInfo">
+            <span class="orderBundleProductName">
+                {%- if args.linkable -%}
+                    <a href="{{ linkWildcard }}" title="{{ nameWildcard }}">{{ nameWildcard }}</a>
+                {%- else -%}
+                    {{- nameWildcard -}}
+                {%- endif -%}
+            </span>
+
+            {%- if args.showBrand == true and brandWildcard|length -%}
+                <span class="orderProductBrand">{{ brandWildcard }}</span>
+            {%- endif -%}
+
+            {%- if args.showSku and skuWildcard|length -%}
+                <span class="orderBundleProductSku">{{ skuWildcard }}</span>
+            {%- endif -%}
+
+            {%- if args.showManufacturerSku and manufacturerSkuWildcard|length -%}
+                <span class="orderBundleManufacturerSku">{{ manufacturerSkuWildcard }}</span>
+            {%- endif -%}
+
+            {%- if args.showProductStockId == true and productStockIdWildcard|length -%}
+                <span class="orderProductStockId">{{ productStockIdWildcard }}</span>
+            {%- endif -%}
+
+            {{- optionsWildcard -}}
+
+            {{- customTagsWildcard -}}
+
+            {%- if args.showDiscounts == true and discountsWildcard|length -%}
+                <span class="orderProductDiscounts">
+                    <span class="orderProductDiscountsTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_ITEM_DISCOUNTS_TITLE')] }}</span>
+                    {{ discountsWildcard }}
+                </span>
+            {%- endif -%}
+        </div>
+    {%- endif -%}{# end default template -#}
+{%- endmacro bundleItem -%}

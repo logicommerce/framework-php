@@ -1,0 +1,151 @@
+{% macro registeredUserUpdateForm(args) %}
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+    {% if args.registeredUser is not empty %}
+        <div class="registeredUserUpdateForm registeredUserForm">
+            <div class="styled-form center-block-tabs">
+                {%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                    {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+                        {{ element|replace({ (attributeWildcard): 'data-lc-form="accountRegisteredUserUpdateForm"' }) }}
+                        <div class="registeredUserUpdateParameters">
+                            <div class="registeredUserBlock">
+                                <div class="registeredUserTitle">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACCOUNT_SUBTITLE')] -}}
+                                </div>
+                                <div class="registeredUserField row">
+                                    <span class="col title">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACCOUNT_NAME')] -}}
+                                    </span>
+                                    <span class="col value">{{ args.registeredUser.account.name }}</span>
+                                </div>
+                            </div>
+                            <div class="registeredUserBlock">
+                                <div class="registeredUserTitle">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_REGISTERED_USER_SUBTITLE')] -}}
+                                </div>
+                                <div class="registeredUserField row">
+                                    <span class="col title">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME')] -}}
+                                    </span>
+                                    <span class="col value">{{ args.registeredUser.registeredUser.firstName }}</span>
+                                </div>
+                                <div class="registeredUserField row">
+                                    <span class="col title">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME')] -}}
+                                    </span>
+                                    <span class="col value">{{ args.registeredUser.registeredUser.lastName }}</span>
+                                </div>
+                                <div class="registeredUserField row">
+                                    <span class="col title">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL')] -}}
+                                    </span>
+                                    <span class="col value">{{ args.registeredUser.registeredUser.email }}</span>
+                                </div>
+                                <div class="registeredUserField row">
+                                    <span class="col title">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_USER_NAME')] -}}
+                                    </span>
+                                    <span class="col value">{{ args.registeredUser.registeredUser.username }}</span>
+                                </div>
+                                <div class="registeredUserField row">
+                                    <span class="col title">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_INTERNAL_ID')] -}}
+                                    </span>
+                                    <span class="col value">{{ args.registeredUser.registeredUser.pId }}</span>
+                                </div>
+                            </div>
+                            <div class="registeredUserBlock">
+                    {%- elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') -%}
+                        {{ element }}
+                        </div>
+                        <div class="registeredUserBlock">
+                            <div class="registeredUserField row">
+                                <span class="col title">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_DEFAULT_LANGUAGE')] -}}
+                                </span>
+                                {%- for language in route.availableLanguages -%}
+                                    {% if language.code == args.registeredUser.defaultLanguageCode %} 
+                                        <span class="col value">{{- language.name -}}</span>
+                                    {% endif %}
+                                {%- endfor -%}
+                                
+                            </div>
+                            <div class="registeredUserField row">
+                                <span class="col title">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_DEFAULT_CURRENCY')] -}}
+                                </span>
+                                {%- for currency in args.currencies -%}
+                                    {% if currency.code == args.registeredUser.defaultCurrencyCode %} 
+                                        <span class="col value">
+                                            <span class="name">{{ currency.name }}</span>
+                                            <span class="symbol">{{ currency.symbol }}</span>
+                                        </span>
+                                    {% endif %}
+                                {%- endfor -%}
+                            </div>
+                            <div class="registeredUserField row">
+                                <span class="col title">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_USED')] -}}
+                                </span>
+                                <span class="col value">
+                                    {{ args.registeredUser.registeredUser.lastUsed.date|date('d/m/y') }}
+                                </span>
+                            </div>
+                            <div class="registeredUserField row">
+                                <span class="col title">
+                                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_DATE_ADDED')] -}}
+                                </span>
+                                <span class="col value">
+                                    {{ args.registeredUser.registeredUser.dateAdded.date|date('d/m/y') }}
+                                </span>
+                            </div>
+                        </div>
+                       {{- submitButton -}}
+                    {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+                        {% set submitButton %}
+                            <div class="registeredUserBlock registeredUserFooter">
+                                <div class="w-100 formField formButton text-center">
+                                    {{ element|replace({ (classWildcard): '', (attributeWildcard): '' }) }}
+                                </div>
+                            </div>
+                        {% endset %}
+                        <div class="lcModal modal fade registeredUserUpdateConfirmPopup" id="registeredUserUpdateConfirmPopup" tabindex="-1" aria-labelledby="registeredUserUpdateConfirmPopupTitle" aria-hidden="true">
+                            <div class="modal-dialog  modal-sm modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body">
+                                        <div id="registeredUsersUpdate" class="lcModalContainer">
+                                            <div class="lcModalContainer">
+                                                <div class="textUpdateRegisteredUserConfirm">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_UPDATE_POPUP_CONFIRM_TEXT')]}}</div>
+                                                <div class="updateRegisteredUserButtons">
+                                                    <button type="button" class="btn btn-secondary updateRegisteredUserButton updateRegisteredUserButtonDismiss" data-bs-dismiss="modal">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::CANCEL')]}}</button>
+                                                    <button type="button" class="btn btn-danger updateRegisteredUserButton updateRegisteredUserButtonConfirm" id="updateRegisteredUserButtonConfirm">{{languageSheet[constant('FWK\\Enums\\LanguageLabels::UPDATE')]}}</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {%- elseif name == constant('FWK\\Enums\\Parameters::MASTER') -%}
+                        <div class="form-check formFieldGroup userFieldGroup">
+                            {{ element|replace({ (classWildcard): '', (attributeWildcard): '' }) }}
+                        </div>
+                    {%- elseif name == constant('FWK\\Enums\\Parameters::STATUS') -%}
+                            <div class="form-group formFieldGroup userFieldGroup">
+                                {{ element|replace({ (classWildcard): '', (attributeWildcard): '' }) }}
+                            </div>
+                    {%- elseif name == constant('FWK\\Enums\\Parameters::ACCOUNT_ALIAS')
+                             or name == constant('FWK\\Enums\\Parameters::ROLE_ID')
+                             or name == constant('FWK\\Enums\\Parameters::JOB')
+                             or name == constant('FWK\\Enums\\Parameters::ACCOUNT_ID')
+                             or name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_ID') -%}
+                        <div class="form-group formFieldGroup userFieldGroup">
+                            {{ element|replace({ (classWildcard): '', (attributeWildcard): '' }) }}
+                        </div>
+                    {%- endif -%}
+                {%- endfor -%}
+            </div>
+        </div>
+    {% endif %}
+{% endmacro registeredUserUpdateForm %}

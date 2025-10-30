@@ -1,0 +1,3 @@
+{% macro image(customTag, showForm) %}
+    <img class="basketCustomTag" alt="{{ customTag.language.name|escape }}" title="{{ customTag.language.name|escape }}" src="{{ customTag.value }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+{% endmacro %}

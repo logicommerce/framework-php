@@ -1,0 +1,25 @@
+{% macro buyFormSubmit(args) %}
+
+    {% if args.showOrderBox == true %}       
+        <button 
+            type="submit" 
+            disabled="true"
+            id="buyFormSubmit{{ args.id }}" 
+            data-show-label="{{ args.showLabel == true ? 'true' : 'false' }}" 
+            class="buyFormSubmit buy {{ args.class|length ? args.class : 'btn btn-primary' }} initializeDisabled"
+            {% if args.formButtonHook|length %}
+                data-lc-formButton="{{ args.formButtonHook }}"
+            {% endif %}
+        >
+            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BUY')] }}
+        </button>
+
+        {% if args.expressCheckout == true %}       
+            {%- for expressCheckoutPlugin in args.expressCheckoutPlugins -%}
+                {%- include 'plugins/' ~ ucwords(expressCheckoutPlugin.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/product/expressCheckoutBuyFormSubmit.html.twig' ignore missing with {args: args, plugin: expressCheckoutPlugin} -%}
+            {%- endfor -%}
+        {% endif %}
+
+    {% endif %}
+
+{% endmacro %}

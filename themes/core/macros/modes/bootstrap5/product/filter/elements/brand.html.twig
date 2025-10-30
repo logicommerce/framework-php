@@ -1,0 +1,14 @@
+{%- macro elements(filters, appliedFilters, selectedIds) -%}
+    {%- for filter in filters.brandsList -%}
+        <div class="form-group form-check filterElement brandsFilterElement">
+            <input 
+                class="form-check-input filterElement brandsFilterElement" 
+                type="checkbox" 
+                {% if filter.id in selectedIds %} checked {% endif %}
+                name="{{ constant('FWK\\Enums\\Parameters::BRANDS_LIST') }}" 
+                value="{{ filter.id }}" 
+                id="brandsFE{{ filter.id }}">
+            <label class="form-check-label filterElement brandsFilterElement" for="brandsFE{{ filter.id }}">{{ filter.name }}</label>
+        </div>
+    {%- endfor -%}
+{%- endmacro -%}

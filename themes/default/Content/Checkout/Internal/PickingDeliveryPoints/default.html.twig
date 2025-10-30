@@ -1,0 +1,19 @@
+{#
+    If you want to have different configurations 
+    between providerPickupPoint or PhysicalLocations, 
+    you can use the variable isProviderPickupPointRequest
+#}
+
+{%- import macrosCore.util as utilMacros -%} 
+
+{%- set physicalLocationsConfiguration = themeConfiguration.commerce.physicalLocationsConfiguration -%}
+
+{{- utilMacros.physicalLocations({
+    physicalLocations: physicalLocations,
+    changeOptionFunction: "selectPhysicalLocation",
+    defaultPhysicalLocationId: defaultPhysicalLocationId,
+    showInMap: physicalLocationsConfiguration.showInMap,
+    showDirections: physicalLocationsConfiguration.showDirections,
+    physicalLocationFields: physicalLocationsConfiguration.physicalLocationFields,
+    showPlacesAutocomplete: false,
+}) -}}

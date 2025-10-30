@@ -1,0 +1,28 @@
+{% if (banners is iterable and banners|length > 0 ) or (banners is not iterable and banners is not null) %}
+    <table border=1>
+    	<tr>
+    		<th>Loop Index</th>
+    		<th>Id banner.id</th>
+    		<th>Public id banner.pId</th>
+    		<th>Name banner.name</th>
+    		<th>Description banner.description</th>
+    		<th>DateAdded banner.dateAdded</th>
+    		<th>Target banner.target</th>
+    		<th>Position banner.position</th>
+    		<th>Priority banner.priority</th>
+    		<th>Language Alt banner.language.alt</th>
+    		<th>Language Image banner.language.image</th>
+    		<th>Language DestinationUrl banner.language.destinationUrl</th>
+    		<th>Language LinkFollowing banner.language.linkFollowing</th>
+    	</tr>
+    	{% if banners is iterable %}
+        	{% for banner in banners %}
+    	        {% include '/snippets/demo/banner.html.twig' with {'banner' : banner, 'index' : loop.index0} only %}
+    	    {% endfor %}
+        {% else %}
+            {% include '/snippets/demo/banner.html.twig' with {'banner' : banners} only %}
+        {% endif %}
+    </table>
+{% else %}
+	no items
+{% endif %}      

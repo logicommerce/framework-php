@@ -1,0 +1,11 @@
+{%- macro prices(class, price, taxText, appliedTaxes, isAlternativePrice, startsHidden = false) -%}
+    {% set spacelessContent %}
+        <span class="{{- class -}}" data-lc-show-tax="{{- appliedTaxes ? 'true' : 'false' -}}" data-lc-show-alternative-price="{{- isAlternativePrice ? 'true' : 'false' -}}" {% if startsHidden %} style="display: none;" {% endif %}>
+            {{- price -}}
+            {%- if taxText|length -%}
+                <span class="taxText"> {{- taxText -}}</span>
+            {%- endif -%}
+        </span>
+    {% endset %}
+    {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+{%- endmacro -%}

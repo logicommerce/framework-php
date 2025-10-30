@@ -1,0 +1,21 @@
+{% extends layout %}
+
+{% block content %}
+	var session = {
+		locale:'{{ session.generalSettings.locale }}',
+        currencyId:'{{ session.generalSettings.currency }}',
+        countryId:'{{ session.generalSettings.country }}'
+	}
+	
+    $(document).ready(function(){
+    $.ajax({
+        url: '{{routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalResources::ASYNC_JS')) }}',
+            type: 'GET',
+            async: true, 
+            dataType: "script",
+            cache: false
+    	});
+    });
+	
+
+{% endblock content%}

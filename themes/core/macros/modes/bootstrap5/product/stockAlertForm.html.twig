@@ -1,0 +1,40 @@
+{% macro stockAlertForm(args, legalCheck) %}
+
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+
+    {%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+        {% if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') %}
+            {% set formOutput = element|replace({ (classWildcard) : '', (attributeWildcard): 'data-lc-form="productSubscribeStockForm"' }) %}
+            {% set formOutput = formOutput|replace({ '{{ controllerItem.id }}': controllerItem.id }) %}
+            {{ formOutput }}
+            <div class="form-message"></div>
+        {% elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') %}
+            {{ element }}
+            <div class="formResponseContainer" id="productStockAlertResponse"></div>
+        {% elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') %}
+            {{ legalCheck }}
+            <div class="formField formButton productStockAlertField" id="productStockAlertSubmitContainer">
+                {{ element|replace({ (classWildcard): '', (attributeWildcard): '' }) }}
+            </div>
+        {% else %}
+            {% if name == "email" %}
+                <div class="formField productStockAlertField form-group">
+                    {% set fillFnAttr = "" %}
+                    {% set fillFnClass = "" %}
+                    {% if name in themeConfiguration.commerce.availableFillDataFields|split(',') %}
+                        {% set fillFnAttr = 'data-fill-fn="get' ~ ucwords(name) ~ '"' %}   
+                        {% set fillFnClass = "js-fill-data" %}
+                    {% endif %}
+                    {{- element|replace({ 
+                        (classWildcard): fillFnClass,
+                        (attributeWildcard): fillFnAttr 
+                    }) -}}
+                </div>
+            {% else %}
+                {{ element|replace({ (classWildcard) : '', (attributeWildcard): '' }) }}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+
+{% endmacro stockAlertForm %}

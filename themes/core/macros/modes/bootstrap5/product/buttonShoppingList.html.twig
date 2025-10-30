@@ -1,0 +1,83 @@
+{% macro buttonShoppingList(args) %}
+
+    {%- set shoppingListData = {
+        itemType: args.itemType,
+        id: args.item.id,
+        labelAdded: args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_FROM_SHOPPING_LIST')] : '',
+        labelDeleted: args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_SHOPPING_LIST')] : '',
+        showLabel: args.showLabel,
+    } -%}
+
+    {%- if isSessionLoggedIn() -%}
+        {%- if args.item.id in session.aggregateData.shoppingList.itemIdList -%}  
+            {%- set deleteDisplay = "" -%}
+            {%- set addDisplay -%} style="display: none" {%- endset -%}
+        {%- else -%} 
+            {%- set deleteDisplay -%} style="display: none" {%- endset -%}
+            {%- set addDisplay = "" -%}
+        {%- endif -%}
+        {%- set accountRequiredDisplay -%} style="display: none" {%- endset -%}
+    {%- else -%}
+        {%- set deleteDisplay -%} style="display: none" {%- endset -%}
+        {%- set addDisplay -%} style="display: none" {%- endset -%}
+        {%- set accountRequiredDisplay = "" -%}
+    {%- endif -%}
+
+    {%- if args.showDefaultShoppingListButton -%}
+        <button {{ deleteDisplay }} type="button" 
+            class="itemButton shoppingListButton shoppingListButton{{ args.item.id }} shoppingListButtonAdded {% if args.allowDelete == true -%} shoppingListButtonDelete {%- endif %} {{ args.class }}" 
+            data-shopping-list-delete='{{ outputJsonHtmlString(shoppingListData|merge({'type':'delete'})) }}' 
+            {% if args.allowDelete == true %} autocomplete="off" {% else %} disabled="disabled" {% endif %}
+        >
+            {{- args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_FROM_SHOPPING_LIST')] : '' -}}
+        </button>
+        <button {{ addDisplay }} type="button" 
+            class="itemButton shoppingListButton shoppingListButton{{ args.item.id }} shoppingListButtonAdd {{ args.class }}" 
+            data-shopping-list-add='{{ outputJsonHtmlString(shoppingListData|merge({ 'type': 'add' })) }}' 
+            autocomplete="off"
+        >
+            {{- args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_SHOPPING_LIST')] : '' -}}
+        </button>
+        <button {{ accountRequiredDisplay }} type="button" 
+            class="itemButton shoppingListButton shoppingListButton{{ args.item.id }} shoppingListButtonAdd shoppingListButtonLoginRequired {{ args.class }}" 
+            data-shopping-list-account_required='{{ outputJsonHtmlString(shoppingListData|merge({ 'type': 'accountRequired' })) }}'
+        >
+            {{- args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_SHOPPING_LIST')] : '' -}}
+        </button>
+    {%- endif -%}
+
+    {%- if args.showShoppingLists -%}
+        <div class="btn-group">
+            <button {{ accountRequiredDisplay }} type="button" class="{{ args.class }}" data-shopping-list-lists-account_required='{{ outputJsonHtmlString(shoppingListData|merge({ 'type': 'accountRequired' })) }}'>
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_SHOPPING_LIST')] -}}
+            </button>
+            <button type="button" data-shopping-list-lists-add='{{ outputJsonHtmlString(shoppingListData|merge({ 'type': 'addList' })) }}' class="{{ args.class }}">
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_SHOPPING_LIST')] -}}
+            </button>
+            <button type="button" data-shopping-list-lists-menu class="{{ args.class }} dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <svg class="icon"><use xlink:href="#icon-angle-down"></use></svg>
+            </button>
+            <ul data-shopping-list-lists-menu-list='{{ outputJsonHtmlString(shoppingListData|merge({ type: 'list', class: args.class })) }}' class="dropdown-menu dropdown-menu-end">
+                {%- if args.allowAddShoppingList -%}
+                    <li class="divider"><hr class="dropdown-divider"></li>
+                    <li>
+                        {%- set form -%}
+                            {%- import 'macros/user.twig' as userMacros -%}
+                            {{- userMacros.shoppingListForm({
+                                form: args.shoppingListForm,
+                            }) -}}
+                        {%- endset -%}
+                        <button 
+                            type="button" 
+                            class="dropdown-item shopping-list-lists-new" 
+                            data-shopping-list-lists-new='{{ outputJsonHtmlString(shoppingListData|merge({ type: 'newList', form: form })) }}'
+                        >
+                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ADD_NEW')] -}}
+                        </button>
+                    </li>
+                {%- endif -%}
+            </ul>
+        </div>
+    {%- endif -%}
+
+{% endmacro buttonShoppingList %}

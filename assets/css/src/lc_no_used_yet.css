@@ -1,0 +1,532 @@
+/**
+ * ATTENTION
+ * 
+ * If you take a block of CSS from here, remove it from the list or if you deprecate it, 
+ * make a note of it.
+ * 
+ * List:
+ * - Postal codes Selector          --> todo
+ * - Stock Alerts user              --> deprecated? (revisar)
+ * - Affiliate Orders               --> revisar
+ * - User Orders                    --> revisar
+ * - One Step checkout
+ * - Comparison mobile                --> revisar
+ * - Block commerce - Styles            --> todo
+ * - Users forms - (new) Country selector
+ * - Attachment LC                  --> revisar
+ * - stock lock                     --> todo
+ */
+
+/**
+ * Stock Alerts user
+ */
+
+.unsubscribeStockAlertButton {
+    width: 19px;
+    height: 19px;
+    border: none;
+    background: transparent url('/common/images/deleteRow.png') no-repeat center center;
+}
+
+.unsubscribeStockAlertButton:hover {
+    border: none;
+    background: transparent url('/common/images/deleteRow.png') no-repeat center center;
+}
+
+/**
+ * Affiliate Orders
+ */
+
+div.affiliateOrdersEmpty {
+    margin: 20px 0;
+}
+
+table.affiliateOrders {
+    margin-top: 10px;
+}
+
+.affiliateOrdersHeader {
+    font-weight: bold;
+}
+
+.affiliateOrdersHeaderComission, .affiliateOrderCommission {
+    text-align: right;
+}
+
+.affiliateOrdersFooter {
+    font-weight: bold;
+}
+
+/**
+ * One Step checkout
+ */
+
+form.oneStepCheckout.unload {
+    position: relative;
+}
+
+form.oneStepCheckout.unload:before {
+    background: #fff;
+    border-radius: 5px;
+    bottom: 0;
+    color: #666;
+    content: " ";
+    font-size: 1.5em;
+    cursor: default;
+    left: 0;
+    margin: 0;
+    opacity: .8;
+    padding-top: 10%;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    z-index: 3;
+}
+
+form#oneStepCheckout .loading, form#oneStepCheckout .blocked, div.oneStepCheckoutAdditionalContent.loading {
+    position: relative;
+}
+
+form#oneStepCheckout .loading:before, form#oneStepCheckout .blocked:before, div.oneStepCheckoutAdditionalContent.loading:before {
+    background: #fff;
+    border-radius: 5px;
+    bottom: 0;
+    color: #666;
+    content: " ";
+    font-size: 1.5em;
+    cursor: default;
+    left: 0;
+    margin: 0;
+    opacity: .8;
+    padding-top: 10%;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    top: 0;
+    z-index: 3;
+}
+
+form#oneStepCheckout .loading:before, div.oneStepCheckoutAdditionalContent.loading:before {
+    background: #ddd;
+    color: #666;
+    content: "LOADING";
+    font-size: 1.5em;
+    z-index: 4;
+}
+
+form#oneStepCheckout div.oneStepCheckoutModule {
+    padding: 5px;
+    overflow: hidden;
+}
+
+form#oneStepCheckout span.basketProductName {
+    display: inline-block;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+form#oneStepCheckout div.oneStepCheckoutLogInLink {
+    margin: 0 0 20px;
+}
+
+form#oneStepCheckout .basketProductImage {
+    float: left;
+    margin-right: 5px;
+    width: 60px;
+}
+
+form#oneStepCheckout .oneStepCheckoutDeleteRow {
+    cursor: pointer;
+    display: inline-block;
+    opacity: .8;
+}
+
+form#oneStepCheckout .oneStepCheckoutDeleteRow:hover {
+    opacity: 1;
+}
+
+form#oneStepCheckout .basketSelectorsTitle {
+    font-weight: bold;
+}
+
+form#oneStepCheckout .basketSelector {
+    border-bottom: 1px solid #dddddd;
+    padding: 10px 5px;
+}
+
+form#oneStepCheckout .basketSelectorSelected {
+    color: green;
+}
+
+form#oneStepCheckout .basketSelectorDescription {
+    display: block;
+    margin-left: 16px;
+}
+
+form#oneStepCheckout div.basketButtons {
+    padding: 0 0 20px;
+}
+
+
+form#oneStepCheckout div.signInFormFieldsContainer {
+    background: #e4e4e4;
+    border-radius: 10px;
+    padding: 10px 10px 1px;
+    position: relative;
+    margin-top: -5px;
+}
+
+form#oneStepCheckout div.signInFormFieldsContainer:after {
+    bottom: 100%;
+    left: 10%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-color: rgba(0, 0, 0, 0);
+    border-bottom-color: #e4e4e4;
+    border-width: 10px;
+    margin-left: -10px;
+}
+
+form#oneStepCheckout div.signInFormFieldsContainer label {
+    font-weight: normal;
+    color: #555;
+}
+
+.oneStepCheckoutContainer {
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.oneStepCheckoutBox {
+    border-right: 1px solid #ddd;
+    margin-bottom: -1500px;
+    padding-bottom: 1500px;
+    padding-top: 15px;
+}
+
+.oneStepCheckoutBox:last-child {
+    border: none;
+}
+
+.oneStepCheckoutBoxTitle {
+    font-size: 1.3em;
+    color: #5a2;
+}
+
+.oneStepCheckoutBoxTitle>span.icon {
+    margin: 1px 5px 1px;
+}
+
+form#oneStepCheckout div.basketSelectorPickUpWarehouse {
+    background: #e4e4e4;
+    border-radius: 10px;
+    padding: 10px;
+    position: relative;
+    margin-top: 5px;
+    color: #666;
+}
+
+form#oneStepCheckout div.basketSelectorPickUpWarehouse:after {
+    bottom: 100%;
+    left: 10%;
+    border: solid transparent;
+    content: " ";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+    border-color: rgba(0, 0, 0, 0);
+    border-bottom-color: #e4e4e4;
+    border-width: 10px;
+    margin-left: -10px;
+}
+
+form#oneStepCheckout a.emailErrorLoginCall {
+    cursor: pointer;
+    text-decoration: underline;
+    float: right;
+}
+
+#oscWarnings .modal-content {
+    background-color: #ffeaea;
+}
+
+.oscWarningWrap {
+    display: none;
+}
+
+.oneStepCheckoutWarnings {
+    text-align: center;
+}
+
+.oneStepCheckoutWarningTitle {
+    font-size: 1.6em;
+    padding: 0 0 15px;
+}
+
+.oneStepCheckoutWarningsClose {
+    margin: 10px auto 0;
+}
+
+/**
+ * Comparison mobile
+ */
+
+.comparisonCustomTagsList .customTagsWarning {
+    text-align: center;
+    padding: 20px 0;
+}
+
+#comparisonCustomTagsForm #comparisonSubmit {
+    margin-bottom: 10px;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags.accordion {
+    border: 1px solid #E3E3E3;
+    border-radius: 4px;
+    padding: 1%;
+    margin: 0 0 10px;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags .accordion-group {
+    margin: 5px 0;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags .accordion-heading {
+    padding: 7px 0;
+    font-size: 18px;
+    text-indent: 8px;
+    border-radius: 4px;
+    background-color: #E3E3E3;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags .accordion-body {
+    font-size: 15px;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags .accordion-group a {
+    color: black;
+    font-weight: bold;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags .accordion-group a:hover {
+    text-decoration: none;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags .accordion-body ul {
+    list-style: none;
+    padding: 0;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags .accordion-body ul li {
+    padding: 5px 0;
+    text-indent: 10px;
+    border-bottom: 1px solid #E3E3E3;
+}
+
+#comparisonCustomTagsForm #accordionCustomTags .accordion-body ul li:last-child {
+    border: none;
+}
+
+.comparisonCustomTagsPages {
+    width: 100%;
+}
+
+.comparisonCustomTagsPages .customTagTitle {
+    width: 100%;
+    font-size: 21px;
+    font-weight: bold;
+}
+
+.comparisonCustomTagsPages .comparisonPaginator {
+    width: 100%;
+    text-align: left;
+    margin: 5px 0;
+}
+
+.comparisonCustomTagsPages .comparisonProducts {
+    width: 100%;
+}
+
+.comparisonCustomTagsPages .comparisonProducts .comparisonProduct {
+    width: 100%;
+    border-bottom: 1px solid #E3E3E3;
+}
+
+.comparisonCustomTagsPages .comparisonProducts .comparisonProduct .comparisonProductImage {
+    float: left;
+    width: 100px;
+    min-height: 100px;
+}
+
+.comparisonCustomTagsPages .comparisonProducts .comparisonProduct .comparisonProductImage img {
+    width: 80px;
+    margin: 10px;
+}
+
+.comparisonCustomTagsPages .comparisonProducts .comparisonProduct .comparisonProductDetails {
+    float: left;
+}
+
+.comparisonCustomTagsPages .comparisonProducts .comparisonProduct .comparisonProductDetails .comparisonProductLink .comparisonProductName {
+    float: left;
+    width: 100%;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.comparisonCustomTagsPages .comparisonProducts .comparisonProduct .comparisonProductDetails .comparisonProductCustomTag {
+    clear: both;
+    float: left;
+}
+
+/**
+ * Block commerce - Styles
+ * - Not Available Countries
+ * - Closed Commerce
+ * - Login Required
+ * - Change Password
+ */
+
+.lcContentSettingsnotavailablecountry #cookiesBannerContainer, .lcContentSettingsclosed #cookiesBannerContainer, .lcContentSettingslogin #cookiesBannerContainer, .lcContentSettingschangepassword #cookiesBannerContainer {
+    display: none;
+}
+
+.lcContentSettingsnotavailablecountry .lcBody, .lcContentSettingsclosed .lcBody, .lcContentSettingslogin .lcBody, .lcContentSettingschangepassword .lcBody {
+    margin-top: 50px;
+}
+
+/**
+ * Users forms - (new) Country selector 
+ */
+
+.addressUserField {
+    background-color: #fafafa;
+    padding: 15px 15px 0;
+    border: 1px solid #d1d1d1;
+    margin-bottom: 15px;
+}
+
+.addressUserField .addressData {
+    display: none;
+    border: 1px solid #d1d1d1;
+    background-color: #FFF;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.addressUserField.address-complete .addressData {
+    display: block;
+}
+
+.addressUserField.address-complete .countryModeButtons, .addressUserField.address-complete .countrySelectGroup, .addressUserField.address-complete .countryModesContent {
+    display: none;
+}
+
+.addressUserField .addressData .addressBlock.addressBlockTitle {
+    font-weight: bold;
+}
+
+.addressUserField .addressData .addressBlock.addressBlockDetails {
+    text-transform: capitalize;
+}
+
+/* Attachment LC */
+
+div.lcProductOptionAttachment {
+    position: relative;
+}
+
+.ctAttachment {
+    transition: all 1s;
+}
+
+.ctAttachment input[type=text] {
+    position: absolute;
+    top: -100px;
+    left: -100px;
+    width: 1px;
+    height: 1px;
+    position: absolute;
+    opacity: 0.01;
+    padding: 0px;
+}
+
+.ctAttachment input[type=file] {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    opacity: 0.01;
+    cursor: pointer;
+}
+
+.ctAttachment .button {
+    font-family: 'Glyphicons Halflings';
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.ctAttachment .upload {
+    position: relative;
+}
+
+.ctAttachment .upload:before {
+    content: "\e198";
+}
+
+.ctAttachment .view:before {
+    content: "\e105";
+}
+
+.ctAttachment .delete:before {
+    content: "\f014";
+    font-family: FontAwesome
+}
+
+.ctAttachment.uploading {
+    opacity: 0.6;
+}
+
+/*stock lock*/
+
+div[data-basket-expires]>div {
+    display: none;
+}
+
+div.active[data-basket-expires]>div.active {
+    display: block;
+}
+
+div.expired[data-basket-expires]>div.expired {
+    display: block;
+}
+
+.lcStockLock {
+    display: none;
+}
+
+.lcStockLock.active {
+    display: inherit;
+}
+
+a.printPoliciesButton {
+    margin-bottom: 20px;
+}
+
+.blockAddressBook .addressBook {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.blockAddressBook .addressBook.has-error {
+    border-color: #a94442;
+    background-color: #fefcfa;
+}

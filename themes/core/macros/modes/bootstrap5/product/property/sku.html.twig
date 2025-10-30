@@ -1,0 +1,6 @@
+{%- macro sku(product) -%}
+    <div class="product-info-sku">
+        <span>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SKU')] -}}:</span>
+        <span class="product-combinations-sku">{{- product.combinationData.productCodes.sku -}}</span>
+    </div>
+{%- endmacro -%}

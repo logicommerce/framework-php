@@ -1,0 +1,26 @@
+{% macro oauthCallback(args) %}
+    <script>
+        if (window.opener && !window.opener.closed) {
+            if (window.opener.location.href.includes("checkout")) {
+                {%- if args.checkoutLoginRedirect|length -%}
+                    window.opener.location.href = "{{args.checkoutLoginRedirect}}";
+                {%- else -%}
+                    window.opener.location.href = window.opener.location.href;
+                {%- endif -%}
+            } else {
+                {%- if args.commonLoginRedirect|length -%}
+                    window.opener.location.href = "{{args.commonLoginRedirect}}";
+                {%- else -%}
+                    window.opener.location.href = window.opener.location.href;
+                {%- endif -%}
+            }
+            window.close();
+        } else {
+            {%- if args.commonLoginRedirect|length -%}
+                window.location.href = "{{args.commonLoginRedirect}}";
+            {%- else -%}
+                window.location.href = window.location.href;
+            {%- endif -%}
+        }
+    </script>
+{% endmacro oauthCallback %}

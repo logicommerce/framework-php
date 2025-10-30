@@ -1,0 +1,13 @@
+{%- macro elements(filters, appliedFilters) -%}
+    <div class="form-group form-check filterElement onlyOffersFilterElement">
+        <input 
+            class="form-check-input filterElement onlyOffersFilterElement" 
+            type="checkbox" 
+            name="{{ constant('FWK\\Enums\\Parameters::ONLY_OFFERS') }}"
+            {{ appliedFilters[constant('FWK\\Enums\\Parameters::ONLY_OFFERS')] is defined ? ' checked ' : '' }} 
+            value="1" 
+            id="onlyOffersFE"
+        >
+        <label class="form-check-label filterElement onlyOffersFilterElement" for="onlyOffersFE">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ONLY_OFFERS')] }}</label>
+    </div>
+{%- endmacro -%}

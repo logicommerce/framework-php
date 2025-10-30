@@ -1,0 +1,131 @@
+<div class="contentTd">
+	<table border=1>
+		{% if (options is iterable and options|length > 0 )%}
+    		<tr>
+    			<th>Option</th><th>Data</th>
+    		</tr>
+			{% for option in options %}
+    			<tr>
+        			<td>{{ loop.index0 }}</td>
+        			<td>
+        				<table border=1>
+        			   		<tr>
+    							<th>Label</th><th>Value</th>
+    						</tr>
+    						<tr>
+    							<td>priority</td><td>{{ option.priority }}</td>
+    						</tr>
+    						<tr>
+    							<td>combinable</td><td>{{ option.combinable?"Yes":"No" }}</td>
+    						</tr>
+    						<tr>
+    							<td>uniquePrice</td><td>{{ option.uniquePrice?"Yes":"No" }}</td>
+    						</tr>
+    						<tr>
+    							<td>filterable</td><td>{{ option.filterable?"Yes":"No" }}</td>
+    						</tr>
+    						<tr>
+    							<td>minValues</td><td>{{ option.minValues }}</td>
+    						</tr>
+    						<tr>
+    							<td>required</td><td>{{ option.required?"Yes":"No" }}</td>
+    						</tr>
+    						<tr>
+    							<td>maxValues</td><td>{{ option.maxValues }}</td>
+    						</tr>
+    						<tr>
+    							<td>typology</td><td>{{ option.typology }}</td>
+    						</tr>
+    						<tr>
+    							<td>loose</td><td>{{ option.loose?"Yes":"No" }}</td>
+    						</tr>
+							<tr>
+    							<td>image</td><td>{{ option.image }}</td>
+    						</tr>
+    						<tr>
+    							<td>showAsGrid</td><td>{{ option.showAsGrid?"Yes":"No" }}</td>
+    						</tr>
+    						<tr>
+    							<td>type</td><td>{{ option.type }}</td>
+    						</tr>
+    						<tr>
+    							<td>id</td><td>{{ option.id }}</td>
+    						</tr> 
+   							<tr>
+    							<td>pId</td><td>{{ option.pId }}</td>
+    						</tr>
+         					<tr>
+    							<td>language.prompt</td><td>{{ option.language.prompt }}</td>
+    						</tr>
+   							<tr>
+    							<td>language.name</td><td>{{ option.language.name }}</td>
+    						</tr>
+							<tr>
+    							<td>values</td>
+            					<td>
+            					    {% if (option.values is iterable and option.values|length > 0 )%}
+                                		<table border=1>
+                                	   		<tr>
+                                				<th>Label</th><th>Value</th>
+                                			</tr>
+                                            {% for value in option.values %}
+                                    			<tr>
+                        							<td>priority</td><td>{{ value.priority }}</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>weight</td><td>{{ value.weight }}</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>stock</td><td>{{ value.priority }}</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>looseUnits</td><td>{{ value.priority }}</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>noReturn</td><td>{{ value.noReturn?"Yes":"No" }}</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>optionValuePrices  </td>
+                        							<td>
+                        							    {% include '/snippets/demo/product/itemPrice.html.twig' with {'itemPrice' : value.prices} only %}
+                        							</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>pricesWithTaxes </td>
+                        							<td>
+                        							    {% include '/snippets/demo/product/itemPrice.html.twig' with {'itemPrice' : value.pricesWithTaxes} only %}    
+                        							</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>id</td><td>{{ value.id }}</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>pId</td><td>{{ value.pid }}</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>language.shortDescription</td><td>{{ value.language.shortDescription }}</td>
+                        						</tr>
+                                    			<tr>
+                        							<td>language.longDescription</td><td>{{ value.language.longDescription }}</td>
+                        						</tr>
+                        						
+                                        	{% endfor %}
+                           				</table>
+                                    {% else %}
+                                        No values
+                                    {% endif %}
+            					</td>
+    						</tr>
+        				</table>
+        			</td>
+				</tr>            			
+			{% endfor %}
+		{% else %}
+			No options
+		{% endif %}
+	</table>
+</div>
+
+
+
+

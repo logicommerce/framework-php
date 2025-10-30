@@ -1,0 +1,47 @@
+{% macro filterForm(args) %}
+
+    <form 
+        method="get" 
+        action="?" 
+        data-lc-form="productsFilter" 
+        class="filtersForm {% if args.autosubmit == true %} formAutosubmit {% endif %}" 
+        data-lc-autosubmit="{{ args.autosubmit ? 'true' : 'false' }}"
+    >
+        {# hidden option viewMacro values #} 
+        {%- set hiddenKeys = [
+            constant('FWK\\Core\\Theme\\Dtos\\ViewOptions::TEMPLATE'),
+            constant('FWK\\Core\\Theme\\Dtos\\ViewOptions::PER_PAGE'),
+            constant('FWK\\Core\\Theme\\Dtos\\ViewOptions::SORT'),
+        ] -%}
+        {%- for key in hiddenKeys -%}
+            <input type="hidden" name="{{ key }}" value="{{ requestParams[key]|default(args.defaultParametersValues[key]) }}">
+        {%- endfor -%}
+
+        {%- set filters = args.applicableFilters.toArray|sort((a, b) => a.priority <=> b.priority) -%}
+        {# add hidden inputs for not filterable values #} 
+        {%- for filter, configuration in args.notEnabledFilters -%}
+            {%- if filter in args.appliedFilters|keys -%}
+                {# filtered values conservation from filterCustomTagGroup filter enabled, but filterCustomTag disabled #}
+                {%- if filter == constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG') -%}
+                    {%- for customTagId, ctValues in args.appliedFilters[filter] -%}
+                        {%- for value in ctValues -%}
+                            <input type="hidden" name="{{ filter }}{{ constant('FWK\\Core\\FilterInput\\FilterInputHandler::DYNAMIC_NAME_PARAM_DELIMITER') }}{{ customTagId }}" value="{{ value|escape }}">
+                        {%- endfor -%}
+                    {%- endfor -%}
+                {%- else -%}
+                    <input type="hidden" name="{{ filter }}" value="{{ requestParams[filter]|default(args.defaultParametersValues[filter]) }}">
+                {%- endif -%}
+            {%- endif -%}
+        {%- endfor -%}
+
+        {%- for filter, configuration in filters|filter(configuration => configuration.enabled) -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/' ~ filter ~ '.html.twig' as filterProductMacro -%}
+            {{- filterProductMacro.filter(args.helperFilters, args.appliedFilters, configuration, args.filterItemTemplate) -}}
+        {%- endfor %}
+
+        {%- if args.autosubmit == false -%}
+    	    <button class="btn btn-primary filterSubmit" type="submit">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::FILTER')] }}</button>
+        {%- endif -%}
+    </form>
+
+{% endmacro filterForm %}

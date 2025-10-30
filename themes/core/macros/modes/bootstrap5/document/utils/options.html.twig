@@ -1,0 +1,26 @@
+{%- macro options(options, showOptionValuesName, showOptionValuesSku) -%}
+    {% if options|length %}
+        <div class="orderOptions">
+            {% for option in options %}
+                <div class="orderOption {% if loop.first %}orderOptionFirst{% elseif loop.last %}orderOptionLast{% endif %}">
+                    {% if showOptionValuesName and option.name|length %}
+                        <span class="orderOptionName">{{ option.name|striptags }}</span>
+                    {% endif %}
+                    {% for value in option.values %}
+                        {% if value.value|length %}
+                            {% set spacelessContent %}
+                                <span class="orderOptionValue">
+                                    {% include 'macros/modes/' ~ coreMode ~ '/document/utils/optionTypes/' ~ option.valueType ~ '.html.twig' %}
+                                </span>
+                            {% endset %}
+                            {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+                        {% endif %}
+                    {% endfor %}
+                    {% if showOptionValuesSku and option.sku|length %}
+                        <span class="orderOptionSku">{{ option.sku|striptags }}</span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{%- endmacro -%}

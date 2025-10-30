@@ -1,0 +1,146 @@
+{% macro item(address, prefix, selectMode, showEditBilling, showEditShipping, showDeleteBilling, showDeleteShipping) %}
+
+    {% if route.type != constant('SDK\\Enums\\RouteType::USER_ADDRESS_BOOK')
+        and route.type != constant('SDK\\Enums\\RouteType::ACCOUNT_ADDRESSES') %}
+        {% set action = 'select' %}
+        {% set topAddressLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECTED_ADDRESS')] %}
+        {% set setActivedAddress = false %}
+        {% if isSessionLoggedIn() %}
+        	{% if ((prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX')) and (address.id == session.user.selectedBillingAddressId)) 
+            	or ((prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX')) and (address.id == session.user.selectedShippingAddressId)) %}
+        	        {% set setActivedAddress = true %}
+            {% elseif ((prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX')) and (session.user.selectedBillingAddressId == 0)) 
+                or ((prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX')) and (session.user.selectedShippingAddressId == 0))%}
+            	    {% set setActivedAddress = address.defaultAddress %}
+            {% endif %}
+        {% endif %}
+    {% else %}
+        {% set topAddressLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::DEFAULT_ADDRESS')] %}
+        {% set action = 'set_default_address' %}
+        {% set setActivedAddress = address.defaultAddress %}
+    {% endif %}
+    
+    <div id="addressBookContainer_{{ address.id }}" class="addressBook {{ prefix }}Address {% if setActivedAddress %} addressBookActive {% endif %}">
+        <div class="wrap">
+            <div class="default {% if not setActivedAddress %} addressBookHidden {% endif %}">{{ topAddressLabel }}</div>
+            
+            {% set selectData = { id: address.id, type: prefix, mode: 'update', action: action } %}
+
+            {% set addressAlias = languageSheet[constant('FWK\\Enums\\LanguageLabels::NO_ALIAS_ADDRESS')] %}
+            {% if address.alias|length %}
+                {% set addressAlias = address.alias %}
+            {% elseif setActivedAddress %}
+                {% set addressAlias = languageSheet[constant('FWK\\Enums\\LanguageLabels::MAIN_ADDRESS')] %}
+            {% endif %}
+
+            {% if selectMode == constant('FWK\\ViewHelpers\\User\\Macro\\AddressBook::SELECT_MODE_RADIO') %}
+                <div class="form-check form-check-inline">
+                    <input id="{{ prefix }}Address_{{ address.id }}" class="form-check-input {{ prefix }}Address addressBookAction addressSelect {% if setActivedAddress %} addressBookHidden {% endif %}" type="radio" name="{{ prefix }}Address" data-lc-data='{{ outputJsonHtmlString(selectData) }}' value="{{-address.id-}}" {{ setActivedAddress ? 'checked' }}>
+                </div>
+            {% endif %}
+
+            <label name="{{ prefix }}Address_{{ address.id }}" for="{{ prefix }}Address_{{ address.id }}" class="field alias">{{ addressAlias }}</label>
+
+            {%- if 
+                (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') and showEditBilling) or 
+                (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') and showDeleteBilling) or 
+                (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and showEditShipping) or 
+                (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and showDeleteShipping)
+            -%}
+                <div class="actionButtons">
+                    {%- if 
+                        (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') and showEditBilling) or
+                        (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and showEditShipping)
+                    -%}
+                        <a href="#" 
+                        data-lc-data='{{ outputJsonHtmlString(address) }}'
+                        data-lc-action="editAddressBook"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#{{ prefix }}AddressBookModal"
+                        title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_ADDRESS')]|striptags }}" 
+                        class="addressBookAction editAddressAction TEST"
+                        >
+                            <svg class="icon"><use xlink:href="#icon-pencil"></use></svg>
+                        </a>
+                    {%- endif -%}
+                    {%- if 
+                        (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') and showDeleteBilling) or
+                        (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and showDeleteShipping)
+                    -%}
+                        <a href="#" 
+                        data-lc-data='{{ outputJsonHtmlString(address) }}' 
+                        data-lc-action="deleteAddressBook" 
+                        title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ADDRESS')]|striptags }}" 
+                        class="addressBookAction deleteAddressAction {% if setActivedAddress %} addressBookHidden {% endif %}"
+                        >
+                            <svg class="icon"><use xlink:href="#icon-trash"></use></svg>
+                        </a>
+                    {%- endif -%}
+                </div>
+            {%- endif -%}
+
+            <div class="addressDataBox {{ prefix }}AddressDataBox">
+                {% set addressName = address.firstName ~ (address.lastName|length ? ' ' ~ address.lastName : '') %}
+                {% set addresNameLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDRESS_BOOK_NAME')] %}
+                
+                {% if address.company|length and address.userType == constant('SDK\\Enums\\UserType::BUSINESS') or address.userType == constant('SDK\\Enums\\UserType::FREELANCE') %}
+                    {% set addressName = address.company %}
+                    {% set addresNameLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::COMPANY')] %}
+                {% endif %}
+                
+                {% if addressName|trim|length %}
+                    <div class="field name" data-lc-label="{{ addresNameLabel }}">{{ addressName }}</div>
+                {% endif %}
+                {% set spacelessContent %}
+                    <div class="field address">
+                        {% if address.address|length %}
+                            <span class="address" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDRESS')] }}">{{ address.address }}</span>
+                        {% endif %}
+                        {% if address.addressAdditionalInformation|length %}
+                            <span class="addressAdditionalInformation" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDRESS_ADDITIONAL_INFORMATION')] }}">{{ address.addressAdditionalInformation }}</span>
+                        {% endif %}
+                        {% if address.number|length %}
+                            <span class="number" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NUMBER')] }}">{{ address.number }}</span>
+                        {% endif %}
+                        {% if address.city|length %}
+                            <span class="city" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CITY')] }}">{{ address.city }}</span>
+                        {% endif %}
+                        {% if address.postalCode|length %}
+                            <span class="postalCode" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::POSTAL_CODE')] }}">{{ address.postalCode }}</span>
+                        {% endif %}
+                        {% if address.state|length %}
+                            <span class="state" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::STATE')] }}">{{ address.state }}</span>
+                        {% endif %}
+                        {% if address.location|length %}
+                            <span class="location" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::COUNTRY')] }}">{{ getCountryNameByCountryCode(address.location.geographicalZone.countryCode) }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="field extraInfo">
+                        {% if address.vat|length %}
+                            <span class="vat" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VAT')] }}">{{ address.vat }}</span>
+                        {% endif %}
+                        {% if address.nif|length %}
+                            <span class="nif" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NIF')] }}">{{ address.nif }}</span>
+                        {% endif %}
+                        {% if address.phone|length %}
+                            <span class="phone" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PHONE')] }}">{{ address.phone }}</span>
+                        {% endif %}
+                        {% if address.mobile|length %}
+                            <span class="mobile" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MOBILE')] }}">{{ address.mobile }}</span>
+                        {% endif %}
+                        {% if address.fax|length %}
+                            <span class="fax" data-lc-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::FAX')] }}">{{ address.fax }}</span>
+                        {% endif %}
+                    </div>
+                {% endset %}
+                {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+            </div>
+
+            {% if selectMode == constant('FWK\\ViewHelpers\\User\\Macro\\AddressBook::SELECT_MODE_BUTTON') %}
+                <button class="{{ prefix }}Address addressBookAction addressSelect btn btn-link {% if setActivedAddress %} addressBookHidden {% endif %}" data-lc-data='{{ outputJsonHtmlString(selectData) }}' type="button">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECT_ADDRESS_BOOK')] }}</button>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endmacro %}

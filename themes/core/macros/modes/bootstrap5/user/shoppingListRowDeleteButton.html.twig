@@ -1,0 +1,11 @@
+{% macro shoppingListRowDeleteButton(args) %}
+
+    <button type="button" id="deleteShoppingListRowButton{{ args.row.id }}" class="{{ args.class }} deleteShoppingListRow" 
+        data-lc-data='{{ outputJsonHtmlString({ containerId: args.containerId, rowId: args.row.id, shoppingListId: args.shoppingListId }) }}'
+        data-lc-function="deleteShoppingListRow"
+        data-lc-event="click"
+    >
+        <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SHOPPING_LIST_ROW_DELETE_BUTTON')] }}</span>
+    </button>
+
+{% endmacro %}

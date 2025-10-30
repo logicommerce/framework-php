@@ -1,0 +1,41 @@
+<table border=1>
+	<tr>
+		<th>GeneralSettings</th>
+		<th>CatalogSettings</th>
+		<th>GeoIPSettings</th>
+		<th>LegalSettings</th>
+		<th>OrdersSettings</th>    		
+		<th>SeoSettings</th>
+		<th>SitemapSettings</th>
+		<th>StockSettings</th>
+		<th>UserAccountsSettings</th>
+		<th>TaxSettings</th>
+	</tr>
+	
+	<tr>
+		<td>{% include '/snippets/demo/settings/general.html.twig' with {'generalSettings' : settings.generalSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/catalog.html.twig' with {'catalogSettings' : settings.catalogSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/geoIP.html.twig' with {'geoIPSettings' : settings.geoIPSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/legal.html.twig' with {'legalSettings' : settings.legalSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/orders.html.twig' with {'ordersSettings' : settings.ordersSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/seo.html.twig' with {'seoSettings' : settings.seoSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/sitemap.html.twig' with {'sitemapSettings' : settings.sitemapSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/stock.html.twig' with {'stockSettings' : settings.stockSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/userAccounts.html.twig' with {'userAccountsSettings' : settings.userAccountsSettings} only %}</td>
+		<td>{% include '/snippets/demo/settings/tax.html.twig' with {'taxSettings' : settings.taxSettings} only %}</td>		
+	</tr>
+
+
+
+
+
+
+    {#% if products is iterable %}
+    	{% for product in products %}
+    	    {% include '/snippets/demo/product.html.twig' with {'product' : product, 'index' : loop.index0} only %}
+    	{% endfor %}
+    {% else %}
+        {% include '/snippets/demo/product.html.twig' with {'product' : products} only %}
+    {% endif %#}
+	
+</table>

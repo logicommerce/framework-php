@@ -1,0 +1,48 @@
+{% macro bundleGrouping(args) %}
+
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/bundle/grouping.html.twig' as grouping -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/bundle/buyForm.html.twig' as buyForm -%}
+    {%- import 'macros/product.twig' as productMacros -%}
+
+    {%- if args.addMainProducts -%}
+        <div class="product-bundle product-bundle-{{ args.bundleId }}" data-lc-main-products='{{ outputJsonHtmlString(args.products) }}'>
+    {%- endif -%}
+
+            <div class="product-bundle-grouping n-products-{{ args.bundleGrouping.items|length }}">
+                {%- set bundleGroupingContent -%}
+                    {{- grouping.grouping(args.products, args.bundleGrouping, args) -}}
+                {%- endset -%}
+                {% if args.shoppingListButtonArgs|length %}
+                    {%- set shoppingListButton = productMacros.buttonShoppingList(args.shoppingListButtonArgs|merge({item: args.bundleGrouping})) %}
+                {% else %}
+                    {%- set shoppingListButton = '' -%}
+                {% endif %}
+
+                {% if args.buttonRecommendArgs|length %}
+                    {%- set buttonRecommend = productMacros.buttonRecommend(
+                        args.buttonRecommendArgs|merge({
+                            id: args.bundleGrouping.id,
+                            type: 'bundle'
+                        }))
+                    %}
+                {% else %}
+                    {%- set buttonRecommend = '' -%}
+                {% endif %}
+                {%- set viewParameters = viewHelpers.product.buyBundleFormMacro(
+                    args.buyBundleForm|merge({
+                        bundleGrouping: args.bundleGrouping,
+                        bundleGroupingContent: bundleGroupingContent,
+                        mainProducts: args.products,
+                        bundleId: args.bundleId,
+                        shoppingListButton: shoppingListButton,
+                        buttonRecommend: buttonRecommend
+                    })
+                ) %}
+                {{- buyForm.buyForm(viewParameters) -}}
+            </div>
+
+    {%- if args.addMainProducts -%}
+        </div>
+    {%- endif -%}
+
+{% endmacro %}

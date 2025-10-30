@@ -1,0 +1,106 @@
+{% macro loginForm(args) %}
+    {%- set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') -%}
+    {%- set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') -%}
+
+    {%- if session.user.id and not args.userWarnings|length -%}
+        <div class="loginForm loginFormLoggedIn">
+            <div class="moduleText loginFormText">
+                {%- if session.user.userAdditionalInformation.simulatedUser -%}
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SIMULATION_AS')] -}}
+                {%- else -%}
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::IDENTIFIED_AS')] -}}
+                {%- endif -%}
+                <a class="moduleLink loginFormIdentifiedAsLink" href="{{ routePaths.getPath(constant('FWK\\Enums\\RouteType::USER')) }}">
+                    {{- session.user.name -}}
+                </a>
+            </div>
+            <div class="moduleField moduleButton loginFormModuleField loginFormSubmitContainer">
+                {%- if session.user.userAdditionalInformation.simulatedUser -%}
+                    <a id="endSimulationButton" class="btn btn-secondary moduleButton loginFormButton loginFormLogout" data-lc-event="click" data-lc-function="accountLogoutSimulation">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::LOGOUT_SIMULATION')] -}}
+                    </a>
+                {%- endif -%}
+                <a class="btn btn-secondary moduleButton loginFormButton loginFormLogout" data-lc-event="click" data-lc-function="logout">
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::LOGOUT')] -}}
+                </a>
+            </div>
+        </div>
+    {%- else -%}
+        <div class="loginForm loginFormAnonymous">
+            <div class="loginFormFields">
+                {%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                    {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') or name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') -%}
+                        {{- element|replace({ (attributeWildcard): "data-lc-form='loginForm' data-lc-user-warnings='" ~ args.userWarnings|join(',') ~ "'" }) -}}
+                    {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+                        <div class="form-group moduleField moduleButton loginFormModuleField loginFormSubmitContainer">
+                            {{- element|replace({ (classWildcard): '' }) -}}
+                        </div>
+                        <a class="usedAccountSwitchPopupOpen" href="#" data-lc-function="usedAccountSwitch" data-lc-event="click" data-bs-toggle="modal" data-bs-target="#usedAccountSwitchPopup" title="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::USED_ACCOUNT_SWITCH')] -}}"></a>
+                    {%- elseif name == constant('FWK\\Enums\\Parameters::USERNAME') -%}
+                        <div class="form-group moduleField loginFormModuleField loginFormEmailContainer">
+                            {{- element|replace({ (classWildcard) : '' }) -}}
+                        </div>
+                    {%- elseif name == constant('FWK\\Enums\\Parameters::PASSWORD') -%}
+                        <div class="form-group moduleField loginFormModuleField loginFormPasswordContainer">
+                            {{- element|replace({ (classWildcard) : '' }) -}}
+                        </div>
+                    {%- elseif name == constant('FWK\\Enums\\Parameters::REDIRECT') -%}
+                        {%- set name = 'name="' ~ constant('FWK\\Enums\\Parameters::REDIRECT') ~ '"' -%}
+                        {{- element|replace({ (name): name ~ ' value="' ~ args.redirect ~ '"' }) -}}
+                    {%- elseif name == 'plugins' -%}
+                        {% set pluginsContent %}
+                            {%- for name, element in element -%}
+                                {%- for oauthPlugin in args.oauthPlugins -%}
+                                    {%- if name == oauthPlugin.module -%}
+                                        {%- set args = args|merge({oauthPlugin: oauthPlugin}) -%}                                           
+                                    {%- endif -%}                                    
+                                {%- endfor -%}
+                                {%- include 'plugins/' ~ ucwords(name, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/user/loginFormOauth.html.twig' ignore missing with {args: args} -%}
+                            {%- endfor -%}
+                        {% endset %}
+                        {% if pluginsContent|length %}
+                            <div class="form-group moduleField loginFormModuleField pluginsContainer">
+                                {{ pluginsContent }}
+                            </div>
+                        {% endif %}
+                    {%- else -%}    
+                        {{- element -}}
+                    {%- endif -%}
+                {%- endfor -%}
+            </div>
+            
+            {%- if args.showLostPasswordLink or args.showCreateAccountLink -%}
+                <div class="loginFormLinks">
+                    {%- if args.showLostPasswordLink -%}
+                        <a class="moduleLink loginFormModuleLink loginFormLostPassword" href="{{ args.lostPasswordRedirect|length ? args.lostPasswordRedirect : routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_LOST_PASSWORD')) }}">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RECOVER_PASSWORD')] }}</a>
+                    {%- endif -%}
+                    {%- if args.showCreateAccountLink -%}
+                        <a class="moduleLink loginFormModuleLink loginFormCreateAccount btn btn-secondary" href="{{ args.registerRedirect|length ? args.registerRedirect : routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_CREATE_ACCOUNT')) }}">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CREATE_ACCOUNT')] }}</a>
+                    {%- endif -%}
+                </div>
+            {%- endif -%}
+        </div>
+    {%- endif -%}
+    
+    <div class="lcModal modal fade usedAccountSwitchPopup" id="usedAccountSwitchPopup"
+        tabindex="-1" aria-labelledby="usedAccountSwitchPopupTitle" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-fullscreen-sm-down">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div id="usedAccountSwitchPopupTitle" class="popup-title heading">
+                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::USED_ACCOUNT_SWITCH')] }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] }}"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="usedAccountSwitch" class="lcModalContainer">
+                        <div class="loading-document">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

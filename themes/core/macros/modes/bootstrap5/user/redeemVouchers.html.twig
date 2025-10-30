@@ -1,0 +1,28 @@
+{% macro redeemVouchers(args) %}
+    {%- if args.vouchers.items|length -%}
+        {%- for voucher in args.vouchers.items -%}
+            <div class="voucherRecord">
+                {%- if args.showCode -%}
+                    <div class="voucherCode">
+                        <span class="lbl">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::VOUCHER_CODE')] -}}</span>
+                        <span class="val">{{- voucher.code -}}</span>
+                    </div>
+                {%- endif -%}
+                {%- if args.showAvailableBalance -%}
+                    <div class="availableBalance">
+                        <span class="lbl">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::VOUCHER_AVAILABLE_BALANCE')] -}}</span>
+                        <span class="val">{{- outputHtmlCurrency(voucher.availableBalance) -}}</span>
+                    </div>
+                {%- endif -%}
+                {%- if args.showExpirationDate -%}
+                    <div class="expirationDate">
+                        <span class="lbl">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::VOUCHER_EXPIRATION_DATE')] -}}</span>
+                        <span class="val">{{- formatDateTime(voucher.expirationDate) -}}</span>
+                    </div>
+                {%- endif -%}
+            </div>
+        {%- endfor -%}
+    {%- else -%}
+        <div class="vouchersEmpty">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EMPTY_VOUCHERS')] }}</div>
+    {%- endif -%}
+{% endmacro redeemVouchers %}

@@ -1,0 +1,27 @@
+{% macro filterShoppingListRowsForm(args) %}
+
+    <form 
+        method="get" 
+        action="?"
+        data-lc-form="filterShoppingListRows" 
+        class="filtersForm {% if args.autosubmit == true %} formAutosubmit {% endif %}" 
+        data-lc-autosubmit="{{ args.autosubmit ? 'true' : 'false' }}"
+    >
+        {# hidden option viewMacro values #} 
+        {%- set hiddenKeys = [constant('FWK\\Core\\Theme\\Dtos\\ViewOptions::TEMPLATE'),constant('FWK\\Core\\Theme\\Dtos\\ViewOptions::PER_PAGE'),constant('FWK\\Core\\Theme\\Dtos\\ViewOptions::SORT')] -%}
+        {%- for key in hiddenKeys -%}
+            <input type="hidden" name="{{ key }}" value="{{ requestParams[key]|default(args.defaultParametersValues[key]) }}">
+        {%- endfor -%}
+
+        {%- set filters = args.applicableFilters.toArray|sort((a, b) => a.priority <=> b.priority) -%}
+        {%- for filter, configuration in filters|filter(configuration => configuration.enabled) -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/user/filterShoppingListRows/' ~ filter ~ '.html.twig' as filterShoppingListRowsMacro -%}
+            {{- filterShoppingListRowsMacro.filter(args.appliedFilters, configuration) -}}
+        {%- endfor -%}
+
+        {%- if args.autosubmit == false -%}
+    	    <button class="btn btn-primary filterSubmit" type="submit">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::FILTER')] }}</button>
+        {%- endif -%}
+    </form>
+
+{% endmacro filterShoppingListRowsForm %}

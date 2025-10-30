@@ -1,0 +1,23 @@
+{
+	"name" : "logicommerce/fwk",
+	"require" : {
+		"twig/twig" : "3.5.0"
+	},
+	"homepage" : "https://www.logicommerce.com",
+	"minimum-stability" : "stable",
+	"type" : "project",
+	"description" : "FWK for Logicommerce Commerces",
+	"keywords" : [
+		"ecommerce",
+		"fwk"
+	],
+	"autoload" : {
+		"psr-4" : {
+			"FWK\\" : "src/"
+		},
+		"files" : [
+			"src/Core/Exceptions/ErrorCapturer.php",
+			"src/_config.php"
+		]
+	}
+}

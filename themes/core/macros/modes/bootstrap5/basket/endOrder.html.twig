@@ -1,0 +1,38 @@
+{% macro endOrder(args) %}
+
+    {% if 
+        args.payResponse.type == constant('SDK\\Enums\\PaymentType::NO_PAY') or 
+        args.payResponse.type == constant('SDK\\Enums\\PaymentType::OFFLINE') or 
+        args.payResponse.type == constant('SDK\\Enums\\PaymentType::FORM')
+    %} 
+        <form id="orderConfirmForm" action="{{ args.payResponse.data.url }}" method="{{ args.payResponse.data.method }}">
+            {% for name, value in args.payResponse.data.params %}
+                {% if args.payResponse.type == constant('SDK\\Enums\\PaymentType::NO_PAY') or args.payResponse.type == constant('SDK\\Enums\\PaymentType::OFFLINE') %}
+                    <input type="hidden" name="{{ name }}" value="{{ value }}">
+                {% else %}
+                    <input type="hidden" name="{{ value['name'] }}" value="{{ value['value'] }}">
+                {% endif %}
+            {% endfor %}
+            {% if args.payResponse.type == constant('SDK\\Enums\\PaymentType::NO_PAY') or args.payResponse.type == constant('SDK\\Enums\\PaymentType::OFFLINE') %}
+                <input type="hidden" name="type" value="{{ args.payResponse.type }}">
+            {% endif %}                    
+        </form>
+        <script>
+            var form = document.forms.orderConfirmForm;
+            if (!form.getAttribute('action').length) location = '{{routePaths.getPath(constant('FWK\\Enums\\RouteType::CHECKOUT_DENIED_ORDER')) }}';
+            else form.submit();
+        </script>
+    {% elseif args.payResponse.type == constant('SDK\\Enums\\PaymentType::WIDGET') %}
+        {{ args.payResponse.message }}
+    {% elseif args.payResponse.type == constant('SDK\\Enums\\PaymentType::REDIRECT') %}
+        <script>
+            window.location.href = '{{args.payResponse.redirectUri}}';
+        </script>        
+    {% else %}
+        {% if getEnvironmentValue('DEVEL') == 'true' %}
+            NEW PAYMENT TYPE
+            {{ dump(args) }}
+        {% endif %}
+    {% endif %}
+
+{% endmacro endOrder %}

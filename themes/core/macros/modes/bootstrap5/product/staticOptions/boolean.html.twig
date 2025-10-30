@@ -1,0 +1,16 @@
+{% macro boolean(productOption, args) %}
+
+    {% if productOption.reference.values|length %}
+        <div class="productStaticOption productStaticOptionShortText">
+            <span class="staticOptionName">{{- productOption.option.language.name -}}</span>
+            <span class="staticOptionValue">
+                {%- if productOption.reference.values[0].value == 'true' -%}
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] -}}
+                {%- else -%}
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] -}}
+                {%- endif -%}
+            </span>
+        </div>
+    {% endif %}
+
+{% endmacro %}

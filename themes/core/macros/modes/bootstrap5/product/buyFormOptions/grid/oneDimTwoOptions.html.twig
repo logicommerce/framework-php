@@ -1,0 +1,151 @@
+{#- 
+    // Output divs one dimension (two opts)
+
+    Option A name/Option B name
+
+    |---------------|---------------|---------------|---------------|---------------|---------------| ...
+    | Opt val A1/B1 | Opt val A1/B2 | Opt val A1/B3 | Opt val A2/B1 | Opt val A2/B2 | Opt val A2/B3 | ...
+    | Input qty     | Input qty     | Input qty     | Input qty     | Input qty     | Input qty     | ...
+    |---------------|---------------|---------------|---------------|---------------|---------------| ... etc
+-#}
+{% macro oneDimTwoOptions(args) %}
+
+    {%- import 'macros/product.twig' as productMacros -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/property/prices.html.twig' as modeProduct -%}
+
+    {%- set classPrice = 'combination-price' -%}
+    {%- set firstOption = args.gridData.options|first -%}
+    {%- set secondOption = args.gridData.options|last -%}
+
+    {%- set data = {
+        options:[
+            { 
+                id: firstOption.id, 
+                name: firstOption.language.name, 
+                pId: firstOption.pId 
+            },
+            { 
+                id: secondOption.id, 
+                name: secondOption.language.name, 
+                pId: secondOption.pId 
+            },
+        ],
+        combinations: args.gridData.combinations,
+        prices: args.gridData.prices,
+        purchasableWithoutStock: args.purchasableWithoutStock
+     } -%}
+    <div 
+        class="gridOptions gridOptionsOneDim gridOptionsTwoOptions productOptionPId_{{ firstOption.pId }} productOptionPId_{{ secondOption.pId }}" 
+        data-lc-grid-combinations='{{ outputJsonHtmlString(data) }}'
+    >
+        <div class="gridCombinations">
+            <div class="grid-combinations-info"></div>
+            <div class="gridOptionsNames">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_GRID_HEADER_2X2')]|replace({ "{{opcion1}}": firstOption.language.name,"{{opcion2}}": secondOption.language.name}) -}}</div>
+            <input type="hidden" name="gridCombinationsType" value="buy">
+            <table class="table gridOptions gridOptionsTable table-bordered">
+                <thead>
+                    <tr>
+                        {% for secondOptionValue in secondOption.values %}
+                            {% for firstOptionValue in firstOption.values %}
+                                <th>
+                                    {% set valueFirstOptionValue = '' %}
+                                    {% set valueSecondOptionValue = '' %}
+                                    {%- if args.showGridImageValues -%}
+                                        {%- if firstOption.type == constant('SDK\\Enums\\OptionType::SINGLE_SELECTION_IMAGE') -%}
+                                            {%- set valueFirstOptionValue -%}<img src="{{ firstOptionValue.images.smallImage }}" class="productOptionValueImage" alt="{{ firstOptionValue.language.value|escape }}">{%- endset -%}
+                                        {%- else -%}
+                                            {% set valueFirstOptionValue = firstOptionValue.language.value %}
+                                        {%- endif -%}
+                                        {%- if secondOption.type == constant('SDK\\Enums\\OptionType::SINGLE_SELECTION_IMAGE') -%}
+                                            {%- set valueSecondOptionValue -%}<img src="{{ secondOptionValue.images.smallImage }}" class="productOptionValueImage" alt="{{ secondOptionValue.language.value|escape }}">{%- endset -%}
+                                        {%- else -%}
+                                            {% set valueSecondOptionValue = secondOptionValue.language.value %}
+                                        {%- endif -%}
+                                    {%- else -%}
+                                        {% set valueFirstOptionValue = firstOptionValue.language.value %}
+                                        {% set valueSecondOptionValue = secondOptionValue.language.value %}
+                                    {%- endif -%}
+                                    <b>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_GRID_HEADER_2X2')]|replace({ "{{opcion1}}": valueFirstOptionValue,"{{opcion2}}": valueSecondOptionValue}) -}}</b>
+                                    {%- if args.gridData.prices.showGridPrice != constant('FWK\\ViewHelpers\\Product\\ProductGridJsonData::SHOW_GRID_PRICE_ANY_OPTION') -%}
+                                        <div class="combination-price" data-lc-grid-price='{{ outputJsonHtmlString({values:[ firstOptionValue.id, secondOptionValue.id]}) }}'>
+                                            {{ modeProduct.prices(
+                                                classPrice, 
+                                                outputHtmlCurrency(args.gridData.prices.values[secondOptionValue.id].price + args.gridData.prices.values[firstOptionValue.id].price +args.gridData.prices.priceWithoutGrid), 
+                                                args.taxText, args.appliedTaxes, args.isAlternativePrice
+                                            ) }}
+                                        </div>
+                                    {%- endif -%}
+                                </th>
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        {% for secondOptionValue in secondOption.values %}
+                            {% for firstOptionValue in firstOption.values %}
+                                <td>
+                                    {%- set combinationId = 0 -%}
+                                    {%- set combinationStock = 0 -%}
+                                    {%- if args.gridData.combinations.status == constant('SDK\\Enums\\CombinationDataStatus::AVAILABLE') -%}
+                                        {%- for id,combination in args.gridData.combinations.values -%}
+                                            {%- set findAllOptionValuesWithoutGrid = false -%}
+                                            {%- if firstOptionValue.id in combination.optionValueIds and secondOptionValue.id in combination.optionValueIds -%}
+                                                {%- set findAllOptionValuesWithoutGrid = true -%}
+                                                {%- for optionValueWithoutGrid in args.gridData.combinations.optionsValuesWithoutGrid -%}  
+                                                    {%- if findAllOptionValuesWithoutGrid and not optionValueWithoutGrid in combination.optionValueIds -%}
+                                                        {%- set findAllOptionValuesWithoutGrid = false -%}
+                                                    {%- endif -%}
+                                                {%- endfor -%}
+                                            {%- endif -%}
+                                            {%- if findAllOptionValuesWithoutGrid -%}
+                                                {%- set combinationId = id -%}
+                                                {%- set combinationStock = combination.stock -%}
+                                            {%- endif -%}
+                                        {%- endfor -%}
+                                    {%- endif -%}
+                                    {%- set combinationData = {
+                                        combinationId:combinationId,
+                                        optionId: firstOption.id,
+                                        price:[ firstOptionValue.id, secondOptionValue.id],
+                                        values:[ firstOptionValue.id, secondOptionValue.id],
+                                        stock:combinationStock
+                                    } -%}
+                                    <div {% if combinationId != 0 %}id="gridCombination{{combinationId}}" {% endif %}class="gridCombination{% if (combinationId == 0 or combinationStock == 0) and not args.purchasableWithoutStock %} disabled{% endif %}" data-lc-grid-combination='{{ outputJsonHtmlString(combinationData) }}'>
+                                        {%- set availabilityInterval = null -%}
+                                        {%- for interval in args.product.definition.availability.intervals -%}
+                                            {%- if availabilityInterval is null or (combinationStock <= interval.stock and combinationStock > availabilityInterval.stock) -%}
+                                                {%- set availabilityInterval = interval -%}
+                                            {%- endif -%}
+                                        {%- endfor -%}
+
+                                        {%- if args.showGridAvailabilityImage or args.showGridAvailabilityName -%}
+                                            <div class="combination-stock {% if combinationStock == 0 %}no-stock{% else %}stock-ok{% endif %}" >
+                                                {%- if args.showGridAvailabilityImage -%}
+                                                    <span class="availabilityImage">
+                                                        <img src="{{ availabilityInterval.language.image }}" class="availabilityImage">
+                                                    </span>
+                                                {%- endif -%}
+                                                {%- if args.showGridAvailabilityName -%}
+                                                    <span class="availabilityName">{{- availabilityInterval.language.name -}}</span>
+                                                {%- endif -%}
+                                            </div>
+                                        {%- endif -%}
+
+                                        {%- if args.gridData.prices.showGridPrice == constant('FWK\\ViewHelpers\\Product\\ProductGridJsonData::SHOW_GRID_PRICE_BOTH_OPTIONS') -%}
+
+                                        {%- endif -%}
+                                        <div class="combination-quantity" >
+                                            {{- productMacros.buyFormQuantity({ product: args.product, forceMinQuantityZero: true, quantityPlugin: args.showAsGridQuantityPlugin, id: 'quantity-' ~ args.product.id ~ '-' ~ firstOptionValue.id ~ '-' ~ secondOptionValue.id }) -}}
+                                        </div>
+                                    </div>
+                                </td>
+                            {% endfor %}
+                        {% endfor %}
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+{% endmacro %}

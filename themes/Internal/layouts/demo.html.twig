@@ -1,0 +1,46 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+      {% block headcontent %}
+          <title>
+                DEMO - {{ title }}
+          </title>
+          {#{ includeCssAssets("NONE", [
+          	'https://dfou7ztp2gaz6.cloudfront.net/common/css/test.css',
+            '/test.css'
+          ])}}
+          {{ includeJsAssets([
+          	'https://dfou7ztp2gaz6.cloudfront.net/common/css/test.js',
+          	'/test.js'
+          ]) }}
+          {{ includeFonts([
+                {
+                    'font-family':'myFirstFont',
+                    'src':"url('https://dfou7ztp2gaz6.cloudfront.net/common/css/fonts/roboto-medium.woff')",
+                    'font-weight':'bold'
+                },
+                {
+                    'font-family':'mySecondFont',
+                    'src':"url(sansation_bold.woff)",
+                    'font-style':'italic'
+                },
+          ]) }}
+          {{ includeDnsPrefetch([
+            '//www.google.com',
+          	'//www.logicommerce.com',
+          	'//dis.eu.criteo.com',
+          	'//static.blueknow.com'
+          ]) }#}
+          
+      {% endblock headcontent %}
+</head>
+
+
+{% block body %}   
+	<body>		
+		DEMO BODY <br>
+	</body>		
+{% endblock body %}
+
+

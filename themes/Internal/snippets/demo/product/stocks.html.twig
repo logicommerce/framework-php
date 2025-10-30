@@ -1,0 +1,61 @@
+<div class="contentTd">
+	<table border=1>
+		<tr>
+			<th>Label</th><th>Value</th>
+		</tr>
+		<tr>
+			<td>units</td><td>{{ stock.units }}</td>
+		</tr>
+		<tr>
+			<td>warehouseId</td><td>{{ stock.warehouseId }}</td>
+		</tr>
+		<tr>
+			<td>warehouseGroupId</td><td>{{ stock.warehouseGroupId }}</td>
+		</tr>
+		<tr>
+			<td>priority</td><td>{{ stock.priority }}</td>
+		</tr>
+		<tr>
+			<td>offsetDays</td><td>{{ stock.offsetDays }}</td>
+		</tr>
+		<tr>
+			<td>previsions</td>
+			<td>
+                {% if (stock.previsions is iterable and stock.previsions|length > 0 )%}
+    			    <table border=1>
+                		<tr>
+                			<th>stock.previsions</th><th>Data</th>
+                		</tr>
+            			{% for prevision in stock.previsions %}
+                			<tr>
+                    			<td>{{ loop.index0 }}</td>
+                    			<td>
+                    				<table border=1>
+                                		<tr>
+                                			<th>Label</th><th>Value</th>
+                                		</tr>
+                                		<tr>
+                                			<td>units</td><td>{{ prevision.units }}</td>
+                                		</tr>
+										<tr>
+                                			<td>incomingDate</td><td>{{ localizedDateTime(prevision.incomingDate, constant('\\IntlDateFormatter::FULL') , constant('\\IntlDateFormatter::FULL')) }}</td>
+                                		</tr>
+										<tr>
+                                			<td>previsionType</td><td>{{ prevision.previsionType }}</td>
+                                		</tr>
+                            		</table>
+                        		</td>
+                    		</tr>
+                		{% endfor %}
+            		</table>
+        		{% else %}
+        			no items
+                {% endif %}  
+		    </td>
+		</tr>
+	</table>
+</div>
+
+
+
+

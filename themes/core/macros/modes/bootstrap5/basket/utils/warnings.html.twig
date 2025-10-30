@@ -1,0 +1,68 @@
+{#
+	@description Print severity group warnings
+
+    @param {string} severity
+    @param {array} warnings
+    @param {string} class
+    @param {array} hashes
+    @param {string} position
+#}
+{% macro warningGroup(severity, warnings, class, hashes, position) %}
+    {%- set warningList -%}
+        {%- for warning in warnings|filter(v => v.message|length) -%}
+            {%- if not hashes or hashes|filter((hash) => hash in warning.hashes)|length -%}
+                <li data-hash="{{ warning.hashes|join(',') }}" data-code="{{ warning.code }}" class="basketWarnings basketWarningsWarnings basketWarningsProduct">
+                    {{ warning.message }}
+                </li>
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endset -%}
+    {%- if warningList|length -%}
+        <div class="basketWarnings{{ severity|capitalize }}">
+            <div class="basketWarning alert alert-{{ class }}">
+                {%- if position == constant('FWK\\ViewHelpers\\Basket\\Macro\\BasketContent::WARNING_POSITION_HEADER') -%}
+                    <div class="basketWarningTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_WARNINGS_' ~ severity)] }}</div>
+                {%- endif -%}
+                <ul>
+                    {{ warningList }}
+                </ul>
+            </div>
+        </div>
+    {%- endif -%}
+{% endmacro warningGroup %}
+
+{#
+	@description Print basket BasketWarning[] block (before output basket header)
+
+    @param {array} warningsBlockItems
+    @param {bool} showWarnings
+    @param {string} errorWarningPosition
+    @param {string} warningWarningPosition
+    @param {string} infoWarningPosition
+    @param {string} position
+    @param {array} hashes
+#}
+{% macro basketWarningsBlock(warningsBlockItems, showWarnings, errorWarningPosition, warningWarningPosition, infoWarningPosition, position, hashes) %}
+    {% import _self as modeWarnings %}
+
+    {% if showWarnings == true and (errorWarningPosition == position or warningWarningPosition == position or infoWarningPosition == position) %}
+        {%- set warningList -%}
+            {%- for severity, warnings in warningsBlockItems -%}
+                {%- if warnings|length > 0 -%}
+                    {%- if severity == constant('SDK\\Enums\\BasketWarningSeverity::INFO') and infoWarningPosition == position -%}
+                        {{ modeWarnings.warningGroup(severity, warnings, 'info', hashes) }}
+                    {%- elseif severity == constant('SDK\\Enums\\BasketWarningSeverity::WARNING') and warningWarningPosition == position -%}
+                        {{ modeWarnings.warningGroup(severity, warnings, 'warning', hashes) }}
+                    {%- elseif severity == constant('SDK\\Enums\\BasketWarningSeverity::ERROR') and errorWarningPosition == position -%}
+                        {{ modeWarnings.warningGroup(severity, warnings, 'danger', hashes) }}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endset -%}
+        {%- if warningList|length -%}
+            <div id="basketWarnings" class="basketWarnings">
+                {{warningList}}
+            </div>
+        {%- endif -%}
+    {% endif %}
+{% endmacro %}

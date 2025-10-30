@@ -1,0 +1,774 @@
+{% macro brand(brand) %}
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>priority</td><td>{{ brand.priority }}</td>
+    		</tr>
+    		<tr>
+    			<td>id</td><td>{{ brand.id }}</td>
+    		</tr>
+    		<tr>
+    			<td>smallImage</td><td>{{ brand.language.smallImage }}</td>
+    		</tr>
+    		<tr>
+    			<td>smallTitleImage</td><td>{{ brand.language.smallTitleImage }}</td>
+    		</tr>
+    		<tr>
+    			<td>name</td><td>{{ brand.language.name }}</td>
+    		</tr>
+    	</table>
+	</div>
+{% endmacro %}
+
+{% macro categories(categories) %}
+    <div class="contentTd">
+    	{% if (categories is iterable and categories|length > 0 )%}
+        	<table border=1>
+        		<tr>
+        			<th>Category</th>
+        			<th>Value</th>
+        		</tr>	
+    	        {% for category in categories %}
+    			<tr>
+    				<td>{{ loop.index0 }}</td>
+    				<td>
+                    	<table border=1>
+                    		<tr>
+                    			<th>Label</th>
+                    			<th>Value</th>
+                    		</tr>
+                    		<tr>
+                    			<td>id</td>
+                    			<td>{{ category.id }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>name</td>
+                    			<td>{{ category.name }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>priority</td>
+                    			<td>{{ category.priority }}</td>
+                    		</tr>
+    					 </table>
+    				</td>
+    			</tr>
+        	    {% endfor %}
+        	</table>
+    	{% else %}
+    		no categories
+    	{% endif %}
+    </div>
+{% endmacro %}
+
+
+{% macro categoryProperties(categoryProperties) %}
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>percentPrice</td><td>{{ categoryProperties.percentPrice }}</td>
+    		</tr>
+    		<tr>
+    			<td>fareId</td><td>{{ categoryProperties.fareId }}</td>
+    		</tr>
+    		<tr>
+    			<td>percentPriceOverrideCustomPrices</td><td>{{ categoryProperties.percentPriceOverrideCustomPrices?"Yes":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>useRetailPrice</td><td>{{ categoryProperties.useRetailPrice?"Yes":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>definitionId</td><td>{{ categoryProperties.definitionId }}</td>
+    		</tr>
+    		<tr>
+    			<td>showBasePrice</td><td>{{ categoryProperties.showBasePrice?"Yes":"No" }}</td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %}
+
+{% macro combinations(combinations) %}
+    {% import _self as selfProductMacro %}
+    <div class="contentTd">
+    	{% if (combinations is iterable and combinations|length > 0 )%}
+        	<table border=1>
+        		<tr>
+        			<th>Combination</th>
+        			<th>Value</th>
+        		</tr>	
+    	        {% for combination in combinations %}
+    			<tr>
+    				<td>{{ loop.index0 }}</td>
+    				<td>
+                    	<table border=1>
+                    		<tr>
+                    			<th>Label</th>
+                    			<th>Value</th>
+                    		</tr>
+                    		<tr>
+                    			<td>id</td>
+                    			<td>combination.id</td>
+                    		</tr>
+                    		<tr>
+                    			<td>pId</td>
+                    			<td>combination.pId</td>
+                    		</tr>
+                    		<tr>
+                    			<td>codes</td>
+                    			<td>
+                    			    {{ selfProductMacro.codes(combination.codes) }}  
+                    			    {#% include '/snippets/demo/product/codes.html.twig' with {'codes' : combination.codes} only %#}
+                    			</td>
+                    		</tr>
+                    		<tr>
+                    			<td>Values</td>
+                    			<td>
+                    			    {% if (combination.values is iterable and combination.values|length > 0 )%}
+                        				{% for combinationValue in combination.values %}
+                        					[{{ loop.index0 }}] productOptionValueId = {{ combinationValue.productOptionValueId }} <br>
+                                	    {% endfor %}
+                            		{% else %}
+                                    	no items in Values
+                                    {% endif %}  
+                    			</td>
+                    		</tr>
+                    		<tr>
+                    			<td>Stocks</td>
+                    			<td>
+                    			    {% if (combination.stocks is iterable and combination.stocks|length > 0 )%}
+                        				{% for combinationStock in combination.stocks %}
+                    				        {{ selfProductMacro.stock(combinationStock) }}                        				
+    		                			    {#% include '/snippets/demo/product/stocks.html.twig' with {'stock' : combinationStock} only %#}
+                                	    {% endfor %}
+                            		{% else %}
+                                    	no items in Stocks
+                                    {% endif %}  
+                    			</td>
+                    		</tr>
+    					 </table>
+    				</td>
+    			</tr>
+        	    {% endfor %}
+        	</table>
+    	{% else %}
+    		no combinations
+    	{% endif %}
+    </div>
+{% endmacro %}    
+    
+    
+    
+{% macro stock(stock) %}
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>units</td><td>{{ stock.units }}</td>
+    		</tr>
+    		<tr>
+    			<td>warehouseId</td><td>{{ stock.warehouseId }}</td>
+    		</tr>
+    		<tr>
+    			<td>warehouseGroupId</td><td>{{ stock.warehouseGroupId }}</td>
+    		</tr>
+    		<tr>
+    			<td>priority</td><td>{{ stock.priority }}</td>
+    		</tr>
+    		<tr>
+    			<td>offsetDays</td><td>{{ stock.offsetDays }}</td>
+    		</tr>
+    		<tr>
+    			<td>previsions</td>
+    			<td>
+    			    {{ dump(stock.previsions) }}
+    		    </td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %}
+
+
+{% macro codes(codes) %}
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		{% if codes.manufacturerSku is defined %}
+        		<tr>
+        			<td>manufacturerSku</td><td>{{ codes.manufacturerSku }}</td>
+        		</tr>
+    		{% endif %}
+    		<tr>
+    			<td>sku</td><td>{{ codes.sku }}</td>
+    		</tr>
+    		<tr>
+    			<td>jan</td><td>{{ codes.jan }}</td>
+    		</tr>
+    		<tr>
+    			<td>isbn</td><td>{{ codes.isbn }}</td>
+    		</tr>
+    		<tr>
+    			<td>ean</td><td>{{ codes.ean }}</td>
+    		</tr>
+    		<tr>
+    			<td>upc</td><td>{{ codes.upc }}</td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %}
+
+{% macro theme(theme) %}
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>layout</td><td>{{ theme.layout }}</td>
+    		</tr>
+    		<tr>
+    			<td>content</td><td>{{ theme.content }}</td>
+    		</tr>
+    		<tr>
+    			<td>id</td><td>{{ theme.id }}</td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %}
+
+
+{% macro language(language) %}
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>shortDescription</td><td>{{ language.shortDescription }}</td>
+    		</tr>
+    		<tr>
+    			<td>smallTitleImage</td><td>{{ language.smallTitleImage }}</td>
+    		</tr>
+    		<tr>
+    			<td>longDescription</td><td>{{ language.longDescription }}</td>
+    		</tr>
+    		<tr>
+    			<td>coreKeyword</td><td>{{ language.coreKeyword }}</td>
+    		</tr>
+    		<tr>
+    			<td>altImageKeywords</td><td>{{ language.altImageKeywords }}</td>
+    		</tr>
+    		<tr>
+    			<td>largeTitleImage</td><td>{{ language.largeTitleImage }}</td>
+    		</tr>
+    		<tr>
+    			<td>addGenericTitle</td><td>{{ language.addGenericTitle? "Si" : "No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>name</td><td>{{ language.name }}</td>
+    		</tr>
+    		<tr>
+    			<td>keywords</td><td>{{ language.keywords }}</td>
+    		</tr>
+    		<tr>
+    			<td>particularTitle</td><td>{{ language.particularTitle }}</td>
+    		</tr>
+    		<tr>
+    			<td>metaDescription</td><td>{{ language.metaDescription }}</td>
+    		</tr>
+    		<tr>
+    			<td>urlSeo</td><td>{{ language.urlSeo }}</td>
+    		</tr>
+    	</table>
+    
+    </div>
+{% endmacro %}    
+    
+        
+{% macro mainImages(mainImages) %}       
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>smallImage</td><td>{{ mainImages.smallImage }}</td>
+    		</tr>
+    		<tr>
+    			<td>mediumImage</td><td>{{ mainImages.mediumImage }}</td>
+    		</tr>
+    		<tr>
+    			<td>largeImage</td><td>{{ mainImages.largeImage }}</td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %}     
+    
+{% macro definition(definition) %}          
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>startOfferDate</td><td>{{ localizedDateTime(definition.startOfferDate)}}</td>
+    		</tr>
+    		<tr>
+    			<td>offer</td><td>{{ definition.offer?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>multipleOrderQuantity</td><td>{{ definition.multipleOrderQuantity }}</td>
+    		</tr>
+    		<tr>
+    			<td>featured</td><td>{{ definition.featured?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>availableDate</td><td>{{ localizedDateTime(definition.availableDate) }}</td>
+    		</tr>
+    		<tr>
+    			<td>availabilityId</td><td>{{ definition.availabilityId }}</td>
+    		</tr>
+    		<tr>
+    			<td>showOrderBox</td><td>{{ definition.showOrderBox?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>minOrderQuantity</td><td>{{ definition.minOrderQuantity }}</td>
+    		</tr>
+    		<tr>
+    			<td>maxOrderQuantity</td><td>{{ definition.maxOrderQuantity }}</td>
+    		</tr>
+    		<tr>
+    			<td>definitionId</td><td>{{ definition.definitionId }}</td>
+    		</tr>
+    		<tr>
+    			<td>percentPriceOverrideCustomPrices</td><td>{{ definition.percentPriceOverrideCustomPrices?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>showDiscounts</td><td>{{ definition.showDiscounts?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>backorder</td><td>{{ definition.backorder }}</td>
+    		</tr>
+    		<tr>
+    			<td>percentPrice</td><td>{{ definition.percentPrice }}</td>
+    		</tr>
+    		<tr>
+    			<td>priority</td><td>{{ definition.priority }}</td>
+    		</tr>
+    		<tr>
+    			<td>dateAdded</td><td>{{ localizedDateTime(definition.dateAdded) }}</td>
+    		</tr>
+    		<tr>
+    			<td>stockManagement</td><td>{{ definition.stockManagement?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>groupQuantityByOptions</td><td>{{ definition.groupQuantityByOptions?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>useRetailPrice</td><td>{{ definition.useRetailPrice?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>showBasePrice</td><td>{{ definition.showBasePrice?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>endFeaturedDate</td><td>{{ localizedDateTime(definition.endFeaturedDate) }}</td>
+    		</tr>
+    		<tr>
+    			<td>endOfferDate</td><td>{{ localizedDateTime(definition.endOfferDate) }}</td>
+    		</tr>
+    		<tr>
+    			<td>multipleActsOver</td><td>{{ definition.multipleActsOver }}</td>
+    		</tr>
+    		<tr>
+    			<td>onRequest</td><td>{{ definition.onRequest?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>onRequestDays</td><td>{{ definition.onRequestDays }}</td>
+    		</tr>
+    		<tr>
+    			<td>active</td><td>{{ definition.active?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>showPrice</td><td>{{ definition.showPrice?"Si":"No" }}</td>
+    		</tr>
+    		<tr>
+    			<td>giftCost</td><td>{{ definition.giftCost}}</td>
+    		</tr>
+    		<tr>
+    			<td>id</td><td>{{ definition.id}}</td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %}    
+    
+    
+{% macro codes(codes) %}       
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		{% if codes.manufacturerSku is defined %}
+        		<tr>
+        			<td>manufacturerSku</td><td>{{ codes.manufacturerSku }}</td>
+        		</tr>
+    		{% endif %}
+    		<tr>
+    			<td>sku</td><td>{{ codes.sku }}</td>
+    		</tr>
+    		<tr>
+    			<td>jan</td><td>{{ codes.jan }}</td>
+    		</tr>
+    		<tr>
+    			<td>isbn</td><td>{{ codes.isbn }}</td>
+    		</tr>
+    		<tr>
+    			<td>ean</td><td>{{ codes.ean }}</td>
+    		</tr>
+    		<tr>
+    			<td>upc</td><td>{{ codes.upc }}</td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %} 
+
+{% macro shipping(shippingTypeIds,shippingCalculation) %}       
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>shippingTypeIds</td>
+    			<td>
+    				{% if (shippingTypeIds is iterable and shippingTypeIds|length > 0 )%}
+        				{% for shippingTypeId in shippingTypeIds %}
+        					[{{ loop.index0 }}] = {{ shippingTypeId }} <br>
+                	    {% endfor %}
+            		{% else %}
+                    	no shippingTypeIds
+                    {% endif %}  
+    		    </td>
+    		</tr>
+    		<tr>
+    			<td>shippingCalculation</td><td>{{ shippingCalculation }}</td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %}     
+    
+    
+{% macro options(options) %}    
+    {% import _self as selfProductMacro %}   
+    <div class="contentTd">
+    	<table border=1>
+    		{% if (options is iterable and options|length > 0 )%}
+        		<tr>
+        			<th>Option</th><th>Data</th>
+        		</tr>
+    			{% for option in options %}
+        			<tr>
+            			<td>{{ loop.index0 }}</td>
+            			<td>
+            				<table border=1>
+            			   		<tr>
+        							<th>Label</th><th>Value</th>
+        						</tr>
+        						<tr>
+        							<td>priority</td><td>{{ option.priority }}</td>
+        						</tr>
+        						<tr>
+        							<td>combinable</td><td>{{ option.combinable?"Yes":"No" }}</td>
+        						</tr>
+        						<tr>
+        							<td>uniquePrice</td><td>{{ option.uniquePrice?"Yes":"No" }}</td>
+        						</tr>
+        						<tr>
+        							<td>filterable</td><td>{{ option.filterable?"Yes":"No" }}</td>
+        						</tr>
+        						<tr>
+        							<td>minValues</td><td>{{ option.minValues }}</td>
+        						</tr>
+        						<tr>
+        							<td>required</td><td>{{ option.required?"Yes":"No" }}</td>
+        						</tr>
+        						<tr>
+        							<td>maxValues</td><td>{{ option.maxValues }}</td>
+        						</tr>
+        						<tr>
+        							<td>typology</td><td>{{ option.typology }}</td>
+        						</tr>
+        						<tr>
+        							<td>loose</td><td>{{ option.loose?"Yes":"No" }}</td>
+        						</tr>
+    							<tr>
+        							<td>image</td><td>{{ option.image }}</td>
+        						</tr>
+        						<tr>
+        							<td>showAsGrid</td><td>{{ option.showAsGrid?"Yes":"No" }}</td>
+        						</tr>
+        						<tr>
+        							<td>type</td><td>{{ option.type }}</td>
+        						</tr>
+        						<tr>
+        							<td>id</td><td>{{ option.id }}</td>
+        						</tr> 
+       							<tr>
+        							<td>pId</td><td>{{ option.pId }}</td>
+        						</tr>
+             					<tr>
+        							<td>language.prompt</td><td>{{ option.language.prompt }}</td>
+        						</tr>
+       							<tr>
+        							<td>language.name</td><td>{{ option.language.name }}</td>
+        						</tr>
+    							<tr>
+        							<td>values</td>
+                					<td>
+                					    {% if (option.values is iterable and option.values|length > 0 )%}
+                                    		<table border=1>
+                                    	   		<tr>
+                                    				<th>Label</th><th>Value</th>
+                                    			</tr>
+                                                {% for value in option.values %}
+                                        			<tr>
+                            							<td>priority</td><td>{{ value.priority }}</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>weight</td><td>{{ value.weight }}</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>stock</td><td>{{ value.priority }}</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>looseUnits</td><td>{{ value.priority }}</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>noReturn</td><td>{{ value.noReturn?"Yes":"No" }}</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>optionValuePrices  </td>
+                            							<td>
+                            							    {{ selfProductMacro.itemPrice(value.prices) }} 
+                            							</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>pricesWithTaxes </td>
+                            							<td>
+                            							    {{ selfProductMacro.itemPrice(value.pricesWithTaxes) }}
+                            							</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>id</td><td>{{ value.id }}</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>pId</td><td>{{ value.pid }}</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>language.shortDescription</td><td>{{ value.language.shortDescription }}</td>
+                            						</tr>
+                                        			<tr>
+                            							<td>language.longDescription</td><td>{{ value.language.longDescription }}</td>
+                            						</tr>
+                            						
+                                            	{% endfor %}
+                               				</table>
+                                        {% else %}
+                                            No values
+                                        {% endif %}
+                					</td>
+        						</tr>
+            				</table>
+            			</td>
+    				</tr>            			
+    			{% endfor %}
+    		{% else %}
+    			No options
+    		{% endif %}
+    	</table>
+    </div>
+{% endmacro %}     
+    
+    
+{% macro itemPrice(itemPrice) %}    
+    <div class="contentTd">
+    	<table border=1>
+    		<tr>
+    			<th>Label</th><th>Value</th>
+    		</tr>
+    		<tr>
+    			<td>prices.basePrice</td><td>{{ itemPrice.prices.basePrice }}</td>
+    		</tr>
+    		<tr>
+    			<td>prices.retailPrice</td><td>{{ itemPrice.prices.retailPrice }}</td>
+    		</tr>
+    		<tr>
+    			<td>pricesByQuantity</td>
+    			<td>
+    				{% if (itemPrice.pricesByQuantity is iterable and itemPrice.pricesByQuantity|length > 0 )%}
+        				{% for priceByQuantity in itemPrice.pricesByQuantity %}
+                            <div class="contentTd">
+                            	<table border=1>
+                            		<tr>
+                            			<th>Label</th><th>Value</th>
+                            		</tr>
+                            		<tr>
+                            			<td>quantity</td><td>{{ priceByQuantity.quantity }}</td>
+                            		</tr>
+                            		<tr>
+                            			<td>prices.basePrice</td><td>{{ priceByQuantity.prices.basePrice }}</td>
+                            		</tr>
+                            		<tr>
+                            			<td>prices.retailPrice</td><td>{{ priceByQuantity.prices.retailPrice }}</td>
+                            		</tr>
+                            	</table>
+                            </div>
+                	    {% endfor %}
+            		{% else %}
+                    	no pricesByQuantity
+                    {% endif %}  
+    		    </td>
+    		</tr>
+    	</table>
+    </div>
+{% endmacro %}
+
+
+{% macro taxes(taxes) %}    
+    <div class="contentTd">
+    	{% if (taxes is iterable and taxes|length > 0 )%}
+        	<table border=1>
+        		<tr>
+        			<th>Taxes</th>
+        			<th>Value</th>
+        		</tr>	
+    	        {% for tax in taxes %}
+    			<tr>
+    				<td>{{ loop.index0 }}</td>
+    				<td>
+                    	<table border=1>
+                    		<tr>
+                    			<th>Label</th><th>Value</th>
+                    		</tr>
+                    		<tr>
+                    			<td>id</td><td>{{ tax.id }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>pId</td><td>{{ tax.pId }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>operation</td><td>{{ tax.operation }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>locationType</td><td>{{ tax.locationType }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>rate</td><td>{{ tax.rate }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>reRate</td><td>{{ tax.reRate }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>cumulativeMode</td><td>{{ tax.cumulativeMode }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>priority</td><td>{{ tax.priority }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>redefinedBySubcountry</td><td>{{ tax.redefinedBySubcountry?"Yes":"No" }}</td>
+                    		</tr>
+    					 </table>
+    				</td>
+    			</tr>
+        	    {% endfor %}
+        	</table>
+    	{% else %}
+    		no taxes
+    	{% endif %}
+    </div>    
+{% endmacro %}
+
+
+{% macro customTags(customTags) %}       
+    <table border=1>
+    	<tr>
+    		<th>Loop Index</th>
+    		<th>Public id customTag.pId</th>
+    		<th>Id customTag.id</th>
+    		<th>Comparable customTag.comparable</th>
+    		<th>Searchable customTag.searchable</th>
+    		<th>Filterable customTag.filterable</th>
+    		<th>SelectableValueId customTag.selectableValueId</th>
+    		<th>GroupPriority customTag.groupPriority</th>
+    		<th>Priority customTag.priority</th>
+    		<th>GroupPosition customTag.groupPosition</th>
+    		<th>Position customTag.position</th>
+    		<th>ControlType customTag.controlType</th>
+    		<th>GroupId customTag.groupId</th>
+    		<th>Language Value customTag.language.value</th>
+    		<th>Language GroupName customTag.language.groupName</th>
+    		<th>Language Name customTag.language.name</th>
+    	</tr>
+        	{% if customTags is iterable %}
+            	{% for customTag in customTags %}
+        	        <tr>
+                    	<td>
+                        	{% if index is defined %}
+                            	{{ index }}
+                            {% else %}
+                            	No index    	
+                            {% endif %}
+                    	</td>
+                    	<td>{{ customTag.pId }}</td>
+                    	<td>{{ customTag.id }}</td>
+                    	<td>{{ customTag.comparable ? 'Yes' : 'No' }}</td>
+                    	<td>{{ customTag.searchable ? 'Yes' : 'No' }}</td>
+                    	<td>{{ customTag.filterable ? 'Yes' : 'No'}}</td>
+                    	<td>{{ customTag.selectableValueId }}</td>
+                    	<td>{{ customTag.groupPriority }}</td>
+                    	<td>{{ customTag.priority }}</td>
+                    	<td>{{ customTag.groupPosition }}</td>
+                    	<td>{{ customTag.position }}</td>
+                    	<td>{{ customTag.controlType }}</td>
+                    	<td>{{ customTag.groupId }}</td>
+                    	<td>{{ customTag.language.value }}</td>
+                    	<td>{{ customTag.language.groupName }}</td>
+                    	<td>{{ customTag.language.name }}</td>
+                    </tr>
+    	   	    {% endfor %}
+            {% else %}
+                <tr>
+                	<td>
+                    	{% if index is defined %}
+                        	{{ index }}
+                        {% else %}
+                        	No index    	
+                        {% endif %}
+                	</td>
+                	<td>{{ customTag.pId }}</td>
+                	<td>{{ customTag.id }}</td>
+                	<td>{{ customTag.comparable ? 'Yes' : 'No' }}</td>
+                	<td>{{ customTag.searchable ? 'Yes' : 'No' }}</td>
+                	<td>{{ customTag.filterable ? 'Yes' : 'No'}}</td>
+                	<td>{{ customTag.selectableValueId }}</td>
+                	<td>{{ customTag.groupPriority }}</td>
+                	<td>{{ customTag.priority }}</td>
+                	<td>{{ customTag.groupPosition }}</td>
+                	<td>{{ customTag.position }}</td>
+                	<td>{{ customTag.controlType }}</td>
+                	<td>{{ customTag.groupId }}</td>
+                	<td>{{ customTag.language.value }}</td>
+                	<td>{{ customTag.language.groupName }}</td>
+                	<td>{{ customTag.language.name }}</td>
+                </tr>
+            {% endif %}
+    </table>
+{% endmacro %}  

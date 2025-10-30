@@ -1,0 +1,124 @@
+{% macro approveRegisteredUser(args) %}
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    <div class="approveRegisteredUser registeredUserForm" data-format="{{ getJSDatePattern() }}">
+        <div class="styled-form center-block-tabs">
+            <div class="registeredUserApproveParameters">
+                <div class="row g-4">
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-lg-100">
+                            <div class="card-header fw-bold">
+                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACCOUNT_SUBTITLE')] }}
+                            </div>
+                            <div class="card-body">
+                                <div class="row row-cols-2 row-cols-md-1 g-3">
+                                    <div class="accountName">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACCOUNT_NAME')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="accountStatus">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="accountType">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_TYPE')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="accountDateAdded">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_DATE_ADDED')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="accountMaster">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="accountEmail">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER_EMAIL')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-lg-100">
+                            <div class="card-header fw-bold">
+                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_REGISTERED_USER_SUBTITLE')] }}
+                            </div>
+                            <div class="card-body">
+                                <div class="row row-cols-2 row-cols-md-1 g-3">
+                                    <div class="registeredUserName">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="registeredUserFirstName">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="registeredUserLastName">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="registeredUserUsername">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="registeredUserPid">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_PID')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="registeredUserGender">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_GENDER')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="registeredUserBirthDate">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_BIRTH_DATE')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <div class="card h-lg-100">
+                            <div class="card-header fw-bold">
+                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_RELATIONSHIP_INFORMATION_SUBTITLE')] }}
+                            </div>
+                            <div class="card-body">
+                                <div class="row row-cols-2 row-cols-md-1 g-3">
+                                    <div class="accountRegisteredUserStatus">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    <div class="accountRegisteredUserMaster">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER')] }}</label>
+                                        <div class="form-control-plaintext">
+                                        </div>
+                                    </div>
+                                    <div class="accountRegisteredUserDateAdded">
+                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_DATE_ADDED')] }}</label>
+                                        <div class="form-control-plaintext"></div>
+                                    </div>
+                                    {% if args.registeredUser.type == constant('SDK\\Enums\\MasterType::EMPLOYEE') %}
+                                        <div class="accountRegisteredUserJob">
+                                            <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_JOB')] }}</label>
+                                            <div class="form-control-plaintext"></div>
+                                        </div>
+                                        {% if args.advcaLicense %}
+                                            <div class="accountRegisteredUserRole">
+                                                <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE')] }}</label>
+                                                <div class="form-control-plaintext"></div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endmacro %}

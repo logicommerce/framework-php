@@ -1,0 +1,98 @@
+{% macro productMerged(args, orderRow, documentItems) %}
+
+    {% set trClassName = orderRow.className %}
+    <tr class="{{ trClassName }} merged-main" data-hashes='{{ outputJsonHtmlString(args.mergedRows[orderRow.itemId].hashes) }}'>
+        <td class="order orderProduct merged">
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/rowTemplates/productMergedMain.html.twig' as orderProductMergedMain %}
+            {{ orderProductMergedMain.productMergedMain(args, orderRow) }}
+        </td>
+        {% if args.showPrices %}
+            <td></td>
+        {% endif %}
+        <td></td>
+        {% if args.showDiscounts and (args.totalProductDiscounts > 0 or args.showZeroDiscount) %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/discounts.html.twig' as modeOrder %}
+            {{ modeOrder.discountsColumn(orderRow.discounts, args.showDiscountName, args.showDiscountValue, args.showTaxIncluded) }}
+        {% endif %}
+        {% if args.showPrices %}
+            <td></td>
+        {% endif %}
+    </tr>
+    
+    {% set showDiscounts = false %}
+    {% if args.showDiscounts and (args.totalProductDiscounts > 0 or args.showZeroDiscount) %}
+        {% import 'macros/modes/' ~ coreMode ~ '/document/utils/discounts.html.twig' as modeOrder %}
+        {% set showDiscounts = true %}
+    {% endif %}
+
+    
+    {% for subOrderRow in args.document.items %}
+        {% if subOrderRow.hash in args.mergedRows[orderRow.itemId].hashes %}
+            {% set orderRowPrices = subOrderRow.prices %}
+            {% set totalTaxesValue = subOrderRow.richPrices.totalTaxesValue %}
+            {% if args.showTaxIncluded %}
+                {% set productPrice = subOrderRow.richPrices.productPriceWithTaxes %}
+                {% set optionsPrice = subOrderRow.richPrices.optionsPriceWithTaxes %}
+                {% set previousPrice = subOrderRow.richPrices.previousPriceWithTaxes %}
+                {% set price = subOrderRow.richPrices.priceWithTaxes %}
+                {% set total = subOrderRow.richPrices.totalWithTaxes %}
+                {% set totalDiscountsValue = subOrderRow.richPrices.totalDiscountsValueWithTaxes %}        
+                {% set totalWithDiscounts = subOrderRow.richPrices.totalWithDiscountsWithTaxes %}
+            {% else %}
+                {% set productPrice = subOrderRow.richPrices.productPrice %}
+                {% set optionsPrice = subOrderRow.richPrices.optionsPrice %}
+                {% set previousPrice = subOrderRow.richPrices.previousPrice %}
+                {% set price = subOrderRow.richPrices.price %}
+                {% set total = subOrderRow.richPrices.total %}
+                {% set totalDiscountsValue = subOrderRow.richPrices.totalDiscountsValue %}
+                {% set totalWithDiscounts = subOrderRow.richPrices.totalWithDiscounts %}
+            {% endif %}
+            <tr class="{{ trClassName }} merged-rows" data-hashes='{{ outputJsonHtmlString(args.mergedRows[subOrderRow.itemId].hashes) }}'>
+                <td class="order orderProduct merged">
+                    {% import 'macros/modes/' ~ coreMode ~ '/document/utils/rowTemplates/productMergedRows.html.twig' as orderProductMergedRows %}
+                    {{ orderProductMergedRows.productMergedRows(args, subOrderRow) }}
+                </td>
+                {% if args.showPrices %}
+                    <td class="order orderPrice orderProductPrice">
+                        {% if subOrderRow.offer %}
+                            {% if args.showPreviousPrice %}
+                                <span class="previousPrice">{{ outputHtmlCurrency(previousPrice) }}</span>
+                            {% endif %}
+                            {% if args.showPercentDifference %}
+                                <span class="offerPercentDifference">
+                                    <span class="percentageValue">-{{ viewHelpers.util.getPriceDifference(previousPrice, price).roundedPercentDifference }}</span><span class="percentageSymbol">%</span>
+                                </span>
+                            {% endif %}
+                            {% if args.showPriceDifference %}
+                                <span class="offerPriceDifference">{{ outputHtmlCurrency(-viewHelpers.util.getPriceDifference(previousPrice, price).priceDifference) }}</span>
+                            {% endif %}
+                        {% endif %}
+                        {{ outputHtmlCurrency(price) }}
+                    </td>
+                {% endif %}
+                <td class="order orderQuantity">
+                    {{ subOrderRow.quantity }}
+                </td>
+                {% if showDiscounts %}
+                    {{ modeOrder.discountsColumn(subOrderRow.discounts, args.showDiscountName, args.showDiscountValue, args.showTaxIncluded, args.showZeroDiscount) }}
+                {% endif %}
+                {% if args.showPrices %}
+                    <td class="order orderPrice orderProductTotal">
+                        {% set orderRowTotal = orderRowPrices.total - subOrderRow.totalDiscounts %}
+                        {% if orderRowTotal != 0 %}
+                            {% if args.showPreviousPrice and args.showPrices and subOrderRow.offer %}
+                                <span class="previousPrice">
+                                    {{ outputHtmlCurrency((previousPrice * subOrderRow.quantity) - totalDiscountsValue) }}
+                                </span>
+                            {% endif %}
+                            {{ outputHtmlCurrency(totalWithDiscounts) }}
+                        {% else %}
+                            {{ outputHtmlCurrency(0) }}
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% endif %}
+    {% endfor %}
+
+{% endmacro productMerged %}

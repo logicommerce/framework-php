@@ -1,0 +1,28 @@
+{% if hasPickingPhysicalLocation %}
+    <div class="pickings physicalLocations">    
+        {%- if pickingsContent|length > 0 and not hasProviderPickings -%}
+            {{- pickingsContent -}}
+        {%- endif -%}
+        {%- if args.showSelectPickingDescription -%}
+            <div class="selectPickingDescription physicalLocations">
+                <span class="selectPickingDescriptionDescription">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECT_PICKING_PHYSICALLOCATION_DESCRIPTION')] -}}</span>
+            </div>
+        {%- endif -%}
+        <div class="selectPickingButton physicalLocations">
+            <button 
+                type="button" 
+                class="select-picking-alert btn btn-secondary selectPickingButton physicalLocations" 
+                data-bs-toggle="modal" 
+                data-bs-target="#physicalLocations"
+                data-lc-required='{ "el": "#physicalLocations", "macro": "deliveries" }'
+                title="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELIVERY_TITLE_PICKING')] -}}">
+                    <svg class="icon"><use xlink:href="#icon-shop"></use></svg>
+                    {%- if pickingsContent|length > 0 and not hasProviderPickings -%}
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELIVERY_BUTTON_PICKING_AGAIN')] -}}
+                    {%- else -%}
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELIVERY_BUTTON_PICKING')] -}}
+                    {%- endif -%}
+            </button>
+        </div>
+    </div>
+{% endif %}

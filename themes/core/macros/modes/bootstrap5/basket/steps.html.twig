@@ -1,0 +1,18 @@
+{%- macro steps(args) -%}
+    {%- if args.stepsData|length > 0 -%}
+        <div class="basketSteps basketStepsItems{{ args.stepsData|length }}">
+            <ul class="list-inline basketStepsList">
+                {%- for step in args.stepsData -%}
+                    <li class="basketStep basketStep{{ loop.index }}{{ step.selected ? ' basketStepSelected' : '' }}{% if step.done == true %} basketStepDone basketStep{{ loop.index }}Done{% endif %}">
+                        {% set stepHtml %}class="basketStepItem{% if step.done == true %} basketStepDone basketStep{{ loop.index }}Done{% endif %}">{% if args.showNumbers == true %}<span class="basketStepNum">{{ loop.index }}</span>{% endif %}<span class="basketStepText">{{ step.name }}</span>{% endset %}
+                        {%- if step.linkable == true -%}
+                            <a href="{{ step.link }}" {{ stepHtml }} </a>
+                        {%- else -%}
+                            <span {{ stepHtml }} </span>
+                        {%- endif -%}
+                    </li>
+                {%- endfor -%}
+            </ul>
+        </div>
+    {%- endif -%}
+{%- endmacro steps -%}

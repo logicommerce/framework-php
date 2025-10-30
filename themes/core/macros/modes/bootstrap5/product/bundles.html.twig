@@ -1,0 +1,34 @@
+{% macro bundles(args) %}
+
+    {%- import 'macros/product.twig' as productMacros -%}
+
+    {%- for productBundle in args.productBundles.items -%}
+        {% if productBundle.groupings.items|length %}
+
+            {%- set products = {} -%}
+            {%- for product in productBundle.groupings.products -%}
+                {%- set products = array_add(products, product, product.id) -%}
+            {%- endfor -%}
+
+            <div class="product-bundle product-bundle-{{ productBundle.id }}" data-lc-main-products='{{ outputJsonHtmlString(products) }}'>
+                {%- if args.showBundleDefinition -%}
+                    {%- import 'macros/modes/' ~ coreMode ~ '/product/bundle/definition.html.twig' as definition -%}
+                    {{- definition.definition(productBundle, args) -}}
+                {%- endif -%}
+                <div class="product-bundle-groupings">
+                    {%- for bundleGrouping in productBundle.groupings -%}
+                        {{- productMacros.bundleGrouping(
+                            (args|filter((v, k) => k != 'productBundles'))|merge({
+                                bundleGrouping: bundleGrouping,
+                                products: products,
+                                addMainProducts: false,
+                                bundleId: productBundle.id
+                            }))
+                        }}
+                    {%- endfor -%}
+                </div>
+            </div>
+        {% endif %}
+
+    {%- endfor -%}
+{% endmacro %}

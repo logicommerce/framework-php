@@ -1,0 +1,43 @@
+{%- macro filter(filters, appliedFilters, configuration, filterItemTemplate) -%}
+
+    {%- set uid = random(10000000, 99999999) -%}
+
+    {%- set elements -%}
+        {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/featured.html.twig' as filterProductMacro -%}
+        {{- filterProductMacro.elements(filters, appliedFilters) -}}
+    {%- endset -%}
+
+    {%- set badgeAppliedFilters -%}
+        {%- set nAppliedFilters = 0 -%}
+        {%- if appliedFilters[constant('FWK\\Enums\\Parameters::ONLY_FEATURED')] is defined -%}
+            {%- set nAppliedFilters = 1 -%}
+        {%- endif -%}
+        <span class="n-applied-filter n-{{ nAppliedFilters }} badge rounded-pill bg-primary">{{ nAppliedFilters }}</span>
+    {%- endset -%}
+
+    {%- set blockClass = 'filterBlock featuredFilterBlock' -%}
+    {%- set filterName = languageSheet[constant('FWK\\Enums\\LanguageLabels::ONLY_FEATURED')] -%}
+
+    {%- if filterItemTemplate != null -%}
+        {{- filterItemTemplate|replace({
+            '{{blockClassWildcard}}': blockClass,
+            '{{dataAttributesWildcard}}': "",
+            '{{uidWildcard}}': uid,
+            '{{nameWildcard}}': filterName,
+            '{{badgeAppliedFiltersWildcard}}': badgeAppliedFilters,
+            '{{elementsWildcard}}': elements,
+        }) -}}
+    {%- else -%}
+        <div class="{{- blockClass -}}">
+            <div class="filterBlockTitle featuredFilterBlockTitle">
+                {{- filterName -}}
+                {{- badgeAppliedFilters -}}
+            </div>
+
+            <div class="filterElements featuredFilterElements">
+                {{- elements -}}
+            </div>
+        </div>
+    {%- endif -%}
+
+{%- endmacro -%}

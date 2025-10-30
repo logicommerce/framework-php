@@ -1,0 +1,29 @@
+{% macro addShoppingListRowNotesModal(args) %}
+    {%- import 'macros/user.twig' as userMacros -%}
+
+    <div class="lcModal modal fade popupAddShoppingListRowNotesModal" id="popupAddShoppingListRowNotes" data-lc-modal-callback="userAddShoppingListRowNotesCallback" tabindex="-1" aria-labelledby="popupAddShoppingListRowNotesTitle" aria-hidden="true">
+        <div class="modal-dialog {{ args.dialogClasses }}">
+            <div class="modal-content">
+                {%- if args.showHeader -%}
+                    <div class="modal-header">
+                        <div id="popupAddShoppingListRowNotesTitle" class="add-shopping-list-row-notes-title heading">
+                            {{- args.headerTitle -}}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                    </div>
+                {%- endif -%}
+                <div class="modal-body">
+                    {%- if not args.showHeader -%}
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                    {%- endif -%}
+                    <div id="viewpopupAddShoppingListRowNotes" class="lcModalContainer">
+                        {{- userMacros.shoppingListRowNotesForm({
+                            form: args.form,
+                        }) -}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endmacro %}

@@ -1,0 +1,28 @@
+{% macro view(options, selectedValue) %}
+	
+    <div class="viewBlock perPageBlock">
+        {% if options.showLabel %}
+        	<div class="viewTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS_PER_PAGE')] }}</div>
+	    {% endif %}
+        <div class="viewElements">
+            {% for element in options.availablePaginations %}
+
+                {% set class = 'viewElement perPageElement' ~ element|ucfirst %}
+                {% if element == selectedValue %}
+                    {% set class = class ~ ' viewElementSelected' %}
+                {% endif %}
+                
+                {% set parameters = { 
+                    (constant('FWK\\Enums\\Parameters::PER_PAGE')): element,
+                    (constant('FWK\\Enums\\Parameters::PAGE')): ''
+                } %}
+
+                <div class="viewElementWrap">
+                    <a class="{{ class }}" href="{{ addParamsToRequest(parameters) }}">{{ element }}</a>
+                </div>
+
+            {% endfor %}
+        </div>
+    </div>
+
+{% endmacro %}

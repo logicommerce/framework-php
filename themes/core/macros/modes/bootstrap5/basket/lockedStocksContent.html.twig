@@ -1,0 +1,54 @@
+{%- macro lockedStocksContent(args) -%}
+ 
+    {% set popupLabel = "" %}
+    {% if args.popup %}
+        {% set popupLabel = "Popup" %}
+    {% endif %}
+ 
+    {% set lockedStocksAggregateData = null %}
+    {%- if settings.basketStockLockingSettings.lockedStockTimerType == constant('SDK\\Enums\\LockedStockTimerType::PRODUCT') -%}  
+        {% set lockedStocksAggregateData = args.lockedStockTimer %}
+    {%- elseif session.lockedStocksAggregateData|length  -%}
+        {% set lockedStocksAggregateData = session.lockedStocksAggregateData[0] %}
+    {%- endif -%}
+
+    <div class="basketCountDownContent">
+        <div class="basketCountdownTitle basketCountdown{% if not lockedStocksAggregateData or args.expired %} expired{% endif %}" data-lc-basket-expires="{{ formatMomentDateTime(lockedStocksAggregateData.expiresAt) }}">
+            <div class="active">
+                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCKED_STOCK_REMAINING_TIME') ~ popupLabel] }}
+            </div>
+            <div class="expired">
+                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCKED_STOCK_EXPIRED_TIME') ~ popupLabel] }}
+            </div>
+        </div>
+        {%- if args.showDescription -%}
+            <div class="text-center basketCountdownText">
+                <span class="text-active">
+                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCKED_STOCK_REMAINING_DESCRIPTION') ~ popupLabel] }}
+                </span>
+                <span class="text-expired">
+                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCKED_STOCK_EXPIRED_DESCRIPTION') ~ popupLabel] }}
+                </span>
+            </div>
+        {%- endif -%}
+        {%- set renewReserveData = {
+            uId: lockedStocksAggregateData.uid,
+            action: 'renewReserve',
+            expiresAtExtendMinutes: args.expiresAtExtendMinutes,
+            expiresAtExtendMinutesUponUserRequest: args.expiresAtExtendMinutesUponUserRequest,
+        } -%}
+        <div class="buttons basketCountdownButtons">
+            <button type="button" class="btn btn-secondary btn-renew-reserve renewReserve active" data-dismiss="modal" class="" data-lc-event="click" data-lc-function="renewReserve" 
+                data-lc-renewReserve='{{ outputJsonHtmlString(renewReserveData) }}'
+            >
+                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCKED_STOCK_RENEW_RESERVE_BUTTON') ~ popupLabel] }}
+            </button>
+            {%- set checkAvailabilityData = { action: 'checkAvailability' } -%}
+            <button type="button" class="btn btn-secondary btn-check-availability renewReserve expired" data-dismiss="modal" class="" data-lc-event="click" data-lc-function="renewReserve" 
+                data-lc-renewReserve='{{ outputJsonHtmlString(checkAvailabilityData) }}'
+            >
+                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::LOCKED_STOCK_CHECK_AVAILABILITY_BUTTON') ~ popupLabel] }}
+            </button>
+        </div>
+    </div>
+{%- endmacro lockedStocksContent -%}

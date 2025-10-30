@@ -1,0 +1,66 @@
+
+	{% set startShipping = false %}
+
+
+
+option
+
+radio 1 on click
+radio 2 on click
+radio 3 on click
+
+set valuen hidden = 1
+
+{% set formGroup = '' %}
+{% set formGroupType = '' %}
+
+
+{{ dump(elements) }}
+{{ abort() }}
+
+	{% for name, element in elements %}
+		
+		{#% if name starts with constant('FWK\\Enums\\Tc_DataItems::USER_FORM_SHIPPING') and not startShipping%}
+			<br><br><br><br><br>
+			Los campos de shiping
+			{% set startShipping = true %}
+        {% endif %#}
+
+		{% if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') or name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') or name == constant('FWK\\Core\\Form\\Form::SUBMIT')%}
+			{{ element|raw  }}
+		{% else %}
+    		{% set arName = name|split('_') %}
+            
+    		{% if arName[0] != formGroup %}
+                {% if formGroup != '' %}
+                		</div>
+                	</div>
+                	{% set formGroupType = '' %}
+                {% endif %}
+                {% set formGroup = arName[0] %}
+				<span>{{ formGroup }}</span>
+				<div class="{{ formGroup }}">                
+            {% endif %}
+    		
+            {% if arName[1] != formGroupType %}
+                {% if formGroupType != '' %}
+                	</div>
+                {% endif %}
+                {% set formGroupType = arName[1] %}
+				<span>{{ formGroup ~ ' ' ~ formGroupType }}</span>
+				<div class="{{ formGroupType }}">                
+            {% endif %}
+
+		    {% include ['Content/Demo/inputsCustomer/' ~ arName[2] ~ 'Input.html.twig', 'Content/Demo/inputsCustomer/defaultInput.html.twig'] with {'input': element, 'name': name} %}
+		{% endif %}
+		
+		
+		{% if loop.last %}
+        		</div> <!-- close div formGroupType -->
+            </div> <!-- close div formGroup -->
+		{% endif %}
+		
+    {% endfor %}	
+
+    	
+    

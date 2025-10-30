@@ -1,0 +1,86 @@
+{% macro buyFormOptions(args) -%}
+
+    {%- if args.product.options|length > 0 and
+        ((args.showOrderBox is not null and args.showOrderBox == true) or (args.showOrderBox is null and args.product.definition.showOrderBox))
+    -%}
+
+        {%- set productOptionsData = {
+            useUrlOptionsParams: args.useUrlOptionsParams,
+            bundleDefinitionSectionItemId: args.bundleDefinitionSectionItemId,
+            addOptionsToProductLink: args.addOptionsToProductLink,
+            combinationDataOptionChanged: args.combinationDataOptionChanged
+        } -%}
+        {%- set gridOptionIds = [] -%}
+        {%- if args.gridData.options|length -%}
+            {%- set gridOptionIds = args.gridData.options|map(option => option.id) -%}
+        {%- endif -%}
+
+        <div class="productOptions" data-lc-data='{{outputJsonHtmlString(productOptionsData) }}' >
+            {%- if gridOptionIds|length > 0 -%}
+                {%- set optionsGrid -%}
+                    {%- if args.gridData.options|length == 1 and args.showAsGridUniqueDimension == false -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/grid/twoDimOneOption.html.twig' as modeProduct -%}
+                        {{- modeProduct.twoDimOneOption(args) -}}
+                    {%- elseif args.gridData.options|length == 1 and args.showAsGridUniqueDimension == true -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/grid/oneDimOneOption.html.twig' as modeProduct -%}
+                        {{- modeProduct.oneDimOneOption(args) -}}
+                    {%- elseif args.gridData.options|length == 2 and args.showAsGridUniqueDimension == false -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/grid/twoDimTwoOptions.html.twig' as modeProduct -%}
+                        {{- modeProduct.twoDimTwoOptions(args) -}}
+                    {%- elseif args.gridData.options|length == 2 and args.showAsGridUniqueDimension == true -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/grid/oneDimTwoOptions.html.twig' as modeProduct -%}
+                        {{- modeProduct.oneDimTwoOptions(args) -}}
+                    {%- endif -%}
+                {%- endset -%}
+                {%- if args.showGridFirst -%}
+                    {{ optionsGrid }}
+                {%- endif -%}
+            {%- endif -%}
+
+            {%- for option in args.product.options -%}
+                {%- if (gridOptionIds|length == 0) or (option.id not in gridOptionIds) -%}
+                    {%- set optionIdName = (args.bundleDefinitionSectionItemId > 0 ? '_' ~ (args.bundleDefinitionSectionItemId ~ '_') : '') ~ option.id -%}
+                    {%- if option.type == constant('SDK\\Enums\\OptionType::SHORT_TEXT') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/shortText.html.twig' as modeProduct -%}
+                        {{- modeProduct.shortText(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::SINGLE_SELECTION') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/singleSelection.html.twig' as modeProduct -%}
+                        {{- modeProduct.singleSelection(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::MULTIPLE_SELECTION') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/multipleSelection.html.twig' as modeProduct -%}
+                        {{- modeProduct.multipleSelection(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::SINGLE_SELECTION_IMAGE') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/singleSelectionImage.html.twig' as modeProduct -%}
+                        {{- modeProduct.singleSelectionImage(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::MULTIPLE_SELECTION_IMAGE') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/multipleSelectionImage.html.twig' as modeProduct -%}
+                        {{- modeProduct.multipleSelectionImage(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::SELECTOR') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/selector.html.twig' as modeProduct -%}
+                        {{- modeProduct.selector(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::DATE') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/date.html.twig' as modeProduct -%}
+                        {{- modeProduct.date(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::LONG_TEXT') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/longText.html.twig' as modeProduct -%}
+                        {{- modeProduct.longText(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::ATTACHMENT') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/attachment.html.twig' as modeProduct -%}
+                        {{- modeProduct.attachment(option, optionIdName, args) -}}
+                    {%- elseif option.type == constant('SDK\\Enums\\OptionType::BOOLEAN') -%}
+                        {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormOptions/boolean.html.twig' as modeProduct -%}
+                        {{- modeProduct.boolean(option, optionIdName, args) -}}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endfor -%}
+
+            {%- if gridOptionIds|length > 0 and not args.showGridFirst -%}
+                {{ optionsGrid }}
+            {%- endif -%}
+
+        </div>
+    {%- endif -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/buyFormVoucherPurchase.html.twig' as voucherPurchaseForm -%} 
+    {{- voucherPurchaseForm.buyFormVoucherPurchase(args) -}}
+
+{%- endmacro buyFormOptions -%}

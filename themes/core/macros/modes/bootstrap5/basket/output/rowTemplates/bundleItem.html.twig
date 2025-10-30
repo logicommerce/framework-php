@@ -1,0 +1,107 @@
+{%- macro bundleItem(args, bundleItem) -%}
+    {# variables #}
+    {%- set linkWildcard = bundleItem.urlSeo -%}
+    {%- set imageWildcard = bundleItem.images.smallImage -%}
+    {%- set nameWildcard = bundleItem.name|striptags -%}
+    {%- set skuWildcard = bundleItem.combination.sku ? bundleItem.combination.sku : bundleItem.codes.sku -%}
+    {%- set brandWildcard = bundleItem.brandName -%}
+    {%- set manufacturerSkuWildcard = bundleItem.codes.manufacturerSku -%}
+    {%- set productStockIdWildcard = bundleItem.stocks.id -%}
+
+    {%- set optionsWildcard -%}
+        {%- if args.showOptions == true -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemOptions.html.twig' as modeBasket -%}
+            {{- modeBasket.outputItemOptions(bundleItem.options, 'basket', args.showOptionValuesName, args.showOptionValuesSku) -}}
+        {%- endif -%}
+    {%- endset -%}
+
+    {%- set customTagsWildcard -%}
+        {%- if args.showCustomTags == true -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemCustomTags.html.twig' as modeBasket -%}
+            {{- modeBasket.outputItemCustomTags(bundleItem.customTagValues, args.showCustomTagPositions) -}}
+        {%- endif -%}
+    {%- endset -%}
+
+    {%- set discountsWildcard -%}
+        {%- if args.showDiscounts == true and bundleItem.appliedDiscounts|length -%}
+            {%- import 'macros/modes/' ~ coreMode ~ '/basket/output/productDiscounts.html.twig' as modeBasket -%}
+            {{- modeBasket.outputDiscounts(bundleItem.appliedDiscounts, args.showTaxIncluded, args.showDiscountName, args.showDiscountValue, args.showZeroDiscount) -}}
+        {%- endif -%}
+    {%- endset -%}
+
+    {# end variables #}
+
+    {%- if args.productsBundleItemTemplate != null -%}
+        
+        {{- args.productsBundleItemTemplate|replace({
+            '{{link}}': linkWildcard,
+            '{{image}}': imageWildcard,
+            '{{name}}': nameWildcard,
+            '{{sku}}': skuWildcard,
+            '{{brand}}': brandWildcard,
+            '{{manufacturerSku}}': manufacturerSkuWildcard,
+            '{{productStockId}}': productStockIdWildcard,
+            '{{options}}': optionsWildcard,
+            '{{customTags}}': customTagsWildcard,
+            '{{discounts}}': discountsWildcard,
+            '{{warnings}}': warningsWildcard
+        }) -}}
+
+    {%- else -%}{# default template #}
+
+        {%- if args.showImage == true -%}
+            <span class="basketBundleProductImage">
+                {%- if args.linkable == true -%}
+                    <a class="basketBundleImage" href="{{ linkWildcard }}">
+                        <img class="productSmallImage basketBundleImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </a>
+                {%- else -%}
+                    <span class="basketBundleImage">
+                        <img class="productSmallImage basketBundleImage" alt="{{ nameWildcard }}" src="{{ imageWildcard }}" onerror="this.onerror=null;this.src='{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_THEMES')) ~ '/' ~  constant('IMAGE_MISSING_BASKET_ITEM') }}';">
+                    </span>
+                {%- endif -%}
+            </span>
+        {%- endif -%}
+
+        <div class="basketBundleProductInfo">
+            <span class="basketBundleProductName">
+                {%- if args.linkable == true -%}
+                    <a href="{{ linkWildcard }}" title="{{ nameWildcard }}">{{ nameWildcard }}</a>
+                {%- else -%}
+                    {{- nameWildcard -}}
+                {%- endif -%}
+            </span>
+
+            {%- if args.showBrand == true and brandWildcard|length -%}
+                <span class="basketProductBrand">{{ brandWildcard }}</span>
+            {%- endif -%}
+
+            {%- if args.showSku == true and skuWildcard|length -%}
+                <span class="basketProductSku">{{ skuWildcard }}</span>
+            {%- endif -%}
+
+            {%- if args.showManufacturerSku == true and manufacturerSkuWildcard|length -%}
+                <span class="basketProductManufacturerSku">{{ manufacturerSkuWildcard }}</span>
+            {%- endif -%}
+
+            {%- if args.showProductStockId == true and productStockIdWildcard|length -%}
+                <span class="basketProductStockId">{{ productStockIdWildcard }}</span>
+            {%- endif -%}
+
+            {{- optionsWildcard -}}
+
+            {{- customTagsWildcard -}}
+
+            {%- if args.showDiscounts == true and discountsWildcard|length -%}
+                <span class="basketProductDiscounts">
+                    <span class="basketProductDiscountsTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_ITEM_DISCOUNTS_TITLE')] }}</span>
+                    {{ discountsWildcard }}
+                </span>
+            {%- endif -%}
+
+            {{ warningsWildcard }}
+        </div>
+
+    {%- endif -%}{# end default template #}
+
+{%- endmacro bundleItem -%}

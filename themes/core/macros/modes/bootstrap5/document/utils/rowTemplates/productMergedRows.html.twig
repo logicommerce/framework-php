@@ -1,0 +1,63 @@
+{% macro productMergedRows(args, orderRow) %}
+    {# variables #}
+    {% set skuWildcard = orderRow.combination.sku ? orderRow.combination.sku : orderRow.codes.sku %}
+    {% set manufacturerSkuWildcard = orderRow.codes.manufacturerSku %}
+
+    {% set optionsWildcard %}
+        {% if args.showOptions %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/options.html.twig' as modeOrder %}
+            {{ modeOrder.options(
+                orderRow.options
+                |filter(option => option.optionId in args.mergedRows[orderRow.itemId].noMergeableOptions)
+                |sort((a, b) => a.optionId <=> b.optionId),
+                args.showOptionValuesName, 
+                args.showOptionValuesSku
+            ) }}
+        {% endif %}
+    {% endset %}
+
+    {%- set discountsWildcard -%}
+        {% if args.showDiscounts and orderRow.discounts|length %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/discounts.html.twig' as modeOrder %}
+            {{ modeOrder.discounts(orderRow.discounts, args.showDiscountName, args.showDiscountValue, args.showTaxIncluded) }}
+        {% endif %}
+    {%- endset -%}
+
+    {%- set rmaReason -%}
+        {% if not orderRow.rmaReason is null %}
+            {% import 'macros/modes/' ~ coreMode ~ '/document/utils/rmaReason.html.twig' as modeOrder %}
+            {{ modeOrder.rmaReason(orderRow.rmaReason) }}
+        {% endif %}
+    {%- endset -%}
+    {# end variables #}
+
+    {% if args.productsTemplate != null %}
+        {{ args.productsTemplate|replace({
+            '{{sku}}': skuWildcard,
+            '{{manufacturerSku}}': manufacturerSkuWildcard,
+            '{{options}}': optionsWildcard,
+            '{{discounts}}': discountsWildcard,
+            '{{rmaReason}}': rmaReason
+        }) }}
+    {% else %}{# default template #}
+        <div class="orderProductInfo">
+            {% if args.showSku and skuWildcard|length %}
+                <span class="orderProductSku">{{ skuWildcard }}</span>
+            {% endif %}
+            {% if args.showManufacturerSku and manufacturerSkuWildcard|length %}
+                <span class="orderProductManufacturerSku">{{ manufacturerSkuWildcard }}</span>
+            {% endif %}
+            {{ optionsWildcard }}
+            
+            {% if args.showDiscounts == true and discountsWildcard|length %}
+                <span class="orderProductDiscounts">
+                    <span class="orderProductDiscountsTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_ITEM_DISCOUNTS_TITLE')] }}</span>
+                    {{ discountsWildcard }}
+                </span>
+            {% endif %}
+
+            {{ rmaReason }}
+
+        </div>
+    {% endif %}{# end default template #}
+{% endmacro productMergedRows %}

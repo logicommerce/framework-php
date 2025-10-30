@@ -1,0 +1,9 @@
+{% macro rmaReason(rmaReason) %}
+    <div class="orderRmaReason">
+        <span class="rmaReasonTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_TITLE')] }}</span>
+        <span class="rmaReasonDescription">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_REASON')] }}: {{rmaReason.description}}</span>
+        {% if rmaReason.comment|length %}
+            <span class="rmaReasonComment">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_REASON_COMMENT')] }}: {{rmaReason.comment}}</span>
+        {% endif %}
+    </div>
+{% endmacro %}

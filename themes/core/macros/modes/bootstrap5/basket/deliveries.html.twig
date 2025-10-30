@@ -1,0 +1,99 @@
+{%- macro deliveries(args) -%}
+    <div class="basketDeliveries">
+        {%- if args.showTitle == true -%}
+            <div class="basketSelectorsTitle shippingSelectorsTitle">
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECT_SHIPPING_TYPE')] -}}
+            </div>
+        {%- endif -%}
+
+        {%- if args.deliveries.items|length > 0 and args.empty == false -%}
+            {%- from 'macros/modes/' ~ coreMode ~ '/basket/deliveries/shipments.html.twig' import shipments as shipments -%}
+            {%- from 'macros/modes/' ~ coreMode ~ '/basket/deliveries/pickings.html.twig' import pickings as pickings -%}
+            
+            <div class="basketSelectors deliverySelectors">
+                {%- set shipmentsContent = '' -%}
+                {%- set pickingsContent = '' -%}
+                {%- set hasPickings = false -%}
+                {%- set hasPickingPhysicalLocation = false -%}
+                {%- set hasProviderPickings = false -%}
+
+                {%- for delivery in args.deliveries.items -%}
+                    {%- if delivery.canBeShipped == true and (delivery.shipments|length > 0 or delivery.type == constant('sdk\\Enums\\DeliveryType::PICKING')) -%}
+                        {%- set warningsContent -%}
+                            {%- if delivery.outputWarnings|length -%}
+                                {%- import 'macros/modes/' ~ coreMode ~ '/basket/utils/warnings.html.twig' as modeWarnings -%}
+                                {%- set outputWarnings %}
+                                    {%- for severity, warnings in delivery.outputWarnings -%}
+                                        {%- if warnings|length > 0 -%}
+                                            {%- if severity == constant('SDK\\Enums\\BasketWarningSeverity::INFO') -%}
+                                                {{- modeWarnings.warningGroup(severity, warnings, 'info') -}}
+                                            {%- elseif severity == constant('SDK\\Enums\\BasketWarningSeverity::WARNING') -%}
+                                                {{- modeWarnings.warningGroup(severity, warnings, 'warning') -}}
+                                            {%- elseif severity == constant('SDK\\Enums\\BasketWarningSeverity::ERROR') -%}
+                                                {{- modeWarnings.warningGroup(severity, warnings, 'danger') -}}
+                                            {%- endif -%}
+                                        {%- endif -%}
+                                    {%- endfor -%}
+                                {%- endset -%}
+                                {%- if outputWarnings|trim|length -%}
+                                    <div class="deliveryWarnings">
+                                        {{- outputWarnings -}}
+                                    </div>
+                                {%- endif -%}
+                            {%- endif -%}
+                        {%- endset -%}
+
+                        {%- if delivery.type == constant('sdk\\Enums\\DeliveryType::SHIPPING') -%}
+                            {%- set shipmentsContent -%}
+                                {{- shipmentsContent -}}
+                                {{- shipments(args, delivery, warningsContent) -}}
+                            {%- endset -%}
+                        {%- elseif delivery.type == constant('sdk\\Enums\\DeliveryType::PICKING') -%}
+                            {%- set hasPickings = true -%}
+                            {% if delivery.mode.type == constant('sdk\\Enums\\PickingDeliveryType::PICKUP_POINT_PHYSICAL_LOCATION') %}
+                                {%- set hasPickingPhysicalLocation = true -%}
+                            {% else %}
+                                {%- set hasProviderPickings = true -%}
+                            {% endif %}
+                            {% set spacelessContent %}
+                                {% if args.showPickup %}
+                                    {%- set pickingsContent -%}
+                                        {{- pickingsContent -}}
+                                        {%- if delivery.selected -%}
+                                            {{- pickings(args, delivery, warningsContent) -}}
+                                        {%- endif -%}
+                                    {%- endset -%}
+                                {%- endif -%}
+                            {% endset %}
+                            {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+                        {%- endif -%}        
+                    {%- endif -%}
+                {%- endfor -%}
+
+                {%- if shipmentsContent|length -%}
+                    {{- shipmentsContent -}}
+                {%- else -%}
+                    <div class="basketSelectorsMessage shippingSelectorsMessage">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::NO_DELIVERY_SHIPPINGS')] -}}
+                    </div>
+                {%- endif -%}
+
+                {%- if (hasPickings or args.pickupPointProviders.items|length) and args.showPickup -%}
+                    <div class="basketSelector deliverySelector delivery picking">
+                        {% if hasPickings or pickingsContent|length > 0 %}
+                            <div class="deliveryType">
+                                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELIVERY_TITLE_PICKING')] -}}
+                            </div>
+                        {% endif %}
+                        {%- include 'macros/modes/' ~ coreMode ~ '/basket/deliveries/selectorPickingPhysicalLocations.html.twig' -%}
+                        {%- include 'macros/modes/' ~ coreMode ~ '/basket/deliveries/selectorPickingPickupPointProviders.html.twig' -%}
+                    </div>
+                {%- endif -%}
+            </div>
+        {%- else -%}
+            <div class="basketSelectorsMessage shippingSelectorsMessage">
+                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::NO_SHIPPINGS_ALLOWED')] -}}
+            </div>
+        {%- endif -%}
+    </div>
+{%- endmacro deliveries -%}

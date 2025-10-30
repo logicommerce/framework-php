@@ -1,0 +1,39 @@
+{%- macro addressBook(args) -%}
+    {%- set isGeneral = session.basket.account.type == constant('SDK\\Enums\\AccountType::GENERAL') -%}
+    <div id="addressBookContainer" class="addressBookContainer userAddressBookContainer row">
+        {%- import 'macros/modes/' ~ coreMode ~ '/user/addressBook/item.html.twig' as modeUser -%}
+        {%- for prefix in [constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX'), constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX')] -%}
+            <div id="{{- prefix -}}AddressContainer" class="blockAddressBook {{ prefix }} col-lg-6">
+                <div class="title">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::' ~ prefix|upper ~ '_ADDRESS')] -}}</div>
+                    {%- set lcData = { 'selectMode': args.selectMode } -%}
+                    {%- if (isGeneral or prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX')) and
+                        ((prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') and args.showAddNewBilling) or
+                        (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and args.showAddNewShipping))
+                    -%}
+                        {%- if prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') -%}
+                            {%- set lcData = array_add(lcData, args.defaultUserType, 'userType') -%}
+                        {%- endif -%}
+                        <div class="addAddressBook add{{- prefix|capitalize -}}Address">
+                            <button type="button" 
+                                    class="addressBookAction addAddressBook btn btn-link" 
+                                    data-bs-toggle="modal" 
+                                    data-lc-action="addAddressBook" 
+                                    data-bs-target="#{{- prefix -}}AddressBookModal"
+                                    data-lc-data='{{- outputJsonHtmlString( lcData ) -}}' 
+                                    data-lc-required='{ "el": "#{{- prefix -}}AddressBookModal", "macro": "addressBook" }' 
+                            >
+                                <svg class="icon"><use xlink:href="#icon-addressbook-user-plus"></use></svg>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_' ~ prefix|upper ~ '_ADDRESS')] -}}
+                            </button>
+                        </div>
+                    {%- endif -%}
+                <div class="content">
+                    {%- for address in args[prefix ~ 'Addresses'].items -%}
+		                {{- modeUser.item(address, prefix, args.selectMode, args.showEditBilling, args.showEditShipping, args.showDeleteBilling, args.showDeleteShipping) -}}
+                    {%- else -%}
+                        <span class="notAvailableAddress">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::NOT_AVAILABLE_ADDRESS')] -}}</span>
+                    {%- endfor -%}
+                </div>
+            </div>
+        {%- endfor -%}
+    </div>
+{%- endmacro -%}

@@ -1,0 +1,26 @@
+<div class="contentTd">
+	<table border=1>
+		<tr>
+			<th>Label</th><th>Value</th>
+		</tr>
+		<tr>
+			<td>shippingTypeIds</td>
+			<td>
+				{% if (shippingTypeIds is iterable and shippingTypeIds|length > 0 )%}
+    				{% for shippingTypeId in shippingTypeIds %}
+    					[{{ loop.index0 }}] = {{ shippingTypeId }} <br>
+            	    {% endfor %}
+        		{% else %}
+                	no shippingTypeIds
+                {% endif %}  
+		    </td>
+		</tr>
+		<tr>
+			<td>shippingCalculation</td><td>{{ shippingCalculation }}</td>
+		</tr>
+	</table>
+</div>
+
+
+
+

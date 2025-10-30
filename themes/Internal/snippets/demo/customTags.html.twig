@@ -1,0 +1,27 @@
+<table border=1>
+	<tr>
+		<th>Loop Index</th>
+		<th>Public id customTag.pId</th>
+		<th>Id customTag.id</th>
+		<th>Comparable customTag.comparable</th>
+		<th>Searchable customTag.searchable</th>
+		<th>Filterable customTag.filterable</th>
+		<th>SelectableValueId customTag.selectableValueId</th>
+		<th>GroupPriority customTag.groupPriority</th>
+		<th>Priority customTag.priority</th>
+		<th>GroupPosition customTag.groupPosition</th>
+		<th>Position customTag.position</th>
+		<th>ControlType customTag.controlType</th>
+		<th>GroupId customTag.groupId</th>
+		<th>Language Value customTag.language.value</th>
+		<th>Language GroupName customTag.language.groupName</th>
+		<th>Language Name customTag.language.name</th>
+	</tr>
+	{% if customTags is iterable %}
+    	{% for customTag in customTags %}
+	        {% include '/snippets/demo/customTag.html.twig' with {'customTag' : customTag, 'index' : loop.index0} only %}
+	    {% endfor %}
+    {% else %}
+        {% include '/snippets/demo/customTag.html.twig' with {'customTag' : customTags} only %}
+    {% endif %}
+</table>

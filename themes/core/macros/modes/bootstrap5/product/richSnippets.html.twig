@@ -1,0 +1,95 @@
+{%- macro richSnippets(args) -%}
+    {%- set richSnippets = args.richSnippets -%}
+    {%- set images = richSnippets.images|filter(image => image|length) -%}
+    <script type="application/ld+json">
+        {
+            "@context": "{{- richSnippets.context -}}",
+            "@type": "{{- richSnippets.type -}}",
+            "name": {{- outputJsonHtmlString(richSnippets.name|striptags) -}},
+            {% if images|length -%}
+                "image": [
+                    {%- for image in images -%}
+                        "{{- image -}}"{%- if not loop.last -%},{%- endif -%}
+                    {%- endfor -%}
+                ],
+            {% endif -%}
+            {% if richSnippets.description|striptags|length -%}
+                "description": {{ outputJsonHtmlString(richSnippets.description|striptags) }},
+            {% endif -%}
+            {% if richSnippets.sku|length -%}
+                "sku": "{{- richSnippets.sku -}}",
+            {% endif -%}
+            {% if richSnippets.mpn|length -%}
+                "mpn": "{{- richSnippets.mpn -}}",
+            {% endif -%}
+            {% if richSnippets.gtin8|length -%}
+                "gtin8": "{{- richSnippets.gtin8 -}}",
+            {% endif -%}
+            {% if richSnippets.gtin13|length -%}
+                "gtin13": "{{- richSnippets.gtin13 -}}",
+            {% endif -%}
+            {% if richSnippets.gtin14|length -%}
+                "gtin14": "{{- richSnippets.gtin14 -}}",
+            {% endif -%}
+            {% if richSnippets.isbn|length -%}
+                "isbn": "{{- richSnippets.isbn -}}",
+            {% endif -%}
+            {% if richSnippets.brand|length -%}
+                "brand": {
+                    "@type": "Brand",
+                    "name": {{- outputJsonHtmlString(richSnippets.brand) -}}
+                },
+            {% endif -%}
+            {% if richSnippets.review|length -%}
+                "review" : [
+                    {#- {%- set review = richSnippets.review[0] -%} -#}
+                    {%- for review in richSnippets.review -%}
+                        {
+                            "@type": "{{- review.type -}}",
+                            "@context": "{{- review.context -}}",
+                            "name": {{- outputJsonHtmlString(review.name) -}},
+                            "description": {{ outputJsonHtmlString(review.description|striptags) }},
+                            "datePublished": "{{- review.datePublished.dateTime|date('Y-m-d') -}}",
+                            "reviewRating": {
+                                "@type": "{{- review.reviewRating.type -}}",
+                                "@context": "{{- review.reviewRating.context -}}",
+                                "ratingValue": "{{- review.reviewRating.ratingValue -}}",
+                                "bestRating": "{{- review.reviewRating.bestRating -}}",
+                                "worstRating": "{{- review.reviewRating.worstRating -}}"
+                            },
+                            "author": {
+                                "@type": "{{- review.author.type -}}",
+                                "@context": "{{- review.author.context -}}",
+                                "name": {{- outputJsonHtmlString(review.author.name) -}}
+                            }
+                        }{%- if not loop.last -%},{%- endif -%}
+                    {%- endfor -%}
+                ],
+            {% endif -%}
+            {% if richSnippets.aggregateRating.ratingValue|length and (richSnippets.aggregateRating.ratingCount > 0 or richSnippets.aggregateRating.reviewCount > 0) -%}
+                "aggregateRating": {
+                    "@type": "{{- richSnippets.aggregateRating.type -}}",
+                    "@context": "{{- richSnippets.aggregateRating.context -}}",
+                    {% if richSnippets.aggregateRating.ratingCount > 0 %}
+                        "ratingCount": "{{- richSnippets.aggregateRating.ratingCount -}}",
+                    {% endif %}
+                    {% if richSnippets.aggregateRating.reviewCount > 0 %}
+                        "reviewCount": "{{- richSnippets.aggregateRating.reviewCount -}}",
+                    {% endif %}
+                    "ratingValue": "{{- richSnippets.aggregateRating.ratingValue -}}",
+                    "bestRating": "{{- richSnippets.aggregateRating.bestRating -}}",
+                    "worstRating": "{{- richSnippets.aggregateRating.worstRating -}}"
+                },
+            {% endif -%}
+            "offers": {
+                "@type": "{{- richSnippets.offers.type -}}",
+                "@context": "{{- richSnippets.offers.context -}}",
+                "url": "{{- richSnippets.offers.url -}}",
+                "priceCurrency": "{{- richSnippets.offers.priceCurrency -}}",
+                "price": "{{- richSnippets.offers.price|number_format(2, '.', '') -}}",
+                "priceValidUntil": "{{- richSnippets.offers.priceValidUntil.dateTime|date('Y-m-d') -}}",
+                "availability": "https://schema.org/{{- richSnippets.offers.availability -}}"
+            }
+        }
+    </script>
+{%- endmacro -%}

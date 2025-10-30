@@ -1,0 +1,58 @@
+{% macro commentsForm(args, legalCheck) %}
+	{% if args.output %}	
+		<div id="postCommentFormContainer" class="postCommentFormContainer">
+			{% if args.showTitle %}
+				<div class="postCommentFormTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::POST_COMMENT_FORM_TITLE')] -}}</div>
+			{% endif %}
+
+			{% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+			{% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+
+			{% for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) %}
+				{% if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') %}
+					{{ element|replace({ (attributeWildcard): 'data-lc-form="postAddCommentForm"' }) }}
+					<div class="form-message"></div>
+				{% elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') or name == constant('FWK\\Enums\\Parameters::CAPTCHA_TOKEN') %}
+					{{ element }}
+				{% elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') %}
+					{{ legalCheck }}
+					<div class="postCommentFormSendBtn">
+						{{ element|replace({ (classWildcard): '' }) }}
+					</div>
+				{% elseif name == constant('FWK\\Enums\\Parameters::NICK') %}
+					<div class="form-group postCommentFormNick">
+						{% set fillFnAttr = "" %}
+						{% set fillFnClass = "" %}
+						{% if name in themeConfiguration.commerce.availableFillDataFields|split(',') %}
+							{% set fillFnAttr = 'data-fill-fn="get' ~ ucwords(name) ~ '"' %}   
+							{% set fillFnClass = "js-fill-data" %}
+						{% endif %}
+						{{- element|replace({ 
+							(classWildcard): fillFnClass,
+							(attributeWildcard): fillFnAttr 
+						}) -}}					
+					</div>
+				{% elseif name == constant('FWK\\Enums\\Parameters::IP_STRICT') %}
+					{{ element|replace({ (attributeWildcard) : 'value="' ~ (args.blogSettings.maxIpComments == 0 ? 0 : 1) ~ '"' }) }}
+				{% elseif name == constant('FWK\\Enums\\Parameters::COMMENT') %}
+					<div class="form-group postCommentFormCommentArea">
+						{{- element|replace({ (classWildcard) : '', (attributeWildcard): '' }) -}}
+					</div>
+				{% else %}
+					{{- element|replace({ (attributeWildcard): '' }) -}}
+				{% endif %}
+			{% endfor %}
+		</div>
+	{% endif %}
+
+	{% if not args.output and not session.user.id and args.blogSettings.commentsMode != constant('SDK\\Enums\\BlogPostCommentMode::ANONYMOUS_AND_REGISTERED_USERS') %}
+		<div id="postFormCommentAccountRequired" class="commentFormAccountRequired">
+			<div class="accountRequiredBlock">
+				<div class="questionText">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::COMMENT_ACCOUNT_REQUIRED')] -}}</div>
+				<div class="questionButtons">
+					<a class="questionButton btn btn-primary" href="{{- routePaths.getPath(constant('FWK\\Enums\\RouteType::USER')) -}}" rel="nofollow" role="button">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] -}}</a>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endmacro commentsForm %}

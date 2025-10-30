@@ -1,0 +1,19 @@
+{% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+{% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+<div class="form-group formFieldGroup userFieldGroup userFieldGroup{{ name|ucfirst }}">
+    {% set radios = input|preg_match_all('/<\\s*input[^>]*>(.*?)<\\s*\\/\\s*label>/') %}
+
+    {% set titleLabel = input|preg_match('/<\\s*label[^>]*>(.*?)<\\s*\\/\\s*label>/') %}
+    {% if titleLabel|length %}
+        {{ titleLabel[0] }}
+    {% endif %}
+    
+    {% for radio in radios %}
+        <div class="form-check form-check-inline">
+            {{ radio|replace({ 
+                (classWildcard): '', 
+                (attributeWildcard): ''
+            })|raw }}
+        </div>
+    {% endfor %}
+</div>

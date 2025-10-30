@@ -1,0 +1,9 @@
+{% macro subpages(args) %}
+	<div class="subpages">
+	    {%- for page in args.subpages -%}
+	        <div class="subpage">
+	            <a href="{{- page.language.link -}}" target="{{- page.language.target -}}">{{- page.language.name -}}</a>
+	        </div>
+	    {%- endfor -%}
+	</div>	
+{% endmacro subpages %}

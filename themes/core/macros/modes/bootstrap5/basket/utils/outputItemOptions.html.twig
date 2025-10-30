@@ -1,0 +1,53 @@
+{#
+	@description Print outputOptionValue
+
+    @param {object} option
+    @param {string} classPrefix
+    @param {string} showOptionValuesName
+    @param {bool} showOptionValuesSku
+#}
+{% macro outputOptionValue(option, classPrefix, showOptionValuesName, showOptionValuesSku) %}
+    {% set spacelessContent %}
+        <span class="{{ classPrefix }}OptionValue">
+            {% include 'macros/modes/' ~ coreMode ~ '/basket/utils/optionTypes/' ~ option.type ~ '.html.twig' %}
+            {% if option.value.sku is defined and option.value.sku|length and showOptionValuesSku == true %}
+                <span class="{{ classPrefix }}ProductSku {{ classPrefix }}ProductOptionSku">{{ option.value.sku }}</span>
+            {% endif %}
+        </span>
+    {% endset %}
+    {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+{% endmacro outputOptionValue %}
+
+{#
+	@description Print outputItemOptions
+    
+    @param {array} optionsArray
+    @param {string} classPrefix
+    @param {string} showOptionValuesName
+    @param {bool} showOptionValuesSku
+    
+    @example
+        {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemOptions.html.twig' as modeBasket %}
+        {{ modeBasket.outputItemOptions(basketRow.options, 'basket', args.showOptionValuesName, args.showOptionValuesSku) }}
+#}
+{% macro outputItemOptions(optionsArray, classPrefix = '', showOptionValuesName = '', showOptionValuesSku = false) %}
+
+    {% import _self as modeOutputItemOptions %}
+
+    {% if optionsArray|length %}
+        <div class="{{ classPrefix }}Options">
+            
+            {% for option in optionsArray %}
+                <div class="{{ classPrefix }}Option {% if loop.first %} {{ classPrefix }}OptionFirst {% elseif loop.last %} {{ classPrefix }}OptionLast {% endif %}">
+                    
+                    <span class="{{ classPrefix }}OptionName">{{ option.name|striptags }}</span>
+
+                    {{ modeOutputItemOptions.outputOptionValue(option, classPrefix, showOptionValuesName, showOptionValuesSku) }}
+
+                </div>
+            {% endfor %}
+
+        </div>
+    {% endif %}
+
+{% endmacro outputItemOptions %}

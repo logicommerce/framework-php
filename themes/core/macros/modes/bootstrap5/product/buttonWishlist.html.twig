@@ -1,0 +1,40 @@
+{% macro buttonWishlist(args) %}
+    {%- set wishlistData = {
+        itemType: 1,
+        id: args.product.id,
+        productIdList: args.product.id,
+        labelAdded: args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_FROM_WISHLIST')] : '',
+        labelDeleted: args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_WISHLIST')] : '',
+        showLabel: args.showLabel
+    } -%}
+
+    {%- if isSessionLoggedIn() -%}
+        {%- if args.product.id in session.aggregateData.wishlist.itemIdList -%}  
+            {%- set deleteDisplay = "" -%}
+            {%- set addDisplay -%} style="display: none" {%- endset -%}
+        {%- else -%} 
+            {%- set deleteDisplay -%} style="display: none" {%- endset -%}
+            {%- set addDisplay = "" -%}
+        {%- endif -%}
+        {%- set accountRequiredDisplay -%} style="display: none" {%- endset -%}
+    {%- else -%}
+        {%- set deleteDisplay -%} style="display: none" {%- endset -%}
+        {%- set addDisplay -%} style="display: none" {%- endset -%}
+        {%- set accountRequiredDisplay = "" -%}
+    {%- endif -%}
+
+    {% set spacelessContent %}
+        <button {{ deleteDisplay }} type="button" class="productButton wishlistButton wishlistButton{{ args.product.id }} wishlistButtonAdded {% if args.allowDelete == true -%} wishlistButtonDelete {%- endif %} {{ args.class }}" data-wishlist-delete='{{ outputJsonHtmlString(wishlistData|merge({'type':'delete'})) }}' {% if args.allowDelete == true %} autocomplete="off" {% else %} disabled="disabled" {% endif %} {% if not args.showLabel %} aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_FROM_WISHLIST')]|striptags -}}"{% endif %}>
+            {{- args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_FROM_WISHLIST')] : '' -}}
+        </button>
+
+        <button {{ addDisplay }} type="button" class="productButton wishlistButton wishlistButton{{ args.product.id }} wishlistButtonAdd {{ args.class }}" data-wishlist-add='{{ outputJsonHtmlString(wishlistData|merge({ 'type': 'add' })) }}' autocomplete="off" {% if not args.showLabel %} aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_WISHLIST')]|striptags -}}"{% endif %}>
+            {{- args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_WISHLIST')] : '' -}}
+        </button>
+
+        <button {{ accountRequiredDisplay }} type="button" class="productButton wishlistButton wishlistButton{{ args.product.id }} wishlistButtonAdd wishlistButtonLoginRequired {{ args.class }}" data-wishlist-account_required='{{ outputJsonHtmlString(wishlistData|merge({ 'type': 'accountRequired' })) }}' {% if not args.showLabel %} aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_WISHLIST')]|striptags -}}"{% endif %}>
+            {{- args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ADD_TO_WISHLIST')] : '' -}}
+        </button>
+    {% endset %}
+    {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+{% endmacro buttonWishlist %}

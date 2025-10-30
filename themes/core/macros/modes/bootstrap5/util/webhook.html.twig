@@ -1,0 +1,6 @@
+{% macro webhook(args) %}
+    {% set spacelessContent %}
+        {{ args.webhookResponse.message }}
+    {% endset %}
+    {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
+{% endmacro webhook %}

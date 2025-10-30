@@ -1,0 +1,64 @@
+{%- macro fillDataFunction(args) -%}
+    
+    {%- set defaultString = '""' -%}
+
+    {% set availableFillDataFields = themeConfiguration.commerce.availableFillDataFields|split(',') %}
+
+    {#-
+        Fill text/html data elements system only 4 fill unique or few elements
+        Example element: <span class="js-fill-data" data-fill-fn="getFirstName"></span> 
+            - Class "js-fill-data" identifies elements to fill
+            - Attr [data-fill-fn="getFirstName"] set the function which will return the value to set
+    -#}
+    {#- Js simple Functions -#}
+    {%- set name = args.user.defaultBillingAddress.firstName -%}
+    {%- if args.user.defaultBillingAddress.lastName|length -%}
+        {%- set name = name ~ " " ~ args.user.defaultBillingAddress.lastName -%}
+    {%- endif -%}
+    var getters = {
+        {%- for availableFillDataField in availableFillDataFields -%}
+            {%- if availableFillDataField == constant('FWK\\Enums\\Parameters::EMAIL')  -%}
+                {#--#}getEmail: () => {{ outputJsonHtmlString(args.user.email)|default(defaultString) -}},
+            {%- elseif availableFillDataField == constant('FWK\\Enums\\Parameters::NICK')  -%}
+                {#--#}getNick: () => {{ outputJsonHtmlString(args.userNick)|default(defaultString) -}},
+            {%- elseif availableFillDataField == constant('FWK\\Enums\\Parameters::NAME')  -%}
+                {#--#}getName: () => {{ outputJsonHtmlString(name)|default(defaultString) -}},
+            {%- else -%}
+                {#--#}get{{ucwords(availableFillDataField)}}: () => {{ outputJsonHtmlString(attribute(args.user.defaultBillingAddress, availableFillDataField))|default(defaultString) -}},
+            {%- endif -%}
+        {%- endfor -%}
+    };
+    {#- Js setter system -#}
+    var jsFillDataEls = [].slice.call(document.querySelectorAll('.js-fill-data'))
+    jsFillDataEls.map(function (el) {
+        if (typeof getters[el.dataset.fillFn] === 'function') {
+            el[el.matches('input, select, textarea') ? 'value' : 'innerHTML'] = getters[el.dataset.fillFn]();
+        } else {
+            console.error(`Function "${el.dataset.fillFn}" not exists! Element: `, el);
+        }
+    });
+    
+    async function buyProductFormsfillFormData() {
+        var buyProductForm = null;
+        {%- for basketGridProductId in session.basketGridProducts|keys -%}
+            {%- if not themeConfiguration.commerce.disableShowAsGridProductOptions and session.basketGridProducts[basketGridProductId] and session.basketGridProducts[basketGridProductId].gridOptionIds|length > 0 -%}
+                    buyProductForm = $.find('.buyProductForm{{basketGridProductId}}');
+                    if(buyProductForm.length && logicommerceGlobal.session.basketGridProducts?.[{{basketGridProductId}}]){
+                        let i = 0,
+                            done = false;
+                        do {
+                            i = i + 1;
+                            if(buyProductForm[0].module && buyProductForm[0].module.el.form.initialized && buyProductForm[0].module.gridData){
+                                buyProductForm[0].module.fillForm(logicommerceGlobal.session.basketGridProducts[{{basketGridProductId}}]);
+                                done = true;
+                            }else{
+                                await new Promise(resolve => setTimeout(resolve, 100));
+                            }
+                        } while (i < 10 && !done );
+                    }
+            {%- endif -%}
+        {%- endfor -%}
+    }
+    buyProductFormsfillFormData();
+
+{%- endmacro fillDataFunction -%}

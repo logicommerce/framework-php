@@ -1,0 +1,59 @@
+{% macro customTags(args) %}
+
+	{% if args.customTags.items|length %}
+        <div class="formFields basketFormFields basketCustomTags" id="basketCustomTags">
+            {% for customTag in args.customTags %}
+                {% if customTag.position in args.showPositions or args.showPositions is empty %}
+                    {% set parsedControlType = '' %}
+                    {% for controlTypePart in customTag.controlType|split('_') %}
+                        {% set parsedControlType = parsedControlType ~ controlTypePart|lower|capitalize %}
+                    {% endfor %}
+                    <div class="form-group formField basketField basketCustomTag basketCustomTagType{{ parsedControlType }} {% if loop.first %}basketCustomTagFirst{% elseif loop.last %}basketCustomTagLast{% endif %}" data-lc-ct='{{ outputJsonHtmlString({ pid: customTag.pId, position: customTag.position }) }}'>
+                        {% if args.showFormFields == true %}
+                            <label class="formField basketField basketFieldName" for="basketCustomTag{{ customTag.id }}">
+                                {{ customTag.language.name }}
+                                
+                                {% if customTag.required == true %}
+                                    {{ constant('REQUIRED_FIELD_HTML_FLAG') }}
+                                {% endif %}
+                            </label>
+                        {% else %}
+                            <div class="staticField basketField basketFieldName">{{ customTag.language.name }}</div>
+                        {% endif %}  
+                        {% if customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::BOOLEAN') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/boolean.html.twig' as modeBasket %}
+                            {{ modeBasket.boolean(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::NUMBER') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/number.html.twig' as modeBasket %}
+                            {{ modeBasket.number(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::SHORT_TEXT') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/shortText.html.twig' as modeBasket %}
+                            {{ modeBasket.shortText(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::DATE') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/date.html.twig' as modeBasket %}
+                            {{ modeBasket.date(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::SELECTOR') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/selector.html.twig' as modeBasket %}
+                            {{ modeBasket.selector(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/image.html.twig' as modeBasket %}
+                            {{ modeBasket.image(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::LONG_TEXT') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/longText.html.twig' as modeBasket %}
+                            {{ modeBasket.longText(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::ATTACHMENT') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/attachment.html.twig' as modeBasket %}
+                            {{ modeBasket.attachment(customTag, args.showFormFields) }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+            {% if args.saveButtonSubmitAction %}
+                <button type="submit" class="btn btn-primary basketButton basketSave" id="BasketCustomTagsSave" value="{{args.saveButtonSubmitAction}}">
+                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BASKET_CUSTOM_TAGS_SAVE_BUTTON')] }}
+                </button>            
+            {% endif %}
+        </div>
+    {% endif %}
+
+{% endmacro customTags %}

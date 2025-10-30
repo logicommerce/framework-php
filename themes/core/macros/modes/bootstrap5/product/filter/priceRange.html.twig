@@ -1,0 +1,60 @@
+{%- macro filter(filters, appliedFilters, configuration, filterItemTemplate) -%}
+
+    {%- set fromValue = appliedFilters[constant('FWK\\Enums\\Parameters::FROM_PRICE')]|default(filters.priceRange.min) + 0 -%}
+    {%- set toValue = appliedFilters[constant('FWK\\Enums\\Parameters::TO_PRICE')]|default(filters.priceRange.max) + 0 -%}
+
+    {%- set minValue = filters.priceRange.min -%}
+    {%- set maxValue = filters.priceRange.max -%}
+
+    {%- if minValue != maxValue -%}
+        {%- set uid = random(10000000, 99999999) -%}
+        {%- set showRadioList = configuration.priceRangeMode == constant('FWK\\Enums\\ApplicableFilterPriceRangeMode::MODE_RANGE_RADIO_LIST') -%}
+
+        {%- set elements -%}
+            {%- if showRadioList -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/priceRadios.html.twig' as filterProductMacro -%}
+                {{- filterProductMacro.elements(filters, appliedFilters, fromValue, toValue, minValue, maxValue) -}}
+            {%- else -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/priceRangeSlider.html.twig' as filterProductMacro -%}
+                {{- filterProductMacro.elements(filters, appliedFilters, fromValue, toValue, minValue, maxValue) -}}
+            {%- endif -%}
+        {%- endset -%}
+
+        {%- set badgeAppliedFilters -%}
+            {%- set nAppliedFilters = 0 -%}
+            {%- if 
+                (appliedFilters[constant('FWK\\Enums\\Parameters::FROM_PRICE')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::TO_PRICE')] is defined) and 
+                (fromValue > minValue or toValue < maxValue)
+            -%}
+                {%- set nAppliedFilters = 1 -%}
+            {%- endif -%}
+            <span class="n-applied-filter n-{{ nAppliedFilters }} badge rounded-pill bg-primary">{{ nAppliedFilters }}</span>
+        {%- endset %}
+
+        {%- set blockClass = 'pricesFilterBlock' ~ (showRadioList ? '' : ' sliderBlock') -%}
+        {%- set filterName = languageSheet[constant('FWK\\Enums\\LanguageLabels::PRICES_FILTER')] -%}
+
+        {%- if filterItemTemplate != null -%}
+            {{- filterItemTemplate|replace({
+                '{{blockClassWildcard}}': blockClass,
+                '{{dataAttributesWildcard}}': "",
+                '{{uidWildcard}}': uid,
+                '{{nameWildcard}}': filterName,
+                '{{badgeAppliedFiltersWildcard}}': badgeAppliedFilters,
+                '{{elementsWildcard}}': elements,
+            }) -}}
+        {%- else -%}
+            <div class="{{- blockClass -}}">
+                <div class="filterBlockTitle pricesFilterBlockTitle">
+                    {{- filterName -}}
+                    {{- badgeAppliedFilters -}}
+                </div>
+
+                <div class="filterElements pricesFilterElements">
+                    {{- elements -}}
+                </div>
+            </div>
+        {%- endif -%}
+    {%- endif -%}
+
+{%- endmacro -%}

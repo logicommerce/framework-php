@@ -1,0 +1,30 @@
+{% macro sendShoppingListRowsModal(args) %}
+    {%- import 'macros/user.twig' as userMacros -%}
+
+    <div id="userSendShoppingListRows" class="lcModal modal fade shoppingList-modal shoppingList-send-modal" tabindex="-1" aria-hidden="true" aria-labelledby="userSendShoppingListRowsTitle" data-lc-modal-callback="userSendShoppingListRowsCallback">
+        <div class="modal-dialog {{ args.dialogClasses }}">
+            <div class="modal-content">
+                {%- if args.showHeader -%}
+                    <div class="modal-header">
+                        <div id="userSendShoppingListRowsTitle" class="shoppingList-send-modal-title heading">
+                            {{- args.headerTitle -}}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                    </div>
+                {%- endif -%}
+                <div class="modal-body">
+                    {%- if not args.showHeader -%}
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSE')] -}}"></button>
+                    {%- endif -%}
+                    <div class="lcModalContainer">
+                        {{- userMacros.sendShoppingListRowsForm({
+                            form: args.form,
+                            shoppingListRows: args.element,
+                        }) -}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endmacro %}

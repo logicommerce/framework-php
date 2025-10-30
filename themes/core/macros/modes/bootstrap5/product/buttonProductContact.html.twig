@@ -1,0 +1,8 @@
+
+{% macro buttonProductContact(args) %}
+    <div class="productDetailButtonContainer productDetailContactButtonContainer">
+        <button type="button" class="{{ args.class }} productDetailButton productDetailContactButton" data-bs-toggle="modal" data-bs-target="#productContact" data-lc-required='{ "el": "#productContact", "macro": "buttonProductContact" }' {% if not args.showLabel %} aria-label="{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_CONTACT_BTN')]|striptags -}}"{% endif %}>
+            {{- args.showLabel ? languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCT_CONTACT_BTN')] : '' -}}
+        </button>
+    </div>
+{% endmacro %}

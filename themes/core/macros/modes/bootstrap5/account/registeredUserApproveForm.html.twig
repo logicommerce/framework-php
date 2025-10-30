@@ -1,0 +1,152 @@
+{% macro registeredUserApproveForm(args) %}
+    {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+    {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+    {% set formSubmit %}{% endset %}
+
+    {% if args.registeredUser is defined %}
+        <div class="registeredUserApproveForm registeredUserForm">
+            <div class="styled-form center-block-tabs">
+                {%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                    {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+                        {{ element|replace({ (attributeWildcard): 'data-lc-form="registeredUserApproveForm"' }) }}
+                        <div class="registeredUserApproveParameters">
+                            <div class="row g-4">
+
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="card h-lg-100">
+                                        <div class="card-header fw-bold">
+                                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACCOUNT_SUBTITLE')] }}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row row-cols-2 row-cols-md-1 g-3">
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACCOUNT_NAME')] }}</label>
+                                                    <div class="form-control-plaintext">{{ args.registeredUser.account.name }}</div>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS')] }}</label>
+                                                    <div class="form-control-plaintext">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_STATUS_' ~ args.registeredUser.account.status)] }}</div>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_TYPE')] }}</label>
+                                                    <div class="form-control-plaintext">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_TYPE_' ~ args.registeredUser.account.type)] }}</div>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_DATE_ADDED')] }}</label>
+                                                    <div class="form-control-plaintext">{{ args.registeredUser.account.dateAdded.dateTime|date(getTwigDatePattern()) }}</div>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER')] }}</label>
+                                                    <div class="form-control-plaintext">{{ args.registeredUser.account.master.firstName }} {{ args.registeredUser.account.master.lastName }}</div>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER_EMAIL')] }}</label>
+                                                    <div class="form-control-plaintext">{{ args.registeredUser.account.master.email }}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="card h-lg-100">
+                                        <div class="card-header fw-bold">
+                                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_REGISTERED_USER_SUBTITLE')] }}
+                                        </div>
+                                        <div class="card-body">
+                    {%- elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') -%}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="card h-lg-100">
+                                        <div class="card-header fw-bold">
+                                            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_RELATIONSHIP_INFORMATION_SUBTITLE')] }}
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row row-cols-2 row-cols-md-1 g-3">
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS')] }}</label>
+                                                    <div class="form-control-plaintext">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS_' ~ args.registeredUser.status)] }}</div>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER')] }}</label>
+                                                    <div class="form-control-plaintext">
+                                                        {{ args.registeredUser.master ? languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] }}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_DATE_ADDED')] }}</label>
+                                                    <div class="form-control-plaintext">{{ args.registeredUser.dateAdded.dateTime|date(getTwigDatePattern()) }}</div>
+                                                </div>
+                                                {% if args.registeredUser.type == constant('SDK\\Enums\\MasterType::EMPLOYEE') %}
+                                                    <div>
+                                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_JOB')] }}</label>
+                                                        <div class="form-control-plaintext">{{ args.registeredUser.job }}</div>
+                                                    </div>
+                                                    {% if args.advcaLicense %}
+                                                        <div>
+                                                            <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE')] }}</label>
+                                                            <div class="form-control-plaintext">{{ args.registeredUser.role.name }}</div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                {{ formSubmit }}
+                            </div>
+                        </div>
+
+                    {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+                        {% set formSubmit %}
+                            {{ element|replace({ (classWildcard): '', (attributeWildcard): '' })}}
+                        {% endset %}
+
+                    {%- elseif name == constant('FWK\\Enums\\Parameters::GENDER') -%}
+                        {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/gender.html.twig' with {
+                            name: name,
+                            input: element
+                        } %}
+
+                    {%- elseif name == constant('FWK\\Enums\\Parameters::BIRTHDAY') -%}
+                            {% if args.registeredUser.registeredUser.birthday.dateTime is defined and args.registeredUser.registeredUser.birthday.dateTime is not empty %}
+                                {% set birthday = args.registeredUser.registeredUser.birthday.dateTime %}
+                            {% else %}
+                                {% set birthday = "" %}
+                            {% endif %}
+                        <div class="form-group formFieldGroup userFieldGroup">
+                            <div class="input-group date" 
+                                data-datetimepicker="viewDateValue{{ name|ucfirst }}" 
+                                data-language="{{ route.language }}" 
+                                data-years='1910-{{ "now"|date("Y") }}' 
+                                data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+                                data-submit="{{ name }}"  
+                                data-format="{{ getJSDatePattern() }}">
+                                <label class="form-label" for="viewDateValue{{ name|ucfirst }}">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BIRTH_DATE')] -}}</label>
+                                <input type="text" value="{{ birthday ? birthday|date(getTwigDatePattern()) : '' }}" class="form-control formField viewDateValue" id="viewDateValue{{ name|ucfirst }}" autocomplete="off" value="{{ args.registeredUser.birthday }}">
+                                <span class="input-group-addon input-group-text">
+                                    <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+                                </span>
+                            </div>
+                            <input type="hidden" value="{{ birthday ? birthday|date('Y-m-d\\TH:i:sP') : '' }}" class="DateValue" id="{{ name }}" name="{{ name }}" data-optional="true">
+                        </div>
+                    {% elseif name == constant('FWK\\Enums\\Parameters::PASSWORD_RETYPE') %}
+                            <div class="form-group mb-3">
+                                {{ element|replace({ (classWildcard) : '', (attributeWildcard): 'data-validation="required,confirmation"  data-validation-confirm="password"' }) }}
+                            </div>
+                    {%- else -%}
+                        <div class="form-group mb-3">
+                            {{ element|replace({ (classWildcard): '', (attributeWildcard): '' }) }}
+                        </div>
+                    {%- endif -%}
+                {%- endfor -%}
+            </div>
+        </div>
+    {% endif %}
+{% endmacro %}

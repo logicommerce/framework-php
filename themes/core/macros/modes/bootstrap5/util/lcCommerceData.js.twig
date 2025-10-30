@@ -1,0 +1,10 @@
+{%- macro lcCommerceData(args) -%}
+    {#--#}globalThis.lcCommerceData = {{outputJsonHtmlString(args.lcCommerceData)}};
+    document.addEventListener('visibilitychange', function() {
+        let folcsVersionCookie = readCookie('folcsVersion')?readCookie('folcsVersion'):'',
+            currentFolcsVersion = {% if args.cacheable and args.cacheable == 1 %}folcsVersionCookie.split('-')[1]{% else %}folcsVersionCookie{% endif %};
+        if (document.visibilityState === 'visible' && globalThis.lcCommerceData.folcsVersion !== currentFolcsVersion ) {
+            window.location.reload(true);
+        }
+    });
+{%- endmacro lcCommerceData -%}

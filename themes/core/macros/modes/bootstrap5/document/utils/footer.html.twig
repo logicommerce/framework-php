@@ -1,0 +1,23 @@
+{% macro footer(footerRows, showFooter) %}
+	{% if showFooter %}
+		<tfoot class="order">
+	{% endif %}
+	{% for footerRow in footerRows %}
+		<tr class="{{ footerRow.className }}">
+			{% for rowCell in footerRow.cells %}
+				{% if loop.index == 1 %}
+					<td class="{{ rowCell.className }}" {% if rowCell.colspan > 0 %} colspan="{{ rowCell.colspan }}" {% endif %}>
+						{{ rowCell.value }}
+					</td>
+				{% else %}
+					<td class="{{ rowCell.className }}">
+						{{ outputHtmlCurrency(rowCell.value) }}
+					</td>
+				{% endif %}
+			{% endfor %}
+		</tr>
+	{% endfor %}
+	{% if showFooter %}
+		</tfoot>
+	{% endif %}
+{% endmacro %}

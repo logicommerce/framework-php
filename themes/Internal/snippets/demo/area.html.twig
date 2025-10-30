@@ -1,0 +1,24 @@
+
+<tr>
+	<td>
+    	{% if index is defined %}
+        	{{ index }}
+        {% else %}
+        	No index    	
+        {% endif %}
+	</td>
+	<td>{{ area.id }}</td>
+	<td>{{ area.pId }}</td>
+	<td>{{ area.categoryRole ? 'Yes' : 'No' }}</td>
+	<td>{{ area.brandRole ? 'Yes' : 'No' }}</td>
+	<td>{{ area.position }}</td>
+	<td>{{ area.active ? 'Yes' : 'No' }}</td>
+	<td>{{ area.priority }}</td>
+	<td>{{ area.language.name }}</td>
+	<td>{{ area.language.description }}</td>
+	<td>{{ area.language.keywords }}</td>
+	<td>{{ area.language.particularTitle }}</td>
+	<td>{{ area.language.metaDescription }}</td>
+	<td>{{ area.language.urlSeo }}</td>
+
+</tr>

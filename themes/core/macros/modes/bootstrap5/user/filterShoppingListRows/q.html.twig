@@ -1,0 +1,15 @@
+{%- macro filter(appliedFilters, configuration) -%}
+
+    <div class="form-group filterElement searchCriteriaFilterElement">
+        <label class="filterElement searchCriteriaFilterElement" for="searchCriteriaFE">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SEARCH_CRITERIA')] }}</label>
+        <input 
+            class="form-control searchCriteriaFilterElement" 
+            type="text" 
+            name="{{ constant('FWK\\Enums\\Parameters::Q') }}" 
+            id="searchCriteriaFE" 
+            minlength="{{ configuration[constant('FWK\\Core\\Theme\\Dtos\\ApplicableFilter::Q_MIN_CHARACTERS')] }}" 
+            value="{{ appliedFilters[constant('FWK\\Enums\\Parameters::Q')] is defined ? appliedFilters[constant('FWK\\Enums\\Parameters::Q')] : '' }}"
+        >
+    </div>
+
+{%- endmacro -%}

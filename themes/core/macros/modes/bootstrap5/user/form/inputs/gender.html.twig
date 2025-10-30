@@ -1,0 +1,16 @@
+{% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
+{% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
+
+<div class="form-group formFieldGroup userFieldGroup userFieldGroup{{ name|ucfirst }}">
+    {% set genders = input|preg_match_all('/<\\s*input[^>]*>(.*?)<\\s*\\/\\s*label>/') %}
+    
+    {% for gender in genders %}
+        <div class="form-check form-check-inline">
+            {{ gender|replace({ 
+                (classWildcard): '', 
+                (attributeWildcard): ''
+            })|raw }}
+        </div>
+    {% endfor %}
+
+</div>

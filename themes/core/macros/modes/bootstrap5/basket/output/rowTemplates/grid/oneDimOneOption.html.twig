@@ -1,0 +1,23 @@
+<table class="table gridOptions gridOptionsTable table-bordered">
+    <thead>
+        <tr>
+            <th class="gridOptionsNames">{{- firstOption.name -}}</th>
+            {% for firstOptionValue in firstOption.valueIds %}
+                <th>
+                    <b>{{- optionValues[firstOptionValue].value -}}</b>
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')] }}</th>   
+            {% for firstOptionValue in firstOption.valueIds %}
+                <td class="basket basketQuantity">
+                    {% set gridCell = row.grid[firstOptionValue] %}
+                    {{ gridCell.quantityOutput(args.quantityPlugin, args.selectableBoxRows, args.editable)|replace({ '{{className}}': 'form-control' }) }}
+                </td>
+            {% endfor %}
+        </tr>
+    </tbody>
+</table>

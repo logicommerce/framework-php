@@ -1,0 +1,19 @@
+{% macro voucherForm(args) %}
+
+	{% if args.forceOutput == true or args.basketItems > 0 %}
+
+		<div class="voucherContainer">
+			<div id="voucherFieldContainer" class="form-group">
+				<label class="form-label voucherField" for="voucherField">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFT_CODE')] }}</label>
+
+				<div class="input-group">
+					<input type="text" class="form-control" id="voucherField" placeholder="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFT_CODE')] }}" value="" autocomplete="off">
+					<button type="button" class="btn btn-primary" id="voucherButton">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GIFT_CODE_BUTTON')] }}</button>
+				</div>
+
+			</div>
+		</div>
+
+	{% endif %}
+
+{% endmacro voucherForm %}

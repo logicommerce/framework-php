@@ -1,0 +1,41 @@
+{%- macro elements(filter, appliedFilters) -%}
+    {%- set selected = false -%}
+    {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
+        {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and filter.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+    {%- endif -%}
+    {%- for value in filter.values|usort -%}
+        {%- set uid = random(10000000, 99999999) -%}
+        {%- set selected = selected or appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+        <div class="form-group form-check filterElement customTagsFilterElement">
+            <input 
+                class="form-check-input filterElement customTagsFilterElement" 
+                type="checkbox" 
+                name="{{ constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG') }}{{ constant('FWK\\Core\\FilterInput\\FilterInputHandler::DYNAMIC_NAME_PARAM_DELIMITER') }}{{ filter.id }}"
+                {% if selected %} checked {% endif %}
+                {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') and filter.filterValues|length -%}
+                    value="{{ filter.filterValues|first|escape }}" 
+                {% else %}
+                    value="{{ value|escape }}" 
+                {%- endif -%}
+                id="CTFE{{ filter.id }}_{{ uid }}"
+            >
+            {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::DATE') -%}
+                {%- set value = value|date(getTwigDatePattern()) -%}
+            {%- elseif filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::BOOLEAN') -%}
+                {%- set value = (value == '1' or value == 'true') ? languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] -%}
+            {%- elseif filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
+                {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ value ~ '" alt="' ~ filter.name|escape ~ '">' ~ filter.name  -%}
+            {%- elseif filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::NUMBER') -%}
+                {% if value matches '/[0-9]+(\.[0-9]+)?(e|E)[0-9]+/' %}
+                    {%- set value = value|number_format(0, '.', '') -%}
+                {% else %}
+                    {% set splitValue = value|split('.') %}
+                    {%- if splitValue[1] == 0 -%}
+                        {%- set value = splitValue[0] -%}
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endif -%}
+            <label class="form-check-label filterElement customTagsFilterElement" for="CTFE{{ filter.id }}_{{ uid }}">{{ value }}</label>
+        </div>
+    {%- endfor -%}
+{%- endmacro -%}

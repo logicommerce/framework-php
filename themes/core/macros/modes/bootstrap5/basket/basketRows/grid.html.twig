@@ -1,0 +1,161 @@
+{% macro grid(args, basketRow, lockedStocksContent) %}
+    {% from 'macros/modes/' ~ coreMode ~ '/basket/output/rowTemplates/grid.html.twig' import grid as basketGrid %}
+    {% import 'macros/modes/' ~ coreMode ~ '/basket/utils/outputItemOptions.html.twig' as modeBasket %}
+    {% from 'macros/modes/' ~ coreMode ~ '/basket/output/productDiscounts.html.twig' import outputDiscountsColumn as outputDiscountsColumn %}
+
+    {% set rows = session.basketGridProducts[basketRow.id].rows %}
+    {% set options = session.basketGridProducts[basketRow.id].options %}
+    {% set optionValues = session.basketGridProducts[basketRow.id].optionValues %}
+    {% set gridOptionIds = session.basketGridProducts[basketRow.id].gridOptionIds %}
+    {% set gridOptionValueIds = session.basketGridProducts[basketRow.id].gridOptionValueIds %}
+    {% set showColumDiscounts = args.showDiscounts == true and (args.totalProductDiscounts > 0 or args.showZeroDiscount) %}
+
+    {% for rowId in rows|keys %}
+        {%- if rows[rowId].totalQuantity > 0-%}
+            <tr class="{{ trClassName }}" data-lc-hash="{{ basketRow.hash }}" data-lc-type="{{ basketRow.type }}" >
+                {% set noCombinableOptions %}
+                    {% for option in session.basketGridProducts[basketRow.id].noCombinableOptions %}
+                        <div class="{{ args.classPrefix }}Option">
+                            <span class="{{ args.classPrefix }}OptionName">{{ option.name|striptags }}</span>
+                            {{ modeBasket.outputOptionValue(option, args.classPrefix) }}
+                        </div>
+                    {% endfor %}
+                {% endset %}
+
+                {% set basketRowPrices = rows[rowId].totalPrice.prices %}
+
+                {% if args.showTaxIncluded == true %}
+                    {% set basketRowPrices = rows[rowId].totalPrice.pricesWithTaxes %}
+                {% endif %}
+
+                <td class="basket rowGrid basketProduct" data-lc-grid-product-id="{{basketRow.id}}">
+                    {{ lockedStocksContent }}
+                    {{ basketGrid(args, basketRow, rowId, rows[rowId], options, optionValues, gridOptionIds, gridOptionValueIds, noCombinableOptions) }}
+                </td>
+
+                {% if args.showPrices == true %}
+                    <td class="basket rowGrid basketPrice basketProductPrice">
+                        {%- if basketRowPrices.unitPrice != 0 -%}
+                            {%- if basketRow.offer == true -%}
+                                {%- if args.showPreviousPrice == true -%}
+                                    <span class="previousPrice">{{ outputHtmlCurrency(basketRowPrices.unitPreviousPrice) }}</span>
+                                {%- endif -%}
+                                {%- if args.showPercentDifference == true -%}
+                                    <span class="offerPercentDifference">
+                                        <span class="percentageValue">-{{ viewHelpers.util.getPriceDifference(basketRowPrices.unitPreviousPrice, basketRowPrices.unitPrice).roundedPercentDifference }}</span><span class="percentageSymbol">%</span>
+                                    </span>
+                                {%- endif -%}
+                                {%- if args.showPriceDifference == true -%}
+                                    <span class="offerPriceDifference">{{ outputHtmlCurrency(-viewHelpers.util.getPriceDifference(basketRowPrices.unitPreviousPrice, basketRowPrices.unitPrice).priceDifference) }}</span>
+                                {%- endif -%}
+                            {%- endif -%}
+                            {{ outputHtmlCurrency(basketRowPrices.unitPrice) }}
+                        {%- else -%}
+                            {%- for gridRowKey in rows[rowId].grid|keys -%}
+                                {%- set combinationGridPrices = rows[rowId].grid[gridRowKey].prices -%}
+                                {%- if args.showTaxIncluded == true -%}
+                                    {%- set combinationGridPrices = rows[rowId].grid[gridRowKey].pricesWithTaxes -%}
+                                {%- endif -%}
+                                {%- if combinationGridPrices.unitPrice != 0 -%}
+                                    {%- set gridCombinationValues = gridRowKey|split('-') -%}
+                                    <div class="gridCombinationPrice">
+                                        <span class="gridCombinationValues">
+                                            {%- if gridOptionIds|length == 2 -%}
+                                                {%- if gridOptionIds[0] == optionValues[gridCombinationValues[0]].optionId -%}
+                                                    {{ optionValues[gridCombinationValues[0]].value }}, {{ optionValues[gridCombinationValues[1]].value }}
+                                                {%- else -%}
+                                                    {{ optionValues[gridCombinationValues[1]].value }}, {{ optionValues[gridCombinationValues[0]].value }}
+                                                {%- endif -%}    
+                                            {%- else -%}
+                                                {{ optionValues[gridCombinationValues[0]].value }}
+                                            {%- endif -%}
+                                        </span>
+                                        <span class="gridCombinationPrice">
+                                            {%- if basketRow.offer == true -%}
+                                                {%- if args.showPreviousPrice == true -%}
+                                                    <span class="previousPrice">{{ outputHtmlCurrency(combinationGridPrices.unitPreviousPrice) }}</span>
+                                                {%- endif -%}
+                                                {%- if args.showPercentDifference == true -%}
+                                                    <span class="offerPercentDifference">
+                                                        <span class="percentageValue">-{{ viewHelpers.util.getPriceDifference(combinationGridPrices.unitPreviousPrice, combinationGridPrices.unitPrice).roundedPercentDifference }}</span><span class="percentageSymbol">%</span>
+                                                    </span>
+                                                {%- endif -%}
+                                                {%- if args.showPriceDifference == true -%}
+                                                    <span class="offerPriceDifference">{{ outputHtmlCurrency(-viewHelpers.util.getPriceDifference(combinationGridPrices.unitPreviousPrice, combinationGridPrices.unitPrice).priceDifference) }}</span>
+                                                {%- endif -%}
+                                            {%- endif -%}
+                                            {{ outputHtmlCurrency(combinationGridPrices.unitPrice) }}
+                                        </span>
+                                    </div>
+                                {%- endif -%}
+                            {%- endfor -%}
+                        {%- endif -%}
+                    </td>
+                {% endif %}
+
+                <td class="basket rowGrid basketQuantity">
+                    <span class="quantity">
+                        {{ rows[rowId].totalQuantity }}
+                    </span>
+                </td>
+
+                {% if showColumDiscounts %}
+                    {% if args.mergeGridDiscounts %}
+                        {{ outputDiscountsColumn(rows[rowId].discounts, args.showTaxIncluded, args.showDiscountName, args.showDiscountValue, args.showZeroDiscount) }}
+                    {% else %}
+                        <td class="basket rowGrid basketGridDiscounts">
+                            <table>
+                                {%- for gridRowKey in rows[rowId].grid|keys -%}
+                                    {%- set combinationGridPrices = rows[rowId].grid[gridRowKey].prices -%}
+                                    {%- if args.showTaxIncluded == true -%}
+                                        {%- set combinationGridPrices = rows[rowId].grid[gridRowKey].pricesWithTaxes -%}
+                                    {%- endif -%}
+                                    {%- set gridCombinationValues = gridRowKey|split('-') -%}
+                                    {%- if combinationGridPrices.totalDiscounts != 0 -%}
+                                        <tr>
+                                            <td>
+                                                <span class="gridCombinationValues">
+                                                    {%- if gridOptionIds|length == 2 -%}
+                                                        {%- if gridOptionIds[0] == optionValues[gridCombinationValues[0]].optionId -%}
+                                                            {{ optionValues[gridCombinationValues[0]].value }}, {{ optionValues[gridCombinationValues[1]].value }}
+                                                        {%- else -%}
+                                                            {{ optionValues[gridCombinationValues[1]].value }}, {{ optionValues[gridCombinationValues[0]].value }}
+                                                        {%- endif -%}    
+                                                    {%- else -%}
+                                                        {{ optionValues[gridCombinationValues[0]].value }}
+                                                    {%- endif -%}
+                                                </span>
+                                            </td>
+                                            {{ outputDiscountsColumn(rows[rowId].grid[gridRowKey].appliedDiscounts, args.showTaxIncluded, args.showDiscountName, args.showDiscountValue, args.showZeroDiscount) }}
+                                        </tr>
+                                    {%- endif -%}
+                                {%- endfor -%}
+                            </table>
+                        </td>
+                    {% endif %}
+                {% endif %}
+
+                {% if args.showPrices == true %}
+                    <td class="basket rowGrid basketPrice basketProductTotal">
+                        {% set basketRowTotal = rows[rowId].subtotal %}
+                        {% if args.showTaxIncluded == true %}
+                            {% set basketRowTotal = rows[rowId].total %}
+                        {% endif %}
+                        {% if basketRowTotal != 0 %}
+                            {% if args.showPreviousPrice == true and args.showPrices == true and basketRow.offer == true %}
+                                <span class="previousPrice">
+                                    {{ outputHtmlCurrency(basketRowPrices.previousPrice - basketRow.totalDiscounts) }}
+                                </span>
+                            {% endif %}
+                            {{ outputHtmlCurrency(basketRowTotal) }}
+                        {% else %}
+                            {{ outputHtmlCurrency(0) }}
+                        {% endif %}
+                    </td>
+                {% endif %}
+
+            </tr>
+        {%- endif -%}
+    {% endfor %}
+
+{% endmacro grid %}

@@ -1,0 +1,12 @@
+{% macro comment(args) %}
+
+	{% if args.forceOutput == true or args.basketItems > 0 %}
+
+		<div id="orderCommentContainer" class="form-group">
+			<label class="orderCommentField form-label" for="orderCommentField">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_COMMENT')] }}</label>
+			<textarea class="form-control" name="comment" id="orderCommentField" {% if args.showPlaceholder == true %}placeholder="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_COMMENT')] }}"{% endif %}>{{ args.commentValue }}</textarea>
+		</div>
+
+	{% endif %}
+
+{% endmacro comment %}

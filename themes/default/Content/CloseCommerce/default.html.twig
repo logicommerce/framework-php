@@ -1,0 +1,17 @@
+{%- extends layout -%}
+{%- block header -%}
+{%- endblock header -%}
+{%- block content -%}
+    <style>
+        html { background: none; }
+        body, #closed-commerce { height: 100vh; text-align: center; margin: 0; overflow: hidden; }
+        #closed-commerce { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: clamp(20px, 4vw, 30px); }
+        img { display: inline-block; width: 20vw; min-width: 200px; margin-bottom: 2vw; }
+    </style>
+    <div id="closed-commerce">
+        <img src="{{- getCommerceLogo() -}}" alt="{{- settings.generalSettings.name|escape -}}" id="logo">
+        <p>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::CLOSED_COMMERCE')] -}}</p>
+    </div>
+{%- endblock content -%}
+{%- block footer -%}
+{%- endblock footer -%}

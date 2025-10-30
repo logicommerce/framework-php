@@ -1,0 +1,41 @@
+<tr>
+	<td>
+    	{% if index is defined %}
+        	{{ index }}
+        {% else %}
+        	No index    	
+        {% endif %}
+	</td>
+	<td>{{ page.id }}</td>
+	<td>{{ page.pId }}</td>
+	
+	<td>{{ page.priority }}</td>
+	<td>{{ page.position }}</td>
+	<td>{{ page.pagesGroupId }}</td>
+	<td>{{ page.parentPageId }}</td>	
+	<td>{{ page.pageType }}</td>
+	<td>{{ page.itemId }}</td>
+    <td>{{ page.customType }}</td>
+	<td>{{ page.active ? 'Yes' : 'No' }}</td>
+	
+	<td>{{ page.language.keywords }}</td>
+	<td>{{ page.language.particularTitle }}</td>
+	<td>{{ page.language.metaDescription }}</td>
+	<td>{{ page.language.urlSeo }}</td>
+	
+	<td>{{ page.language.name }}</td>
+	<td>{{ page.language.smallImage }}</td>
+	<td>{{ page.language.largeImage }}</td>
+	<td>{{ page.language.smallTitle }}</td>
+	<td>{{ page.language.largeTitle }}</td>
+	<td>{{ page.language.pageContent }}</td>
+	<td>{{ page.language.destinationUrl }}</td>
+	<td>{{ page.language.addGenericTitle ? 'Yes' : 'No' }}</td>	
+	<td>{{ page.language.linkFollowing }}</td>
+	<td>{{ page.language.indexable }}</td>
+
+	<td>ADITIONAL DATA</td>
+
+</tr>
+    		
+

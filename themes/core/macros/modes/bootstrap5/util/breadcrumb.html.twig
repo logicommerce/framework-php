@@ -1,0 +1,26 @@
+{% macro breadcrumb(args) %}
+
+    {% set itemTag = args.tag == constant('FWK\\ViewHelpers\\Util\\Macro\\Breadcrumb::TAG_UL') ? 'li' : constant('FWK\\ViewHelpers\\Util\\Macro\\Breadcrumb::TAG_DIV') %}
+
+    <{{ args.tag }} class="pathContainer pagePathContainer breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList">
+
+        {% set i = 1 %}
+    	{% for routeItem in args.data|filter(routeItem => routeItem.show) %}
+
+            {% set itemType = '' %}
+            {% for item in routeItem.itemType|split('_') %}
+                {% set itemType = itemType ~ routeItem.itemType|lower|ucfirst %}
+            {% endfor %}
+    	
+            <{{ itemTag }} class="breadcrumb-item path pathType{{ itemType }} pathId{{ routeItem.itemId }} pathIndex{{ i }} {% if loop.first %}pathFirst{% elseif loop.last %}pathLast{% endif %}" itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+                <a class="pathLink" href="{{ routeItem.urlSeo }}" itemprop="item">
+                    <span itemprop="name">{{ routeItem.name }}</span>
+                    <meta itemprop="position" content="{{ i }}">
+                </a>
+            </{{ itemTag }}>
+            {% set i = i + 1 %}
+        {% endfor %}
+
+    </{{ args.tag }}>
+
+{% endmacro %}

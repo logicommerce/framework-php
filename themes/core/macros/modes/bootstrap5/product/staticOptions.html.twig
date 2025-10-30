@@ -1,0 +1,39 @@
+{% macro staticOptions(args) %}
+
+    <div class="staticOptions">
+        {%- for productOption in args.productOptions -%}
+            {%- if productOption.option.type == constant('SDK\\Enums\\OptionType::SHORT_TEXT') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/shortText.html.twig' as modeProduct -%}
+                {{- modeProduct.shortText(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::SINGLE_SELECTION') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/singleSelection.html.twig' as modeProduct -%}
+                {{- modeProduct.singleSelection(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::MULTIPLE_SELECTION') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/multipleSelection.html.twig' as modeProduct -%}
+                {{- modeProduct.multipleSelection(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::SINGLE_SELECTION_IMAGE') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/singleSelectionImage.html.twig' as modeProduct -%}
+                {{- modeProduct.singleSelectionImage(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::MULTIPLE_SELECTION_IMAGE') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/multipleSelectionImage.html.twig' as modeProduct -%}
+                {{- modeProduct.multipleSelectionImage(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::SELECTOR') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/selector.html.twig' as modeProduct -%}
+                {{- modeProduct.selector(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::DATE') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/date.html.twig' as modeProduct -%}
+                {{- modeProduct.date(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::LONG_TEXT') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/longText.html.twig' as modeProduct -%}
+                {{- modeProduct.longText(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::ATTACHMENT') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/attachment.html.twig' as modeProduct -%}
+                {{- modeProduct.attachment(productOption, args) -}}
+            {%- elseif productOption.option.type == constant('SDK\\Enums\\OptionType::BOOLEAN') -%}
+                {%- import 'macros/modes/' ~ coreMode ~ '/product/staticOptions/boolean.html.twig' as modeProduct -%}
+                {{- modeProduct.boolean(productOption, args) -}}
+            {%- endif -%}
+        {%- endfor -%}
+    </div>
+
+{% endmacro staticOptions %}

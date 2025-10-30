@@ -1,0 +1,117 @@
+{% macro returnRequestForm(args) %}
+    {% if args.returnProducts.items is not empty %}
+        {% import 'macros/modes/' ~ coreMode ~ '/document/utils/rowTemplates/product.html.twig' as orderProduct %}
+
+        {%- set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') -%} 
+        {%- set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') -%}
+
+        <div class="returnsModalTitle clearfix">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_TITLE')] }}</div>
+
+        {% set hasRmaReasons = false %}
+        {% set formContent %}
+            {%- for name, element in args.returnRequestForm.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+                    {{ element|replace({ (attributeWildcard): 'data-lc-form="returnRequestForm"' }) }}
+                    <div class="form-message"></div>
+                    <div class="returnRequestForm">
+                        <table class="return table" cellspacing="0">
+                            {{ '{{theadContent}}' }}
+                            <tbody class="return">
+                {%- elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') or name == constant('FWK\\Enums\\Parameters::DATA') or name == constant('FWK\\Enums\\Parameters::ID') or name == constant('FWK\\Enums\\Parameters::CAPTCHA_TOKEN') -%}	
+                    {{ element }}
+                {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+                        <div class="formField formButton returnField form-group" id="{{ name }}Container">
+                            {{ element|replace({ (classWildcard): '' }) }}
+                        </div>
+                    </div>{# /.returnRequestForm #}
+                {%- elseif name == constant('FWK\\Enums\\Parameters::RETURN_COMMENT') -%}
+                            </tbody>
+                        </table>
+                        <div class="form-group formField returnField" id="{{ name }}Container">
+                            {{ element|replace({ (classWildcard) : '', (attributeWildcard): '' }) }}
+                        </div>
+                {%- elseif name == constant('FWK\\Enums\\Parameters::RETURN_DELIVERY') -%}
+                    <div class="form-group formField returnField defaultOptions" id="{{ name }}Container">
+                        {{ element|replace({ (classWildcard) : 'returnDeliveryOption', (attributeWildcard): '' }) }}
+                    </div>
+                    {% if args.returnPointsContent is not null %}
+                        <div class="returnPointsContent" id="{{ name }}Container">
+                            {{ args.returnPointsContent }}
+                        </div>
+                    {% endif %}
+                {%- else -%}
+                    {%- if constant('FWK\\Enums\\Parameters::RETURN_CHECK') in name -%}
+                        <tr class="return returnProduct">
+                            <td class="return returnProduct">
+                                {%- set itemHash = name|replace({ (constant('FWK\\Enums\\Parameters::RETURN_CHECK') ~ '_' ): '' }) -%}
+                                {%- set arrayItemToShow = args.returnProducts.items|filter(item => item.hash == itemHash) -%}
+                                {% for itemToShow in arrayItemToShow %}
+                                    {{ orderProduct.product(
+                                        args,
+                                        itemToShow
+                                    ) }}
+                                {% endfor %}
+                            </td>
+                    {%- endif -%}
+
+                    {% if 'checkbox' in element|lower %}
+                        <td class="return returnProductCheck">
+                            <div class="form-group form-check formField returnField" id="{{ name }}Container">
+                                {{ element|replace({ (classWildcard) : '', (attributeWildcard): '' }) }}
+                            </div>
+                        </td>
+                    {% elseif 'quantity' in element|lower %}
+                        <td class="return returnProductQuantity">
+                            <div class="form-group formField returnField" id="{{ name }}Container">
+                                {{ element|replace({ (classWildcard) : '', (attributeWildcard): '' }) }}
+                            </div>
+                        </td>
+                    {% elseif 'rmareasonid' in element|lower %}
+                        {% set hasRmaReasons = true %}
+                        <td class="return returnProductRmaReasonId">
+                            <div class="form-group formField returnField" id="{{ name }}Container">
+                                {{ element|replace({ (classWildcard) : '', (attributeWildcard): '' }) }}
+                            </div>
+                        </td>
+                    {% elseif 'rmareasoncomment' in element|lower %}
+                        <td class="return returnProductRmaReasonComment">
+                            <div class="form-group formField returnField" id="{{ name }}Container">
+                                {{ element|replace({ (classWildcard) : '', (attributeWildcard): '' }) }}
+                            </div>
+                        </td>                        
+                    {% else %}
+                        <td class="return returnProduct">
+                            <div class="form-group formField returnField" id="{{ name }}Container">
+                                {{ element|replace({ (classWildcard) : '', (attributeWildcard): '' }) }}
+                            </div>
+                        </td>
+                    {% endif %}
+
+                    {%- if constant('FWK\\Enums\\Parameters::RMA_REASON_COMMENT') in name -%}
+                        </tr>
+                    {%- endif -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {% endset %}
+
+        {% set theadContent %}
+            <thead class="return">
+                <tr class="returnTitle">
+                    <td class="returnTitle returnNameTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS')] }}</td>
+                    <td class="returnTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_CHECK')] }}</td>
+                    <td class="returnTitle returnQuantityTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')] }}</td>
+                    {% if hasRmaReasons %}
+                        <td class="returnTitle returnRmaReasonIdTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_REASON')] }}</td>
+                        <td class="returnTitle returnRmaReasonCommentTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RMA_REASON_COMMENT')] }}</td>
+                    {% endif %}
+                </tr>
+            </thead>
+        {% endset %}
+
+        {{ formContent|replace({ '{{theadContent}}': theadContent }) }}
+
+    {% else %}
+        <div class="returnsModalTitle clearfix">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::RETURN_TITLE')] }}</div>
+        <div class="returnsEmpty text-center">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NOT_RETURNABLE_PRODUCTS')] }}</div>
+    {% endif %}
+{% endmacro returnRequestForm %}

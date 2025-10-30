@@ -1,0 +1,11 @@
+{#
+    In the request, the parameter "type" arrives, which can have the value "warning" or "expired", in case you want to format it differently.
+    {{ dump(requestParams['type']) }}
+#}
+
+{%- import macrosCore.basket as basketMacros -%}
+{{- basketMacros.lockedStocksContent({ 
+    showDescription: true,
+    popup: true,
+    expired: requestParams['type'] == 'expired',
+}) }}

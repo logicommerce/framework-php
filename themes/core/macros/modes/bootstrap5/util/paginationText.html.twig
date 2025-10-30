@@ -1,0 +1,38 @@
+{% macro pagination(args) %}
+    {% if args.paginationItems|length %}
+        <div class="paginationContainer">
+            <ul class="list-inline">
+                {{ _self.paginationLink(args, constant('FWK\\Enums\\Pagination::TYPE_BEFORE')) }}
+                {% set pages = args.paginationItems|column('page') %}
+                {% set min = min(pages) %}
+                {% set max = max(pages) %}
+                {% set page = args.paginationItems|filter(page => page.selected) %}
+                {% if page|length %}
+                    {% set page = page|first %}
+                    {% set min = page.page %}
+                {% endif %}
+                <li class="pagination-middle-count list-inline-item">
+                    <span class="text">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::PAGINATOR_TEXT')]|replace({ '{{page}}': min, '{{pages}}': max }) }}</span>
+                </li>
+                {{ _self.paginationLink(args, constant('FWK\\Enums\\Pagination::TYPE_AFTER')) }}
+            </ul>
+        </div>
+    {% endif %}
+{% endmacro %}
+
+{% macro paginationLink(args, type) %}
+    {% set page = args.paginationItems|filter(page => page.type == type) %}
+    {% if page|length %}
+        {% set page = page|first %}
+        {% set class = 'list-inline-item ' %}
+        {% set class = class ~ attribute(args.pagerParameters, page.type ~ constant('FWK\\Enums\\Pagination::ITEM_CLASS')) %}
+        {% set label = attribute(args.pagerParameters, page.type ~ constant('FWK\\Enums\\Pagination::ITEM_LABEL')) %}
+        {%- set rel = '' -%}
+        {% if page['rel'] is defined %}
+            {%- set rel = 'rel="' ~ page['rel'] ~ '"' -%}
+        {% endif %}
+        <li {% if class|trim|length %}class="{{ class|trim }}"{% endif %}>
+            <a class="item itemLink" {{rel}} href="{{ addParamsToRequest({ (constant('FWK\\Enums\\Parameters::PAGE')): page.page }) }}" target="{{ args.pagerParameters.linkTarget }}">{{ label }}</a>
+        </li>
+    {% endif %}
+{% endmacro %}

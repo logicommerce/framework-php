@@ -1,0 +1,20 @@
+{% macro longText(option, optionIdName, args) %}
+
+    <div class="productOption productOptionTextarea productOption{{ optionIdName }} productOptionPId_{{option.pId}}" data-lc-product-option='{{ outputJsonHtmlString({ id: optionIdName, name: option.language.name, pId: option.pId }) }}'>
+        
+        {% if args.showImageOptions == true and option.image|length > 0 %}
+            <div class="productOptionContainerImage" title="{{ option.language.prompt|default(option.language.name) }}">
+				<img src="{{ option.image }}" alt="{{ option.language.prompt|default(option.language.name) }}">
+			</div>
+        {% endif %}
+        
+        <div class="productOptionPrompt" title="{{ option.language.prompt|default(option.language.name) }}">{{ option.language.prompt|default(option.language.name) }}</div>
+        
+        <div class="productOptionValues">
+            <div class="productOptionValue productOptionTextValue">
+                <textarea name="optionValue{{ optionIdName }}" value="{{option.optionReferenceValue}}" class="form-control productOptionTextValue productOptionLongTextValue" {% if option.required %}data-validation="required"{% endif %} autocomplete="off"></textarea>
+            </div>
+        </div>
+    </div>
+
+{% endmacro %}

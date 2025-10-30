@@ -1,0 +1,15 @@
+{%- macro tagsCloud(args) -%}
+    {%- if args.tags and args.tags|length -%}
+        <div class="tagCloudContainer">
+            {%- if args.showLabel -%}
+                <div class="tagCloudTitle">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::TAG_CLOUD_TITLE')] -}}</div>
+            {%- endif -%}
+            
+            <div class="blogTagsCloud">
+                {%- for tag in args.tags -%}
+                    <a class="blogTagCloud" href="{{- tag.language.urlSeo -}}" {%- if not tag.language.linkFollowing %} rel="nofollow" {%- endif -%}>{{- tag.language.value|replace({ ' ': '&nbsp;' }) -}}</a>
+                {%- endfor -%}
+            </div>
+        </div>
+    {%- endif -%}
+{%- endmacro -%}

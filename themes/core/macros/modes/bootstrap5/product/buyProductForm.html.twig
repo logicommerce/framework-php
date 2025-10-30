@@ -1,0 +1,26 @@
+{% macro buyProductForm(args) %}
+	{%- set warehousesData = outputJsonHtmlString(args.dataWarehousesObject) -%}
+
+	<form method="post" data-lc-form="buyProductForm" class="buyProductForm{{ args.product.id }} buyProductForm {{ args.class }}" {{ args.style|length ? 'style="' ~ args.style ~ '"' : '' }} data-product='{{ outputJsonHtmlString(args.product) }}'>
+
+		{%- if args.sectionId > 0 -%}
+			<input type="hidden" name="sectionId" value="{{ args.sectionId }}">
+		{%- endif -%}
+
+		{%- if args.printParentHash  -%}
+			<input type="hidden" name="parentHash" value="">
+		{%- endif -%}
+	
+        {%- if args.shoppingListRowId > 0 -%}
+			<input type="hidden" name="shoppingListRowId" value="{{ args.shoppingListRowId }}">
+		{%- endif -%}
+
+		{%- if args.discountSelectableGiftId > 0 -%}
+			<input type="hidden" name="discountSelectableGiftId" value="{{ args.discountSelectableGiftId }}">
+		{%- endif -%}
+
+		<input type="hidden" class="buyProductFormProductType" value="{{ args.product.productType }}">
+
+		{{- args.content -}}
+	</form>
+{% endmacro buyProductForm %}

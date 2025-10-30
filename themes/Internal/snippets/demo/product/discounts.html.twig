@@ -1,0 +1,57 @@
+<div class="contentTd">
+	<table border=1>
+		{% if (discounts is iterable and discounts|length > 0 )%}
+    		<tr>
+    			<th>discounts</th><th>Data</th>
+    		</tr>
+			{% for discount in discounts %}
+    			<tr>
+        			<td>{{ loop.index0 }}</td>
+        			<td>
+        				<table border=1>
+                    		<tr>
+                    			<th>Label</th><th>Value</th>
+                    		</tr>
+                    		<tr>
+                    			<td>id</td><td>{{ discount.id }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>pId</td><td> {{ discount.pId }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>applyTo</td><td> {{ discount.applyTo }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>applyOverBasePrice</td><td>{{ discount.applyOverBasePrice?'Yes':'No' }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>accumulateProducts</td><td>{{ discount.accumulateProducts?'Yes':'No' }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>priority</td><td>{{ discount.priority }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>displayPriority</td><td>{{ discount.displayPriority }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>language image</td><td>{{ discount.language.image }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>language name</td><td>{{ discount.language.name }}</td>
+                    		</tr>
+                    		<tr>
+                    			<td>language description </td><td>{{ discount.language.description }}</td>
+                    		</tr>
+                    	</table>
+        			</td>
+				</tr>            			
+			{% endfor %}
+		{% else %}
+			No discounts
+		{% endif %}
+	</table>
+</div>
+
+
+
+

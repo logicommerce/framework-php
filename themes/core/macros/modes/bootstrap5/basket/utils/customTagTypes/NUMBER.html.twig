@@ -1,0 +1,11 @@
+{%- set value = customTag.value -%}
+{% if value matches '/[0-9]+(\.[0-9]+)?(e|E)[0-9]+/' %}
+    {%- set value = value|number_format(0, '.', '') -%}
+{% else %}
+    {% set splitValue = value|split('.') %}
+    {%- if splitValue[1] == 0 -%}
+        {%- set value = splitValue[0] -%}
+    {%- endif -%}
+{%- endif -%}
+
+{{ value }}

@@ -1,0 +1,111 @@
+
+	timer.addFlag('ProductsIncludeMacros'): {{ timer.addFlag('ProductsIncludeMacros', true) }} <br>
+    {% import "/snippets/demo/product/macros.html.twig" as snippetsProduct %}
+	timer.getElapsedTime('ProductsIncludeMacros'): {{ timer.getElapsedTime('ProductsIncludeMacros') }}<br>
+	
+    <table border=1>
+    	<tr>
+    		<th>Loop Index</th><th>Product</th><th>Theme</th><th>language</th><th>MainImages</th><th>definition</th><th>Brand</th><th>Codes</th><th>shipping</th><th>options</th><th>combinations</th><th>categories</th><th>categoryProperties</th><th>Prices</th><th>taxes</th><th>pricesWithTaxes</th><th>customTags</th>
+    	</tr>
+    	{% set product = products %}
+    	    <tr>
+            	<td>{% if index is defined %}{{ index }}{% else %}No index{% endif %}</td>
+            	<td>
+            		timer.addFlag('ProductsOneProduct'): {{ timer.addFlag('ProductsOneProduct', true) }} <br>
+            		<div class="timeTest">
+                		<div class="contentTd">
+    						<table border=1><tr><th>Label</th><th>Value</th></tr><tr><td>id</td><td>{{ product.id }}</td></tr><tr><td>pId</td><td>{{ product.pId }}</td></tr><tr><td>totalStock</td><td>{{ product.totalStock }}</td></tr><tr><td>purchaseMode</td><td>{{ product.purchaseMode }}</td></tr><tr><td>shipping</td><td>{{ product.shipping?"Yes":"No" }}</td></tr><tr><td>weight</td><td>{{ product.weight }}</td></tr><tr><td>mainCategory</td><td>{{ product.mainCategory }}</td></tr><tr><td>priceCategory</td><td>{{ product.priceCategory }}</td></tr><tr><td>supplierId</td><td>{{ product.supplierId }}</td></tr><tr><td>templateId</td><td>{{ product.templateId }}</td></tr><tr><td>productPrice</td><td>{{ product.productPrice }}</td></tr><tr><td>optionsPrice</td><td>{{ product.optionsPrice }}</td></tr><tr><td>reverseChargeVat</td><td>{{ product.reverseChargeVat?"Yes":"No" }}</td></tr></table>
+                        </div>
+					</div>                        
+					timer.getElapsedTime('ProductsOneProduct'): {{ timer.getElapsedTime('ProductsOneProduct') }}<br>
+                </td>
+            	<td>
+            		timer.addFlag('ProductsOneTheme'): {{ timer.addFlag('ProductsOneTheme', true) }} <br>
+            		<div class="timeTest">
+                		{% if product.theme is null %}
+                			Theme is null
+                		{% else %}
+                            {{ snippetsProduct.theme(product.theme) }}
+                		{% endif %}
+            		</div>
+            		timer.getElapsedTime('ProductsOneTheme'): {{ timer.getElapsedTime('ProductsOneTheme') }}<br>
+            	</td>
+            	<td>
+            		timer.addFlag('ProductsOneLanguage'): {{ timer.addFlag('ProductsOneLanguage', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.language(product.language) }}</div>
+            	    timer.getElapsedTime('ProductsOneLanguage'): {{ timer.getElapsedTime('ProductsOneLanguage') }}<br>
+            	</td>
+            	<td>
+            		timer.addFlag('ProductsOneMainImages'): {{ timer.addFlag('ProductsOneMainImages', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.mainImages(product.mainImages) }}</div>
+            	    timer.getElapsedTime('ProductsOneMainImages'): {{ timer.getElapsedTime('ProductsOneMainImages') }}<br>
+            	</td>
+            	<td>
+            		timer.addFlag('ProductsOneDefinition'): {{ timer.addFlag('ProductsOneDefinition', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.definition(product.definition) }}</div>
+            	    timer.getElapsedTime('ProductsOneDefinition'): {{ timer.getElapsedTime('ProductsOneDefinition') }}<br>
+                </td>
+            	<td>
+            		timer.addFlag('ProductsOneBrand'): {{ timer.addFlag('ProductsOneBrand', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.brand(product.brand) }}</div>
+            	    timer.getElapsedTime('ProductsOneBrand'): {{ timer.getElapsedTime('ProductsOneBrand') }}<br>
+                </td>
+            	<td>
+            		timer.addFlag('ProductsOneCodes'): {{ timer.addFlag('ProductsOneCodes', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.codes(product.codes) }}</div>
+            	    timer.getElapsedTime('ProductsOneCodes'): {{ timer.getElapsedTime('ProductsOneCodes') }}<br>
+            	</td>
+            	<td>
+            		timer.addFlag('ProductsOneShippingTypeIds'): {{ timer.addFlag('ProductsOneShippingTypeIds', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.shipping(product.shippingTypeIds) }}</div>
+            	    timer.getElapsedTime('ProductsOneShippingTypeIds'): {{ timer.getElapsedTime('ProductsOneShippingTypeIds') }}<br>
+            	</td>
+            	<td>
+            		timer.addFlag('ProductsOneOptions'): {{ timer.addFlag('ProductsOneOptions', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.options(product.options) }}</div>
+            	    timer.getElapsedTime('ProductsOneOptions'): {{ timer.getElapsedTime('ProductsOneOptions') }}<br>
+            	</td>
+            	<td>
+            	    timer.addFlag('ProductsOneCombinations'): {{ timer.addFlag('ProductsOneCombinations', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.combinations(product.combinations) }}</div>
+            	    timer.getElapsedTime('ProductsOneCombinations'): {{ timer.getElapsedTime('ProductsOneCombinations') }}<br>
+            	</td>
+            	<td>
+            		timer.addFlag('ProductsOneCategories'): {{ timer.addFlag('ProductsOneCategories', true) }} <br>
+            	    <div class="timeTest">{{ snippetsProduct.categories(product.categories) }}</div>
+            	    timer.getElapsedTime('ProductsOneCategories'): {{ timer.getElapsedTime('ProductsOneCategories') }}<br>
+                </td>
+                <td>
+                	timer.addFlag('ProductsOneCategoryProperties'): {{ timer.addFlag('ProductsOneCategoryProperties', true) }} <br>
+                    <div class="timeTest">{{ snippetsProduct.categoryProperties(product.categoryProperties) }}</div>
+                    timer.getElapsedTime('ProductsOneCategoryProperties'): {{ timer.getElapsedTime('ProductsOneCategoryProperties') }}<br>
+                </td>
+            	<td>
+            		timer.addFlag('ProductsOnePrices'): {{ timer.addFlag('ProductsOnePrices', true) }} <br>
+                    <div class="timeTest">{{ snippetsProduct.itemPrice(product.prices) }}</div>
+                    timer.getElapsedTime('ProductsOnePrices'): {{ timer.getElapsedTime('ProductsOnePrices') }}<br>
+            	</td>
+            	<td>
+            		timer.addFlag('ProductsOneTaxes'): {{ timer.addFlag('ProductsOneTaxes', true) }} <br>
+                    <div class="timeTest">{{ snippetsProduct.categoryProperties(product.taxes) }}</div>
+                    timer.getElapsedTime('ProductsOneTaxes'): {{ timer.getElapsedTime('ProductsOneTaxes') }}<br>
+                </td>
+            	<td>
+            		timer.addFlag('ProductsOneCategoryPricesWithTaxes'): {{ timer.addFlag('ProductsOneCategoryPricesWithTaxes', true) }} <br>
+                    <div class="timeTest">{{ snippetsProduct.itemPrice(product.pricesWithTaxes) }}</div>
+                    timer.getElapsedTime('ProductsOneCategoryPricesWithTaxes'): {{ timer.getElapsedTime('ProductsOneCategoryPricesWithTaxes') }}<br>
+            	</td>
+          		<td>
+          			timer.addFlag('ProductsOneCustomTags'): {{ timer.addFlag('ProductsOneCustomTags', true) }} <br>
+                    <div class="timeTest">
+                        <div class="contentTd">
+                            {{ snippetsProduct.customTags(product.customTags) }}
+                        </div>
+                    </div>
+                    timer.getElapsedTime('ProductsOneCustomTags'): {{ timer.getElapsedTime('ProductsOneCustomTags') }}<br>
+				</td>
+            </tr>
+
+    </table>
+	END include before exit: {{ timer.getElapsedTime('ProductsIncludeMacros') }}<br>
+    

@@ -1,0 +1,31 @@
+{% macro view(options, selectedValue) %}
+	
+    <div class="viewBlock templateBlock">
+        {% if options.showLabel %}
+			<div class="viewTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_MODE')] }}</div>
+        {% endif %}
+        <div class="viewElements">
+            {% for element in options.availableTemplates %}
+                {% set class = 'viewElement templateElement' ~ element|ucfirst %}
+                {% if (selectedValue is not defined and loop.first) or (selectedValue is defined and selectedValue == element) %}
+                    {% set class = class ~ ' viewElementSelected' %}
+                {% endif %}
+
+                {% set text = element %}
+                {% if languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_' ~ element)] is defined %}
+                    {% set text = languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_' ~ element|upper)] %}
+                {% endif %}
+                
+                {% set parameters = { 
+                    (constant('FWK\\Enums\\Parameters::TEMPLATE')): element,
+                    (constant('FWK\\Enums\\Parameters::PAGE')): ''
+                } %}
+                
+                <div class="viewElementWrap">
+                    <a class="{{ class }}" href="{{ addParamsToRequest(parameters) }}">{{ text }}</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endmacro %}

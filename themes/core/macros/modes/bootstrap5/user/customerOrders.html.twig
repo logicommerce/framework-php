@@ -1,0 +1,36 @@
+
+{% macro customerOrders(args) %}
+    {% if args.orders.items is not empty %}
+        {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
+        <div class="salesAgentCustomersOrders">
+            {%- import 'macros/modes/' ~ coreMode ~ '/user/orders.html.twig' as ordersMacros -%}
+
+            <div class="centralContent">
+                {{ ordersMacros.orders({
+                    orders: args.orders,
+                    userId: session.user.id,
+                    showOrderStates:[
+                        constant('SDK\\Enums\\OrderStatus::DENIED'),
+                        constant('SDK\\Enums\\OrderStatus::INCIDENTS'),
+                        constant('SDK\\Enums\\OrderStatus::INCOMING'),
+                        constant('SDK\\Enums\\OrderStatus::IN_PROCESS'),
+                        constant('SDK\\Enums\\OrderStatus::COMPLETED'),
+                        constant('SDK\\Enums\\OrderStatus::DELETED'),
+                        constant('SDK\\Enums\\OrderStatus::CONFIRM_DELETED'),
+                    ],
+                    showOrderActions:[
+                        constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW'),
+                        constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW_PDF'),
+                    ],
+                    showOrderIcons:[
+                        constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW'),
+                        constant('FWK\\ViewHelpers\\User\\Macro\\Orders::ACTION_VIEW_PDF'),
+                    ],
+                    documentView: constant('FWK\\ViewHelpers\\User\\Macro\\Orders::WINDOW'),
+                }) }}
+            </div>
+        </div>
+    {% else %}
+        <div class="salesAgentCustomersOrders salesAgentCustomersOrdersEmpty">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::NOT_ORDERS')] }}</div>
+    {% endif %}
+{% endmacro %}

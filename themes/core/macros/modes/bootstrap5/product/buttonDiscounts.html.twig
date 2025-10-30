@@ -1,0 +1,15 @@
+
+{% macro buttonDiscounts(args) %}
+    {% if args.discounts.items|length %}
+        <button 
+            type="button" 
+            data-lc-data='{{ outputJsonHtmlString(args.discounts) }}' 
+            class="{{args.class}} btn btn-secondary" 
+            data-bs-toggle="modal" 
+            data-bs-target="#viewDiscountsModal" 
+            data-lc-required='{ "el": "#viewDiscountsModal", "macro": "discountsButton" }'
+        >
+            {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::AVAILABLE_DISCOUNTS')] }}
+        </button>
+    {% endif %}
+{% endmacro %}

@@ -1,0 +1,50 @@
+{% macro paymentCards(args) %}
+    {%- set paymentCardsContent -%}
+        {%- set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') -%}
+        {%- set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') -%}
+
+        {%- for module, paymentCard in args.paymentCards -%}
+            {%- if paymentCard[constant('FWK\\ViewHelpers\\User\\Macro\\PaymentCards::USER_PLUGIN_PAYMENT_TOKENS')].items is not empty -%}
+                <div class="pluginPaymentCards">
+                    <div class="payment-plugin-header">{{ module|split('.')[2]|capitalize }}</div>
+
+                    <div class="paymentCards">
+                        {%- set valuePluginId = 'value="' ~ paymentCard.pluginProperties.pluginId ~ '"' -%}
+                        {%- for pluginPaymentToken in paymentCard[constant('FWK\\ViewHelpers\\User\\Macro\\PaymentCards::USER_PLUGIN_PAYMENT_TOKENS')].items -%}
+                            <div id="paymentCard_{{- paymentCard.pluginProperties.pluginId -}}_{{- pluginPaymentToken.token -}}" class="paymentCard">
+                                <div class="wrap"> 
+                                    {%- include 'plugins/' ~ ucwords(module,'.') ~ '/core/macros/modes/' ~ coreMode ~ '/user/paymentCardProperties.html.twig' ignore missing with {
+                                        'pluginPaymentToken': pluginPaymentToken
+                                    } -%}
+                                    <div class="actionButtons">
+                                        {%- for name, element in args.deleteCardForm.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
+                                            {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
+                                                {{ element|replace({ (attributeWildcard): 'data-lc-form="deletePaymentCardForm"' }) }}
+                                            {%- elseif name == constant('FWK\\Enums\\Parameters::ID') -%}
+                                                {{ element|replace({ ('value="0"'): valuePluginId }) }}
+                                            {%- elseif name == constant('FWK\\Enums\\Parameters::TOKEN') -%}
+                                                {{ element|replace({ ('{{token}}'): pluginPaymentToken.token }) }}
+                                            {%- else -%}
+                                                {{ element|replace({ (classWildcard) : '' }) }}
+                                            {%- endif -%}
+                                        {%- endfor -%}
+                                    </div>
+                                </div>
+                            </div>
+                        {%- endfor -%}
+                    </div>
+                </div>
+            {%- endif -%}
+        {%- endfor -%}
+    {%- endset -%}
+
+    {%- if paymentCardsContent|trim|length -%}
+        <div class="paymentCardsContainer">
+            {{- paymentCardsContent -}}
+        </div>
+    {%- else -%}
+        <div class="paymentCardsContainerEmpty">
+            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EMPTY_PAYMENT_CARDS')] -}}
+        </div>
+    {%- endif -%}
+{% endmacro paymentCards %}

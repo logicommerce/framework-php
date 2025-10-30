@@ -1,0 +1,17 @@
+{% if (products is not empty) %}
+    <table border=1>
+    	<tr>
+    		<th>Loop Index</th><th>Product</th><th>Theme</th><th>language</th><th>MainImages</th><th>definition</th><th>Brand</th><th>Discounts</th><th>Codes</th><th>shipping</th><th>options</th><th>combinations</th><th>categories</th><th>categoryProperties</th><th>Prices</th><th>taxes</th><th>pricesWithTaxes</th><th>customTags</th>
+    	</tr>
+    	{% for product in products %}
+    	    {% include '/snippets/demo/product.html.twig' with {'product' : product, 'index' : loop.index0, 'timer':timer} only %}
+    	{% else %}
+    		{% include '/snippets/demo/product.html.twig' with {'product' : products, 'index' : 0, 'timer':timer} only %}
+    	{% endfor %}
+    </table>
+{% else %}
+	no items
+{% endif %}    
+
+
+  

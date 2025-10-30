@@ -1,0 +1,32 @@
+{%- macro buyFormQuantity(args) -%}
+    {% set minQuantity = args.forceMinQuantityZero ? 0 : args.minQuantity%}
+    {%- if (args.showOrderBox is not null and args.showOrderBox == true) or (args.showOrderBox is null and args.product.definition.showOrderBox) -%}
+        {%- if args.showSelectableBox -%}
+            <select class="quantitySelect buyFormQuantity form-select {{ args.class }}"  id="{{- args.id -}}" name="quantity" autocomplete="off">
+                {%- for optionIndex in range(minQuantity, args.selectableBoxRows, args.minQuantity) -%}
+                    <option value="{{- optionIndex -}}">{{- optionIndex -}}</option>
+                {%- endfor -%}
+            </select>
+        {%- else -%}
+            <input 
+                type="text" 
+                data-validation="number" 
+                data-validation-allowing="range[{{- minQuantity -}};{{- args.maxQuantity -}}]" 
+                class="buyFormQuantity {{ args.class }}"  
+                id="{{- args.id -}}"
+                name="quantity"
+                value="{{- minQuantity -}}" 
+                data-input="true" 
+                min="{{- args.minQuantity -}}" 
+                max="{{- args.maxQuantity -}}" 
+                data-force-min-zero="{{- args.forceMinQuantityZero -}}" 
+                {%- if args.quantityPlugin %} data-lc-quantity="quantity" {% endif -%}
+                {%- if args.multipleOrderQuantity > 0 %}
+                    multipleValue="{{- args.multipleOrderQuantity -}}"
+                    {%- if args.multipleActsOver > 0 %} multipleFrom="{{- args.multipleActsOver -}}" {% endif -%}
+                {%- endif -%}
+                autocomplete="off"
+            >
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}

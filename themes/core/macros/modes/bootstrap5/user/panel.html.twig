@@ -1,0 +1,121 @@
+{%- macro panel(args) -%}
+    {%- import _self as self -%}
+    <div class="userControlPanel">
+        {%- for groupItems in args.itemsList -%}
+            {%- if groupItems|length -%}
+                <div class="userPanelBlock userPanel{{- args.keys[loop.index0]|ucfirst -}}Block">
+                    <div class="userPanelTitle">
+                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::TITLE_USER_PANEL_' ~ args.keys[loop.index0]|upper)] -}}
+                    </div>
+                    <div class="userPanelLinks">
+                        {%- for item in groupItems -%}
+                            {%- set label = '' -%}
+                            {%- set attributes = '' -%}
+                            {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER')) -%}
+                            {%- set itemRouteType = '' -%}
+                            {%- set icon = '' -%}
+                            {%- if item == 'user' -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER') -%}
+                            {%- elseif item == 'addressBook' -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_ADDRESS_BOOK')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_ADDRESS_BOOK')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_ADDRESS_BOOK') -%}
+                            {%- elseif item == 'changePassword' and session.user.userAdditionalInformation.simulatedUser == false -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::CHANGE_PASSWORD')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_CHANGE_PASSWORD')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_CHANGE_PASSWORD') -%}
+                            {%- elseif item == 'shoppingLists' -%}
+                                {%- if args.availableShoppingLists -%}
+                                    {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_SHOPPING_LISTS')] -%}
+                                {%- else -%}
+                                    {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_SHOPPING_LIST')] -%}
+                                {%- endif -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_SHOPPING_LISTS')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_SHOPPING_LISTS') -%}
+                            {%- elseif item == 'wishlist' -%}
+                                {# deprecated #}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_WISHLIST')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_WISHLIST')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_WISHLIST') -%}
+                            {%- elseif item == 'stockAlerts' -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_STOCK_ALERTS')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_STOCK_ALERTS')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_STOCK_ALERTS') -%}
+                            {%- elseif item == 'subscriptions' -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_SUBSCRIPTIONS')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_SUBSCRIPTIONS')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_SUBSCRIPTIONS') -%}
+                            {%- elseif item == 'orders' -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_ORDERS')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_ORDERS')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_ORDERS') -%}
+                            {%- elseif item == 'rmas' -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_RETURNS')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_RMAS')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_RMAS') -%}
+                            {%- elseif item == 'salesAgent' and session.user.salesAgent -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_SALES_AGENT')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_SALES_AGENT') -%}
+                            {%- elseif item == 'salesAgentCustomers' and session.user.salesAgent -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_MY_CUSTOMERS')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalUser::SALES_AGENT_CUSTOMERS')) -%}
+                                {%- set itemRouteType = constant('FWK\\Enums\\RouteTypes\\InternalUser::SALES_AGENT_CUSTOMERS') -%}
+                            {%- elseif item == 'salesAgentSales' and session.user.salesAgent -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::SALES_AGENT_SALES')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalUser::SALES_AGENT_SALES')) -%}
+                                {%- set itemRouteType = constant('FWK\\Enums\\RouteTypes\\InternalUser::SALES_AGENT_SALES') -%}
+                            {%- elseif item == 'paymentCards' and session.user.userAdditionalInformation.simulatedUser == false -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_PAYMENT_CARDS')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_PAYMENT_CARDS')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_PAYMENT_CARDS') -%}
+                            {%- elseif item == 'rewardPoints' and session.user.userAdditionalInformation.simulatedUser == false -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_REWARD_POINTS')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_REWARD_POINTS')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_REWARD_POINTS') -%}
+                            {%- elseif item == 'logout' -%}
+                                {%- if session.user.userAdditionalInformation.simulatedUser -%}
+                                    {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::LOGOUT_SIMULATION')] -%}
+                                    {%- set link = '#' -%}
+                                    {%- set attributes = ' data-lc-event="click" data-lc-function="logoutSimulation"' -%}
+                                {%- else -%}
+                                    {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::LOGOUT')] -%}
+                                    {%- set link = '#' -%}
+                                    {%- set attributes = ' data-lc-event="click" data-lc-function="logout"' -%}
+                                {%- endif -%}
+                            {%- elseif item == 'deleteAccount' and session.user.userAdditionalInformation.simulatedUser == false -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ACCOUNT')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_DELETE_ACCOUNT')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_DELETE_ACCOUNT') -%}
+                            {%- elseif item == 'voucherCodes' -%}
+                                {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::USER_VOUCHERS')] -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USER_VOUCHER_CODES')) -%}
+                                {%- set itemRouteType = constant('SDK\\Enums\\RouteType::USER_VOUCHER_CODES') -%}
+                            {%- endif -%}
+                            {%- if args.icons|length and args.icons[item] -%}
+                                {%- set icon = args.icons[item] -%}
+                            {%- endif -%}
+                            {%- if label|length -%}
+                                {{- self.panelItem(item, label, link, itemRouteType, attributes, icon) -}}
+                            {%- endif -%}
+                        {%- endfor -%}
+                    </div>
+                </div>
+            {%- endif -%}
+        {%- endfor -%}
+    </div>
+{%- endmacro -%}
+
+{%- macro panelItem(item, label, link, itemRouteType, attributes, icon) -%}
+    {%- set divClasses = 'userPanelItem userPanel' ~ item|ucfirst -%}
+    {%- set linkClasses = 'userPanelLink userPanel' ~ item|ucfirst -%}
+    {%- if itemRouteType == route.type -%}
+        {%- set divClasses = divClasses ~ ' userPanelItemSelected' -%}
+        {%- set linkClasses = linkClasses ~ ' userPanelLinkSelected' -%}
+        {%- set link = '#' -%}
+    {%- endif -%}
+    <div class="{{- divClasses -}}">
+        <a class="{{- linkClasses -}}" href="{{- link -}}"{{ attributes }}>{{- icon -}}{{- label -}}</a>
+    </div>
+{%- endmacro -%}

@@ -1,0 +1,64 @@
+{% macro brand(brand) %}
+    {% include '/snippets/demo/loadTimeTest/product/brand.html.twig' with {'brand' : brand} only %}
+{% endmacro %}
+
+{% macro categories(categories) %}
+    {% include '/snippets/demo/loadTimeTest/product/categories.html.twig' with {'categories' : categories} only %}
+{% endmacro %}
+
+
+{% macro categoryProperties(categoryProperties) %}
+    {% include '/snippets/demo/loadTimeTest/product/categoryProperties.html.twig' with {'categoryProperties' : categoryProperties} only %}
+{% endmacro %}
+
+{% macro combinations(combinations) %}
+    {% include '/snippets/demo/loadTimeTest/product/combinations.html.twig' with {'combinations' : combinations} only %}
+{% endmacro %}    
+    
+{% macro stock(stock) %}
+   {% include '/snippets/demo/loadTimeTest/product/stock.html.twig' with {'stock' : stock} only %}
+{% endmacro %}
+
+{% macro codes(codes) %}
+    {% include '/snippets/demo/loadTimeTest/product/codes.html.twig' with {'codes' : codes} only %}
+{% endmacro %}
+
+{% macro theme(theme) %}
+    {% include '/snippets/demo/loadTimeTest/product/theme.html.twig' with {'theme' : theme} only %}
+{% endmacro %}
+
+{% macro language(language) %}
+    {% include '/snippets/demo/loadTimeTest/product/language.html.twig' with {'language' : language} only %}
+{% endmacro %}    
+        
+{% macro mainImages(mainImages) %}       
+    {% include '/snippets/demo/loadTimeTest/product/mainImages.html.twig' with {'mainImages' : mainImages} only %}
+{% endmacro %}     
+    
+{% macro definition(definition) %}          
+    {% include '/snippets/demo/loadTimeTest/product/definition.html.twig' with {'definition' : definition} only %}
+{% endmacro %}    
+    
+{% macro codes(codes) %}       
+   {% include '/snippets/demo/loadTimeTest/product/codes.html.twig' with {'codes' : codes} only %}
+{% endmacro %} 
+
+{% macro shipping(shippingTypeIds,shippingCalculation) %}       
+    {% include '/snippets/demo/loadTimeTest/product/shipping.html.twig' with {'shippingTypeIds' : shippingTypeIds, 'shippingCalculation' : shippingCalculation } only %}
+{% endmacro %}     
+    
+{% macro options(options) %}    
+    {% include '/snippets/demo/loadTimeTest/product/options.html.twig' with {'options' : options} only %}
+{% endmacro %}     
+    
+{% macro itemPrice(itemPrice) %}    
+    {% include '/snippets/demo/loadTimeTest/product/itemPrice.html.twig' with {'itemPrice' : itemPrice} only %}
+{% endmacro %}
+
+{% macro taxes(taxes) %}    
+    {% include '/snippets/demo/loadTimeTest/product/taxes.html.twig' with {'taxes' : taxes} only %}
+{% endmacro %}
+
+{% macro customTags(customTags) %}       
+    {% include '/snippets/demo/customTags.html.twig' with {'customTags' : customTags} only %}    
+{% endmacro %}  

@@ -1,0 +1,27 @@
+<tr>
+	<td>
+    	{% if index is defined %}
+        	{{ index }}
+        {% else %}
+        	No index    	
+        {% endif %}
+	</td>
+	<td>{{ customTag.pId }}</td>
+	<td>{{ customTag.id }}</td>
+	<td>{{ customTag.comparable ? 'Yes' : 'No' }}</td>
+	<td>{{ customTag.searchable ? 'Yes' : 'No' }}</td>
+	<td>{{ customTag.filterable ? 'Yes' : 'No'}}</td>
+	<td>{{ customTag.selectableValueId }}</td>
+	<td>{{ customTag.groupPriority }}</td>
+	<td>{{ customTag.priority }}</td>
+	<td>{{ customTag.groupPosition }}</td>
+	<td>{{ customTag.position }}</td>
+	<td>{{ customTag.controlType }}</td>
+	<td>{{ customTag.groupId }}</td>
+	<td>{{ customTag.language.value }}</td>
+	<td>{{ customTag.language.groupName }}</td>
+	<td>{{ customTag.language.name }}</td>
+</tr>
+
+
+

@@ -1,0 +1,58 @@
+{%- macro coreJsEnvironmentVariables(args) -%}
+{#- the following code is used a space-remover -> -#} {#--#}
+
+    {%- set defaultString = '""' -%}
+    {#--#}if(logicommerceGlobal === undefined){var logicommerceGlobal = {};}
+    {#--#}logicommerceGlobal.settings = {
+        {#--#}coreMode: {{- outputJsonHtmlString(coreMode)|default(defaultString) -}},
+        {#--#}internal_prefix: {{- outputJsonHtmlString(constant('INTERNAL_PREFIX')) -}},
+        {#--#}commerceName: {{- outputJsonHtmlString(settings.generalSettings.name)|default(defaultString) -}},
+        {#--#}serverTime: {{- outputJsonHtmlString(serverTime) -}},
+        {#--#}commerceDateTime: {{- outputJsonHtmlString(formatMomentDateTime(commerceDateTime)) -}},
+        {#--#}isMobile: {{- args.device == constant('SDK\\Core\\Enums\\Device::MOBILE') ? 'true' : 'false' -}},
+        {#--#}stockManagement: {{- settings.stockSettings.stockManagement ? 'true' : 'false' -}},
+        {#--#}showTaxesIncluded: {{- themeConfiguration.commerce.showTaxesIncluded ? 'true' : 'false' -}},
+        {#--#}catalogStockByWarehouse: {{- args.catalogStockByWarehouse ? 'true' : 'false'  -}},
+        {#--#}pickup: {{- args.pickup ? 'true' : 'false' -}},
+        {#--#}allowReservations: {{- settings.stockSettings.allowReservations ? 'true' : 'false' -}},
+        {#--#}defaultCurrencyId: {{- outputJsonHtmlString(settings.generalSettings.defaultCurrency)|default(defaultString) -}},
+        {#--#}defaultCountryCode: {{- outputJsonHtmlString(settings.generalSettings.defaultCountry)|default(defaultString) -}},
+        {#--#}currencies: {
+            {%- for currency in args.currencies -%}
+                {#--#}{{- currency.code -}}: { 
+                    {#--#}usdValue: {{- currency.usdValue -}}, 
+                    {#--#}symbol: {{- outputJsonHtmlString(currency.symbol)|default(defaultString) -}}, 
+                    {#--#}code: {{- outputJsonHtmlString(currency.code)|default(defaultString) -}},
+                    {#--#}name: {{- outputJsonHtmlString(currency.name)|default(defaultString) -}}
+                {#--#}}{{- loop.last ? '' : ',' -}}
+            {%- endfor -%}
+        {#--#}},
+        {#--#}currencyFormat: {
+            {#--#}minDecimalsLength: {{- constant('CURRENCY_DECIMALS_MIN_LENGTH')?constant('CURRENCY_DECIMALS_MIN_LENGTH'):0 -}},
+            {#--#}maxDecimalsLength: {{- constant('CURRENCY_DECIMALS_MAX_LENGTH')?constant('CURRENCY_DECIMALS_MAX_LENGTH'):0 -}}
+        {#--#}},
+        {#--#}forceBillingAddressCountry: {{- settings.ordersSettings.forceBillingAddressCountry ? 'true' : 'false' -}},
+        {#--#}commerceCdnPath: {{- outputJsonHtmlString(getAssetsPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')))|default(defaultString) -}},
+        {#--#}mobileAgents: {{- outputJsonHtmlString(args.mobileAgents)|default(defaultString) -}},
+        {#--#}commonCdnPath: {{- outputJsonHtmlString(getAssetsPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_CORE')))|default(defaultString) -}},
+        {#--#}useOSCAsync: {{- themeConfiguration.commerce.useOSCAsync ? 'true' : 'false'  -}},
+        {#--#}requiredFlag: {{- outputJsonHtmlString(constant('REQUIRED_FIELD_HTML_FLAG')) -}},
+        {#--#}basketStockLocking: {{- outputJsonHtmlString(settings.basketStockLockingSettings)|default('[]') -}}
+    {#--#}};
+    {#--#}logicommerceGlobal.avoidTrackings = {{- args.avoidTrackings ? 'true' : 'false' -}};{#--#}
+    {#--#}logicommerceGlobal.languageSheet = {
+        {%- for key in languageSheet|keys -%}
+            {#--#}{{- key -}}: {{- outputJsonHtmlString(languageSheet[key])|default(defaultString) -}}{{- loop.last ? '' : ',' -}}
+        {%- endfor -%}
+    {#--#}};
+    {#--#}logicommerceGlobal.routePaths = {
+        {%- for key in routePaths.getRouteTypePaths()|keys -%}
+            {#--#}{{- key -}}: {{- outputJsonHtmlString(routePaths.getPath(key))|default(defaultString) -}}{{- loop.last ? '' : ',' -}}
+        {%- endfor -%}
+    {#--#}};
+    {#--#}logicommerceGlobal.countries = {
+        {%- for country in args.countries -%}
+            {#--#}{{- country.code -}}: {{- outputJsonHtmlString(country)|default(defaultString) -}}{{- loop.last ? '' : ',' -}}
+        {%- endfor -%}
+    {#--#}};
+{%- endmacro coreJsEnvironmentVariables -%}
