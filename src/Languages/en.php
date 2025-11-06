@@ -671,6 +671,7 @@ return [
     LanguageLabels::FROM_DATE => "From",
     LanguageLabels::FROM_N_TO_M_UNITS => "From {{n}} to {{m}} units",
     LanguageLabels::GENDER => "Form of address",
+    LanguageLabels::GENERAL => "General",
     LanguageLabels::GENERAL_TYPE => "General",
     LanguageLabels::GIFT => "Gift",
     LanguageLabels::GIFT_CODE => "Gift voucher",

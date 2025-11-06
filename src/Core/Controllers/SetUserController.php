@@ -649,7 +649,8 @@ abstract class SetUserController extends BaseJsonController {
                             $this->appliedParameters[self::BILLING][Parameters::ADDRESS_ID] = $this->data[self::BILLING][Parameters::ADDRESS_ID];
                             $dataValidator = 'getUpdateUserBillingAddress' . $type;
                             $dataValidator = $themeConfiguration->getDataValidators()->$dataValidator();
-                            $response[self::BILLING] = $this->userService->updateBillingAddress($this->appliedParameters[self::BILLING][Parameters::ADDRESS_ID], $this->billingAddressParametersGroup, $dataValidator);
+                            $data = UserToAccountFactory::mapBillingAddressFromAccountInvoicingAddressCompatible($this->billingAddressParametersGroup);
+                            $response[self::BILLING] = $this->accountService->updateAccountsInvoicingAddresses($this->appliedParameters[self::BILLING][Parameters::ADDRESS_ID], $data, $dataValidator);
 
                             $this->responseMessageError = Utils::getErrorLabelValue($response[self::BILLING]);
                             $this->responseError = $response[self::BILLING]->getError();

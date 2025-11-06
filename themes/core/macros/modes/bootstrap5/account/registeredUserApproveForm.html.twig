@@ -88,7 +88,7 @@
                                                     {% if args.advcaLicense %}
                                                         <div>
                                                             <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE')] }}</label>
-                                                            <div class="form-control-plaintext">{{ args.registeredUser.role.name }}</div>
+                                                            <div class="form-control-plaintext">{{ args.registeredUser.role.name ?? languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT')] }}</div>
                                                         </div>
                                                     {% endif %}
                                                 {% endif %}

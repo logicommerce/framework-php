@@ -1252,7 +1252,11 @@ LC.dataEvents.getReturnRequestForm = function (event) {
     const data = $(event.currentTarget).data('lc-data');
     const documentPath = LC.global.routePaths.USER_INTERNAL_RETURN + '?id=' + data.documentId + (data.session ? '' : '&token=' + data.token);
     const url = documentPath;
-    const returnOrderPopup = $(`#returnProductsPopup${data.documentId} .lcModalContainer`).html(DEFAULT_LOADING_SPINNER);
+    if (data.isAccount) {
+        var returnOrderPopup = $(`#returnProductsPopup .lcModalContainer`).html(DEFAULT_LOADING_SPINNER);
+    } else {
+        var returnOrderPopup = $(`#returnProductsPopup${data.documentId} .lcModalContainer`).html(DEFAULT_LOADING_SPINNER);
+    }
 
     $().ready(function () {
         $.ajax({
@@ -1265,6 +1269,39 @@ LC.dataEvents.getReturnRequestForm = function (event) {
                 if (typeof form !== 'undefined') {
                     new LC.ReturnRequestForm(form);
                 }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log('xHR: ' + xhr);
+                console.log('ajaxOption: ' + ajaxOptions);
+                console.log('thrownError: ' + thrownError);
+            }
+        });
+    });
+};
+
+/**
+ * Get return request form
+ * @param {Object} event
+ */
+LC.dataEvents.returnTracingForm = function (event) {
+    const data = $(event.currentTarget).data('lc-data');
+    const documentPath = LC.global.routePaths.USER_INTERNAL_RETURN_TRACING_FORM + '?id=' + data.documentId + (data.session ? '' : '&token=' + data.token);
+    const url = documentPath;
+
+    if (data.isAccount) {
+        var returnOrderPopup = $(`#returnTracingPopup #returnTracingContentPopup`).html(DEFAULT_LOADING_SPINNER);
+    } else {
+        var returnOrderPopup = $(`#returnTracingPopup${data.documentId} #returnTracingContentPopup`).html(DEFAULT_LOADING_SPINNER);
+    }
+
+    $().ready(function () {
+        $.ajax({
+            type: "GET",
+            url: url,
+            crossDomain: true,
+            success: function (data) {
+                returnOrderPopup.html($(data).find('.content-modules').html());
+                returnOrderPopup.find('[data-lc-event]').dataEvent();
             },
             error: function (xhr, ajaxOptions, thrownError) {
                 console.log('xHR: ' + xhr);
@@ -1355,12 +1392,18 @@ LC.dataEvents.viewDocumentPopup = function (event) {
     var data = $(event.currentTarget).data('lc-data');
     var documentType = data.documentType;
     var documentPath;
+    var $documentPopupTitle;
+    var documentPopupTitle;
     switch (documentType) {
         case 'order':
             documentPath = LC.global.routePaths.USER_ORDER;
+            $documentPopupTitle = $('#popupOrder #popupOrderTitle');
+            documentPopupTitle = data.popupTitle + ' ' + data.documentNumber;
             break;
         case 'invoice':
             documentPath = LC.global.routePaths.USER_INTERNAL_INVOICE;
+            $documentPopupTitle = $('#popupInvoice #popupInvoiceTitle');
+            documentPopupTitle = data.popupTitle + ' ' + data.documentNumber;
             break;
         case 'rma':
             documentPath = LC.global.routePaths.USER_INTERNAL_RMA;
@@ -1379,8 +1422,15 @@ LC.dataEvents.viewDocumentPopup = function (event) {
     } else {
         url += data.documentId;
     }
-
-    var popup = $('#viewpopup' + documentType + data.documentId).html(DEFAULT_LOADING_SPINNER);
+    if (data.isAccount) {
+        var popupPath = '#viewpopup' + documentType;
+        if ($documentPopupTitle && documentPopupTitle) {
+            $documentPopupTitle.text(documentPopupTitle);
+        }
+    } else {
+        var popupPath = '#viewpopup' + documentType + data.documentId;
+    }
+    var popup = $(popupPath).html(DEFAULT_LOADING_SPINNER);
     $().ready(function () {
         $.ajax({
             type: "GET",
@@ -2790,7 +2840,7 @@ LC.dataEvents.registeredUserMove = function (event) {
     var data = $(event.currentTarget).data('lc-data');
     var tokenParam = (data.session ? '' : '&token=' + data.token);
     var url = `${LC.global.routePaths.ACCOUNT_INTERNAL_ACCOUNT_REGISTERED_USER_MOVE}?accountId=${data.accountId}&registeredUserId=${data.registeredUserId}${tokenParam}`;
-    var popup = $('#registeredUserMove' + data.accountId + '-' + data.registeredUserId).html(DEFAULT_LOADING_SPINNER);
+    var popup = $('#registeredUserMoveContent').html(DEFAULT_LOADING_SPINNER);
     $().ready(function () {
         $.ajax({
             type: "GET",
@@ -2838,8 +2888,13 @@ LC.dataEvents.registeredUsersDelete = function (event) {
 
                         if (success) {
                             LC.notify(message, { type: 'success' });
-                            if (response.data.data.redirect && response.data.data.redirect.length) {
+
+                            if ($('#registeredUsersDelete').length > 0) {
+                                closeRegisteredUserModalAndReload($('#registeredUsersDelete .buttonDismiss'));
+                            } else if (response.data.data.redirect && response.data.data.redirect.length) {
                                 window.location = response.data.data.redirect;
+                            } else {
+                                window.location = window.location.href;
                             }
                         } else {
                             LC.notify(errorMessage, { type: 'danger' });
@@ -2857,33 +2912,43 @@ LC.dataEvents.registeredUsersDelete = function (event) {
     });
 
 }
+LC.dataEvents.accountOrdresLink = function (event) {
+    event.preventDefault();
+    var loadUrl = $("#accountOrdersLoadUrl").val();
+    var url = new URL(loadUrl);
+    var baseUrl = url.origin + url.pathname;
+
+    var $link = $(event.currentTarget);
+    var params = $link.attr('href');
+    accountOrdresReloadResults(baseUrl + params);
+}
+
+LC.dataEvents.accountRegisteredUsersLink = function (event) {
+    event.preventDefault();
+    var loadUrl = $("#accountRegisteredUsersLoadUrl").val();
+    var url = new URL(loadUrl);
+    var baseUrl = url.origin + url.pathname;
+
+    var $link = $(event.currentTarget);
+    var params = $link.attr('href');
+    accountRegisteredUsersReloadResults(baseUrl + params);
+}
+
 LC.dataEvents.registeredUsersAdd = function (event) {
     event.preventDefault();
-
-    const modal = document.getElementById('registeredUsersCreateModal');
-    const modalContent = document.getElementById('registeredUsersCreateContent');
-    if (!modal || !modalContent) {
-        LC.notify('Modal not found on page', { type: 'danger' });
-        return;
-    }
-
-    // Show modal
-    const bootstrapModal = new bootstrap.Modal(modal);
-    bootstrapModal.show();
-
+    var modalContent = $('#registeredUsersCreateContent').html(DEFAULT_LOADING_SPINNER);
     var data = $(event.currentTarget).data('lc-data');
     var url = `${LC.global.routePaths.ACCOUNT_REGISTERED_USER_CREATE}`.replace("used", `${data.accountId ?? "used"}`);
 
-    var popup = $('#registeredUsersCreateContent');
     $().ready(function () {
         $.ajax({
             type: "GET",
             url: url,
             crossDomain: true,
             success: function (html) {
-                popup.html(html);
-                popup.find('[data-lc-event]').dataEvent();
-                var form = popup.find('form');
+                modalContent.html(html);
+                modalContent.find('[data-lc-event]').dataEvent();
+                var form = modalContent.find('form');
                 if (form) {
                     new LC.RegisteredUserCreateForm(form);
                 }
@@ -2903,7 +2968,7 @@ LC.dataEvents.registeredUserUpdate = function (event) {
     var tokenParam = (data.session ? '' : '?token=' + data.token);
     var url = `${LC.global.routePaths.ACCOUNT_REGISTERED_USER}`.replace("{accountId}", `${data.accountId}`).replace("{registeredUserId}", `${data.registeredUserId}`) + `${tokenParam}`;
     //.replace("{a}", a).replace("{b}", b)
-    var popup = $('#registeredUserUpdate' + data.accountId + '-' + data.registeredUserId).html(DEFAULT_LOADING_SPINNER);
+    var popup = $('#registeredUserUpdateContent').html(DEFAULT_LOADING_SPINNER);
     $().ready(function () {
         $.ajax({
             type: "GET",
@@ -3237,7 +3302,6 @@ LC.dataEvents.deleteCompanyRole = function (event) {
 
 LC.dataEvents.editAccount = function (event) {
     event.preventDefault();
-
     const data = $(event.currentTarget).data('lc-data') || {};
     const modal = document.getElementById('editAccountFormModal');
     const $content = $('#editAccountFormModalContent');
@@ -3259,22 +3323,7 @@ LC.dataEvents.editAccount = function (event) {
 
     // limpiar y poner loader
     $content.empty().html(DEFAULT_LOADING_SPINNER);
-
-    // abrir modal ya con loader
-    const $title = $('#editAccountFormModalTitle');
-    if ($title.length) {
-    // guardar plantilla solo una vez (la que incluye {{ACCOUNT_NAME}})
-    let tpl = $title.data('template');
-    if (!tpl) {
-        tpl = $title.html();
-        $title.data('template', tpl);
-    }
-    // escape simple para usar .html()
-    const safe = String(data.accountName || '')
-        .replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-    // admite espacios: {{ ACCOUNT_NAME }}
-    $title.html(tpl.replace(/\{\{\s*ACCOUNT_NAME\s*\}\}/g, safe));
-    }
+    $('#editAccountFormModalTitle').html(data.title);
 
     const bsModal = bootstrap.Modal.getOrCreateInstance(modal);
     bsModal.show();
@@ -3289,6 +3338,20 @@ LC.dataEvents.editAccount = function (event) {
                 const $formBlock = $html.find('.accountEditFormContent');
                 $content.html($formBlock.length ? $formBlock : $html);
 
+                new LC.BillingAddressBookForm($content.find('#billingAddressBookForm')[0]);
+                new LC.ShippingAddressBookForm($content.find('#shippingAddressBookForm')[0]);
+
+                $('#billingAddressBookModal').on('hidden.bs.modal', function (e) {
+                    bsModal.show();
+                });
+                $('#shippingAddressBookModal').on('hidden.bs.modal', function (e) {
+                    bsModal.show();
+                });
+
+                if ($("body >.addressBookModal").length > 0) {
+                    $("body >.addressBookModal").remove();
+                }
+                $content.find('.addressBookModal').appendTo('body');
                 // re-enlazar eventos declarativos
                 $content.find('[data-lc-event]').dataEvent();
 
@@ -3312,13 +3375,95 @@ LC.dataEvents.editAccount = function (event) {
 LC.dataEvents.viewOrders = function (event) {
     event.preventDefault();
     var data = $(event.currentTarget).data('lc-data');
-    window.location.href = LC.global.routePaths.ACCOUNT_ORDERS.replace("{idUsed}", data.accountId);
+    $('#accountOrdresModalTitle').html(data.title);
+    var url = LC.global.routePaths.ACCOUNT_ORDERS.replace("used", data.accountId);
+    var $modalContent = $('#accountOrdresModalContent').html(DEFAULT_LOADING_SPINNER);
+    var modal = document.getElementById('accountOrdresModal');
+    var bsModal = bootstrap.Modal.getOrCreateInstance(modal);
+    bsModal.show();
+    $().ready(function () {
+        $.ajax({
+            type: "GET",
+            url: url,
+            crossDomain: true,
+
+            success: function (html) {
+                if ($("body > .lc-accountOrdersModal").length > 0) {
+                    $("body >.lc-accountOrdersModal").remove();
+                }
+                $(html).find('.lc-accountOrdersModal').appendTo('body');
+
+                var accountOrdres = $(html).find('#accountOrdres');
+                $modalContent.html(accountOrdres);
+                $modalContent.find('.lc-accountOrdersModal').remove();
+                $modalContent.find('[data-lc-event]').dataEvent();
+                var form = $modalContent.find('#ordersForm');
+                if (form) {
+                    new LC.OrdersForm(form);
+                }
+                var loaderForm = $modalContent.find('#accountOrdersLoaderForm');
+                if (loaderForm) {
+                    new LC.AccountOrdresLoaderForm(loaderForm).initialize(loaderForm, url);
+                }
+
+                $('.lc-accountOrdersModal').on('hidden.bs.modal', function (e) {
+                    bsModal.show();
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log('xHR: ' + xhr);
+                console.log('ajaxOption: ' + ajaxOptions);
+                console.log('thrownError: ' + thrownError);
+            }
+        });
+    });
 }
 
 LC.dataEvents.manageEmployees = function (event) {
     event.preventDefault();
     var data = $(event.currentTarget).data('lc-data');
-    window.location.href = LC.global.routePaths.ACCOUNT_REGISTERED_USERS.replace("used", data.accountId);
+    $('#manageEmployeesModalTitle').html(data.title);
+
+    var url = LC.global.routePaths.ACCOUNT_REGISTERED_USERS.replace("used", data.accountId);
+    var $modalContent = $('#manageEmployeesModalContent').html(DEFAULT_LOADING_SPINNER);
+    var modal = document.getElementById('manageEmployeesModal');
+    var bsModal = bootstrap.Modal.getOrCreateInstance(modal);
+    bsModal.show();
+    $().ready(function () {
+        $.ajax({
+            type: "GET",
+            url: url,
+            crossDomain: true,
+            success: function (html) {
+                if ($("body >.lc-accountRegisteredUsersModal").length > 0) {
+                    $("body >.lc-accountRegisteredUsersModal").remove();
+                }
+                $(html).find('.lc-accountRegisteredUsersModal').appendTo('body');
+
+                var manageEmployees = $(html).find('#accountRegisteredUsers');
+                $modalContent.html(manageEmployees);
+                $modalContent.find('.lc-accountRegisteredUsersModal').remove();
+                $modalContent.find('[data-lc-event]').dataEvent();
+                var form = $modalContent.find('#registeredUsersForm');
+                if (form) {
+                    new LC.AccountRegisteredUsersForm(form);
+                }
+                var loaderForm = $modalContent.find('#accountRegisteredUsersLoaderForm');
+                if (loaderForm) {
+                    new LC.AccountRegisteredUserLoaderForm(loaderForm).initialize(loaderForm, url);
+                }
+
+                $('.lc-accountRegisteredUsersModal').on('hidden.bs.modal', function (e) {
+                    bsModal.show();
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log('xHR: ' + xhr);
+                console.log('ajaxOption: ' + ajaxOptions);
+                console.log('thrownError: ' + thrownError);
+            }
+        });
+    });
 }
 
 LC.dataEvents.ordersApprovalDecision = function (event) {
@@ -3346,8 +3491,12 @@ LC.dataEvents.ordersApprovalDecision = function (event) {
 
                     if (success) {
                         LC.notify(message, { type: 'success' });
-                        if (response.data.data.redirect && response.data.data.redirect.length) {
+                        if ($('#ordersApprovalDecision').length > 0) {
+                            closeAccountOrdresReloadResults($('#ordersApprovalDecision .ordersApprovalDecisionButtonDismiss'));
+                        } else if (response.data.data.redirect && response.data.data.redirect.length) {
                             window.location = response.data.data.redirect;
+                        } else {
+                            window.location = window.location.href;
                         }
                     } else {
                         LC.notify(message, { type: 'danger' });

@@ -19,6 +19,9 @@ use FWK\Core\Controllers\SetUserController;
 use FWK\Enums\SetUserTypeForms;
 use FWK\Services\UserService;
 use FWK\Core\Controllers\Traits\CheckCaptcha;
+use FWK\Services\AccountService;
+use SDK\Core\Services\Parameters\Factories\UserToAccountFactory;
+use SDK\Enums\AccountKey;
 use SDK\Services\Parameters\Groups\User\Addresses\AddressValidateParametersGroup;
 
 /**
@@ -38,6 +41,8 @@ class SetAddressBookController extends BaseJsonController {
 
     private ?UserService $userService = null;
 
+    private ?AccountService $accountService = null;
+
     /**
      * Constructor method.
      *
@@ -46,6 +51,7 @@ class SetAddressBookController extends BaseJsonController {
     public function __construct(Route $route) {
         parent::__construct($route);
         $this->userService = Loader::service(Services::USER);
+        $this->accountService = Loader::service(Services::ACCOUNT);
         $this->responseMessage = $this->language->getLabelValue(LanguageLabels::SAVED, $this->responseMessage);
     }
 
@@ -56,7 +62,7 @@ class SetAddressBookController extends BaseJsonController {
      * @return mixed
      */
     protected function getFilterParams(): array {
-        return array_merge(SetUserController::getInputFilterParameters('', true, $this->getSession()->getUser()), FilterInputFactory::getSetAddressBookParameters());
+        return array_merge(SetUserController::getInputFilterParameters('', true, $this->getSession()->getUser()), FilterInputFactory::getSetAddressBookParameters(), FilterInputFactory::getAccountIdParameter());
     }
 
     /**
@@ -81,6 +87,7 @@ class SetAddressBookController extends BaseJsonController {
         $data = SetUserController::parseData($this->getRequestParams());
 
         $this->appliedParameters[Parameters::ID] = $this->getRequestParam(Parameters::ID, false, 0);
+        $this->appliedParameters[Parameters::ACCOUNT_ID] = $this->getRequestParam(Parameters::ACCOUNT_ID, false, AccountKey::USED);
         $this->appliedParameters[Parameters::TYPE] = $this->getRequestParam(Parameters::TYPE, true);
         $this->appliedParameters[Parameters::ACTION] = $this->getRequestParam(Parameters::ACTION, false, '');
         if ($this->appliedParameters[Parameters::ACTION] == 'set_default_address') {
@@ -115,9 +122,11 @@ class SetAddressBookController extends BaseJsonController {
                     $billingAddressParametersGroup->setDefaultAddress(true);
                 }
                 if ($this->appliedParameters[Parameters::ID] == 0) {
-                    $response = $this->userService->createBillingAddress($billingAddressParametersGroup, $dataValidator);
+                    $data = UserToAccountFactory::mapBillingAddressFromAccountInvoicingAddressCompatible($billingAddressParametersGroup);
+                    $response = $this->accountService->createAccountInvoicingAddresses($this->appliedParameters[Parameters::ACCOUNT_ID], $data, $dataValidator);
                 } else {
-                    $response = $this->userService->updateBillingAddress($this->appliedParameters[Parameters::ID], $billingAddressParametersGroup, $dataValidator);
+                    $data = UserToAccountFactory::mapBillingAddressFromAccountInvoicingAddressCompatible($billingAddressParametersGroup);
+                    $response = $this->accountService->updateAccountsInvoicingAddresses($this->appliedParameters[Parameters::ID], $data, $dataValidator);
                 }
             }
         } else {
@@ -135,9 +144,11 @@ class SetAddressBookController extends BaseJsonController {
                     $shippingAddressParametersGroup->setDefaultAddress(true);
                 }
                 if ($this->appliedParameters[Parameters::ID] == 0) {
-                    $response = $this->userService->createShippingAddress($shippingAddressParametersGroup, $dataValidator);
+                    $data = UserToAccountFactory::mapShippingAddressFromAccountShippingAddress($shippingAddressParametersGroup);
+                    $response = $this->accountService->createAccountShippingAddresses($this->appliedParameters[Parameters::ACCOUNT_ID], $data, $dataValidator);
                 } else {
-                    $response = $this->userService->updateShippingAddress($this->appliedParameters[Parameters::ID], $shippingAddressParametersGroup, $dataValidator);
+                    $data = UserToAccountFactory::mapShippingAddressFromAccountShippingAddress($shippingAddressParametersGroup);
+                    $response = $this->accountService->updateAccountsShippingAddresses($this->appliedParameters[Parameters::ID], $data, $dataValidator);
                 }
             }
         }

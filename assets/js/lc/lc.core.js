@@ -806,6 +806,7 @@ LC.addressBookForm = {
         this.el.$form.find('.formField').not('[type="radio"]').val('');
         this.el.$form.find('[name="mode"]').val('add');
         this.el.$form.find('[name="id"]').val('');
+        this.el.$form.find('[name="accountId"]').val(data.accountId);
         this.el.$form.selectMode = data.selectMode;
         this.fillFormData(data);
         $(this.el.$form.find('.userFieldGroupCountry')).each(function (index, el) {
@@ -1026,8 +1027,7 @@ LC.addressBookForm = {
 
         if (success) {
             var type = this.el.$form.find('[name="type"]').val(),
-                mode = this.el.$form.find('[name="mode"]').val(),
-                accountType = this.el.$form.data('lc-account-type');
+                mode = this.el.$form.find('[name="mode"]').val();
 
             if (Object.hasOwn(response.data.data.data, 'valid') && response.data.data.data.valid === false) {
                 let validationData = response.data.data.data;
@@ -1086,9 +1086,6 @@ LC.addressBookForm = {
 
                     // Add background delete event
                     this.deleteAddressEvents($html.find('[data-lc-action="deleteAddressBook"]'));
-                    if (accountType && accountType !== 'GENERAL') {
-                        $(".blockAddressBook." + type + " .addAddressBook").hide();
-                    }
                 }
             }
         } else {
@@ -1181,7 +1178,10 @@ LC.addressBookForm = {
             action = '',
             selectedLabel = '';
 
-        if ($('body').data('lc-page') == 'userAddressBook') {
+        let lcPage = $('body').data('lc-page');
+        if (lcPage == 'userAddressBook' ||
+            lcPage == 'accountCompanyStructure' ||
+            lcPage == 'account') {
             action = 'set_default_address';
             selectedLabel = LC.global.languageSheet.defaultAddress;
         } else {

@@ -205,7 +205,7 @@ function resetRegisteredUserSelector(event, accountId, format) {
     $('#registeredUserSelectorContainer #registeredUserId').val("");
     registeredUserSelectorSearch("", accountId, format, 1);
 }
-function initCalendar(form) {
+function initCalendar(form, dateFormat = 'YYYY-MM-DDTHH:mm:ssZ') {
     $(form).find('[data-datetimepicker]').each(
         (index, el) => {
             var $calendar = $(el),
@@ -227,7 +227,7 @@ function initCalendar(form) {
             $(el).on('dp.change', (e) => {
                 var $optionsubmitValue = $(form).find('[name="' + $calendar.data('submit') + '"]');
                 if (e.date) {
-                    $optionsubmitValue.val(moment(e.date).format('YYYY-MM-DDTHH:mm:ssZ'));
+                    $optionsubmitValue.val(moment(e.date).format(dateFormat));
                 } else {
                     $optionsubmitValue.val('');
                 }
@@ -235,4 +235,51 @@ function initCalendar(form) {
 
         }
     );
+}
+
+function accountRegisteredUsersReloadResults(urlPath) {
+    var $content = $('#accountRegisteredUsersReload');
+    if ($content.length === 0) {
+        window.location.href = urlPath;
+    } else {
+        $content.html(DEFAULT_LOADING_SPINNER);
+        $("#accountRegisteredUsersLoadUrl").val(urlPath);
+        $content.load(urlPath + ' #accountRegisteredUsersReload > *', function (response, status) {
+            if ($("body.lcContent-accountRegisteredUsers").length > 0) {
+                history.pushState({ url: urlPath }, '', urlPath);
+            }
+            $content.find('.lc-accountRegisteredUsersModal').remove();
+            $content.find('[data-lc-event]').dataEvent();
+        });
+    }
+
+}
+
+function accountOrdresReloadResults(urlPath) {
+    var $content = $('#accountOrdresReload');
+    if ($content.length === 0) {
+        window.location.href = urlPath;
+    } else {
+        $content.html(DEFAULT_LOADING_SPINNER);
+        $("#accountOrdersLoadUrl").val(urlPath);
+        $content.load(urlPath + ' #accountOrdresReload > *', function (response, status) {
+            if ($("body.lcContent-accountOrders").length > 0) {
+                history.pushState({ url: urlPath }, '', urlPath);
+            }
+            $content.find('.lc-accountOrdersModal').remove();
+            $content.find('[data-lc-event]').dataEvent();
+        });
+    }
+}
+
+function closeRegisteredUserModalAndReload($modalClose) {
+    $modalClose.click();
+    var newUrl = $("#accountRegisteredUsersLoadUrl").val();
+    accountRegisteredUsersReloadResults(newUrl);
+}
+
+function closeAccountOrdresReloadResults($modalClose) {
+    $modalClose.click();
+    var newUrl = $("#accountOrdersLoadUrl").val();
+    accountOrdresReloadResults(newUrl);
 }

@@ -5,7 +5,7 @@
         {%- for prefix in [constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX'), constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX')] -%}
             <div id="{{- prefix -}}AddressContainer" class="blockAddressBook {{ prefix }} col-lg-6">
                 <div class="title">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::' ~ prefix|upper ~ '_ADDRESS')] -}}</div>
-                    {%- set lcData = { 'selectMode': args.selectMode } -%}
+                    {%- set lcData = { 'selectMode': args.selectMode, "accountId": args.accountId } -%}
                     {%- if (isGeneral or prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX')) and
                         ((prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') and args.showAddNewBilling) or
                         (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and args.showAddNewShipping))
@@ -28,7 +28,7 @@
                     {%- endif -%}
                 <div class="content">
                     {%- for address in args[prefix ~ 'Addresses'].items -%}
-		                {{- modeUser.item(address, prefix, args.selectMode, args.showEditBilling, args.showEditShipping, args.showDeleteBilling, args.showDeleteShipping) -}}
+		                {{- modeUser.item(address, prefix, args.selectMode, args.showEditBilling, args.showEditShipping, args.showDeleteBilling, args.showDeleteShipping, args.showSelectAddressBilling, args.showSelectAddressShipping) -}}
                     {%- else -%}
                         <span class="notAvailableAddress">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::NOT_AVAILABLE_ADDRESS')] -}}</span>
                     {%- endfor -%}

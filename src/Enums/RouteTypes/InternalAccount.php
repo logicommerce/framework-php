@@ -26,6 +26,8 @@ use SDK\Core\Enums\Enum;
  * @package FWK\Enums\RouteTypes
  */
 abstract class InternalAccount extends Enum {
+    public const ACCOUNT_REGISTERED_USERS = 'ACCOUNT_INTERNAL_ACCOUNT_REGISTERED_USERS';
+
     public const ACCOUNT_REGISTERED_USER_MOVE = 'ACCOUNT_INTERNAL_ACCOUNT_REGISTERED_USER_MOVE';
 
     public const UPDATE_ACCOUNT = 'ACCOUNT_INTERNAL_UPDATE_ACCOUNT';

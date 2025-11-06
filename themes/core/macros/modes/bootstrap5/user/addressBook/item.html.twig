@@ -1,7 +1,8 @@
-{% macro item(address, prefix, selectMode, showEditBilling, showEditShipping, showDeleteBilling, showDeleteShipping) %}
-
+{% macro item(address, prefix, selectMode, showEditBilling, showEditShipping, showDeleteBilling, showDeleteShipping, showSelectAddressBilling = true, showSelectAddressShipping = true) %}
     {% if route.type != constant('SDK\\Enums\\RouteType::USER_ADDRESS_BOOK')
-        and route.type != constant('SDK\\Enums\\RouteType::ACCOUNT_ADDRESSES') %}
+        and route.type != constant('SDK\\Enums\\RouteType::ACCOUNT_ADDRESSES')
+        and route.type != constant('SDK\\Enums\\RouteType::ACCOUNT')
+        and route.type != constant('SDK\\Enums\\RouteType::ACCOUNT_ID') %}
         {% set action = 'select' %}
         {% set topAddressLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECTED_ADDRESS')] %}
         {% set setActivedAddress = false %}
@@ -18,8 +19,14 @@
         {% set topAddressLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::DEFAULT_ADDRESS')] %}
         {% set action = 'set_default_address' %}
         {% set setActivedAddress = address.defaultAddress %}
+
+        {% set showSelectAddress = true %}
+        {% if (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::BILLING_PREFIX') and showSelectAddressBilling) or 
+            (prefix == constant('FWK\\ViewHelpers\\User\\Macro\\AddressForm::SHIPPING_PREFIX') and showSelectAddressShipping) 
+        %}
+            {% set showSelectAddress = false %}
+        {% endif %}
     {% endif %}
-    
     <div id="addressBookContainer_{{ address.id }}" class="addressBook {{ prefix }}Address {% if setActivedAddress %} addressBookActive {% endif %}">
         <div class="wrap">
             <div class="default {% if not setActivedAddress %} addressBookHidden {% endif %}">{{ topAddressLabel }}</div>
@@ -135,9 +142,8 @@
                 {% endset %}
                 {{ spacelessContent|replace({'\n': '', '\t': '', '  ': ' '})|trim }}
             </div>
-
             {% if selectMode == constant('FWK\\ViewHelpers\\User\\Macro\\AddressBook::SELECT_MODE_BUTTON') %}
-                <button class="{{ prefix }}Address addressBookAction addressSelect btn btn-link {% if setActivedAddress %} addressBookHidden {% endif %}" data-lc-data='{{ outputJsonHtmlString(selectData) }}' type="button">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECT_ADDRESS_BOOK')] }}</button>
+                <button class="{{ prefix }}Address addressBookAction addressSelect btn btn-link {% if setActivedAddress or showSelectAddress %} addressBookHidden {% endif %}" data-lc-data='{{ outputJsonHtmlString(selectData) }}' type="button">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECT_ADDRESS_BOOK')] }}</button>
             {% endif %}
 
         </div>

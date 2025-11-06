@@ -95,8 +95,9 @@ class UpdateRegisteredUserController extends BaseJsonController {
         } else {
             unset($data[Parameters::BIRTHDAY]);
         }
-        $this->accountService->generateParametersGroupFromArray($this->updateRegisteredUserParametersGroup, $data);
 
+        $this->accountService->generateParametersGroupFromArray($this->updateRegisteredUserParametersGroup, $data);
+        $this->accountService->applyRegisteredUserFields($this->updateRegisteredUserParametersGroup, $data);
         $response = $this->accountService->updateRegisteredUserMe($this->updateRegisteredUserParametersGroup);
 
         if (!is_null($response->getError())) {

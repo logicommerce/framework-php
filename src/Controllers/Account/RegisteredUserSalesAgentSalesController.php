@@ -118,13 +118,13 @@ class RegisteredUserSalesAgentSalesController extends BaseHtmlController {
      * operation of the controller.
      */
     protected function setControllerBaseData(): void {
-        $aux = [];
-        $aux[self::SALES_AGENT_SALES] = $this->getControllerData(self::SALES_AGENT_SALES);
-        $aux[self::SALES_AGENT_SALES_FORM] = FormFactory::getAccountSalesAgentSales(
+        $items = [];
+        $items[self::SALES_AGENT_SALES] = $this->getControllerData(self::SALES_AGENT_SALES);
+        $items[self::SALES_AGENT_SALES_FORM] = FormFactory::getAccountSalesAgentSales(
             $this->fromDate,
             $this->toDate,
         );
-        $this->setDataValue(self::CONTROLLER_ITEM, $aux);
+        $this->setDataValue(self::CONTROLLER_ITEM, $items);
     }
 
     /**

@@ -4,7 +4,6 @@ namespace FWK\Controllers\Account\Internal;
 
 use DateTime;
 use FWK\Core\Controllers\BaseJsonController;
-use FWK\Core\FilterInput\FilterInput;
 use FWK\Core\FilterInput\FilterInputFactory;
 use FWK\Core\FilterInput\FilterInputHandler;
 use FWK\Core\Form\FormFactory;
@@ -16,6 +15,7 @@ use FWK\Enums\Services;
 use FWK\Services\AccountService;
 use SDK\Core\Dtos\Element;
 use SDK\Core\Resources\BatchRequests;
+use SDK\Core\Services\Parameters\Groups\CustomTagDataParametersGroup;
 use SDK\Dtos\Common\Route;
 use SDK\Services\Parameters\Groups\Account\MasterUpdateParametersGroup;
 use SDK\Services\Parameters\Groups\Account\RegisteredUserParametersGroup;
@@ -38,6 +38,10 @@ class UpdateAccountController extends BaseJsonController {
 
     protected ?UpdateAccountParametersGroup $updateAccountParametersGroup = null;
 
+    protected ?MasterUpdateParametersGroup $masterUpdateParametersGroup = null;
+
+    protected ?RegisteredUserParametersGroup $registeredUserParametersGroup = null;
+
     private ?AccountService $accountService = null;
 
     private ?String $redirect = null;
@@ -50,6 +54,8 @@ class UpdateAccountController extends BaseJsonController {
     public function __construct(Route $route) {
         parent::__construct($route);
         $this->updateAccountParametersGroup = new UpdateAccountParametersGroup();
+        $this->masterUpdateParametersGroup = new MasterUpdateParametersGroup();
+        $this->registeredUserParametersGroup = new RegisteredUserParametersGroup();
         $this->accountService = Loader::service(Services::ACCOUNT);
     }
 
@@ -60,13 +66,13 @@ class UpdateAccountController extends BaseJsonController {
      * @return mixed
      */
     protected function getFilterParams(): array {
-        return FormFactory::getAccountEditForm()->getInputFilterParameters()
-            + FilterInputFactory::getEmailParameter()
+        return FilterInputFactory::getEmailParameter()
             + FilterInputFactory::getCustomTagsParameter()
             + FilterInputFactory::getRedirectParameter()
             + FilterInputFactory::getRoleIdParameter()
             + FilterInputFactory::getJobParameter()
-            + FilterInputFactory::getParentIdParameter();
+            + FilterInputFactory::getParentIdParameter()
+            + FormFactory::getAccountEditForm()->getInputFilterParameters();
     }
 
     /**
@@ -89,91 +95,67 @@ class UpdateAccountController extends BaseJsonController {
     protected function getResponseData(): ?Element {
         $requestParams = $this->getRequestParams();
         $this->redirect = $this->getRequestParam(Parameters::REDIRECT, false, null);
-        $this->accountId = $requestParams[Parameters::ID];
-        unset($requestParams[Parameters::REDIRECT]);
-        unset($requestParams[Parameters::ID]);
-        unset($requestParams[Parameters::PATH]);
-        $masterParams = [];
-        $registeredUserParams = [];
+        $this->accountId = $requestParams[Parameters::ACCOUNT_ID];
 
-        $this->moveParamIfExists($requestParams, $masterParams, Parameters::JOB);
-        if (isset($requestParams[Parameters::ROLE_ID])) {
-            $masterParams[Parameters::ROLE_ID] = $requestParams[Parameters::ROLE_ID];
-        }
-        unset($requestParams[Parameters::ROLE_ID]);
-
-        $this->moveParamIfExists($requestParams, $registeredUserParams, Parameters::REGISTERED_USER_P_ID, Parameters::P_ID);
-        $this->moveParamIfExists($requestParams, $registeredUserParams, Parameters::REGISTERED_USER_EMAIL, Parameters::EMAIL);
-        $this->moveParamIfExists($requestParams, $registeredUserParams, Parameters::USERNAME);
-        $this->moveParamIfExists($requestParams, $registeredUserParams, Parameters::GENDER);
-        $this->moveParamIfExists($requestParams, $registeredUserParams, Parameters::FIRST_NAME);
-        $this->moveParamIfExists($requestParams, $registeredUserParams, Parameters::LAST_NAME);
-        if (isset($requestParams[Parameters::BIRTHDAY])) {
-            $registeredUserParams[Parameters::BIRTHDAY] = new DateTime($requestParams[Parameters::BIRTHDAY]);
-            unset($requestParams[Parameters::BIRTHDAY]);
-        }
-        $this->moveParamIfExists($requestParams, $registeredUserParams, Parameters::IMAGE2, Parameters::IMAGE);
-
-        $customTagsData = [];
-        if (isset($requestParams[Parameters::CUSTOM_TAGS])) {
-            foreach ($requestParams[Parameters::CUSTOM_TAGS] as $key => $value) {
-                if ($value == null) {
-                    continue;
-                }
-                $parts = explode('_', $key);
+        $customTags = [];
+        foreach ($requestParams[Parameters::CUSTOM_TAGS] as $id => $value) {
+            if (!is_null($value)) {
+                $parts = explode('_', $id);
                 $customTagId = end($parts);
 
-                $customTagParams = new UserCustomTagParametersGroup();
-                $customTagParams->setCustomTagId((int)$customTagId);
-                $customTagParams->setValue($value);
-
-                $customTagsData[] = $customTagParams;
-            }
-            unset($requestParams[Parameters::CUSTOM_TAGS]);
-        }
-
-        $masterParametersGroup = null;
-        if (!empty($masterParams) || !empty($registeredUserParams)) {
-            $masterParametersGroup = new MasterUpdateParametersGroup();
-
-            if (isset($masterParams[Parameters::JOB]) && $masterParams[Parameters::JOB] != '') {
-                $masterParametersGroup->setJob($masterParams[Parameters::JOB]);
-            }
-            if (isset($masterParams[Parameters::ROLE_ID])) {
-                $masterParametersGroup->setRoleId($masterParams[Parameters::ROLE_ID]);
-            }
-
-            if (!empty($registeredUserParams)) {
-                $registeredUserGroup = new RegisteredUserParametersGroup();
-                $this->accountService->generateParametersGroupFromArray($registeredUserGroup, $registeredUserParams);
-                $masterParametersGroup->setRegisteredUser($registeredUserGroup);
+                $customTag = new UserCustomTagParametersGroup();
+                $customTag->setCustomTagId($customTagId);
+                $customTagData = new CustomTagDataParametersGroup();
+                $objValue = json_decode($value);
+                if (is_object($objValue) && property_exists($objValue, 'extension') && property_exists($objValue, 'fileName') && property_exists($objValue, 'value')) {
+                    $customTagData->setExtension($objValue->extension);
+                    $customTagData->setFileName($objValue->fileName);
+                    $customTagData->setValue($objValue->value);
+                    $customTag->setData($customTagData);
+                } else {
+                    $customTagData->setValue($value);
+                    $customTag->setData($customTagData);
+                }
+                $customTags[] = $customTag;
             }
         }
+        unset($requestParams[Parameters::CUSTOM_TAGS]);
 
-        unset($requestParams[Parameters::MASTER]);
+        $birthday = $requestParams[Parameters::BIRTHDAY] ?? '';
+        if (strlen(trim($birthday)) > 0) {
+            $requestParams[Parameters::BIRTHDAY] = new \DateTime($birthday);
+        } else {
+            unset($requestParams[Parameters::BIRTHDAY]);
+        }
 
-        // Handle parentId for company structure moves (only if present)
+        $this->accountService->generateParametersGroupFromArray($this->updateAccountParametersGroup, $requestParams);
+        unset($requestParams[Parameters::P_ID]);
+        unset($requestParams[Parameters::USERNAME]);
+        unset($requestParams[Parameters::EMAIL]);
+        unset($requestParams[Parameters::IMAGE]);
+
+        $this->accountService->generateParametersGroupFromArray($this->registeredUserParametersGroup, $requestParams);
+        $this->accountService->applyRegisteredUserFields($this->registeredUserParametersGroup, $requestParams);
+        $this->accountService->generateParametersGroupFromArray($this->masterUpdateParametersGroup, $requestParams);
+        if (count($this->registeredUserParametersGroup->toArray()) > 0) {
+            $this->masterUpdateParametersGroup->setRegisteredUser($this->registeredUserParametersGroup);
+        }
+
+        if (count($this->masterUpdateParametersGroup->toArray()) > 0) {
+            $this->updateAccountParametersGroup->setMaster($this->masterUpdateParametersGroup);
+        }
+
+        $this->updateAccountParametersGroup->setCustomTags($customTags);
+
         $parentId = null;
         if (isset($requestParams[Parameters::PARENT_ID])) {
             $parentId = (int)$requestParams[Parameters::PARENT_ID];
             unset($requestParams[Parameters::PARENT_ID]);
         }
-
-        $this->accountService->generateParametersGroupFromArray($this->updateAccountParametersGroup, $requestParams);
-
-        if ($masterParametersGroup) {
-            $this->updateAccountParametersGroup->setMaster($masterParametersGroup);
-        }
-
         if ($parentId !== null) {
             $this->updateAccountParametersGroup->setParentAccountId($parentId);
         }
-
-        foreach ($customTagsData as $customTag) {
-            $this->updateAccountParametersGroup->addCustomTag($customTag);
-        }
         $response = $this->accountService->updateAccountById($this->accountId, $this->updateAccountParametersGroup);
-
         if (!is_null($response->getError())) {
             $this->responseMessageError = Utils::getErrorLabelValue($response);
         }
@@ -183,13 +165,6 @@ class UpdateAccountController extends BaseJsonController {
         );
 
         return $response;
-    }
-
-    private function moveParamIfExists(array &$source, array &$target, string $sourceKey, string $targetKey = null): void {
-        if (isset($source[$sourceKey])) {
-            $target[$targetKey ?? $sourceKey] = $source[$sourceKey];
-            unset($source[$sourceKey]);
-        }
     }
 
     /**

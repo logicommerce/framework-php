@@ -1937,7 +1937,6 @@ LC.UserForm = LC.Form.extend({
             }
         );
     },
-
     /**
      * Change event of subscribed field
      * @memberOf LC.UserForm
@@ -3954,7 +3953,11 @@ LC.ReturnRequestForm = LC.Form.extend({
             });
 
             if (LC.config.orderReturnRequestReload === true) {
-                location.reload();
+                if ($('#returnProductsPopup').length > 0) {
+                    closeAccountOrdresReloadResults($('#returnProductsPopup .btn-close'));
+                } else {
+                    location.reload();
+                }
             }
         }
         // Callback trigger
@@ -6116,6 +6119,70 @@ LC.UsedAccountSwitchForm = LC.Form.extend({
 });
 
 /**
+ * @class LC Account Registered User Loader Form
+ * @description Account Registered User Loader Form
+ * @memberOf LC
+ * @extends {LC.Form}
+ */
+LC.AccountRegisteredUserLoaderForm = LC.Form.extend({
+    name: 'accountRegisteredUserLoaderForm',
+    elementId: 'requestFormModal',
+    initialized: false,
+    initialize: function (form, originUrl) {
+        this.trigger('initializeBefore');
+        if ($('#accountRegisteredUsersPagination .pagination a.itemLink').length > 0) {
+            $(document).off('click.pagination')
+                .on('click.pagination', '#accountRegisteredUsersPagination .pagination a.itemLink', LC.dataEvents.accountRegisteredUsersLink);
+        }
+        if ($('#accountRegisteredUsersSort a.viewElement').length > 0) {
+            $(document).off('click.sort')
+                .on('click.sort', '#accountRegisteredUsersSort a.viewElement', LC.dataEvents.accountRegisteredUsersLink);
+        }
+        originUrl = originUrl || LC.global.routePaths.ACCOUNT_REGISTERED_USERS;
+        if ($(form).find("#accountRegisteredUsersLoadUrl").length > 0) {
+            const url = new URL(originUrl);
+            var newUrl = url.toString()
+            $(form).find("#accountRegisteredUsersLoadUrl").val(newUrl);
+        }
+
+        this.trigger('initializeCallback');
+        this.el.form.initialized = true;
+    },
+});
+
+/**
+ * @class LC Account Registered User Loader Form
+ * @description Account Registered User Loader Form
+ * @memberOf LC
+ * @extends {LC.Form}
+ */
+LC.AccountOrdresLoaderForm = LC.Form.extend({
+    name: 'accountOrdresLoaderForm',
+    elementId: 'requestFormModal',
+    initialized: false,
+    initialize: function (form, originUrl) {
+        this.trigger('initializeBefore');
+        if ($('#accountOrdersPagination .pagination a.itemLink').length > 0) {
+            $(document).off('click.pagination')
+                .on('click.pagination', '#accountOrdersPagination .pagination a.itemLink', LC.dataEvents.accountOrdresLink);
+        }
+        if ($('#accountOrdersSort a.viewElement').length > 0) {
+            $(document).off('click.sort')
+                .on('click.sort', '#accountOrdersSort a.viewElement', LC.dataEvents.accountOrdresLink);
+        }
+        originUrl = originUrl || LC.global.routePaths.ACCOUNT_ORDERS;
+        if ($(form).find("#accountOrdersLoadUrl").length > 0) {
+            const url = new URL(originUrl);
+            var newUrl = url.toString()
+            $(form).find("#accountOrdersLoadUrl").val(newUrl);
+        }
+
+        this.trigger('initializeCallback');
+        this.el.form.initialized = true;
+    },
+});
+
+/**
  * @class LC.OrdersForm
  * @memberOf LC
  * @extends {LC.Form}
@@ -6125,6 +6192,7 @@ LC.OrdersForm = LC.Form.extend({
     initialized: false,
     initialize: function (form) {
         this.trigger('initializeBefore');
+        this.el.$form.find("[type=submit]").prop('disabled', false);
         initCalendar(this.el.$form);
         this.initMultiselect();
         this.trigger('initializeCallback');
@@ -6187,7 +6255,14 @@ LC.OrdersForm = LC.Form.extend({
             var statuses = this.el.$form.find('#statusIdList > #multiSelectValue').val() || '';
             var includeSubCompanyStructure = this.el.$form.find('#includeSubCompanyStructure').val() || '';
 
-            var oldParams = new URLSearchParams(window.location.search);
+            if ($("#accountOrdersLoadUrl").length > 0) {
+                var loadUrl = $("#accountOrdersLoadUrl").val();
+                var url = new URL(loadUrl);
+            } else {
+                url = new URL(window.location.href);
+            }
+
+            var oldParams = url.searchParams;
             var sort = oldParams.get("sort");
 
             var params = new URLSearchParams();
@@ -6198,13 +6273,14 @@ LC.OrdersForm = LC.Form.extend({
             if (statuses) params.set('statusIdList', statuses); else params.delete('statusIdList');
             if (includeSubCompanyStructure) params.set('includeSubCompanyStructure', includeSubCompanyStructure);
 
-            var baseUrl = window.location.pathname;
+            var baseUrl = url.origin + url.pathname;
             var newUrl = baseUrl + '?' + params.toString();
-            window.location.href = newUrl;
+            accountOrdresReloadResults(newUrl);
         }
         return enableSubmit;
     }
 });
+
 /**
  * @class LC Registered Users
  * @description Registered Users Form
@@ -6217,15 +6293,17 @@ LC.AccountRegisteredUsersForm = LC.Form.extend({
     initialized: false,
     initialize: function (form) {
         this.trigger('initializeBefore');
+        this.el.$form.find("[type=submit]").prop('disabled', false);
         initCalendar(this.el.$form);
         this.trigger('initializeCallback');
         this.el.form.initialized = true;
     },
+
     submit: function (event) {
         event.preventDefault();
         var enableSubmit = true;
         this.el.$form.find('input[type="hidden"].DateValue').each((i, input) => {
-            if ($(input).val() != '') {
+            if ($(input).val() !== '') {
                 var date = moment($(input).val(), 'YYYY-MM-DDTHH:mm:ssZ', true);
                 if (!date.isValid()) {
                     $(input).closest('div').find('.viewDateValue').val('');
@@ -6236,39 +6314,50 @@ LC.AccountRegisteredUsersForm = LC.Form.extend({
         });
 
         var jsonResult = {};
-        this.el.$form.serializeArray().forEach(item => {
+        this.el.$form.serializeArray().forEach(function (item) {
             jsonResult[item.name] = item.value;
         });
 
-        if (enableSubmit) {
-            var oldParams = new URLSearchParams(window.location.search);
-            var sort = oldParams.get("sort");
-            var params = new URLSearchParams();
-            if (sort) params.set('sort', sort);
-            Object.entries(jsonResult).forEach(([key, value]) => {
-                if (value && value !== '-') {
-                    if (key === 'addedFrom' || key === 'addedTo') {
-                        params.set(key, value.substring(0, 10));
-                    } else {
-                        params.set(key, value);
-                    }
-                } else {
-                    params.delete(key);
-                }
-            });
+        if (!enableSubmit) return false;
 
-
-            var baseUrl = window.location.pathname;
-            var newUrl = baseUrl + '?' + params.toString();
-            window.location.href = newUrl;
+        if ($("#accountRegisteredUsersLoadUrl").length > 0) {
+            var loadUrl = $("#accountRegisteredUsersLoadUrl").val();
+            var url = new URL(loadUrl);
+        } else {
+            url = new URL(window.location.href);
         }
-        return enableSubmit;
+        var oldParams = url.searchParams;
+        var sort = oldParams.get('sort');
+
+        var params = new URLSearchParams();
+        if (sort) params.set('sort', sort);
+
+        Object.entries(jsonResult).forEach(function ([key, value]) {
+            if (value && value !== '-') {
+                if (key === 'addedFrom' || key === 'addedTo') {
+                    params.set(key, value.substring(0, 10));
+                } else {
+                    params.set(key, value);
+                }
+            } else {
+                params.delete(key);
+            }
+        });
+
+        var baseUrl = url.origin + url.pathname;
+        var newUrl = baseUrl + '?' + params.toString();
+        accountRegisteredUsersReloadResults(newUrl);
+
+        return false;
     },
+
     hasBeenSubmitted: function () {
         return this.submitted;
     },
+
     callback: function (data) {
-    },
+        // opcional
+    }
 });
 /**
  * @class LC Registered User Create
@@ -6292,7 +6381,7 @@ LC.RegisteredUserCreateForm = LC.Form.extend({
     setImageUpload: function () {
         const $form = this.el.$form,
             $fileInput = $form.find('input[name="registeredUserImageUpload"]'),
-            $textInput = $form.find('input[name="image"]');
+            $textInput = $form.find('input[name="registeredUserImage"]');
         $fileInput.off('change.lcImageUpload')
             .on('change.lcImageUpload', function () {
                 const fileName = this.files.length ? this.files[0].name : '';
@@ -6306,6 +6395,21 @@ LC.RegisteredUserCreateForm = LC.Form.extend({
     },
     initTabSwitcher: function () {
         var $form = this.el.$form;
+
+        var $tabs = $form.find('.accountTypeNavTabs a.nav-link[data-bs-toggle="tab"]');
+        if ($tabs.length && !$tabs.filter('.active').length) {
+            if (window.bootstrap && bootstrap.Tab) {
+                new bootstrap.Tab($tabs[0]).show();
+            } else {
+                var $first = $tabs.eq(0);
+                var target = $first.attr('href');
+                $tabs.removeClass('active').attr('aria-selected', 'false');
+                $first.addClass('active').attr('aria-selected', 'true');
+                $form.find('.tab-pane').removeClass('active show');
+                $form.find(target).addClass('active show');
+            }
+        }
+
         var $panes = $form.find('.tab-pane');
         $panes.not('.active').each((i, pane) => $(pane).find(':input').prop('disabled', true));
         $form.find('a[data-bs-toggle="tab"]').on('shown.bs.tab', (e) => {
@@ -6399,7 +6503,6 @@ LC.RegisteredUserCreateForm = LC.Form.extend({
             return false;
         }
 
-
         event.preventDefault();
 
         if (this.setCaptchaToken(event)) return;
@@ -6444,11 +6547,14 @@ LC.RegisteredUserCreateForm = LC.Form.extend({
         if (response && response.data.response) {
             message = response.data.response.message;
             success = response.data.response.success;
-
             if (success) {
                 this.showMessage(message, 'success');
-                if (response.data.data.redirect && response.data.data.redirect.length) {
+                if ($('#registeredUsersCreateModal').length > 0) {
+                    closeRegisteredUserModalAndReload($('#registeredUsersCreateModal .btn-close'));
+                } else if (response.data.data.redirect && response.data.data.redirect.length) {
                     window.location = response.data.data.redirect;
+                } else {
+                    window.location = window.location.href;
                 }
             } else {
                 this.showMessage(message, 'danger');
@@ -6469,7 +6575,6 @@ LC.SaveCompanyDivisionForm = LC.RegisteredUserCreateForm.extend({
         this.trigger('initializeBefore');
         this.setImageUpload2();
         this.validateEmail();
-
         this.el.$form.find('.addressUserField').each((i, el) => {
             this.initLocations($(el));
         });
@@ -6483,7 +6588,7 @@ LC.SaveCompanyDivisionForm = LC.RegisteredUserCreateForm.extend({
     },
     validateEmail: function () {
         var $form = this.el.$form;
-        var $emailInput = $form.find('input[name="email"]');
+        var $emailInput = $form.find('input[name="registeredUserEmail"]');
         var debounceMs = 1000;
         var timer;
 
@@ -6611,7 +6716,7 @@ LC.SaveCompanyDivisionForm = LC.RegisteredUserCreateForm.extend({
     setImageUpload2: function () {
         const $form = this.el.$form,
             $fileInput = $form.find('input[name="companyDivisionImageUpload"]'),
-            $textInput = $form.find('input[name="image2"]');
+            $textInput = $form.find('input[name="image"]');
         $fileInput.off('change.lcImageUpload')
             .on('change.lcImageUpload', function () {
                 const fileName = this.files.length ? this.files[0].name : '';
@@ -6726,49 +6831,31 @@ LC.AccountRegisteredUserUpdateForm = LC.Form.extend({
         var $role = this.el.$form.find('select[name="roleId"]');
         var $master = this.el.$form.find('input[name="master"]');
         if (!$role.length || !$master.length) return;
-
-        // Obtener el tipo de cuenta desde el atributo data-account-type
         var accountType = ($role.attr('data-account-type') || '').trim();
-
-        // Clonar TODAS las opciones disponibles (master y no-master) que vienen del PHP
         var $all = $role.find('option').clone();
 
         var rebuild = function (isMaster) {
-            // Guardar la selección actual antes de filtrar
             var current = $role.val();
-
-            // Determinar qué tipo de roles mostrar: '1' para master, '0' para no-master
             var wanted = isMaster ? '1' : '0';
-
-            // Filtrar opciones según el tipo de cuenta y estado master
             var $opts;
             if (isMaster && accountType === 'COMPANY') {
-                // CASO ESPECIAL: COMPANY + master → solo mostrar opción por defecto (rol base)
                 $opts = $all.filter(function () {
                     return this.value === '0';
                 });
             } else {
-                // CASO NORMAL: Filtrar por data-master
                 $opts = $all.filter(function () {
-                    // La opción por defecto siempre se muestra
                     if (this.value === '0') return true;
-                    // Filtrar por data-master
                     return (this.getAttribute('data-master') === wanted);
                 });
             }
 
-            // Reemplazar las opciones del select con las filtradas
             $role.empty().append($opts.clone());
 
-            // Actualizar el texto de la opción por defecto según el tipo de cuenta y estado master
             var $defaultOption = $role.find('option[value="0"]');
             if ($defaultOption.length) {
                 var labelBase = $defaultOption.attr('data-label-base');
                 var labelCompanyMaster = $defaultOption.attr('data-label-company-master');
 
-                // COMPANY + master → "Control total"
-                // COMPANY_DIVISION + master → "Rol base"
-                // Cualquier tipo + NO master → "Rol base"
                 if (isMaster && accountType === 'COMPANY' && labelCompanyMaster) {
                     $defaultOption.text(labelCompanyMaster);
                 } else if (labelBase) {
@@ -6776,26 +6863,18 @@ LC.AccountRegisteredUserUpdateForm = LC.Form.extend({
                 }
             }
 
-            // Intentar mantener la selección actual si todavía existe después del filtrado
-            if ($role.find('option[value="'+current+'"]').length) {
+            if ($role.find('option[value="' + current + '"]').length) {
                 $role.val(current);
             } else {
-                // Si la opción actual ya no es válida, seleccionar la opción por defecto
                 $role.val('0').trigger('change');
             }
 
-            // Lógica de disabled según tipo de cuenta:
-            // - COMPANY + master → deshabilitar (solo puede usar rol base)
-            // - COMPANY_DIVISION + master → habilitar (puede elegir roles master)
-            // - No master → siempre habilitar
             var shouldDisable = isMaster && accountType === 'COMPANY';
             $role.prop('disabled', shouldDisable);
         };
 
-        // Aplicar filtrado inicial basado en el estado actual del checkbox master
         rebuild($master.is(':checked'));
 
-        // Escuchar cambios en el checkbox master para refiltrar dinámicamente
         $master.on('change', function () {
             rebuild($(this).is(':checked'));
         });
@@ -6877,8 +6956,13 @@ LC.AccountRegisteredUserUpdateForm = LC.Form.extend({
 
             if (success) {
                 this.showMessage(message, 'success');
-                if (response.data.data.redirect && response.data.data.redirect.length) {
+                if ($('#registeredUserUpdatePopup').length > 0) {
+                    $('#registeredUsersUpdate .buttonDismiss').click();
+                    closeRegisteredUserModalAndReload($('#registeredUserUpdatePopup .btn-close'));
+                } else if (response.data.data.redirect && response.data.data.redirect.length) {
                     window.location = response.data.data.redirect;
+                } else {
+                    window.location = window.location.href;
                 }
             } else {
                 this.showMessage(message, 'danger');
@@ -6898,8 +6982,94 @@ LC.RegisteredUserForm = LC.Form.extend({
         initCalendar(this.el.$form);
         this.searchClientExtern();
         this.setImageUpload();
+        this.subscribedField();
         this.trigger('initializeCallback');
         this.el.form.initialized = true;
+    },
+    /**
+     * Change event of subscribed field
+     * @memberOf LC.UserForm
+     */
+    subscribedField: function () {
+        var $subscribedField = this.el.$form.find('[name="subscribed"]');
+        if ($subscribedField.prop("type") == 'button') {
+            $.post(
+                LC.global.routePaths.USER_INTERNAL_NEWSLETTER,
+                { data: $subscribedField.attr('data-lc') },
+                this.subscribeCheckStatusCallback.bind(this, $subscribedField),
+                'json'
+            );
+            $subscribedField.click(function (event) {
+                var data = JSON.parse($subscribedField.attr('data-lc'));
+                $.post(
+                    LC.global.routePaths.USER_INTERNAL_NEWSLETTER,
+                    { data: $subscribedField.attr('data-lc') },
+                    this.subscribedCallback.bind(this, data, $subscribedField),
+                    'json'
+                );
+            }.bind(this));
+        } else {
+            $subscribedField.val($subscribedField.prop('checked') ? 1 : 0);
+            $subscribedField.change(function (event) {
+                $(this).val($(this).prop('checked') ? 1 : 0);
+            });
+        }
+    },
+
+    /**
+     * subscribed chech status ajax callback method
+     * @memberOf LC.UserForm
+     * @param {object} $subscribedField subscribed field
+     * @param {object} response ajax object response
+     */
+    subscribeCheckStatusCallback: function ($subscribedField, response) {
+        var data = JSON.parse($subscribedField.attr('data-lc'));
+        if (response.data.response.success) {
+            if (response.data.data.status == "SUBSCRIBED") {
+                data.type = 'UNSUBSCRIBE';
+                $subscribedField.html(LC.global.languageSheet.unsubscribe);
+            } else {
+                data.type = 'SUBSCRIBE';
+                $subscribedField.html(LC.global.languageSheet.subscribe);
+            }
+            $subscribedField.attr("data-lc", JSON.stringify(data));
+            $subscribedField.attr('disabled', false);
+        }
+
+        // Callback trigger
+        this.trigger('subscribeCheckStatusCallback', data, $subscribedField, response);
+
+    },
+
+    /**
+     * subscribed subscribe/unsubscribe ajax callback method
+     * @memberOf LC.UserForm
+     * @param {object} data subscribed action data
+     * @param {object} $subscribedField subscribed field
+     * @param {object} response ajax object response
+     */
+    subscribedCallback: function (data, $subscribedField, response) {
+        if (response.data.response.success) {
+            if (response.data.data.status == "SUBSCRIBED") {
+                data.type = 'UNSUBSCRIBE';
+                $subscribedField.html(LC.global.languageSheet.unsubscribe);
+            } else {
+                data.type = 'SUBSCRIBE';
+                $subscribedField.html(LC.global.languageSheet.subscribe);
+            }
+            if (response.data.data.messageType == "SCRIPT") {
+                eval(response.data.data.message);
+            } else {
+                this.showMessage(response.data.response.message, 'success');
+            }
+            $subscribedField.attr("data-lc", JSON.stringify(data));
+            $subscribedField.attr('disabled', false);
+        } else {
+            this.showMessage(response.data.response.message, 'danger');
+        }
+
+        // Callback trigger
+        this.trigger('subscribedCallback', data, $subscribedField, response);
     },
     searchClientExtern: function () {
         const $input = this.el.$form.find('#username');
@@ -7116,17 +7286,17 @@ LC.RegisteredUserApproveForm = LC.Form.extend({
                 $(approvedStatus).find('.accountEmail .form-control-plaintext').text(master.email || '-');
 
                 var registeredUser = root.registeredUser || {};
-                $(approvedStatus).find('.registeredUserName .form-control-plaintext').text(registeredUser.email || '-');
-                $(approvedStatus).find('.registeredUserFirstName .form-control-plaintext').text(registeredUser.firstName || '-');
-                $(approvedStatus).find('.registeredUserUsername .form-control-plaintext').text(registeredUser.username || '-');
-                $(approvedStatus).find('.registeredUserLastName .form-control-plaintext').text(registeredUser.lastName || '-');
-                $(approvedStatus).find('.registeredUserPid .form-control-plaintext').text(registeredUser.pId || '-');
+                $(approvedStatus).find('.registeredUser.registereduseremail .form-control-plaintext').text(registeredUser.email || '-');
+                $(approvedStatus).find('.registeredUser.firstname .form-control-plaintext').text(registeredUser.firstName || '-');
+                $(approvedStatus).find('.registeredUser.registereduserusername .form-control-plaintext').text(registeredUser.username || '-');
+                $(approvedStatus).find('.registeredUser.lastname .form-control-plaintext').text(registeredUser.lastName || '-');
+                $(approvedStatus).find('.registeredUser.registereduserpid .form-control-plaintext').text(registeredUser.pId || '-');
 
                 label = toLowerCamel(registeredUser.gender);
-                $(approvedStatus).find('.registeredUserGender .form-control-plaintext').text(LC.global.languageSheet?.[label] ?? label);
+                $(approvedStatus).find('.registeredUser.gender .form-control-plaintext').text(LC.global.languageSheet?.[label] ?? label);
 
                 dt = registeredUser?.birthday;
-                $(approvedStatus).find('.registeredUserBirthDate .form-control-plaintext').text(dt ? moment(dt).format(dataFormat) : '-');
+                $(approvedStatus).find('.registeredUser.birthday .form-control-plaintext').text(dt ? moment(dt).format(dataFormat) : '-');
 
                 label = toLowerCamel('ACCOUNT_REGISTERED_USER_STATUS_' + root.status);
                 $(approvedStatus).find('.accountRegisteredUserStatus .form-control-plaintext').text(LC.global.languageSheet?.[label] ?? label);
@@ -7137,8 +7307,8 @@ LC.RegisteredUserApproveForm = LC.Form.extend({
                 dt = root.dateAdded;
                 $(approvedStatus).find('.accountRegisteredUserDateAdded .form-control-plaintext').text(dt ? moment(dt).format(dataFormat) : '-');
 
-                $(approvedStatus).find('.accountRegisteredUserJob .form-control-plaintext').text(root.job || '-');
-                $(approvedStatus).find('.accountRegisteredUserRole .form-control-plaintext').text(root.role?.name || '-');
+                $(approvedStatus).find('.accountRegisteredUserJob .form-control-plaintext').text(root.job || '');
+                $(approvedStatus).find('.accountRegisteredUserRole .form-control-plaintext').text(root.role?.name || LC.global.languageSheet.accountRegisteredUserRoleDefault);
 
 
                 this.showMessage(message, 'success');
@@ -7211,8 +7381,12 @@ LC.RegisteredUserMoveForm = LC.Form.extend({
 
             if (success) {
                 this.showMessage(message, 'success');
-                if (response.data.data.redirect && response.data.data.redirect.length) {
+                if ($('#registeredUserMovePopup').length > 0) {
+                    closeRegisteredUserModalAndReload($('#registeredUserMovePopup .btn-close'));
+                } else if (response.data.data.redirect && response.data.data.redirect.length) {
                     window.location = response.data.data.redirect;
+                } else {
+                    window.location = window.location.href;
                 }
             } else {
                 this.showMessage(message, 'danger');
@@ -7683,9 +7857,9 @@ LC.EditAccountForm = LC.Form.extend({
     initialized: false,
     initialize: function (form) {
         this.trigger('initializeBefore');
-        initCalendar(this.el.$form);
-        this.setImageUpload();
-        this.setImageUpload2();
+        initCalendar(this.el.$form, 'YYYY-MM-DD');
+        this.setImageUpload("accountFormImageUpload", "registeredUserImage");
+        this.setImageUpload("registeredUserFormImageUpload", "image");
         this.validateEmail();
         this.trigger('initializeCallback');
         this.el.form.initialized = true;
@@ -7731,25 +7905,10 @@ LC.EditAccountForm = LC.Form.extend({
             if (!isValidEmail(v)) { e.preventDefault(); $emailInput.focus(); }
         });
     },
-    setImageUpload: function () {
+    setImageUpload: function (fileInputName, $textInputName) {
         const $form = this.el.$form,
-            $fileInput = $form.find('input[name="accountFormImageUpload"]'),
-            $textInput = $form.find('input[name="image"]');
-        $fileInput.off('change.lcImageUpload')
-            .on('change.lcImageUpload', function () {
-                const fileName = this.files.length ? this.files[0].name : '';
-                $textInput.val(fileName);
-            });
-        $textInput
-            .attr('readonly', true)
-            .css('cursor', 'pointer')
-            .off('click.lcOpenFile')
-            .on('click.lcOpenFile', () => $fileInput.trigger('click'));
-    },
-    setImageUpload2: function () {
-        const $form = this.el.$form,
-            $fileInput = $form.find('input[name="registeredUserFormImageUpload"]'),
-            $textInput = $form.find('input[name="image2"]');
+            $fileInput = $form.find('input[name="' + fileInputName + '"]'),
+            $textInput = $form.find('input[name="' + $textInputName + '"]');
         $fileInput.off('change.lcImageUpload')
             .on('change.lcImageUpload', function () {
                 const fileName = this.files.length ? this.files[0].name : '';
@@ -7782,16 +7941,7 @@ LC.EditAccountForm = LC.Form.extend({
 
         var jsonResult = {};
         this.el.$form.serializeArray().forEach(item => {
-            if (!item.name.startsWith('customTags_')) {
-                jsonResult[item.name] = item.value;
-            }
-        });
-
-        // Obtener todos los elementos del form cuyo name empiece por "customTags_"
-        var customTagsElements = this.el.$form.find('[name^="customTags_"]:not(:disabled)');
-        // Añadir los valores al jsonResult:
-        customTagsElements.each(function () {
-            jsonResult[$(this).attr('name')] = $(this).val();
+            jsonResult[item.name] = item.value;
         });
 
         // Post

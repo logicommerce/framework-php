@@ -121,6 +121,8 @@ abstract class InternalUser extends Enum {
 
     public const RETURN_TRACING = 'USER_INTERNAL_RETURN_TRACING';
 
+    public const RETURN_TRACING_FORM = 'USER_INTERNAL_RETURN_TRACING_FORM';
+
     public const RMA = 'USER_INTERNAL_RMA';
 
     public const RMA_PDF = 'USER_INTERNAL_RMA_PDF';

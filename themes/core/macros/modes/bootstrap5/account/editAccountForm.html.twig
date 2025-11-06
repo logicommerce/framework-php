@@ -1,174 +1,257 @@
 {% macro editAccountForm(args, legalCheck) %}
+    {% import 'macros/user.twig' as userMacros %}
     {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %}
     {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
     
     {% set accountFieldsContent %}{% endset %}
     {% set registeredUserFieldsContent %}{% endset %}
     {% set customTagsContent %}{% endset %}
+    {% set addressBookContent %}{% endset %}
     {% set formSubmit %}{% endset %}
     {% set printTagsTitle = true %}
-    {%- for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) -%}
-        {%- if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') -%}
-            {{ element|replace({ (attributeWildcard): 'data-lc-form="editAccountForm"' }) }}
-            <div class="editAccountParameters styled-form">
-        {%- elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') -%}
-                {# Pintar grupo de campos de cuenta #}
-                {%- if accountFieldsContent|trim -%}
-                    <div class="account-fields-block">
-                        {{accountFieldsContent}}
-                    </div>
-                {%- endif -%}
-                
-                {# Pintar grupo de campos de usuario registrado #}
-                {%- if registeredUserFieldsContent|trim -%}
-                    <div class="registered-user-fields-block">
-                        <div class="editAccountTitle mb-3 fs-5">
-                            {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::MASTER')] -}}
+
+    {% set isRoot = session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') 
+                    and session.basket.account.company.id == args.accountId %}
+    {% set companyUpdatePermission = true %}
+    {% if isRoot %}
+        {% set companyUpdatePermission = args.permissions.companyUpdate?? true %}
+    {% endif %}
+
+    {% if args.errorMessage is not empty %}
+        <div class="alert alert-danger clearfix empty-text mb-5">{{ args.errorMessage }}</div>
+    {% else %}
+        {% for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) %}
+            {% set definitionElement = args.form.definitionElements[name] %}
+            {% set groupClassList = 'userFieldGroup' ~ name|ucfirst %}
+
+            {% if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') %}
+                {{ element|replace({ (attributeWildcard): 'data-lc-form="editAccountForm"' }) }}
+                <div class="editAccountParameters styled-form">
+            {% elseif name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_END') %}
+                    {# Pintar grupo de campos de cuenta #}
+                    {% if accountFieldsContent|trim %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="account-fields-block row g-3">
+                                    <div class="accountTitle mb-3 fs-5">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::GENERAL')] -}}
+                                    </div>
+                                    {{accountFieldsContent}}
+                                </div>
+                            </div>
                         </div>
-                        {{registeredUserFieldsContent}}
+                    {% endif %}
+                    
+                    {# Pintar grupo de campos de usuario registrado #}
+                    {% if registeredUserFieldsContent|trim %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="registered-user-fields-block row g-3">
+                                    <div class="masterTitle mb-3 fs-5">
+                                        {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::MASTER')] -}}
+                                    </div>
+                                    {{registeredUserFieldsContent}}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {# Pintar grupo de custom tags #}
+                    {% if customTagsContent|trim %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="custom-tags-fields-block row g-3">
+                                    {{customTagsContent}}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if addressBookContent|trim %}
+                        {{addressBookContent}}
+                    {% endif %}
+                    {{formSubmit}}
+                </div>
+                {{ element }}
+            {% elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT')%}
+                {% set formSubmit %}
+                    {{- legalCheck -}}
+                    <div class="formField formButton editAccountParameter text-center">
+                        {{ element|replace({ (classWildcard): '', (attributeWildcard) : '' }) }}
                     </div>
-                {%- endif -%}
-                
-                {# Pintar grupo de custom tags #}
-                {%- if customTagsContent|trim -%}
-                    <div class="custom-tags-fields-block">
+                {% endset %}
+            {% elseif name == constant('FWK\\Enums\\Parameters::ADDRESS_BOOK') %}
+                {% set addressBookContent %}
+                    {{addressBookContent}}
+                    <div class="section-user-addressbook card mb-3">
+                        <div class="card-body">
+                            <div class="addressBookTitle mb-2 fs-5">
+                                {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDRESS_BOOK_TITLE')] -}}
+                            </div>
+                            <div class="address-book-fields-block">
+                                {{- userMacros.addressBook({ 
+                                    billingAddresses: args.invoicingAddresses,
+                                    shippingAddresses: args.shippingAddresses,
+                                    selectMode: constant('FWK\\ViewHelpers\\User\\Macro\\AddressBook::SELECT_MODE_BUTTON'),
+                                    accountId: args.accountId,
+                                    showAddNewBilling: companyUpdatePermission,
+                                    showAddNewShipping: companyUpdatePermission,
+                                    showEditBilling: companyUpdatePermission,
+                                    showEditShipping: companyUpdatePermission,
+                                    showDeleteBilling: companyUpdatePermission,
+                                    showDeleteShipping: companyUpdatePermission,
+                                    showSelectAddressBilling: companyUpdatePermission,
+                                    showSelectAddressShipping: companyUpdatePermission,
+                                }) -}}
+                            </div>
+                        </div>
+                    </div>
+                {% endset %}
+            {% elseif name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_IMAGE') %}
+                {# Campo de imagen de la cuenta #}
+                {% set registeredUserFieldsContent %}
+                    {{registeredUserFieldsContent}}
+                    <div class="col-md-6 mt-0">
+                        <div class="form-group formFieldGroup">
+                            <div class="input-group file">
+                                {{ element|replace({ (classWildcard): '', (attributeWildcard): 'readonly' }) }}
+                                <label class="input-group-btn mb-0">
+                                    <span class="input-group-addon input-group-text h-100">
+                                        <div class="image-upload-name"></div>
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')] }}
+                                        <input type="file"
+                                            name="accountFormImageUpload"
+                                            class="sr-only"
+                                            data-fluid-accept="jpg,jpeg,gif,png"
+                                            data-fluid-max-size="{{ constant('ATTACHMENT_MAX_SIZE') }}"
+                                            accept="image/*"
+                                            tabindex="-1">
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                {% endset %}
+            {% elseif name == constant('FWK\\Enums\\Parameters::ACCOUNT_ID') %}
+                {% set accountFieldsContent %}
+                    {{accountFieldsContent}}
+                    {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
+                {% endset %}
+            {% elseif name in [
+                constant('FWK\\Enums\\Parameters::TYPE'),
+                constant('FWK\\Enums\\Parameters::STATUS'),
+                constant('FWK\\Enums\\Parameters::P_ID'),
+                constant('FWK\\Enums\\Parameters::EMAIL'),
+                constant('FWK\\Enums\\Parameters::DATE_ADDED'),
+                constant('FWK\\Enums\\Parameters::LAST_USED'),
+                constant('FWK\\Enums\\Parameters::DESCRIPTION')
+            ] %}
+                {# Campos de cuenta #}
+                {% set accountFieldsContent %}
+                    {{accountFieldsContent}}
+                    <div class="col-md-6 mt-0 editAccountParameter">
+                        <div class="form-group formFieldGroup">
+                            {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
+                        </div>
+                    </div>
+                {% endset %}
+            {% elseif name == constant('FWK\\Enums\\Parameters::GENDER') %}
+                {# Campo especial de género #}
+                {% set registeredUserFieldsContent %}
+                    {{registeredUserFieldsContent}}
+                    <div class="mt-0">
+                        {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/gender.html.twig' with {
+                            name: name,
+                            input: element
+                        } %}
+                    </div>
+                {% endset %}
+            {% elseif name == constant('FWK\\Enums\\Parameters::BIRTHDAY') %}
+                {# Campo especial de fecha de nacimiento #}
+                {% set registeredUserFieldsContent %}
+                    {{registeredUserFieldsContent}}
+                    <div class="col-md-6 mt-0 editAccountParameter">
+                        <div class="form-group formFieldGroup">
+                            <div class="input-group date" 
+                                data-datetimepicker="viewDateValue{{ name|ucfirst }}" 
+                                data-language="{{ route.language }}" 
+                                data-years='1910-{{ "now"|date("Y") }}' 
+                                data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+                                data-submit="{{ name }}"  
+                                data-format="{{ getJSDatePattern() }}">
+                                <label class="form-label" for="viewDateValue{{ name|ucfirst }}">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BIRTH_DATE')] -}}</label>
+                                <input {{definitionElement.disabled ? 'disabled' : ''}} type="text" value="{{  definitionElement.value ? definitionElement.value|date(getTwigDatePattern()) : '' }}" class="form-control formField viewDateValue" id="viewDateValue{{ name|ucfirst }}" autocomplete="off">
+                                <span class="input-group-addon input-group-text">
+                                    <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+                                </span>
+                            </div>
+                            <input {{definitionElement.disabled ? 'disabled' : ''}} type="hidden" value="{{ definitionElement.value ? definitionElement.value|date('Y-m-d\\TH:i:sP') : "" }}" class="DateValue" id="{{ name }}" name="{{ name }}" data-optional="true">
+                        </div>
+                    </div>
+                {% endset %}
+            {% elseif name == constant('FWK\\Enums\\Parameters::IMAGE') %}
+                {# Campo de imagen del usuario registrado #}
+                {% set accountFieldsContent %}
+                    {{accountFieldsContent}}
+                    <div class="col-md-6 mt-0">
+                        <div class="form-group formFieldGroup">
+                            <div class="input-group file">
+                                {{ element|replace({ (classWildcard): '', (attributeWildcard): 'readonly' }) }}
+                                <label class="input-group-btn mb-0">
+                                    <span class="input-group-addon input-group-text h-100">
+                                        <div class="image-upload-name"></div>
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')] }}
+                                        <input type="file"
+                                            name="registeredUserFormImageUpload"
+                                            class="sr-only"
+                                            data-fluid-accept="jpg,jpeg,gif,png"
+                                            data-fluid-max-size="{{ constant('ATTACHMENT_MAX_SIZE') }}"
+                                            accept="image/*"
+                                            tabindex="-1">
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                {% endset %}
+            {% elseif name in [
+                constant('FWK\\Enums\\Parameters::REGISTERED_USER_EMAIL'),
+                constant('FWK\\Enums\\Parameters::REGISTERED_USER_USERNAME'),
+                constant('FWK\\Enums\\Parameters::REGISTERED_USER_P_ID'),
+                constant('FWK\\Enums\\Parameters::FIRST_NAME'),
+                constant('FWK\\Enums\\Parameters::LAST_NAME'),
+                constant('FWK\\Enums\\Parameters::ROLE_ID'),
+                constant('FWK\\Enums\\Parameters::JOB')
+            ] %}
+                {# Campos del usuario registrado (incluyendo ROLE_ID y JOB) #}
+                {% set registeredUserFieldsContent %}
+                    {{registeredUserFieldsContent}}
+                    <div class="col-md-6 mt-0 editAccountParameter">
+                        <div class="form-group formFieldGroup">
+                            {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
+                        </div>
+                    </div>
+                {% endset %}
+            {% elseif name starts with 'customTags_' %}
+                {# Campos de custom tags - igual que en userForm #}
+                {% if printTagsTitle %}
+                    {% set printTagsTitle = false %}
+                    {% set customTagsContent %}
                         {{customTagsContent}}
-                    </div>
-                {%- endif -%}
-                
-                {{formSubmit}}
-            </div>
-            {{ element }}
-        {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
-            {% set formSubmit %}
-                {{- legalCheck -}}
-                <div class="formField formButton editAccountParameter text-center">
-                    {{ element|replace({ (classWildcard): '', (attributeWildcard) : '' }) }}
-                </div>
-            {% endset %}
-        {%- elseif name == constant('FWK\\Enums\\Parameters::IMAGE') -%}
-            {# Campo de imagen de la cuenta #}
-            {#{% set accountFieldsContent %}
-                {{accountFieldsContent}}
-                <div class="form-group formFieldGroup">
-                    <div class="input-group file">
-                        {{ element|replace({ (classWildcard): '', (attributeWildcard): 'readonly' }) }}
-                        <label class="input-group-btn mb-0">
-                            <span class="input-group-addon input-group-text h-100">
-                                <div class="image-upload-name"></div>
-                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')] }}
-                                <input type="file"
-                                    name="accountFormImageUpload"
-                                    class="sr-only"
-                                    data-fluid-accept="jpg,jpeg,gif,png"
-                                    data-fluid-max-size="{{ constant('ATTACHMENT_MAX_SIZE') }}"
-                                    accept="image/*"
-                                    tabindex="-1">
-                            </span>
-                        </label>
-                    </div>
-                </div>
-            {% endset %}#}
-        {%- elseif name in [
-            constant('FWK\\Enums\\Parameters::ID'),
-            constant('FWK\\Enums\\Parameters::TYPE'),
-            constant('FWK\\Enums\\Parameters::STATUS'),
-            constant('FWK\\Enums\\Parameters::P_ID'),
-            constant('FWK\\Enums\\Parameters::EMAIL'),
-            constant('FWK\\Enums\\Parameters::DATE_ADDED'),
-            constant('FWK\\Enums\\Parameters::LAST_USED'),
-            constant('FWK\\Enums\\Parameters::DESCRIPTION')
-        ] -%}
-            {# Campos de cuenta #}
-            {% set accountFieldsContent %}
-                {{accountFieldsContent}}
-                <div class="form-group formFieldGroup editAccountParameter">
-                    {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
-                </div>
-            {% endset %}
-        {%- elseif name == constant('FWK\\Enums\\Parameters::GENDER') -%}
-            {# Campo especial de género #}
-            {% set registeredUserFieldsContent %}
-                {{registeredUserFieldsContent}}
-                {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/gender.html.twig' with {
-                    name: name,
-                    input: element
-                } %}
-            {% endset %}
-        {%- elseif name == constant('FWK\\Enums\\Parameters::BIRTHDAY') -%}
-            {# Campo especial de fecha de nacimiento #}
-            {% set registeredUserFieldsContent %}
-                {{registeredUserFieldsContent}}
-                <div class="form-group formFieldGroup editAccountParameter">
-                    <div class="input-group date" 
-                        data-datetimepicker="viewDateValue{{ name|ucfirst }}" 
-                        data-language="{{ route.language }}" 
-                        data-years='1910-{{ "now"|date("Y") }}' 
-                        data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
-                        data-submit="{{ name }}"  
-                        data-format="{{ getJSDatePattern() }}">
-                        <label class="form-label" for="viewDateValue{{ name|ucfirst }}">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BIRTH_DATE')] -}}</label>
-                        <input {{args.form.definitionElements[name].disabled ? 'disabled' : ''}} type="text" value="{{  args.form.definitionElements[name].value ? args.form.definitionElements[name].value|date(getTwigDatePattern()) : '' }}" class="form-control formField viewDateValue" id="viewDateValue{{ name|ucfirst }}" autocomplete="off">
-                        <span class="input-group-addon input-group-text">
-                            <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
-                        </span>
-                    </div>
-                    <input {{args.form.definitionElements[name].disabled ? 'disabled' : ''}} type="hidden" value="{{ args.form.definitionElements[name].value ? args.form.definitionElements[name].value|date('Y-m-d\\TH:i:sP') : "" }}" class="DateValue" id="{{ name }}" name="{{ name }}" data-optional="true">
-                </div>
-            {% endset %}
-        {%- elseif name == constant('FWK\\Enums\\Parameters::IMAGE2') -%}
-            {# Campo de imagen del usuario registrado #}
-            {#{% set registeredUserFieldsContent %}
-                {{registeredUserFieldsContent}}
-                <div class="form-group formFieldGroup">
-                    <div class="input-group file">
-                        {{ element|replace({ (classWildcard): '', (attributeWildcard): 'readonly' }) }}
-                        <label class="input-group-btn mb-0">
-                            <span class="input-group-addon input-group-text h-100">
-                                <div class="image-upload-name"></div>
-                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')] }}
-                                <input type="file"
-                                    name="registeredUserFormImageUpload"
-                                    class="sr-only"
-                                    data-fluid-accept="jpg,jpeg,gif,png"
-                                    data-fluid-max-size="{{ constant('ATTACHMENT_MAX_SIZE') }}"
-                                    accept="image/*"
-                                    tabindex="-1">
-                            </span>
-                        </label>
-                    </div>
-                </div>
-            {% endset %}#}
-        {%- elseif name in [
-            constant('FWK\\Enums\\Parameters::REGISTERED_USER_EMAIL'),
-            constant('FWK\\Enums\\Parameters::USERNAME'),
-            constant('FWK\\Enums\\Parameters::REGISTERED_USER_P_ID'),
-            constant('FWK\\Enums\\Parameters::FIRST_NAME'),
-            constant('FWK\\Enums\\Parameters::LAST_NAME'),
-            constant('FWK\\Enums\\Parameters::ROLE_ID'),
-            constant('FWK\\Enums\\Parameters::JOB')
-        ] -%}
-            {# Campos del usuario registrado (incluyendo ROLE_ID y JOB) #}
-            {% set registeredUserFieldsContent %}
-                {{registeredUserFieldsContent}}
-                <div class="form-group formFieldGroup editAccountParameter">
-                    {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
-                </div>
-            {% endset %}
-        {%- elseif name starts with 'customTags_' -%}
-            {# Campos de custom tags - igual que en userForm #}
-            {%- if printTagsTitle -%}
-                {% set printTagsTitle = false %}
+                        <div class="customTagsTitle mb-3 fs-5">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_LABELS')] }}</div>
+                    {% endset %}
+                {% endif %}
                 {% set customTagsContent %}
                     {{customTagsContent}}
-                    <div class="customTagsTitle mb-3 fs-5">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_LABELS')] }}</div>
+                    <div class="col-md-6 mt-0"> 
+                        {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/_default.html.twig' with { 
+                            input: element, 
+                            name: name,
+                            definitionElement: definitionElement
+                        } %}
+                    </div>
                 {% endset %}
-            {%- endif -%}
-            {% set customTagsContent %}
-                <div class="form-group formFieldGroup editAccountParameter">
-                    {{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
-                </div>
-            {% endset %}
-        {%- endif -%}
-    {%- endfor -%}
+            {% endif %}
+        {% endfor %}
+    {% endif %}    
 {% endmacro editAccountForm %}

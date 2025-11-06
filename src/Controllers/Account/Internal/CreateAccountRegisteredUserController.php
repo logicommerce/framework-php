@@ -41,6 +41,8 @@ class CreateAccountRegisteredUserController extends BaseJsonController {
 
     protected ?CreateAccountRegisteredUserParametersGroup $createAccountRegisteredUserParametersGroup = null;
 
+    protected ?RegisteredUserParametersGroup $registeredUserParametersGroup = null;
+
     private ?AccountService $accountService = null;
 
     private string $accountId = AccountKey::USED;
@@ -88,7 +90,7 @@ class CreateAccountRegisteredUserController extends BaseJsonController {
      */
     protected function getResponseData(): ?Element {
         $this->checkCaptcha();
-        $registeredUserParametersGroup = new RegisteredUserParametersGroup();
+        $this->registeredUserParametersGroup = new RegisteredUserParametersGroup();
         $data = $this->getRequestParams();
         $birthday = $data[Parameters::BIRTHDAY] ?? '';
         if (strlen(trim($birthday)) > 0) {
@@ -98,16 +100,12 @@ class CreateAccountRegisteredUserController extends BaseJsonController {
         }
 
         $this->accountId = $data[Parameters::ACCOUNT_ID] ?? '';
-        $pId = $data[Parameters::REGISTERED_USER_P_ID] ?? ($data[Parameters::P_ID] ?? '');
-        unset($data[Parameters::REGISTERED_USER_P_ID]);
-        $this->accountService->generateParametersGroupFromArray($registeredUserParametersGroup, $data);
-        if (!is_null($pId) && strlen(trim($pId)) > 0) {
-            $registeredUserParametersGroup->setPId($pId);
-        }
+        $this->accountService->generateParametersGroupFromArray($this->registeredUserParametersGroup, $data);
+        $this->accountService->applyRegisteredUserFields($this->registeredUserParametersGroup, $data);
         $this->accountService->generateParametersGroupFromArray($this->createAccountRegisteredUserParametersGroup, $data);
 
-        if (count($registeredUserParametersGroup->toArray()) > 0) {
-            $this->createAccountRegisteredUserParametersGroup->setRegisteredUser($registeredUserParametersGroup);
+        if (count($this->registeredUserParametersGroup->toArray()) > 0) {
+            $this->createAccountRegisteredUserParametersGroup->setRegisteredUser($this->registeredUserParametersGroup);
         }
         $response = $this->accountService->createAccountRegisteredUser($this->accountId, $this->createAccountRegisteredUserParametersGroup);
 

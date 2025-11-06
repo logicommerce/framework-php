@@ -26,7 +26,7 @@ class SaveCompanyDivisionController extends AccountRegisteredUserCreateControlle
     protected ?AccountService $accountService = null;
 
     protected ?CompanyDivisionsParametersGroup $companyDivisionsParametersGroup = null;
-    
+
     /**
      * Constructor.
      *
@@ -55,17 +55,16 @@ class SaveCompanyDivisionController extends AccountRegisteredUserCreateControlle
      * This method is in charge of defining the basic data necessary for the correct operation of the controller.
      */
     protected function setControllerBaseData(): void {
-        $aux[self::SAVE_COMPANY_DIVISION_FORM] = FormFactory::getAccountCompanyDivisionCreate(
-            $this->companyDivisionsParametersGroup,
+        $items[self::SAVE_COMPANY_DIVISION_FORM] = FormFactory::getAccountCompanyDivisionCreate(
             $this->getRequestParam(Parameters::ID, true),
             $this->getControllerData(self::COMPANY_ROLES)->getItems()
         );
-        $aux[self::SELECTED_COUNTRY] = $this->getDefaultCountry();
-        $aux[self::SELECTED_COUNTRY_LOCATIONS] = $this->getDefaultCountryLocations();
-        $aux[self::LOCATION_MODE] = $this->getLocationMode();
-        $aux[self::ACCOUNT_ID] = $this->getRequestParam(Parameters::ID, true);
+        $items[self::SELECTED_COUNTRY] = $this->getDefaultCountry();
+        $items[self::SELECTED_COUNTRY_LOCATIONS] = $this->getDefaultCountryLocations();
+        $items[self::LOCATION_MODE] = $this->getLocationMode();
+        $items[self::ACCOUNT_ID] = $this->getRequestParam(Parameters::ID, true);
 
-        $this->setDataValue(self::CONTROLLER_ITEM, $aux);
+        $this->setDataValue(self::CONTROLLER_ITEM, $items);
     }
 
     /**

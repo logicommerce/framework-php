@@ -1,6 +1,5 @@
 {% macro countdown(args) %}
-
-	{% if not (args.endDate < commerceDateTime) %}
+	{% if not (args.endDate < commerceDateTime) and args.endDate|date('Y')|number_format(0, '', '') < 2048 %}
 		{% set data = {
 			template: args.template,
 			callback: args.callback,

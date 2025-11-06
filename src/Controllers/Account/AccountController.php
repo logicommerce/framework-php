@@ -3,7 +3,6 @@
 namespace FWK\Controllers\Account;
 
 use FWK\Core\Controllers\BaseHtmlController;
-use FWK\Core\Controllers\ControllersFactory;
 use FWK\Core\Controllers\Traits\AddDefaultCountryAndLocationsTrait;
 use FWK\Core\Form\FormFactory;
 use SDK\Core\Resources\BatchRequests;
@@ -32,6 +31,10 @@ class AccountController extends BaseHtmlController {
 
     public const COMPANY_ROLES = 'companyRoles';
 
+    public const COMPANY_ROLE = "companyRole";
+
+    public const PERMISSIONS = "permissions";
+
     public const CUSTOM_TAGS = 'customTags';
 
     public const DEFAULT_SELECTED_COUNTRY = 'defaultSelectedCountry';
@@ -44,7 +47,17 @@ class AccountController extends BaseHtmlController {
 
     public const USER_WARNINGS = 'userWarnings';
 
+    public const USER_ADDRESS_BOOK_FORM = 'userAddressBookForm';
+
     protected const ACCOUNT = 'account';
+
+    protected const ACCOUNT_ID = 'accountId';
+
+    private const INVOICING_ADDRESSES = 'invoicingAddresses';
+
+    private const SHIPPING_ADDRESSES = 'shippingAddresses';
+
+    public const ACCOUNT_ERROR = 'accountError';
 
     protected ?AccountService $accountService = null;
 
@@ -85,8 +98,47 @@ class AccountController extends BaseHtmlController {
         $companyRolesParametersGroup = new CompanyRolesParametersGroup();
         $companyRolesParametersGroup->setTarget(CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER);
         $this->accountService->addGetAccounts($requests, self::ACCOUNT, $this->id > 0 ? $this->id : AccountKey::USED);
-        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES, AccountKey::USED, $companyRolesParametersGroup);
         $this->userService->addGetCustomTags($requests, self::CUSTOM_TAGS, self::getTheme()->getConfiguration()->getUser()->getUserCustomTagsParametersGroup());
+        if (Session::getInstance()->getBasket()->getType() == SessionType::REGISTERED) {
+            $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES, $companyRolesParametersGroup);
+            $this->accountService->addGetInvoicingAddresses($requests, self::INVOICING_ADDRESSES, $this->id > 0 ? $this->id : AccountKey::USED);
+            $this->accountService->addGetShippingAddresses($requests, self::SHIPPING_ADDRESSES, $this->id > 0 ? $this->id : AccountKey::USED);
+            $this->getSession()->getBasket()->getAccount()->isCompany() ?
+                $this->accountService->addGetCompanyRole($requests, self::COMPANY_ROLE, $this->getSession()->getBasket()->getAccountRegisteredUser()->getRole()->getId()) :
+                $this->setDataValue(self::COMPANY_ROLE, null);
+        }
+    }
+
+    /**
+     * This method is the one in charge of defining all the data that is needed for the controller and adding them to the controller data.
+     * 
+     * @return void
+     */
+    protected function setControllerBaseData(): void {
+        $account = $this->getControllerData(self::ACCOUNT);
+        if (Session::getInstance()->getBasket()->getType() == SessionType::ANONYMOUS) {
+            $items[self::FORM] = FormFactory::setUser(FormFactory::SET_USER_TYPE_ADD_USER, $this->getSession()->getUser(), $this->getControllerData(self::CUSTOM_TAGS));
+            $items[self::DEFAULT_SELECTED_COUNTRY] = $this->getDefaultCountry();
+            $items[self::DEFAULT_SELECTED_COUNTRY_LOCATIONS] = $this->getDefaultCountryLocations();
+        } else {
+            $items[self::ACCOUNT] = $account;
+            $items[self::ACCOUNT_NAME] = $account->getName();
+            $items[self::DEFAULT_SELECTED_COUNTRY] = $this->getDefaultCountry();
+            $items[self::DEFAULT_SELECTED_COUNTRY_LOCATIONS] = $this->getDefaultCountryLocations();
+            $items[self::INVOICING_ADDRESSES] = $this->getControllerData(self::INVOICING_ADDRESSES);
+            $items[self::SHIPPING_ADDRESSES] = $this->getControllerData(self::SHIPPING_ADDRESSES);
+            $items[self::USER_ADDRESS_BOOK_FORM] = FormFactory::setUser(FormFactory::SET_USER_TYPE_ADD_USER, $this->getSession()->getUser());
+            $items[self::ACCOUNT_ID] = $this->id > 0 ? $this->id : AccountKey::USED;
+            $items[self::COMPANY_ROLE] = $this->getControllerData(self::COMPANY_ROLE);
+            $items[self::PERMISSIONS] = $this->getControllerData(self::COMPANY_ROLE)?->getPermissions()?->toArray();
+            $items[self::FORM] = FormFactory::getAccountEditForm($account, $this->getControllerData(self::COMPANY_ROLES)->getItems() ?? [], $this->getControllerData(self::COMPANY_ROLE)?->getPermissions(), $this->getControllerData(self::CUSTOM_TAGS));
+            $items[self::ACCOUNT_ERROR] = "";
+            if (!is_null($items[self::ACCOUNT]->getError())) {
+                $items[self::ACCOUNT_ERROR] = Utils::getErrorLabelValue($items[self::ACCOUNT]);
+            }
+        }
+        $items[self::USER_WARNINGS] = Utils::getUserWarnings();
+        $this->setDataValue(self::CONTROLLER_ITEM, $items);
     }
 
     /**
@@ -110,16 +162,5 @@ class AccountController extends BaseHtmlController {
      * @return void
      */
     protected function setData(array $additionalData = []): void {
-        $account = $this->getControllerData(self::ACCOUNT);
-        if (Session::getInstance()->getBasket()->getType() == SessionType::ANONYMOUS) {
-            $aux[self::FORM] = FormFactory::setUser(FormFactory::SET_USER_TYPE_ADD_USER, $account?->getMaster()?->getRegisteredUser(), $this->getControllerData(self::CUSTOM_TAGS));
-            $aux[self::DEFAULT_SELECTED_COUNTRY] = $this->getDefaultCountry();
-            $aux[self::DEFAULT_SELECTED_COUNTRY_LOCATIONS] = $this->getDefaultCountryLocations();
-        } else {
-            $aux[self::ACCOUNT_NAME] = $account->getName();
-            $aux[self::FORM] = FormFactory::getAccountEditForm($account, $this->getControllerData(self::COMPANY_ROLES)->getItems() ?? [], $this->getControllerData(self::CUSTOM_TAGS), );
-        }
-        $aux[self::USER_WARNINGS] = Utils::getUserWarnings();
-        $this->setDataValue(self::CONTROLLER_ITEM, $aux);
     }
 }

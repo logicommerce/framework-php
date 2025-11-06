@@ -13,6 +13,7 @@ use FWK\Core\FilterInput\FilterInputHandler;
 use FWK\Core\FilterInput\FilterInputFactory;
 use FWK\Enums\Parameters;
 use FWK\Core\Resources\Utils;
+use FWK\Services\AccountService;
 use FWK\Services\UserService;
 
 /**
@@ -29,6 +30,8 @@ class DeleteAddressBookController extends BaseJsonController {
 
     private ?UserService $userService = null;
 
+    private ?AccountService $accountService = null;
+
     private int $id = 0;
 
     public const ID = 'id';
@@ -41,6 +44,7 @@ class DeleteAddressBookController extends BaseJsonController {
     public function __construct(Route $route) {
         parent::__construct($route);
         $this->userService = Loader::service(Services::USER);
+        $this->accountService = Loader::service(Services::ACCOUNT);
         $this->responseMessage = $this->language->getLabelValue(LanguageLabels::DELETE_ADDRESS_OK, $this->responseMessage);
     }
 
@@ -72,7 +76,7 @@ class DeleteAddressBookController extends BaseJsonController {
      * @return Element
      */
     protected function getResponseData(): ?Element {
-        $response = $this->userService->deleteAddress($this->getRequestParam(Parameters::ID, true));
+        $response = $this->accountService->deleteAccountAddress($this->getRequestParam(Parameters::ID, true));
         $this->responseMessageError = Utils::getErrorLabelValue($response);
         // refresh sessionBasket
         Loader::service(Services::BASKET)->getBasket();

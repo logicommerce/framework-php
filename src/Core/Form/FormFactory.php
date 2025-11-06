@@ -51,6 +51,7 @@ use FWK\Core\Theme\Dtos\FormFieldsProductContact;
 use FWK\Core\Theme\Dtos\FormFieldsSetUser;
 use FWK\Core\Theme\Dtos\FormFieldsShoppingList;
 use FWK\Core\Theme\Dtos\FormFieldsShoppingListRowNote;
+use FWK\Core\Theme\Dtos\FormRegisteredUserFields;
 use FWK\Core\Theme\Theme;
 use FWK\Enums\NewsletterSubscriptionActions;
 use FWK\Enums\RouteTypes\InternalUser;
@@ -68,7 +69,11 @@ use SDK\Application;
 use SDK\Core\Enums\MethodType;
 use SDK\Core\Resources\Date;
 use SDK\Dtos\Accounts\Account;
+use SDK\Dtos\Accounts\AccountAddress;
+use SDK\Dtos\Accounts\AccountEmployee;
+use SDK\Dtos\Accounts\AccountTypes\CompanyDivision;
 use SDK\Dtos\Accounts\BaseCompanyStructureTreeNode;
+use SDK\Dtos\Accounts\CompanyRolePermissionsValues;
 use SDK\Dtos\Accounts\CompanyStructureTreeNode;
 use SDK\Dtos\Accounts\CustomCompanyRole;
 use SDK\Dtos\Accounts\CustomCompanyRoleHeader;
@@ -77,6 +82,7 @@ use SDK\Dtos\Accounts\Master;
 use SDK\Dtos\Accounts\MasterVal;
 use SDK\Dtos\Accounts\RegisteredUser;
 use SDK\Dtos\Accounts\RegisteredUserAccount;
+use SDK\Dtos\Accounts\RegisteredUserSimpleProfile;
 use SDK\Dtos\User\Address;
 use SDK\Dtos\User\ShippingAddress;
 use SDK\Dtos\User\ShoppingList;
@@ -87,6 +93,7 @@ use SDK\Enums\AccountStatus;
 use SDK\Enums\AccountType;
 use SDK\Enums\AddressType;
 use SDK\Enums\CustomCompanyRoleTarget;
+use SDK\Enums\CustomerType;
 use SDK\Enums\PluginConnectorType;
 use SDK\Enums\UserType;
 use SDK\Enums\Importance;
@@ -403,104 +410,116 @@ abstract class FormFactory {
         return $form;
     }
 
-    public static function setRegisteredUser(?RegisteredUser $user): Form {
-        if (is_null($user)) {
-            $user = new RegisteredUser();
+    /*public static function setAccount(string $formUserType = '', ?Account $account = null, ?AccountLinked $customer = null, ?User $user = null, ?ElementCollection $customTags = null, bool $showUserCustomTags = true, bool $showAddressBook = true, bool $thisAccountUpdatePermissions = true): Form {
+        $languageSheet = self::getLanguage();
+        $idForm = 'customerForm';
+        if (is_null($account)) {
+            $account = new Account();
         }
-        $allDisabled = Session::getInstance()->getBasket()->getMode()->getType() == SessionUsageModeType::SALES_AGENT_SIMULATION;
 
-        $formHead = (new FormHead(RoutePaths::getPath(InternalAccount::UPDATE_REGISTERED_USER), 'registeredUserUpdateForm'))
-            ->setMethod(FormHead::METHOD_POST)
-            ->setId('registeredUserUpdateForm')
-            ->setAutocomplete(Input::AUTOCOMPLETE_OFF)
-            ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
+        $selectedInvoicingAddressId = $customer?->getSelectedInvoicingAddressId() ?? 0;
+        if ($selectedInvoicingAddressId > 0) {
+            $invoiciongAddress = $account->getAccountAddress($selectedInvoicingAddressId, AccountAddressType::INVOICING);
+        } else {
+            $invoiciongAddress = $account->getDefaultInvoicingAddresses();
+            if (is_null($invoiciongAddress)) {
+                $invoiciongAddress = new InvoicingAddress();
+            }
+        }
 
-        $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
+        $selectedShippingAddressId = $customer?->getSelectedShippingAddressId() ?? 0;
+        if ($selectedShippingAddressId > 0) {
+            $shippingAddress = $account->getAccountAddress($selectedShippingAddressId, AccountAddressType::SHIPPING);
+        } else {
+            $shippingAddress = $account->getDefaultShippingAddress();
+            if (is_null($shippingAddress)) {
+                $shippingAddress = new ShippingAddress();
+            }
+        }
+
         $formItems = [];
-        $formItems[] = new FormItem(Parameters::REGISTERED_USER_ID, new InputHidden($user->getId()));
-        $formItems[] = new FormItem(Parameters::ACCOUNT_ID, new InputHidden(Session::getInstance()->getBasket()->getAccount()->getId()));
+        $settings = self::getConfiguration()->getForms()->getSetUser();
+        $userName = Utils::getUserName();
 
-        // Check if all fields should be disabled
-
-        $emailInput = (new InputEmail($user->getEmail()))
-            ->setRequired(true)
-            ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::EMAIL))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-        $usernameInput = (new InputText($user->getUsername()))
-            ->setRequired($userKeyCriteria == UserKeyCriteria::USERNAME)
-            ->setLabelFor(self::getLanguage()
-                ->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-        $pIdInput = (new InputText($user->getPId()))
-            ->setLabelFor(self::getLanguage()
-                ->getLabelValue(LanguageLabels::P_ID))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-
-        switch ($userKeyCriteria) {
-            case UserKeyCriteria::EMAIL:
-                $emailInput->setDisabled(true);
-                break;
-            case UserKeyCriteria::PID:
-                $pIdInput->setDisabled(true);
-                break;
-            case UserKeyCriteria::USERNAME:
-                $usernameInput->setDisabled(true);
-                break;
+        if ($formUserType === self::SET_USER_TYPE_ADD_CUSTOMER) {
+            $formHead = (new FormHead(RoutePaths::getPath(InternalCheckout::ADD_CUSTOMER), 'CustomerForm'))->setAutocomplete(Input::AUTOCOMPLETE_OFF)->setClass('customerForm');
+        } elseif ($formUserType === self::SET_USER_TYPE_ADD_USER_FAST_REGISTER) {
+            $formHead = (new FormHead(RoutePaths::getPath(InternalUser::ADD_USER_FAST_REGISTER), 'UserFastRegisterForm'))->setAutocomplete(Input::AUTOCOMPLETE_OFF)->setClass('UserFastRegisterForm');
+        } else {
+            $formHead = (new FormHead(RoutePaths::getPath(InternalUser::ADD_USER), 'UserForm'))->setAutocomplete(Input::AUTOCOMPLETE_OFF)->setClass('userForm');
         }
+        $formHead = $formHead->setMethod(FormHead::METHOD_POST)->setId($idForm)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
 
-        if ($allDisabled) {
-            $emailInput->setDisabled(true);
-            $usernameInput->setDisabled(true);
-            $pIdInput->setDisabled(true);
-        }
+        if (Utils::isUserLoggedIn()) {
+            $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
+            $userNameLabel = $languageSheet->getLabelValue(LanguageLabels::USER_P_ID . ucwords((new \ReflectionClassConstant(LanguageLabels::class, $userKeyCriteria))->getValue()));
+            $formItems[] = new FormItem(Parameters::USERNAME, (new InputText($userName))->setClass(self::CLASS_WILDCARD)->setDisabled(true)->setLabelFor($userNameLabel));
+            $formItems[] = new FormItem(Parameters::ADDRESS_ID, new InputHidden($invoiciongAddress->getId()));
+            $formItems[] = new FormItem(Parameters::USER_TYPE, new InputHidden(UserType::getEnum($invoiciongAddress->getCustomerType())));
+            $fieldsByUserType = $settings->getUserFields()->getFieldsByUserType()[UserType::getEnum($invoiciongAddress->getCustomerType())];
+            if (isset($fieldsByUserType)) {
+                $fields = $fieldsByUserType->getUser()->getFields()->getSortFilterArrayFormFields();
+                $unavailableFieldsWithLogin = $settings->getUnavailableFieldsWithLogin()->getSortFilterArrayFields();
+                foreach ($fields as $field => $formField) {
+                    if (!in_array($field, $unavailableFieldsWithLogin)) {
+                        if ($showUserCustomTags && $field === Parameters::CUSTOM_TAGS && !is_null($customTags)) {
+                            self::setUserCustomTags($user, $customTags, $formItems, $field, $settings, $user->getUserAdditionalInformation()->getSimulatedUser(), $thisAccountUpdatePermissions);
+                        } elseif ($field != Parameters::CUSTOM_TAGS) {
 
-        $formItems[] = new FormItem(Parameters::EMAIL, $emailInput);
-        $formItems[] = new FormItem(Parameters::USERNAME, $usernameInput);
-        $formItems[] = new FormItem(Parameters::P_ID, $pIdInput);
+                            $newField = self::accountFields($field, $formField, $account, $invoiciongAddress, '', null, null,  null, [], CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER, '', false, $user->getUserAdditionalInformation()->getSimulatedUser());
+                            if (!is_null($newField)) {
+                                $formItems[$field] = $newField;
+                            }
+                        }
+                    }
+                }
+            }
+            if ($showAddressBook) {
+                $formItems[FormSetUser::ADDRESSBOOK_FIELDS] = [];
+                $dataFormAddressbook = $settings->getAddressbookFields()->getSortFilterArrayFieldsByUserType();
 
-        $userGender = $user->getGender();
-        if ($userGender == null) {
-            $userGender = Gender::UNDEFINED;
-        }
-        $genderInput = (new InputRadio([
-            Gender::FEMALE => self::getLanguage()->getLabelValue(LanguageLabels::FEMALE),
-            Gender::MALE => self::getLanguage()->getLabelValue(LanguageLabels::MALE),
-            Gender::UNDEFINED => self::getLanguage()->getLabelValue(LanguageLabels::UNDEFINED)
-        ], null, $userGender))
-            ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::GENDER))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-        $formItems[] = new FormItem(Parameters::GENDER, $genderInput);
+                $addShippingFields = 0;
+                $shippingFields = $settings->getAddressbookFields()->getShippingFields()->getSortFilterArrayFormFields();
+                foreach ($dataFormAddressbook as $userType => $typeFields) {
+                    $formItems[FormSetUser::ADDRESSBOOK_FIELDS][$userType] = [];
+                    foreach (
+                        [
+                            SetUserTypeForms::BILLING,
+                            SetUserTypeForms::SHIPPING
+                        ] as $groupFields
+                    ) {
+                        if ($groupFields === SetUserTypeForms::SHIPPING) {
+                            $userType = UserType::PARTICULAR;
+                            $fields = $shippingFields;
+                            $addShippingFields += 1;
+                        } else {
+                            $get = 'get' . ucfirst($groupFields);
+                            $fields = $typeFields->$get()->getFields()->getSortFilterArrayFormFields();
+                        }
+                        if ($addShippingFields === 1 || $groupFields === SetUserTypeForms::BILLING) {
+                            $formItems[FormSetUser::ADDRESSBOOK_FIELDS][$userType][$groupFields] = [];
+                            if ($groupFields === SetUserTypeForms::SHIPPING) {
+                                $formItems[FormSetUser::ADDRESSBOOK_FIELDS][$userType][$groupFields][] = new FormItem(Parameters::MODULE, new InputHidden(UserType::PARTICULAR));
+                            }
+                            foreach ($fields as $field => $formField) {
+                                $newField = self::accountFields($field, $formField, $account, ${$groupFields . 'Address'}, $userType . '_' . $groupFields);
 
-        $firstNameInput = (new InputText($user->getFirstName()))
-            ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-        $formItems[] = new FormItem(Parameters::FIRST_NAME, $firstNameInput);
-
-        $lastNameInput = (new InputText($user->getLastName()))
-            ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-        $formItems[] = new FormItem(Parameters::LAST_NAME, $lastNameInput);
-
-        $birthdayInput = (new InputDate(is_null($user->getBirthday()) ? '' : $user->getBirthday()->originalFormat()))
-            ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::BIRTH_DATE))
-            ->setClass(self::CLASS_WILDCARD);
-        $formItems[] = new FormItem(Parameters::BIRTHDAY, $birthdayInput);
-
-        $image = (new InputText($user->getImage()))
-            ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::IMAGE))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-        $formItems[] = new FormItem(Parameters::IMAGE, $image);
-
-        $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setClass(self::CLASS_WILDCARD)->setId('registeredUserUpdateSubmit')->setDisabled($allDisabled)->setContentText(self::getLanguage()->getLabelValue(LanguageLabels::SAVE)));
-        return new Form($formHead, $formItems);
-    }
+                                if (!is_null($newField)) {
+                                    $formItems[FormSetUser::ADDRESSBOOK_FIELDS][$userType][$groupFields][] = $newField;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } 
+        $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit(''))->setClass(self::CLASS_WILDCARD)->setId('customerFormSubmit')->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE)));
+        $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getSetUser()) {
+            $form->addCaptcha();
+        };
+        return $form;
+    }*/
 
     private static function setUserCustomTags(User $user, ElementCollection $userCustomTags, array &$formItems, string $field, FormSetUser $settings, bool $simulatedUser = false, bool $thisAccountUpdatePermissions = true): void {
         $customTagsPositions = $settings->getAvailableCustomTagPositions();
@@ -795,6 +814,309 @@ abstract class FormFactory {
             $inputElement = $inputElement->setDisabled($disabled);
         }
         return (new FormItem($inputName, $inputElement));
+    }
+
+    private static function accountFields(string $field, FormField $formField, ?Account $account = null, ?AccountAddress $address = null, string $namePrefix = '', RegisteredUser|RegisteredUserSimpleProfile $registeredUser = null, ?MasterVal $masterVal = null, ?CustomCompanyRole $customCompanyRole = null, array $companyRoles = [], string $rolesFilter = CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER, string $paramsPrefix = "", bool $required = false, bool $disabled = false): ?FormItem {
+        $languageSheet = self::getLanguage();
+        $labels = $languageSheet->getLabels();
+        $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
+        $accountType = Session::getInstance()?->getBasket()?->getAccount()?->getType() ?? AccountType::GENERAL;
+        $customer = Session::getInstance()->getBasket()->getCustomer();
+        if (is_null($registeredUser) && !is_null($account)) {
+            $registeredUser = $account?->getMaster()?->getRegisteredUser() ?? null;
+        }
+        if (strlen($namePrefix)) {
+            $inputName = $namePrefix . '_' . $field;
+        } else {
+            $inputName = $field;
+        }
+        if (strlen($paramsPrefix)) {
+            $paramsName = $paramsPrefix . '_' . $field;
+        } else {
+            $paramsName = $field;
+        }
+
+        if (
+            ($userKeyCriteria == UserKeyCriteria::EMAIL and $field == FormRegisteredUserFields::REGISTERED_USER_EMAIL) or
+            ($userKeyCriteria == UserKeyCriteria::PID and $field == FormRegisteredUserFields::REGISTERED_USER_P_ID) or
+            ($userKeyCriteria == UserKeyCriteria::USERNAME and $field == FormRegisteredUserFields::REGISTERED_USER_USERNAME)
+        ) {
+            $required = true;
+            $disabled = true;
+        }
+
+        switch ($paramsName) {
+            case Parameters::ACCOUNT_ALIAS:
+                $inputElement = (new InputText($masterVal->getAccountAlias()))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ALIAS));
+                break;
+            case Parameters::ADDRESS:
+                $inputElement = (new InputText($address?->getAddress() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ADDRESS));
+                break;
+            case Parameters::ADDRESS_ADDITIONAL_INFORMATION:
+                $inputElement = (new InputText($address?->getAddressAdditionalInformation() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ADDRESS_ADDITIONAL_INFORMATION));
+                break;
+            case Parameters::ALIAS:
+                $inputElement = (new InputText($address?->getAlias() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ALIAS));
+                break;
+            case Parameters::BIRTHDAY:
+                $inputElement = (new InputDate($registeredUser?->getBirthday() ? $registeredUser->getBirthday()->originalFormat() : ''))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_BIRTH_DATE));
+                break;
+            case Parameters::CITY:
+                $inputElement = (new InputText($address?->getCity() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::CITY));
+                break;
+            case Parameters::COMPANY:
+                $inputElement = (new InputText($address?->getCompany() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::COMPANY));
+                break;
+            case Parameters::COUNTRY:
+                $options = [];
+                $sessionGeneralSettings = Session::getInstance()->getGeneralSettings();
+                foreach (Application::getInstance()->getCountriesSettings($sessionGeneralSettings->getLanguage(), $sessionGeneralSettings->getCountry()) as $country) {
+                    $options[] = (new Option($country->getName()))->setValue($country->getCode())->setData($country);
+                }
+                if (is_null($address?->getLocation())) {
+                    $selectedCountry = Session::getInstance()->getGeneralSettings()->getCountry();
+                } else {
+                    $selectedCountry = $address->getLocation()->getGeographicalZone()->getCountryCode();
+                }
+                $inputElement = (new Select($options, null, $selectedCountry))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::COUNTRY));
+                break;
+            case Parameters::CREATE_ACCOUNT:
+                throw new CommerceException(self::class . ' Duplicated user field: ' . $field . '. Is defined by default in setUser()', CommerceException::FORM_FACTORY_DUPLICATED_USER_FIELD);
+            case Parameters::DEFAULT_ADDRESS:
+                $inputElement = (new InputCheckbox('1'))->setChecked((!is_null($account->getDefaultInvoicingAddresses()) && $account->getDefaultInvoicingAddresses()->getId() === $address->getId()))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::DEFAULT_ADDRESS));
+                break;
+            case Parameters::DATE_ADDED:
+                $inputElement = (new InputText($account?->getDateAdded() ? (new DateTimeFormatter())->getFormattedDateTime($account?->getDateAdded()) : ''))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_EDIT_DATE_ADDED));
+                break;
+            case Parameters::DESCRIPTION:
+                $inputElement = (new InputText($account?->getDescription() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::DESCRIPTION));
+                break;
+            case Parameters::EMAIL:
+                $inputElement = (new InputText($account?->getEmail() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL));
+                break;
+            case Parameters::FAX:
+                $inputElement = (new InputTel($address->getFax()))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::FAX));
+                break;
+            case Parameters::FIRST_NAME:
+                $inputElement = (new InputText(is_null($address) ? $registeredUser?->getFirstName() ?? '' : $address?->getFirstName() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME));
+                break;
+            case Parameters::GENDER:
+                $inputElement = (new InputRadio([
+                    Gender::FEMALE => $languageSheet->getLabelValue(LanguageLabels::FEMALE),
+                    Gender::MALE => $languageSheet->getLabelValue(LanguageLabels::MALE),
+                    Gender::UNDEFINED => $languageSheet->getLabelValue(LanguageLabels::UNDEFINED)
+                ], null, $registeredUser?->getGender() ?? ''));
+                break;
+            case Parameters::IMAGE:
+                return null;
+                $inputElement = (new InputText($account?->getImage() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::IMAGE));
+                break;
+            case Parameters::JOB:
+                if (in_array($accountType,  AccountType::getCompanyTypes())) {
+                    if (is_null($masterVal)) {
+                        $masterVal = $account?->getMaster() ?? null;
+                    }
+                    $inputElement = (new InputText(($masterVal instanceof AccountEmployee or $masterVal instanceof EmployeeVal) ? $masterVal?->getJob() ?? '' : ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_JOB));
+                }
+                break;
+            case Parameters::LOCATION:
+                $locationId = 0;
+                if (!is_null($address?->getLocation())) {
+                    $locationId = $address->getLocation()->getGeographicalZone()->getLocationId();
+                }
+                $inputElement = new InputHidden($locationId);
+                break;
+            case Parameters::LAST_NAME:
+                $inputElement = (new InputText(is_null($address) ? $registeredUser?->getLastName() ?? '' : $address?->getLastName() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME));
+                break;
+            case Parameters::LAST_USED:
+                $inputElement = (new InputText($account?->getLastUsed() ? (new DateTimeFormatter())->getFormattedDateTime($account?->getLastUsed()) : ''))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_EDIT_LAST_USED));
+                break;
+            case Parameters::MOBILE:
+                $inputElement = (new InputTel($address?->getMobile() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::MOBILE));
+                break;
+            case Parameters::MASTER:
+                $disabled = $masterVal?->getStatus() == AccountRegisteredUserStatus::PENDING_APPROVAL ||
+                    $masterVal?->isMaster() ||
+                    !Session::getInstance()?->getBasket()?->getAccountRegisteredUser()?->isMaster();
+                $inputElement = (new InputCheckbox('1'))->setChecked(($masterVal?->isMaster() ?? false))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER));
+                break;
+            case Parameters::NIF:
+                $inputElement = (new InputText($address?->getNif() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::NIF));
+                break;
+            case Parameters::NUMBER:
+                $inputElement = (new InputText($address?->getNumber() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::NUMBER));
+                break;
+            case Parameters::P_ID:
+                $inputElement = (new InputText($account?->getPId() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::P_ID));
+                break;
+            case Parameters::PHONE:
+                $inputElement = (new InputTel($address?->getPhone() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::PHONE));
+                break;
+            case Parameters::POSTAL_CODE:
+                $inputElement = (new InputText($address?->getPostalCode() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::POSTAL_CODE));
+                break;
+            case Parameters::RE:
+                $checked = filter_var($address?->getRe() ?? '', FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+                $inputElement = (new InputRadio([
+                    '0' => $languageSheet->getLabelValue(LanguageLabels::NO),
+                    '1' => $languageSheet->getLabelValue(LanguageLabels::YES),
+                ], null, $checked))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::RE));
+                break;
+            case Parameters::TYPE:
+                $labelKey = match ($account?->getType() ?? '') {
+                    AccountType::GENERAL          => LanguageLabels::ACCOUNT_TYPE_GENERAL,
+                    AccountType::INDIVIDUAL       => LanguageLabels::ACCOUNT_TYPE_INDIVIDUAL,
+                    AccountType::FREELANCE        => LanguageLabels::ACCOUNT_TYPE_FREELANCE,
+                    AccountType::COMPANY          => LanguageLabels::ACCOUNT_TYPE_COMPANY,
+                    AccountType::COMPANY_DIVISION => LanguageLabels::ACCOUNT_TYPE_COMPANY_DIVISION,
+                    default                        => '',
+                };
+                $typeLabel = $labelKey !== '' ? $languageSheet->getLabelValue($labelKey) : '';
+                $inputElement = (new InputText($typeLabel))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::TYPE));
+                break;
+            case Parameters::REGISTERED_USER_EMAIL:
+                $inputElement = (new InputEmail($registeredUser?->getEmail() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL));
+                break;
+            case Parameters::REGISTERED_USER_IMAGE:
+                return null;
+                $inputElement = (new InputText($registeredUser?->getImage() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_IMAGE));
+                break;
+            case Parameters::REGISTERED_USER_P_ID:
+                $inputElement = (new InputText($registeredUser?->getPId() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_PID));
+                break;
+            case Parameters::REGISTERED_USER_USERNAME:
+                $inputElement = (new InputText($registeredUser?->getUsername() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME));
+                break;
+            case Parameters::REGISTERED_USER_STATUS:
+                $statusOptions = [];
+                foreach (AccountRegisteredUserStatus::getValues() as $statusOption) {
+                    $select = $masterVal?->getStatus() == "" ? false : ($statusOption == $masterVal->getStatus());
+                    if ($statusOption == AccountRegisteredUserStatus::PENDING_APPROVAL && ! $select) {
+                        continue;
+                    }
+                    $statusOptionLabel = $languageSheet->getLabelValue($labels['ACCOUNT_REGISTERED_USER_STATUS' . '_' . $statusOption]);
+                    $statusOptions[] = (new Option($statusOptionLabel))->setValue($statusOption)->setData($statusOption)->setSelected($select);
+                }
+                $disabled = ($masterVal?->isMaster() or $masterVal?->getStatus() == AccountRegisteredUserStatus::PENDING_APPROVAL);
+                $inputElement = (new Select($statusOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS_DEFAULT))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS));
+                break;
+            case Parameters::ROLE . '_' . Parameters::DESCRIPTION:
+                $inputElement = (new InputText($customCompanyRole?->getDescription() ?? ''))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::DESCRIPTION))->setId('roleDescription');
+                break;
+            case Parameters::ROLE . '_' . Parameters::NAME:
+                $inputElement = (new InputText($customCompanyRole?->getName() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::NAME))->setId('roleName');
+                break;
+            case Parameters::ROLE . '_' . Parameters::P_ID:
+                $inputElement = (new InputText($customCompanyRole?->getPId() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::P_ID))->setId('rolePId');
+                break;
+            case Parameters::ROLE . '_' . Parameters::TARGET:
+                $targetOptions = [
+                    (new Option($languageSheet->getLabelValue(LanguageLabels::COMPANY_STRUCTURE_MASTER)))
+                        ->setValue(CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER)
+                        ->setSelected(($customCompanyRole?->getTarget() ?? null) == CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER),
+                    (new Option($languageSheet->getLabelValue(LanguageLabels::COMPANY_STRUCTURE_NON_MASTER)))
+                        ->setValue(CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER)
+                        ->setSelected(($customCompanyRole?->getTarget() ?? null) == CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER),
+                ];
+                $isEdit = $customCompanyRole != null;
+                $disabled = $disabled || $isEdit;
+                $inputElement =  (new Select($targetOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ROLE_DEFAULT))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ROLE_TARGET));
+                break;
+            case Parameters::ROLE . '_' . Parameters::TARGET_DEFAULT:
+                $isEdit = $customCompanyRole != null;
+                $isChecked = !$isEdit ? false : $customCompanyRole?->getTargetDefault() ?? false;
+                $disabled = $disabled || $isChecked;
+                $inputElement = (new InputCheckbox('1'))->setId('defaultRole')->setChecked($isChecked)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::DEFAULT));
+                break;
+            case Parameters::ROLE_ID:
+                if (in_array($accountType,  AccountType::getCompanyTypes()) && LmsService::getAdvcaLicense()) {
+                    $isMaster = $account?->getMaster()?->isMaster() ?? false;
+                    $roleId = $account?->getMaster()?->getRole()?->getId() ?? 0;
+                    $roleOptions[] = (new Option($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT)))->setValue(0)->setSelected($roleId === 0);
+                    if (!$isMaster or $accountType === AccountType::COMPANY_DIVISION) {
+                        foreach ($companyRoles as $companyRole) {
+                            if (
+                                $companyRole instanceof CustomCompanyRoleHeader &&
+                                $companyRole->getTarget() === $rolesFilter
+                            ) {
+                                $roleOptions[] = (new Option($companyRole->getName()))->setValue($companyRole->getId())->setSelected($roleId === $companyRole->getId());
+                            }
+                        }
+                    } else {
+                        $disabled = true;
+                    }
+                    $inputElement = (new Select($roleOptions))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE));
+                }
+                break;
+            case FormFieldsSetUser::SEPARATOR:
+                $inputElement = (new Separator())->setLabelFor($languageSheet->getLabelValue(LanguageLabels::USER_FORM_SEPARATOR, ''));
+                break;
+            case FormFieldsSetUser::SEPARATOR_2:
+                $inputElement = (new Separator())->setLabelFor($languageSheet->getLabelValue(LanguageLabels::USER_FORM_SEPARATOR_2, ''));
+                break;
+            case FormFieldsSetUser::SEPARATOR_3:
+                $inputElement = (new Separator())->setLabelFor($languageSheet->getLabelValue(LanguageLabels::USER_FORM_SEPARATOR_3, ''));
+                break;
+            case Parameters::SUBSCRIBED:
+                $user = SESSION::getInstance()?->getUser();
+                $disabled = $disabled || (!is_null($user->getUserAdditionalInformation()) && $user->getUserAdditionalInformation()->getSimulatedUser());
+                /** @var \SDK\Services\PluginService */
+                $pluginService = Loader::service(Services::PLUGIN);
+                $params = self::getPluginConnectorTypeParametersGroup(PluginConnectorType::MAILING_SYSTEM);
+                $mailSystemPlugins = $pluginService->getPlugins($params);
+                if (!empty($mailSystemPlugins->getItems())) {
+                    if (Utils::isUserLoggedIn($user) or strlen(Utils::getUserName($user))) {
+                        $inputElement = (new ButtonButton())->setDisabled(true)->setData([Parameters::EMAIL => $user->getEmail(), Parameters::TYPE => NewsletterSubscriptionActions::SUBSCRIBE])->setContentText($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBE));
+                    } else {
+                        $inputElement = (new InputCheckbox('1'))->setChecked(false)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBED));
+                    }
+                } else {
+                    return null;
+                }
+                break;
+            case Parameters::STATE:
+                $inputElement = (new InputText($address?->getState() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::STATE));
+                break;
+            case Parameters::STATUS:
+                $statusLabelKey = match ($account?->getStatus() ?? '') {
+                    AccountStatus::ENABLED => LanguageLabels::ACCOUNT_STATUS_ENABLED,
+                    AccountStatus::DISABLED => LanguageLabels::ACCOUNT_STATUS_DISABLED,
+                    AccountStatus::PENDING_VERIFICATION => LanguageLabels::ACCOUNT_STATUS_PENDING_VERIFICATION,
+                    AccountStatus::PENDING_MERCHANT_ACTIVATION => LanguageLabels::ACCOUNT_STATUS_PENDING_MERCHANT_ACTIVATION,
+                    AccountStatus::DENIED => LanguageLabels::ACCOUNT_STATUS_DENIED,
+                    default => '',
+                };
+                $statusLabel = $statusLabelKey !== '' ? $languageSheet->getLabelValue($statusLabelKey) : '';
+                $inputElement = (new InputText($statusLabel))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::STATUS));
+                break;
+            case Parameters::USE_SHIPPING_ADDRESS:
+                $inputElement = (new InputCheckbox('1'))->setChecked($customer->isUseShippingAddress())->setLabelFor($languageSheet->getLabelValue(LanguageLabels::USE_SHIPPING_ADDRESS));
+                break;
+            case Parameters::USER_TYPE:
+                $inputElement = new InputHidden(!is_null($address) && $address?->getCustomerType() != CustomerType::EMPTY ? UserType::getEnum($address?->getCustomerType()) : self::getConfiguration()->getForms()->getSetUser()->getDefaultUserType());
+                break;
+            case Parameters::VAT:
+                $inputElement = (new InputText($address?->getVat() ?? ''))->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::VAT_ID));
+                break;
+            default:
+                throw new CommerceException(self::class . ' Undefined user field: ' . $inputName, CommerceException::FORM_FACTORY_UNDEFINED_USER_FIELD);
+        }
+        if (!is_null($inputElement)) {
+            $inputElement = $inputElement->setClass(self::CLASS_WILDCARD . ' formField userField');
+            $inputElement = $inputElement->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
+            if (method_exists($inputElement, 'setRequired')) {
+                $inputElement = $inputElement->setRequired($required or $formField->getRequired());
+            }
+            if (method_exists($inputElement, 'setRegex')) {
+                $inputElement = $inputElement->setRegex($formField->getRegex());
+            }
+            if (method_exists($inputElement, 'setDisabled') && !$inputElement->getDisabled() && $paramsName != Parameters::USE_SHIPPING_ADDRESS) {
+                $inputElement = $inputElement->setDisabled($disabled);
+            }
+            return (new FormItem($inputName, $inputElement));
+        }
+        return null;
     }
 
     /**
@@ -1951,8 +2273,6 @@ abstract class FormFactory {
      * @return Form
      */
     public static function getAccountOrders(array $data = []): Form {
-        //\DateTime $fromDate = null, \DateTime $toDate = null, bool $onlyCreatedByMe = false, array $statusIdList = [], bool $includeSubCompanyStructure = false
-
         $languageSheet = self::getLanguage();
         $labels = $languageSheet->getLabels();
         $formHead = (new FormHead(str_replace("{" . Parameters::ID_USED . "}", AccountKey::USED, RoutePaths::getPath(RouteType::ACCOUNT_ORDERS)), 'ordersForm'))->setId('ordersForm')->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
@@ -2081,6 +2401,11 @@ abstract class FormFactory {
         return $form;
     }
 
+    /**
+     * This static method returns the 'company roles' Form.
+     * @param CompanyRolesParametersGroup|null $companyRolesParametersGroup
+     * @return Form
+     */
     public static function getCompanyRolesFilters(CompanyRolesParametersGroup $companyRolesParametersGroup = null): Form {
         $parameters = [];
         if (!is_null($companyRolesParametersGroup)) {
@@ -2123,6 +2448,13 @@ abstract class FormFactory {
         return $form;
     }
 
+    /**
+     * This static method returns the 'company roles' Form.
+     * @param BaseCompanyStructureTreeNode $node
+     * @param string $accountId
+     * @param int $level
+     * @return array
+     */
     private static function buildCompanyOptions(BaseCompanyStructureTreeNode $node, string $accountId, int $level = 0): array {
         $opts   = [];
         $indent = str_repeat("- ", $level);
@@ -2197,63 +2529,58 @@ abstract class FormFactory {
         if (is_null($registeredUser)) {
             $registeredUser = new MasterVal();
         }
-        $labels = $languageSheet->getLabels();
         $formHead = (new FormHead(RoutePaths::getPath(InternalAccount::UPDATE_ACCOUNT_REGISTERED_USER), $idForm))->setId($idForm)->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
-        $statusOptions = [];
 
-        foreach (AccountRegisteredUserStatus::getValues() as $statusOption) {
-            $select = $registeredUser->getStatus() == "" ? false : ($statusOption == $registeredUser->getStatus());
-            if ($statusOption == AccountRegisteredUserStatus::PENDING_APPROVAL && ! $select) {
-                continue;
-            }
-            $statusOptionLabel = $languageSheet->getLabelValue($labels['ACCOUNT_REGISTERED_USER_STATUS' . '_' . $statusOption]);
-            $statusOptions[] = (new Option($statusOptionLabel))->setValue($statusOption)->setData($statusOption)->setSelected($select);
-        }
-        $formItems[] = new FormItem(Parameters::MASTER, ((new InputCheckbox('1'))->setChecked(($registeredUser->isMaster()))->setDisabled($registeredUser->getStatus() == AccountRegisteredUserStatus::PENDING_APPROVAL || $registeredUser->isMaster() || !Session::getInstance()->getBasket()->getAccountRegisteredUser()->isMaster())->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-        $formItems[] = new FormItem(Parameters::STATUS, (new Select($statusOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS_DEFAULT))->setDisabled($registeredUser->isMaster() or $registeredUser->getStatus() == AccountRegisteredUserStatus::PENDING_APPROVAL)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_STATUS))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
-        $formItems[] = new FormItem(Parameters::ACCOUNT_ALIAS, (new InputText($registeredUser->getAccountAlias()))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ALIAS))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
-        if ($registeredUser instanceof EmployeeVal) {
-            if (LmsService::getAdvcaLicense()) {
-                $roleOptions = [];
-                $select = false;
-                foreach ($companyRoles as $companyRole) {
-                    $select = $registeredUser->getRole()?->getId() !== null && $registeredUser->getRole()?->getId() == $companyRole->getId() ? true : false;
-                    $isMasterRole = (
-                        $companyRole instanceof CustomCompanyRoleHeader &&
-                        $companyRole->getTarget() === CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER
-                    ) ? 1 : 0;
+        $fields = self::getConfiguration()->getForms()->getAccount()->getAccountRegisteredUserFields()->getSortFilterArrayFormFields();
+        foreach ($fields as $field => $formField) {
+            if ($field == Parameters::ROLE_ID) {
+                if ($registeredUser instanceof EmployeeVal && LmsService::getAdvcaLicense()) {
+                    $roleOptions = [];
+                    $select = false;
+                    foreach ($companyRoles as $companyRole) {
+                        $select = $registeredUser->getRole()?->getId() !== null && $registeredUser->getRole()?->getId() == $companyRole->getId() ? true : false;
+                        $isMasterRole = (
+                            $companyRole instanceof CustomCompanyRoleHeader &&
+                            $companyRole->getTarget() === CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER
+                        ) ? 1 : 0;
 
-                    $roleOptions[] = (new Option($companyRole->getName()))
-                        ->setValue($companyRole->getId())
-                        ->setSelected($select)
-                        ->setAttributeWildcard('data-master="' . $isMasterRole . '"');
+                        $roleOptions[] = (new Option($companyRole->getName()))
+                            ->setValue($companyRole->getId())
+                            ->setSelected($select)
+                            ->setAttributeWildcard('data-master="' . $isMasterRole . '"');
+                    }
+                    $defaultOptionLabel = LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT;
+                    if ($registeredUser->isMaster() && $registeredUser->getAccount()->getType() == AccountType::COMPANY) {
+                        $defaultOptionLabel = LanguageLabels::ACCOUNT_REGISTERED_USER_COMPANY_MASTER_ROLE_DEFAULT;
+                    }
+
+                    $labelBase = $languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT);
+                    $labelCompanyMaster = $languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_COMPANY_MASTER_ROLE_DEFAULT);
+
+                    $defaultOption = (new Option($languageSheet->getLabelValue($defaultOptionLabel)))
+                        ->setValue(0)
+                        ->setSelected(!$select)
+                        ->setAttributeWildcard('data-master="0" data-label-base="' . htmlspecialchars($labelBase, ENT_QUOTES) . '" data-label-company-master="' . htmlspecialchars($labelCompanyMaster, ENT_QUOTES) . '"');
+                    array_unshift($roleOptions, $defaultOption);
+                    $accountTypeStr = (string)$registeredUser->getAccount()->getType();
+                    $formItems[] = new FormItem(
+                        Parameters::ROLE_ID,
+                        (new Select($roleOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ROLE_DEFAULT))
+                            ->setRequired($formField->getRequired())
+                            ->setDisabled($registeredUser->isMaster() and $registeredUser->getAccount()->getType() != AccountType::COMPANY_DIVISION)
+                            ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE))
+                            ->setClass(self::CLASS_WILDCARD)
+                            ->setAttributeWildcard('data-account-type="' . $accountTypeStr . '" ' . self::ATTRIBUTE_WILDCARD)
+                    );
                 }
-                $defaultOptionLabel = LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT;
-                if ($registeredUser->isMaster() && $registeredUser->getAccount()->getType() == AccountType::COMPANY) {
-                    $defaultOptionLabel = LanguageLabels::ACCOUNT_REGISTERED_USER_COMPANY_MASTER_ROLE_DEFAULT;
+            } else {
+                $formItem = self::accountFields($field, $formField, null, null, '', null, $registeredUser, null, $companyRoles);
+                if (!is_null($formItem)) {
+                    $formItems[] = $formItem;
                 }
-
-                // Añadir ambos labels como data attributes para que JavaScript pueda cambiarlos dinámicamente
-                $labelBase = $languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT);
-                $labelCompanyMaster = $languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_COMPANY_MASTER_ROLE_DEFAULT);
-
-                $defaultOption = (new Option($languageSheet->getLabelValue($defaultOptionLabel)))
-                    ->setValue(0)
-                    ->setSelected(!$select)
-                    ->setAttributeWildcard('data-master="0" data-label-base="' . htmlspecialchars($labelBase, ENT_QUOTES) . '" data-label-company-master="' . htmlspecialchars($labelCompanyMaster, ENT_QUOTES) . '"');
-                array_unshift($roleOptions, $defaultOption);
-                $accountTypeStr = (string)$registeredUser->getAccount()->getType();
-                $formItems[] = new FormItem(
-                    Parameters::ROLE_ID,
-                    (new Select($roleOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ROLE_DEFAULT))
-                        ->setDisabled($registeredUser->isMaster() and $registeredUser->getAccount()->getType() != AccountType::COMPANY_DIVISION)
-                        ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE))
-                        ->setClass(self::CLASS_WILDCARD)
-                        ->setAttributeWildcard('data-account-type="' . $accountTypeStr . '" ' . self::ATTRIBUTE_WILDCARD)
-                );
             }
-            $formItems[] = new FormItem(Parameters::JOB, (new InputText($registeredUser instanceof EmployeeVal ? $registeredUser->getJob() : ""))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_JOB))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         }
+
         $formItems[] = new FormItem(Parameters::ACCOUNT_ID, (new InputHidden($registeredUser->getAccount()?->getId() == null ? "" : $registeredUser->getAccount()?->getId()))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         $formItems[] = new FormItem(Parameters::REGISTERED_USER_ID, (new InputHidden($registeredUser->getRegisteredUser()?->getId() == null ? "" : $registeredUser->getRegisteredUser()?->getId()))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setClass(self::CLASS_WILDCARD)->setId('registeredUserUpdateSubmit')->setDisabled(false)->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE)));
@@ -2268,49 +2595,26 @@ abstract class FormFactory {
      * @return Form
      */
     public static function getAccountRegisteredUserCreate(string $accountId = AccountKey::USED, array $companyRoles = [], string $rolesFilter = CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER): Form {
-        $languageSheet = self::getLanguage();
-
+        $lang = self::getLanguage();
+        $labels = $lang->getLabels();
         $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
 
-        $labels = $languageSheet->getLabels();
-
         $formHead = (new FormHead(RoutePaths::getPath(InternalAccount::CREATE_ACCOUNT_REGISTERED_USER), 'registeredUserCreateForm'))->setId('registeredUserCreateForm')->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
+        $formItems = [];
 
-        $formItems[] = new FormItem(Parameters::Q, ((new InputText())->setRequired(true)->setId('searchClient')->setLabelFor($languageSheet->getLabelValue($labels[$userKeyCriteria]))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
+        $fields = self::getConfiguration()->getForms()->getAccount()->getMaster()->getRegisteredUser()->getFields()->getSortFilterArrayFormFields();
 
-        $formItems[] = new FormItem(Parameters::GENDER, (new InputRadio([
-            Gender::FEMALE => $languageSheet->getLabelValue(LanguageLabels::FEMALE),
-            Gender::MALE => $languageSheet->getLabelValue(LanguageLabels::MALE),
-            Gender::UNDEFINED => $languageSheet->getLabelValue(LanguageLabels::UNDEFINED)
-        ]))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_GENDER))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
-
-        $formItems[] = new FormItem(Parameters::ACCOUNT_ID, ((new InputHidden()))->setValue($accountId));
-        $formItems[] = new FormItem(Parameters::FIRST_NAME, ((new InputText())->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-        $formItems[] = new FormItem(Parameters::LAST_NAME, ((new InputText())->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-        $formItems[] = new FormItem(Parameters::EMAIL, ((new InputEmail())->setRequired(true)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-        $formItems[] = new FormItem(Parameters::USERNAME, ((new InputText())->setRequired($userKeyCriteria == UserKeyCriteria::USERNAME)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-        $formItems[] = new FormItem(Parameters::REGISTERED_USER_P_ID, ((new InputText())->setRequired($userKeyCriteria == UserKeyCriteria::PID)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_PID))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-        $formItems[] = new FormItem(Parameters::BIRTHDAY, (new InputDate())->setRequired(false)->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_BIRTH_DATE))->setClass(self::CLASS_WILDCARD));
-        $formItems[] = new FormItem(Parameters::IMAGE, ((new InputText())->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_IMAGE))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        if (in_array(Session::getInstance()->getBasket()->getAccount()->getType(),  AccountType::getCompanyTypes())) {
-            if (LmsService::getAdvcaLicense()) {
-                $roleOptions[] = (new Option($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT)))->setValue(0)->setSelected(1);
-                foreach ($companyRoles as $companyRole) {
-                    if (
-                        $companyRole instanceof CustomCompanyRoleHeader &&
-                        $companyRole->getTarget() === $rolesFilter
-                    ) {
-                        $roleOptions[] = (new Option($companyRole->getName()))->setValue($companyRole->getId());
-                    }
-                }
-                $formItems[] = new FormItem(Parameters::ROLE_ID, (new Select($roleOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ROLE_DEFAULT))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
+        foreach ($fields as $field => $formField) {
+            $formItem = self::accountFields($field, $formField, null, null, '', null, null, null, $companyRoles, $rolesFilter);
+            if (!is_null($formItem)) {
+                $formItems[] = $formItem;
             }
-            $formItems[] = new FormItem(Parameters::JOB, (new InputText())->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_JOB))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         }
+        $formItems[] = new FormItem(Parameters::ACCOUNT_ID, ((new InputHidden()))->setValue($accountId));
+        $formItems[] = new FormItem(Parameters::Q, ((new InputText())->setRequired(true)->setId('searchClient')->setLabelFor($lang->getLabelValue($labels[$userKeyCriteria]))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
         $formItems[] = new FormItem(Parameters::REGISTERED_USER_ID, ((new InputHidden())->setMaxlength(255)->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
 
-        $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setDisabled(false)->setClass('registeredUsersCreate')->setId('registeredUsersCreateSubmit')->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
+        $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setDisabled(false)->setClass('registeredUsersCreate')->setId('registeredUsersCreateSubmit')->setContentText($lang->getLabelValue(LanguageLabels::SAVE))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         $form = new Form($formHead, $formItems);
         return $form;
     }
@@ -2325,12 +2629,22 @@ abstract class FormFactory {
      * 
      * @return Form
      */
-    public static function getAccountRegisteredUsersApprove(MasterVal $registeredUser = null, $hash = ""): Form {
+    public static function getAccountRegisteredUsersApprove(?MasterVal $registeredUser = null, $hash = ""): Form {
 
         if ($registeredUser === null) {
             $registeredUser = new MasterVal();
         }
         $languageSheet = self::getLanguage();
+
+        $formHead = (new FormHead(RoutePaths::getPath(InternalAccount::APPROVE_ACCOUNT_REGISTERED_USER), 'registeredUserApproveForm'))->setId('registeredUserApproveForm')->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
+        $fields = self::getConfiguration()->getForms()->getAccount()->getMaster()->getRegisteredUser()->getApproveFields()->getSortFilterArrayFormFields();
+
+        foreach ($fields as $field => $formField) {
+            $formItem = self::accountFields($field, $formField, null, null, '', $registeredUser?->getRegisteredUser());
+            if (!is_null($formItem)) {
+                $formItems[] = $formItem;
+            }
+        }
 
         $formItems[] = new FormItem(Parameters::ACCOUNT_ID, ((new InputHidden($registeredUser?->getAccount()?->getId() ? $registeredUser?->getAccount()?->getId() : ""))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
 
@@ -2338,38 +2652,11 @@ abstract class FormFactory {
 
         $formItems[] = new FormItem(Parameters::HASH, ((new InputHidden($hash))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
 
-        $formItems[] = new FormItem(Parameters::P_ID, ((new InputHidden($registeredUser?->getRegisteredUser()?->getPId() ? $registeredUser?->getRegisteredUser()?->getPId() : ""))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        $formItems[] = new FormItem(Parameters::IMAGE, ((new InputHidden($registeredUser?->getRegisteredUser()?->getImage() ? $registeredUser?->getRegisteredUser()?->getImage() : ""))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        $formItems[] = new FormItem(Parameters::EMAIL, ((new InputHidden($registeredUser?->getRegisteredUser()?->getEmail() ? $registeredUser?->getRegisteredUser()?->getEmail() : ""))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        $formItems[] = new FormItem(Parameters::TO_EMAIL, ((new InputEmail($registeredUser?->getRegisteredUser()?->getEmail() ? $registeredUser?->getRegisteredUser()?->getEmail() : ""))->setRequired(true)->setDisabled(true)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        $formItems[] = new FormItem(Parameters::FIRST_NAME, ((new InputText($registeredUser?->getRegisteredUser()?->getFirstName() ? $registeredUser?->getRegisteredUser()?->getFirstName() : ""))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        $formItems[] = new FormItem(Parameters::LAST_NAME, ((new InputText($registeredUser?->getRegisteredUser()?->getLastName() ? $registeredUser?->getRegisteredUser()?->getLastName() : ""))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
-
-        $formItems[] = new FormItem(Parameters::USERNAME, ((new InputText($registeredUser?->getRegisteredUser()?->getUsername() ? $registeredUser?->getRegisteredUser()?->getUsername() : ""))->setRequired($userKeyCriteria == UserKeyCriteria::USERNAME)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-
-        $formItems[] = new FormItem(Parameters::BIRTHDAY, ((new InputDate($registeredUser?->getRegisteredUser()?->getBirthday() ? $registeredUser?->getRegisteredUser()?->getBirthday()->originalFormat() : ""))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_BIRTH_DATE))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        $formItems[] = new FormItem(Parameters::GENDER, (new InputRadio([
-            Gender::FEMALE => $languageSheet->getLabelValue(LanguageLabels::FEMALE),
-            Gender::MALE => $languageSheet->getLabelValue(LanguageLabels::MALE),
-            Gender::UNDEFINED => $languageSheet->getLabelValue(LanguageLabels::UNDEFINED)
-        ], null, $registeredUser?->getRegisteredUser()?->getGender() ? $registeredUser?->getRegisteredUser()?->getGender() : Gender::UNDEFINED))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_GENDER))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
-
         $formItems[] = new FormItem(Parameters::PASSWORD, (new InputPassword())->setRequired(true)->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_PASSWORD))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
 
         $formItems[] = new FormItem(Parameters::PASSWORD_RETYPE, (new InputPassword())->setRequired(true)->setMaxlength(50)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_PASSWORD_RETYPE))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
 
-        $formHead = (new FormHead(RoutePaths::getPath(InternalAccount::APPROVE_ACCOUNT_REGISTERED_USER), 'registeredUserApproveForm'))->setId('registeredUserApproveForm')->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
-
-        $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setDisabled(false)->setClass('registeredUsersCreate')->setId('registeredUsersCreateSubmit')->setContentText($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_APPROVE_BUTTON)));
+        $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setDisabled(false)->setClass('registeredUsersApprove')->setId('registeredUsersCreateSubmit')->setContentText($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_APPROVE_BUTTON)));
         $form = new Form($formHead, $formItems);
         return $form;
     }
@@ -2382,14 +2669,12 @@ abstract class FormFactory {
      * @param array|null $countries
      * @return Form
      */
-    public static function getAccountCompanyDivisionCreate(CompanyDivisionsParametersGroup $companyDivisionsParametersGroup = null, int $parentAccountId = 0, array $companyRoles = []): Form {
-        if (!is_null($companyDivisionsParametersGroup)) {
-            $parameters = $companyDivisionsParametersGroup->toArray();
-        }
+    public static function getAccountCompanyDivisionCreate(int $parentAccountId = 0, array $companyRoles = []): Form {
 
         $languageSheet = self::getLanguage();
 
-        $formItems = self::getAccountRegisteredUserCreate(companyRoles: $companyRoles, rolesFilter: CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER);
+        $formItems = self::getAccountRegisteredUserCreate(AccountKey::USED, $companyRoles, CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER);
+
         $formItems->removeInputElement(Form::SUBMIT);
         $formItems = $formItems->getInputItems();
 
@@ -2401,50 +2686,25 @@ abstract class FormFactory {
             ->setAutocomplete(Input::AUTOCOMPLETE_ON)
             ->setMethod(FormHead::METHOD_POST)
             ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
+        $formItems[] = new FormItem(Parameters::ID, ((new InputHidden($parentAccountId))->setMaxlength(255)->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
 
-        // Instancias vacías por ahora
-        $address = new Address();
-        $user = new User();
-
-        // Campos obligatorios
         $requiredFields = [
-            Parameters::COUNTRY,
+            Parameters::LOCATION,
             Parameters::ADDRESS
         ];
-
-        // Todos los campos del formulario
-        $fieldsToAdd = [
-            Parameters::LOCATION,
-            Parameters::COUNTRY,
-            Parameters::ADDRESS,
-            Parameters::ADDRESS_ADDITIONAL_INFORMATION,
-            Parameters::NUMBER,
-            Parameters::PHONE,
-            Parameters::MOBILE,
-            Parameters::COMPANY,
-            Parameters::VAT,
-            Parameters::P_ID
-        ];
-
-        $formItems[] = new FormItem(Parameters::ID, ((new InputHidden($parentAccountId))->setMaxlength(255)->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-        $formItems[] = new FormItem(Parameters::IMAGE2, ((new InputText(isset($parameters['image']) ? $parameters['image'] : ""))->setMaxlength(255)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_IMAGE))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
-
-        foreach ($fieldsToAdd as $field) {
-            $formItem = self::userFieldsWithRequiredFlag(
-                $field,
-                in_array($field, $requiredFields, true),
-                $user,
-                $address,
-                '',
-                false
-            );
-
-            if ($formItem instanceof FormItem) {
+        $invoicingFields = self::getConfiguration()->getForms()->getAccount()->getCompanyDivision()->getInvoicingFields()->getSortFilterArrayFormFields();
+        $generalFields = self::getConfiguration()->getForms()->getAccount()->getCompanyDivision()->getGeneralFields()->getFormGeneralFields()->getSortFilterArrayFormFields();
+        $fields = array_merge($invoicingFields, $generalFields);
+        foreach ($fields as $field => $formField) {
+            $formItem = self::accountFields($field, $formField, null, null, '', null, null, null, $companyRoles, CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER, "", in_array($field, $requiredFields, true), false);
+            if (!is_null($formItem)) {
                 $formItems[] = $formItem;
+            }
+            if ($field === Parameters::LOCATION) {
+                $formItems[] = self::accountFields(Parameters::COUNTRY, $formField, null, null, '', null, null, null, $companyRoles, CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER, "", true, false);
             }
         }
 
-        // Botón de envío
         $formItems[] = new FormItem(
             Form::SUBMIT,
             (new ButtonSubmit())
@@ -2457,20 +2717,13 @@ abstract class FormFactory {
         return new Form($formHead, $formItems);
     }
 
-    private static function userFieldsWithRequiredFlag(string $field, bool $isRequired, User $user, Address $address, string $namePrefix, bool $disabled = false): ?FormItem {
-        $formField = new FormField(); // No se puede setear required aquí
-        $formItem = self::userFields($field, $formField, $user, $address, $namePrefix, $disabled);
-
-        if ($formItem instanceof FormItem) {
-            $element = $formItem->getElement();
-            if (method_exists($element, 'setRequired') && $isRequired) {
-                $element->setRequired(true);
-            }
-        }
-
-        return $formItem;
-    }
-
+    /**
+     * This static method returns the plugin connector type parameters group.
+     * Creates a form for creating new company divisions with proper FormFactory pattern
+     * 
+     * @param string $connectorType
+     * @return PluginConnectorTypeParametersGroup
+     */
     private static function getPluginConnectorTypeParametersGroup(String $connectorType): ?PluginConnectorTypeParametersGroup {
         $params = new PluginConnectorTypeParametersGroup();
         $params->setType($connectorType);
@@ -2478,6 +2731,13 @@ abstract class FormFactory {
         return $params;
     }
 
+    /**
+     * This static method returns the save company role form.
+     * Creates a form for creating new company divisions with proper FormFactory pattern
+     * 
+     * @param CustomCompanyRole|null $customCompanyRole
+     * @return Form
+     */
     public static function getSaveCompanyRoleForm(CustomCompanyRole $customCompanyRole = null): Form {
         $isEdit = $customCompanyRole !== null;
         $parameters = $isEdit ? $customCompanyRole->toArray() : [];
@@ -2504,52 +2764,19 @@ abstract class FormFactory {
             );
         }
 
-        foreach (
-            [
-                [Parameters::NAME, 'roleName', LanguageLabels::NAME, true, $parameters[Parameters::NAME] ?? ''],
-                [Parameters::DESCRIPTION, 'roleDescription', LanguageLabels::DESCRIPTION, false, $parameters[Parameters::DESCRIPTION] ?? ''],
-                [Parameters::P_ID, 'rolePId', LanguageLabels::P_ID, false, $parameters[Parameters::P_ID] ?? ''],
-            ] as [$pKey, $id, $label, $req, $val]
-        ) {
-            $inp = (new InputText($val))
-                ->setId($id)
-                ->setLabelFor($L($label))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
-            if ($req) {
-                $inp->setRequired(true);
+        $fields = self::getConfiguration()->getForms()->getAccount()->getCompanyRoles()->getFields()->getSortFilterArrayFormFields();
+        foreach ($fields as $field => $formField) {
+            if ($field === Parameters::NAME || $field === Parameters::TARGET) {
+                $required = true;
+            } else {
+                $required = false;
             }
-            $formItems[] = new FormItem($pKey, $inp);
+
+            $formItem = self::accountFields($field, $formField, null, null, '', null, null, $customCompanyRole, [], CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER, Parameters::ROLE, $required);
+            if (!is_null($formItem)) {
+                $formItems[] = $formItem;
+            }
         }
-
-        $targetOptions = [
-            (new Option($L(LanguageLabels::COMPANY_STRUCTURE_MASTER)))
-                ->setValue(CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER)
-                ->setSelected(($parameters[Parameters::TARGET] ?? null) == CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER),
-            (new Option($L(LanguageLabels::COMPANY_STRUCTURE_NON_MASTER)))
-                ->setValue(CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER)
-                ->setSelected(($parameters[Parameters::TARGET] ?? null) == CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER),
-        ];
-
-        $formItems[] = new FormItem(
-            Parameters::TARGET,
-            (new Select($targetOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ROLE_DEFAULT))
-                ->setLabelFor($L(LanguageLabels::ROLE_TARGET))
-                ->setRequired(true)
-                ->setDisabled($isEdit)
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
-
-        $formItems[] = new FormItem(
-            Parameters::TARGET_DEFAULT,
-            (new InputCheckbox('1'))
-                ->setId('defaultRole')
-                ->setChecked(!$isEdit ? false : !empty($parameters[Parameters::TARGET_DEFAULT]))
-                ->setLabelFor($L(LanguageLabels::DEFAULT))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
 
         $sections = [
             [LanguageLabels::COMPANY, 'data-id="company" data-level="0"', [
@@ -2719,9 +2946,16 @@ abstract class FormFactory {
         return new Form($formHead, $formItems);
     }
 
-
-    public static function getAccountEditForm(Account $account = null, array $companyRoles = [], ?ElementCollection $accountCustomTags = null, string $rolesFilter = CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER): Form {
-        $parameters = $account !== null ? $account->toArray() : [];
+    /**
+     * This method returns the account edit form.
+     * 
+     * @param Account|null $account
+     * @param array $companyRoles
+     * @param ElementCollection|null $accountCustomTags
+     * @param string $rolesFilter
+     * @return Form
+     */
+    public static function getAccountEditForm(Account $account = null, array $companyRoles = [], ?CompanyRolePermissionsValues $permissions = null, ?ElementCollection $accountCustomTags = null, string $rolesFilter = CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER): Form {
         $formHead = (new FormHead(
             RoutePaths::getPath(InternalAccount::UPDATE_ACCOUNT),
             'editAccountForm'
@@ -2731,289 +2965,106 @@ abstract class FormFactory {
             ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
 
         $languageSheet = self::getLanguage();
-        $allDisabled = Session::getInstance()->getBasket()->getMode()->getType() == SessionUsageModeType::SALES_AGENT_SIMULATION;
         $formItems = [];
 
         $formItems[] = new FormItem(
-            Parameters::ID,
-            (new InputHidden(isset($parameters[Parameters::ID]) ? $parameters[Parameters::ID] : ""))
+            Parameters::ACCOUNT_ID,
+            (new InputHidden($account?->getId() ?? ""))
                 ->setClass(self::CLASS_WILDCARD)
                 ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
         );
 
-        $type = $parameters[Parameters::TYPE] ?? null;
-
-        $labelKey = match ($type) {
-            AccountType::GENERAL          => LanguageLabels::ACCOUNT_TYPE_GENERAL,
-            AccountType::INDIVIDUAL       => LanguageLabels::ACCOUNT_TYPE_INDIVIDUAL,
-            AccountType::FREELANCE        => LanguageLabels::ACCOUNT_TYPE_FREELANCE,
-            AccountType::COMPANY          => LanguageLabels::ACCOUNT_TYPE_COMPANY,
-            AccountType::COMPANY_DIVISION => LanguageLabels::ACCOUNT_TYPE_COMPANY_DIVISION,
-            default                        => '',
-        };
-
-        $typeLabel = $labelKey !== '' ? $languageSheet->getLabelValue($labelKey) : '';
-
-        $formItems[] = new FormItem(
+        $paramDisabled = [
             Parameters::TYPE,
-            (new InputText($typeLabel))
-                ->setDisabled(true)
-                ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::TYPE))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
-
-        $status = $parameters[Parameters::STATUS] ?? null;
-
-        $statusLabelKey = match ($status) {
-            AccountStatus::ENABLED => LanguageLabels::ACCOUNT_STATUS_ENABLED,
-            AccountStatus::DISABLED => LanguageLabels::ACCOUNT_STATUS_DISABLED,
-            AccountStatus::PENDING_VERIFICATION => LanguageLabels::ACCOUNT_STATUS_PENDING_VERIFICATION,
-            AccountStatus::PENDING_MERCHANT_ACTIVATION => LanguageLabels::ACCOUNT_STATUS_PENDING_MERCHANT_ACTIVATION,
-            AccountStatus::DENIED => LanguageLabels::ACCOUNT_STATUS_DENIED,
-            default => '',
-        };
-
-        $statusLabel = $statusLabelKey !== '' ? $languageSheet->getLabelValue($statusLabelKey) : '';
-
-        $formItems[] = new FormItem(
             Parameters::STATUS,
-            (new InputText($statusLabel))
-                ->setDisabled(true)
-                ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::STATUS))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
-
-        $formItems[] = new FormItem(
             Parameters::DATE_ADDED,
-            (new InputText(isset($parameters[Parameters::DATE_ADDED]) ? (new DateTimeFormatter())->getFormattedDateTime($account->getDateAdded()) : ""))
-                ->setDisabled(true)
-                ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_EDIT_DATE_ADDED))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
-
-        $formItems[] = new FormItem(
-            Parameters::LAST_USED,
-            (new InputText(isset($parameters[Parameters::LAST_USED]) ? (new DateTimeFormatter())->getFormattedDateTime($account->getLastUsed()) : ""))
-                ->setDisabled(true)
-                ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_EDIT_LAST_USED))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
-
-        $formItems[] = new FormItem(
-            Parameters::P_ID,
-            (new InputText(isset($parameters[Parameters::P_ID]) ? $parameters[Parameters::P_ID] : ""))
-                ->setMaxlength(255)
-                ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::P_ID))
-                ->setDisabled($allDisabled)
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
-
-        if (isset($parameters[Parameters::TYPE]) && in_array($parameters[Parameters::TYPE], AccountType::getCompanyTypes())) {
-            $formItems[] = new FormItem(
-                Parameters::EMAIL,
-                (new InputText(isset($parameters[Parameters::EMAIL]) ? $parameters[Parameters::EMAIL] : ""))
-                    ->setMaxlength(255)
-                    ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::EMAIL))
-                    ->setDisabled($allDisabled)
-                    ->setClass(self::CLASS_WILDCARD)
-                    ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-            );
-        }
-
-        $formItems[] = new FormItem(
-            Parameters::IMAGE,
-            (new InputText(isset($parameters[Parameters::IMAGE]) ? $parameters[Parameters::IMAGE] : ""))
-                ->setMaxlength(255)
-                ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::IMAGE))
-                ->setDisabled($allDisabled)
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
-
-        $formItems[] = new FormItem(
+            Parameters::LAST_USED
+        ];
+        $hiddenNotCompany = [
+            Parameters::EMAIL,
             Parameters::DESCRIPTION,
-            (new InputText(isset($parameters[Parameters::DESCRIPTION]) ? $parameters[Parameters::DESCRIPTION] : ""))
-                ->setMaxlength(255)
-                ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::DESCRIPTION))
-                ->setDisabled($allDisabled)
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-        );
+        ];
 
         $basket = Session::getInstance()->getBasket();
-        $registeredUser = $parameters[Parameters::MASTER][Parameters::REGISTERED_USER];
-        $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
-        $allDisabled = $allDisabled || !$basket->getAccountRegisteredUser()->IsMaster() || $basket->getAccountRegisteredUser()->getRegisteredUserId() != $account?->getMaster()?->getRegisteredUser()?->getId();
 
-        $emailInput = (new InputEmail(isset($registeredUser[Parameters::EMAIL]) ? $registeredUser[Parameters::EMAIL] : ""))
-            ->setRequired(true)
-            ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::EMAIL))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-        $usernameInput = (new InputText(isset($registeredUser[Parameters::USERNAME]) ? $registeredUser[Parameters::USERNAME] : ""))
-            ->setRequired($userKeyCriteria == UserKeyCriteria::USERNAME)
-            ->setLabelFor(self::getLanguage()
-                ->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-        $pIdInput = (new InputText(isset($registeredUser[Parameters::P_ID]) ? $registeredUser[Parameters::P_ID] : ""))
-            ->setLabelFor(self::getLanguage()
-                ->getLabelValue(LanguageLabels::P_ID))
-            ->setClass(self::CLASS_WILDCARD)
-            ->setDisabled($allDisabled);
-
-        switch ($userKeyCriteria) {
-            case UserKeyCriteria::EMAIL:
-                $emailInput->setDisabled(true);
-                break;
-            case UserKeyCriteria::PID:
-                $pIdInput->setDisabled(true);
-                break;
-            case UserKeyCriteria::USERNAME:
-                $usernameInput->setDisabled(true);
-                break;
+        if ($account != null) {
+            $accountType = $account?->getType();
+        } else {
+            $accountType = $basket->getAccount()->getType();
         }
 
-        if ($allDisabled) {
-            $emailInput->setDisabled(true);
-            $usernameInput->setDisabled(true);
-            $pIdInput->setDisabled(true);
-        }
-
-        $formItems[] = new FormItem(Parameters::REGISTERED_USER_EMAIL, $emailInput);
-        $formItems[] = new FormItem(Parameters::USERNAME, $usernameInput);
-        $formItems[] = new FormItem(Parameters::REGISTERED_USER_P_ID, $pIdInput);
-
-        $formItems[] = new FormItem(
-            Parameters::GENDER,
-            (new InputRadio([
-                Gender::FEMALE => self::getLanguage()->getLabelValue(LanguageLabels::FEMALE),
-                Gender::MALE => self::getLanguage()->getLabelValue(LanguageLabels::MALE),
-                Gender::UNDEFINED => self::getLanguage()->getLabelValue(LanguageLabels::UNDEFINED)
-            ], null, isset($registeredUser[Parameters::GENDER]) ? $registeredUser[Parameters::GENDER] : Gender::UNDEFINED))
-                ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::GENDER))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setDisabled($allDisabled)
-        );
-
-        $formItems[] = new FormItem(
-            Parameters::FIRST_NAME,
-            (new InputText(isset($registeredUser[Parameters::FIRST_NAME]) ? $registeredUser[Parameters::FIRST_NAME] : ""))
-                ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setDisabled($allDisabled)
-        );
-
-        $formItems[] = new FormItem(
-            Parameters::LAST_NAME,
-            (new InputText(isset($registeredUser[Parameters::LAST_NAME]) ? $registeredUser[Parameters::LAST_NAME] : ""))
-                ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setDisabled($allDisabled)
-        );
-
-        $formItems[] = new FormItem(
-            Parameters::BIRTHDAY,
-            (new InputDate(isset($registeredUser[Parameters::BIRTHDAY]) ? $account->getMaster()->getRegisteredUser()->getBirthday()->originalFormat() : ""))
-                ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::BIRTH_DATE))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setDisabled($allDisabled)
-        );
-
-        $formItems[] = new FormItem(
-            Parameters::IMAGE2,
-            (new InputText(isset($registeredUser[Parameters::IMAGE]) ? $registeredUser[Parameters::IMAGE] : ""))
-                ->setLabelFor(self::getLanguage()->getLabelValue(LanguageLabels::IMAGE))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setDisabled($allDisabled)
-        );
-
-        $accountType = $parameters[Parameters::TYPE];
-        $selectedRoleId = $parameters['master']['role']['id'] ?? 0;
-        $isCompany = $accountType === AccountType::COMPANY;
-
-        if (in_array($accountType, AccountType::getCompanyTypes())) {
-            if (LmsService::getAdvcaLicense()) {
-                $roleOptions = [];
-
-                if ($isCompany) {
-                    // COMPANY: solo rol base y campo deshabilitado
-                    $roleOptions[] = (new Option($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT)))
-                        ->setValue(0)
-                        ->setSelected(1);
-
-                    $roleSelect = (new Select($roleOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ROLE_DEFAULT))
-                        ->setDisabled(true);
-                } else {
-                    // Otros tipos de compañía: lista completa y selecc. desde master
-                    $roleOptions[] = (new Option($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT)))
-                        ->setValue(0)
-                        ->setSelected((int)$selectedRoleId === 0 ? 1 : 0);
-
-                    foreach ($companyRoles as $companyRole) {
-                        if (
-                            $companyRole instanceof CustomCompanyRoleHeader &&
-                            $companyRole->getTarget() === $rolesFilter
-                        ) {
-                            $opt = (new Option($companyRole->getName()))
-                                ->setValue($companyRole->getId());
-
-                            if ((int)$companyRole->getId() === (int)$selectedRoleId) {
-                                $opt->setSelected(1);
-                            }
-
-                            $roleOptions[] = $opt;
-                        }
-                    }
-
-                    $roleSelect = (new Select($roleOptions, null, LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_ROLE_DEFAULT));
-                }
-                $formItems[] = new FormItem(
-                    Parameters::ROLE_ID,
-                    $roleSelect
-                        ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE))
-                        ->setDisabled($allDisabled)
-                        ->setClass(self::CLASS_WILDCARD)
-                        ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
-                );
+        $companyUpdatePermission = true;
+        if ($basket->getAccount() instanceof CompanyDivision) {
+            $isRoot = $basket->getAccount()->getCompany()->getId() == $account?->getId();
+            if ($isRoot) {
+                $companyUpdatePermission = $permissions->getCompanyUpdate();
             }
+        }
+
+
+        $allDisabledAccount = $basket->getMode()->getType() == SessionUsageModeType::SALES_AGENT_SIMULATION
+            || !$companyUpdatePermission;
+        $isCompany = $accountType && in_array($accountType, AccountType::getCompanyTypes());
+        $fields = self::getConfiguration()->getForms()->getAccount()->getFields()->getSortFilterArrayFormFields();
+        foreach ($fields as $field => $formField) {
+            if (!$isCompany && in_array($field, $hiddenNotCompany)) {
+                continue;
+            }
+            $formItem = self::accountFields($field, $formField, $account, null, '', null, null, null, $companyRoles, $rolesFilter, "", false, $allDisabledAccount || in_array($field, $paramDisabled));
+            if (!is_null($formItem)) {
+                $formItems[] = $formItem;
+            }
+        }
+
+        $allDisabledRegisteredUser = $allDisabledAccount
+            || !$basket->getAccountRegisteredUser()->IsMaster()
+            || $basket->getAccountRegisteredUser()->getRegisteredUserId() != $account?->getMaster()?->getRegisteredUser()?->getId();
+
+        $fields = self::getConfiguration()->getForms()->getAccount()->getMaster()->getRegisteredUser()->getFields()->getSortFilterArrayFormFields();
+        foreach ($fields as $field => $formField) {
+            $formItem = self::accountFields($field, $formField, $account, null, '', null, null, null, $companyRoles, $rolesFilter, "", false, $allDisabledRegisteredUser);
+
+            if (!is_null($formItem)) {
+                $formItems[] = $formItem;
+            }
+        }
+
+        $showCustomTags = self::getConfiguration()->getForms()->getAccount()->getCustomTags()?->getIncluded() ?? false;
+        if ($showCustomTags && !is_null($account) && !is_null($accountCustomTags)) {
+            self::setAccountCustomTags($account, $accountCustomTags, $formItems, $allDisabledRegisteredUser);
+        }
+
+        $showAddressBook = self::getConfiguration()->getForms()->getAccount()->getAddressBook()?->getIncluded() ?? false;
+        if ($showAddressBook) {
+            $formItems[] = new FormItem(Parameters::ADDRESS_BOOK, new InputHidden(''));
+        }
+
+        if (!$allDisabledAccount) {
             $formItems[] = new FormItem(
-                Parameters::JOB,
-                (new InputText(isset($parameters[Parameters::MASTER][Parameters::JOB]) ? $parameters[Parameters::MASTER][Parameters::JOB] : ""))
-                    ->setMaxlength(255)
-                    ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_JOB))
-                    ->setDisabled($allDisabled)
-                    ->setClass(self::CLASS_WILDCARD)
-                    ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
+                Form::SUBMIT,
+                (new ButtonSubmit())
+                    ->setDisabled(false)
+                    ->setClass('saveAccount')
+                    ->setId('saveAccountSubmit')
+                    ->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE))
             );
         }
-
-        if (!is_null($accountCustomTags)) {
-            self::setAccountCustomTags($account, $accountCustomTags, $formItems, 'customTag', $allDisabled);
-        }
-
-        $formItems[] = new FormItem(
-            Form::SUBMIT,
-            (new ButtonSubmit())
-                ->setDisabled(false)
-                ->setClass('saveAccount')
-                ->setId('saveAccountSubmit')
-                ->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE))
-        );
-
         return new Form($formHead, $formItems);
     }
 
-    private static function setAccountCustomTags(Account $account, ElementCollection $accountCustomTags, array &$formItems, string $field = 'customTag', bool $simulatedUser = false, bool $thisAccountUpdatePermissions = true): void {
+    /**
+     * This method returns the account custom tag form items.
+     * @param Account|null $account
+     * @param ElementCollection $accountCustomTags
+     * @param array &$formItems
+     * @param bool $simulatedUser
+     * @param bool $thisAccountUpdatePermissions
+     */
+    private static function setAccountCustomTags(?Account $account, ElementCollection $accountCustomTags, array &$formItems, bool $simulatedUser = false, bool $thisAccountUpdatePermissions = true): void {
         foreach ($accountCustomTags as $accountCustomTag) {
             $value = $accountCustomTag->getDefaultValue();
 
-            foreach ($account->getCustomTagValues() as $accountCustomTagValue) {
+            foreach ($account?->getCustomTagValues() as $accountCustomTagValue) {
                 if ($accountCustomTag->getId() === $accountCustomTagValue->getCustomTagId()) {
                     $value = $accountCustomTagValue->getValue();
                     break;
@@ -3026,5 +3077,40 @@ abstract class FormFactory {
                 $formItems[] = $ctf;
             }
         }
+    }
+
+    /**
+     * This method returns the registered user form.
+     * 
+     * @param RegisteredUser|null $user
+     * @return Form
+     */
+
+    public static function setRegisteredUser(?RegisteredUser $user): Form {
+        if (is_null($user)) {
+            $user = new RegisteredUser();
+        }
+        $allDisabled = Session::getInstance()->getBasket()->getMode()->getType() == SessionUsageModeType::SALES_AGENT_SIMULATION;
+
+        $formHead = (new FormHead(RoutePaths::getPath(InternalAccount::UPDATE_REGISTERED_USER), 'registeredUserUpdateForm'))
+            ->setMethod(FormHead::METHOD_POST)
+            ->setId('registeredUserUpdateForm')
+            ->setAutocomplete(Input::AUTOCOMPLETE_OFF)
+            ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
+
+        $formItems = [];
+        $formItems[] = new FormItem(Parameters::REGISTERED_USER_ID, new InputHidden($user->getId()));
+        $formItems[] = new FormItem(Parameters::ACCOUNT_ID, new InputHidden(Session::getInstance()->getBasket()->getAccount()->getId()));
+
+        $fields = self::getConfiguration()->getForms()->getAccount()->getMaster()->getRegisteredUser()->getFields()->getSortFilterArrayFormFields();
+        foreach ($fields as $field => $formField) {
+            $formItem = self::accountFields($field, $formField, null, null, '', $user, null, null, [], CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER, "", false, $allDisabled);
+            if (!is_null($formItem)) {
+                $formItems[] = $formItem;
+            }
+        }
+
+        $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setClass(self::CLASS_WILDCARD)->setId('registeredUserUpdateSubmit')->setDisabled($allDisabled)->setContentText(self::getLanguage()->getLabelValue(LanguageLabels::SAVE)));
+        return new Form($formHead, $formItems);
     }
 }

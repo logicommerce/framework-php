@@ -101,6 +101,7 @@ class UpdateAccountRegisteredUserController extends BaseJsonController {
         unset($requestParams[Parameters::REDIRECT]);
         unset($requestParams[Parameters::REGISTERED_USER_ID]);
         $this->accountService->generateParametersGroupFromArray($this->updateAccountRegisteredUsersParametersGroup, $requestParams);
+        $this->accountService->applyRegisteredUserFields($this->updateAccountRegisteredUsersParametersGroup, $requestParams);
         if (count($this->updateAccountRegisteredUsersParametersGroup->toArray())) {
             $response = $this->accountService->updateAccountRegisteredUser($this->accountId, $this->registeredUserId, $this->updateAccountRegisteredUsersParametersGroup);
         } else {

@@ -1290,15 +1290,16 @@ abstract class Utils {
      * @return string
      *
      */
-    public static function getUserName(User $user): string {
+    public static function getUserName(?User $user = null): string {
+        $registeredUser = Session::getInstance()?->getBasket()?->getRegisteredUser();
         $userName = '';
         $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
         switch ($userKeyCriteria) {
             case UserKeyCriteria::PID:
-                $userName = $user->getPId();
+                $userName = $user?->getPId() ?? $registeredUser?->getPId() ?? "";
                 break;
             case UserKeyCriteria::EMAIL:
-                $userName = $user->getEmail();
+                $userName = $user?->getEmail() ?? $registeredUser?->getEmail() ?? "";
                 break;
             case UserKeyCriteria::USERNAME:
                 $userName = Session::getInstance()?->getBasket()?->getRegisteredUser()?->getUsername() ?? "";

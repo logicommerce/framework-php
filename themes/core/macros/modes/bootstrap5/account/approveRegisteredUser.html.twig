@@ -48,34 +48,24 @@
                             </div>
                             <div class="card-body">
                                 <div class="row row-cols-2 row-cols-md-1 g-3">
-                                    <div class="registeredUserName">
-                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL')] }}</label>
-                                        <div class="form-control-plaintext"></div>
-                                    </div>
-                                    <div class="registeredUserFirstName">
-                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME')] }}</label>
-                                        <div class="form-control-plaintext"></div>
-                                    </div>
-                                    <div class="registeredUserLastName">
-                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME')] }}</label>
-                                        <div class="form-control-plaintext"></div>
-                                    </div>
-                                    <div class="registeredUserUsername">
-                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME')] }}</label>
-                                        <div class="form-control-plaintext"></div>
-                                    </div>
-                                    <div class="registeredUserPid">
-                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_PID')] }}</label>
-                                        <div class="form-control-plaintext"></div>
-                                    </div>
-                                    <div class="registeredUserGender">
-                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_GENDER')] }}</label>
-                                        <div class="form-control-plaintext"></div>
-                                    </div>
-                                    <div class="registeredUserBirthDate">
-                                        <label class="form-label fw-bold">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_BIRTH_DATE')] }}</label>
-                                        <div class="form-control-plaintext"></div>
-                                    </div>
+                                    {% set fields = themeConfiguration.forms.account.master.registeredUser.approveFields.getSortFilterArrayFormFields() %}
+                                    {% set labels = {
+                                        registeredUserEmail: constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL'),
+                                        firstName: constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_FIRST_NAME'),
+                                        lastName: constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_LAST_NAME'),
+                                        registeredUserUsername: constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME'),
+                                        registeredUserPId: constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_PID'),
+                                        gender: constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_GENDER'),
+                                        birthday: constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_BIRTH_DATE'),
+                                    } %}
+                                    {% for name, field in fields %}
+                                        {% if labels[name] is defined and labels[name] is not empty %}
+                                            <div class="registeredUser {{ name|lower }}">
+                                                <label class="form-label fw-bold">{{ languageSheet[labels[name]] }}</label>
+                                                <div class="form-control-plaintext"></div>
+                                            </div>
+                                        {%- endif -%}
+                                    {% endfor -%}
                                 </div>
                             </div>
                         </div>

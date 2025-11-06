@@ -74,7 +74,7 @@ class AccountRegisteredUserController extends BaseHtmlController {
             $this->registeredUserId = $this->ids[Parameters::REGISTERED_USER_ID];
         }
         $this->accountService->addGetRegisteredUsersWithRegisteredId($requests, self::CONTROLLER_ITEM, $this->accountId, $this->registeredUserId);
-        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES, AccountKey::USED);
+        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES);
     }
     /**
      * This method is in charge of defining the basic data necessary for the correct operation of the controller.

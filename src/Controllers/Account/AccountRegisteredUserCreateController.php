@@ -3,10 +3,8 @@
 namespace FWK\Controllers\Account;
 
 use FWK\Core\Controllers\BaseHtmlController;
-use FWK\Core\Controllers\ControllersFactory;
 use FWK\Core\Form\FormFactory;
 use FWK\Core\Resources\Loader;
-use FWK\Core\Theme\Dtos\ItemList;
 use FWK\Enums\Services;
 use FWK\Services\AccountService;
 use SDK\Core\Resources\BatchRequests;
@@ -59,7 +57,7 @@ class AccountRegisteredUserCreateController extends BaseHtmlController {
      *            where the method will add the batch requests.
      */
     final protected function setControllerBaseBatchData(BatchRequests $requests): void {
-        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES, AccountKey::USED);
+        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES);
     }
 
     /**
@@ -67,12 +65,12 @@ class AccountRegisteredUserCreateController extends BaseHtmlController {
      * operation of the controller.
      */
     protected function setControllerBaseData(): void {
-        $aux = [];
+        $items = [];
         $companyRoles = $this->getControllerData(self::COMPANY_ROLES);
-        $aux[self::ACCOUNT_ID] = $this->id_account;
-        $aux[self::REGISTERED_USER_NEW_CREATE_FORM] = FormFactory::getAccountRegisteredUserCreate($this->id_account, $companyRoles->getItems() ?? []);
+        $items[self::ACCOUNT_ID] = $this->id_account;
+        $items[self::REGISTERED_USER_NEW_CREATE_FORM] = FormFactory::getAccountRegisteredUserCreate($this->id_account, $companyRoles->getItems() ?? []);
 
-        $this->setDataValue(self::CONTROLLER_ITEM, $aux);
+        $this->setDataValue(self::CONTROLLER_ITEM, $items);
     }
 
     /**

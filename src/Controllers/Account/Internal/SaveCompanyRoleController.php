@@ -52,6 +52,31 @@ class SaveCompanyRoleController extends BaseJsonController {
         $this->addCompanyRoleParametersGroup = new AddCompanyRoleParametersGroup();
     }
 
+
+    /**
+     * This method returns the origin of the params (see FilterInputHandler::PARAMS_FROM_GET, FilterInputHandler::PARAMS_FROM_QUERY_STRING or FilterInputHandler::PARAMS_FROM_POST,...).
+     * This function must be override in extended controllers to add new parameters to self::requestParams
+     *
+     * @return mixed
+     *
+     * @see FilterInputHandler
+     */
+    protected function getOriginParams() {
+        return FilterInputHandler::PARAMS_FROM_POST_DATA_OBJECT;
+    }
+
+    /**
+     * This method returns an array of the params indicating in each node the param name, and the filter to apply.
+     * This function must be override in extended controllers to add new parameters to self::requestParams
+     *
+     * @return mixed
+     */
+    protected function getFilterParams(): array {
+        return FormFactory::getSaveCompanyRoleForm()->getInputFilterParameters() +
+            FilterInputFactory::getRolesPermissionParameters() +
+            FilterInputFactory::getIdParameter();
+    }
+
     /**
      * This method launches the adequate actions against the SDK (through the FWK services) and returns the response data. 
      *
@@ -107,30 +132,6 @@ class SaveCompanyRoleController extends BaseJsonController {
             Parameters::REDIRECT => RoutePaths::getPath(RouteType::ACCOUNT_COMPANY_ROLES)
         ];
         return $data;
-    }
-
-    /**
-     * This method returns the origin of the params (see FilterInputHandler::PARAMS_FROM_GET, FilterInputHandler::PARAMS_FROM_QUERY_STRING or FilterInputHandler::PARAMS_FROM_POST,...).
-     * This function must be override in extended controllers to add new parameters to self::requestParams
-     *
-     * @return mixed
-     *
-     * @see FilterInputHandler
-     */
-    protected function getOriginParams() {
-        return FilterInputHandler::PARAMS_FROM_POST_DATA_OBJECT;
-    }
-
-    /**
-     * This method returns an array of the params indicating in each node the param name, and the filter to apply.
-     * This function must be override in extended controllers to add new parameters to self::requestParams
-     *
-     * @return mixed
-     */
-    protected function getFilterParams(): array {
-        return FormFactory::getSaveCompanyRoleForm()->getInputFilterParameters() +
-            FilterInputFactory::getRolesPermissionParameters() +
-            FilterInputFactory::getIdParameter();
     }
 
     /**

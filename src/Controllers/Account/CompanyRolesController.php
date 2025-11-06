@@ -105,7 +105,7 @@ class CompanyRolesController extends BaseHtmlController {
      *            where the method will add the batch requests.
      */
     final protected function setControllerBaseBatchData(BatchRequests $requests): void {
-        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES, AccountKey::USED, $this->companyRolesParametersGroup);
+        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES, $this->companyRolesParametersGroup);
     }
 
     /**
@@ -113,13 +113,13 @@ class CompanyRolesController extends BaseHtmlController {
      * operation of the controller.
      */
     protected function setControllerBaseData(): void {
-        $auxData[self::COMPANY_ROLES] = $this->getControllerData(self::COMPANY_ROLES);
-        $auxData[self::COMPANY_ROLES_FILTER_FORM] = FormFactory::getCompanyRolesFilters($this->companyRolesParametersGroup);
-        $auxData[self::COMPANY_ROLES_ERROR] = "";
-        if (!is_null($auxData[self::COMPANY_ROLES]->getError())) {
-            $auxData[self::COMPANY_ROLES_ERROR] = Utils::getErrorLabelValue($auxData[self::COMPANY_ROLES]);
+        $items[self::COMPANY_ROLES] = $this->getControllerData(self::COMPANY_ROLES);
+        $items[self::COMPANY_ROLES_FILTER_FORM] = FormFactory::getCompanyRolesFilters($this->companyRolesParametersGroup);
+        $items[self::COMPANY_ROLES_ERROR] = "";
+        if (!is_null($items[self::COMPANY_ROLES]->getError())) {
+            $items[self::COMPANY_ROLES_ERROR] = Utils::getErrorLabelValue($items[self::COMPANY_ROLES]);
         }
-        $this->setDataValue(self::CONTROLLER_ITEM, $auxData);
+        $this->setDataValue(self::CONTROLLER_ITEM, $items);
         $this->setDataValue(self::ITEM_LIST_DATA, $this->itemListConfiguration);
         $this->setDataValue(self::COMPANY_ROLES_FILTER, $this->companyRolesFilter);
     }

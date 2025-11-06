@@ -55,6 +55,8 @@ use FWK\Core\Theme\Dtos\DataValidators;
 use FWK\Core\Theme\Dtos\Discounts;
 use FWK\Core\Theme\Dtos\DiscountsViewOptionSort;
 use FWK\Core\Theme\Dtos\DiscountsViewOptionSortItems;
+use FWK\Core\Theme\Dtos\FormAccountTabPane;
+use FWK\Core\Theme\Dtos\FormCompanyDivision;
 use FWK\Core\Theme\Dtos\FormContact;
 use FWK\Core\Theme\Dtos\FormElement;
 use FWK\Core\Theme\Dtos\FormElementButton;
@@ -64,7 +66,20 @@ use FWK\Core\Theme\Dtos\FormFieldsContact;
 use FWK\Core\Theme\Dtos\FormFieldsProductContact;
 use FWK\Core\Theme\Dtos\FormFieldsShoppingList;
 use FWK\Core\Theme\Dtos\FormFieldsShoppingListRowNote;
+use FWK\Core\Theme\Dtos\FormCompanyDivisionGeneral;
+use FWK\Core\Theme\Dtos\FormCompanyDivisionGeneralFields;
+use FWK\Core\Theme\Dtos\FormCompanyDivisionInvoicingFields;
+use FWK\Core\Theme\Dtos\FormAccount;
+use FWK\Core\Theme\Dtos\FormAccountFields;
+use FWK\Core\Theme\Dtos\FormCompanyRoles;
+use FWK\Core\Theme\Dtos\FormCompanyRolesFields;
+use FWK\Core\Theme\Dtos\FormMaster;
 use FWK\Core\Theme\Dtos\FormProductContact;
+use FWK\Core\Theme\Dtos\FormRegisteredUser;
+use FWK\Core\Theme\Dtos\FormRegisteredUserApproveFields;
+use FWK\Core\Theme\Dtos\FormRegisteredUserFields;
+use FWK\Core\Theme\Dtos\FormAccountRegisteredUserFields;
+use FWK\Core\Theme\Dtos\FormAccountTabPaneField;
 use FWK\Core\Theme\Dtos\FormShoppingList;
 use FWK\Core\Theme\Dtos\FormShoppingListRowNote;
 use FWK\Core\Theme\Dtos\FormUseCaptcha;
@@ -897,6 +912,108 @@ abstract class Tc implements TcInterface {
                         ]
                     ]
                 ],
+                Forms::ACCOUNT => [
+                    FormAccount::FIELDS => [
+                        FormAccountFields::TYPE => [FormField::INCLUDED => true, FormField::PRIORITY => 1],
+                        FormAccountFields::STATUS => [FormField::INCLUDED => true, FormField::PRIORITY => 2],
+                        FormAccountFields::DATE_ADDED => [FormField::INCLUDED => true, FormField::PRIORITY => 3],
+                        FormAccountFields::LAST_USED => [FormField::INCLUDED => true, FormField::PRIORITY => 4],
+                        FormAccountFields::P_ID => [FormField::INCLUDED => true, FormField::PRIORITY => 5, FormField::REQUIRED => false],
+                        FormAccountFields::EMAIL => [FormField::INCLUDED => true, FormField::PRIORITY => 6, FormField::REQUIRED => false],
+                        FormAccountFields::IMAGE => [FormField::INCLUDED => false, FormField::PRIORITY => 7, FormField::REQUIRED => false],
+                        FormAccountFields::DESCRIPTION => [FormField::INCLUDED => true, FormField::PRIORITY => 8, FormField::REQUIRED => false],
+                    ],
+                    FormAccount::MASTER => [
+                        FormMaster::REGISTERED_USER => [
+                            FormRegisteredUser::DEFAULT_ACCOUNT_TAB_PANE => FormAccountTabPane::INTERNAL,
+                            FormRegisteredUser::ACCOUNT_TAB_PANE => [
+                                FormAccountTabPane::INTERNAL => [
+                                    FormAccountTabPaneField::INCLUDED => true,
+                                ],
+                                FormAccountTabPane::EXTERNAL => [
+                                    FormAccountTabPaneField::INCLUDED => true,
+                                ],
+                                FormAccountTabPane::EXISTENT => [
+                                    FormAccountTabPaneField::INCLUDED => true,
+                                ],
+                                FormAccountTabPane::NEW => [
+                                    FormAccountTabPaneField::INCLUDED => true,
+
+                                ],
+                            ],
+                            FormRegisteredUser::FIELDS => [
+                                FormRegisteredUserFields::GENDER => [FormField::INCLUDED => true, FormField::PRIORITY => 1, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::FIRST_NAME => [FormField::INCLUDED => true, FormField::PRIORITY => 2, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::LAST_NAME => [FormField::INCLUDED => true, FormField::PRIORITY => 3, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::REGISTERED_USER_EMAIL => [FormField::INCLUDED => true, FormField::PRIORITY => 4, FormField::REQUIRED => true],
+                                FormRegisteredUserFields::REGISTERED_USER_USERNAME => [FormField::INCLUDED => true, FormField::PRIORITY => 5, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::REGISTERED_USER_P_ID => [FormField::INCLUDED => true, FormField::PRIORITY => 6, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::BIRTHDAY => [FormField::INCLUDED => true, FormField::PRIORITY => 7, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::REGISTERED_USER_IMAGE => [FormField::INCLUDED => false, FormField::PRIORITY => 8, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::ROLE => [FormField::INCLUDED => true, FormField::PRIORITY => 9, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::JOB => [FormField::INCLUDED => true, FormField::PRIORITY => 10, FormField::REQUIRED => false],
+                                FormRegisteredUserFields::SUBSCRIBED => [FormField::INCLUDED => true, FormField::PRIORITY => 11],
+                            ],
+                            FormRegisteredUser::APPROVE_FIELDS => [
+                                FormRegisteredUserApproveFields::GENDER => [FormField::INCLUDED => true, FormField::PRIORITY => 1, FormField::REQUIRED => false],
+                                FormRegisteredUserApproveFields::FIRST_NAME => [FormField::INCLUDED => true, FormField::PRIORITY => 2, FormField::REQUIRED => false],
+                                FormRegisteredUserApproveFields::LAST_NAME => [FormField::INCLUDED => true, FormField::PRIORITY => 3, FormField::REQUIRED => false],
+                                FormRegisteredUserApproveFields::REGISTERED_USER_EMAIL => [FormField::INCLUDED => true, FormField::PRIORITY => 4, FormField::REQUIRED => true],
+                                FormRegisteredUserApproveFields::REGISTERED_USER_USERNAME => [FormField::INCLUDED => true, FormField::PRIORITY => 5, FormField::REQUIRED => false],
+                                FormRegisteredUserApproveFields::REGISTERED_USER_P_ID => [FormField::INCLUDED => true, FormField::PRIORITY => 6, FormField::REQUIRED => false],
+                                FormRegisteredUserApproveFields::BIRTHDAY => [FormField::INCLUDED => true, FormField::PRIORITY => 7, FormField::REQUIRED => false],
+                            ]
+                        ],
+                    ],
+                    FormAccount::CUSTOM_TAGS => [FormField::INCLUDED => false],
+                    FormAccount::ADDRESS_BOOK => [FormField::INCLUDED => true],
+                    FormAccount::ACCOUNT_REGISTERED_USER_FIELDS => [
+                        FormAccountRegisteredUserFields::MASTER => [FormField::INCLUDED => true, FormField::PRIORITY => 1],
+                        FormAccountRegisteredUserFields::REGISTERED_USER_STATUS => [FormField::INCLUDED => true, FormField::PRIORITY => 2, FormField::REQUIRED => false],
+                        FormAccountRegisteredUserFields::ACCOUNT_ALIAS => [FormField::INCLUDED => true, FormField::PRIORITY => 3, FormField::REQUIRED => false],
+                        FormAccountRegisteredUserFields::ROLE => [FormField::INCLUDED => true, FormField::PRIORITY => 4, FormField::REQUIRED => false],
+                        FormAccountRegisteredUserFields::JOB => [FormField::INCLUDED => true, FormField::PRIORITY => 5, FormField::REQUIRED => false],
+                    ],
+                    FormAccount::COMPANY_DIVISION => [
+                        FormCompanyDivision::DEFAULT_ACCOUNT_TAB_PANE => FormAccountTabPane::INTERNAL,
+                        FormCompanyDivision::ACCOUNT_TAB_PANE => [
+                            FormAccountTabPane::INTERNAL => [
+                                FormAccountTabPaneField::INCLUDED => true,
+                            ],
+                            FormAccountTabPane::EXTERNAL => [
+                                FormAccountTabPaneField::INCLUDED => true,
+                            ],
+                            FormAccountTabPane::NEW => [
+                                FormAccountTabPaneField::INCLUDED => true,
+                            ],
+                        ],
+                        FormCompanyDivision::INVOICING_FIELDS => [
+                            FormCompanyDivisionInvoicingFields::LOCATION => [FormField::INCLUDED => true, FormField::PRIORITY => 1],
+                            FormCompanyDivisionInvoicingFields::ADDRESS => [FormField::INCLUDED => true, FormField::PRIORITY => 2],
+                            FormCompanyDivisionInvoicingFields::ADDRESS_ADDITIONAL_INFORMATION => [FormField::INCLUDED => true, FormField::PRIORITY => 3, FormField::REQUIRED => false],
+                            FormCompanyDivisionInvoicingFields::NUMBER => [FormField::INCLUDED => true, FormField::PRIORITY => 4, FormField::REQUIRED => false],
+                            FormCompanyDivisionInvoicingFields::PHONE => [FormField::INCLUDED => true, FormField::PRIORITY => 5, FormField::REQUIRED => false],
+                            FormCompanyDivisionInvoicingFields::MOBILE => [FormField::INCLUDED => true, FormField::PRIORITY => 6, FormField::REQUIRED => false],
+                            FormCompanyDivisionInvoicingFields::COMPANY => [FormField::INCLUDED => true, FormField::PRIORITY => 7, FormField::REQUIRED => false],
+                            FormCompanyDivisionInvoicingFields::VAT => [FormField::INCLUDED => true, FormField::PRIORITY => 8, FormField::REQUIRED => false],
+                        ],
+                        FormCompanyDivision::GENERAL_FIELDS => [
+                            FormCompanyDivisionGeneral::ENABLED => true,
+                            FormCompanyDivisionGeneral::FORM_GENERAL_FIELDS => [
+                                FormCompanyDivisionGeneralFields::P_ID => [FormField::INCLUDED => true, FormField::PRIORITY => 1, FormField::REQUIRED => false],
+                                FormCompanyDivisionGeneralFields::IMAGE => [FormField::INCLUDED => true, FormField::PRIORITY => 2, FormField::REQUIRED => false],
+                            ],
+                        ]
+                    ],
+                    FormAccount::COMPANY_ROLES => [
+                        FormCompanyRoles::FIELDS => [
+                            FormCompanyRolesFields::NAME     => [FormField::INCLUDED => true, FormField::PRIORITY => 1],
+                            FormCompanyRolesFields::DESCRIPTION => [FormField::INCLUDED => true, FormField::PRIORITY => 2, FormField::REQUIRED => false],
+                            FormCompanyRolesFields::TARGET => [FormField::INCLUDED => true, FormField::PRIORITY => 3],
+                            FormCompanyRolesFields::TARGET_DEFAULT => [FormField::INCLUDED => true, FormField::PRIORITY => 4, FormField::REQUIRED => false],
+                        ],
+                    ],
+                ],
                 Forms::COMMENTS => [
                     FormComments::MIN_RATING_AMOUNT => 1,
                     FormComments::MAX_RATING_AMOUNT => 5,
@@ -1103,7 +1220,8 @@ abstract class Tc implements TcInterface {
                     FormUseCaptcha::SHOPPING_LIST_ROW_NOTES => true,
                     FormUseCaptcha::STOCK_ALERT => true,
                     FormUseCaptcha::UPDATE_PASSWORD => true
-                ]
+                ],
+
             ],
             Configuration::EVENTS => [
                 Parameters::SETUP => []

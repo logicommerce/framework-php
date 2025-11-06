@@ -103,6 +103,7 @@ class UserService extends UserServiceSDK {
     /**
      *
      * @see \SDK\Services\UserService::updateBillingAddress()
+     * @deprecated use AccountService::updateAccountsInvoicingAddresses
      */
     public function updateBillingAddress(int $id, AddressParametersGroup $data = null, string $dataValidatior = ''): ?Address {
         $response =  parent::updateBillingAddress($id, $data, $dataValidatior);
@@ -116,6 +117,7 @@ class UserService extends UserServiceSDK {
     /**
      *
      * @see \SDK\Services\UserService::createShippingAddress()
+     * @deprecated use AccountService::createAccountShippingAddresses
      */
     public function createShippingAddress(ShippingAddressParametersGroup $data = null, string $dataValidatior = ''): ?ShippingAddress {
         $response =  parent::createShippingAddress($data, $dataValidatior);

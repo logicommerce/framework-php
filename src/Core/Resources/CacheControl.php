@@ -242,6 +242,7 @@ class CacheControl {
             InternalUser::RECOVERY_BASKET,
             InternalUser::RETURN_REQUEST,
             InternalUser::RETURN_TRACING,
+            InternalUser::RETURN_TRACING_FORM,
             InternalUser::RETURN,
             InternalUser::RMA_CORRECTIVE_INVOICE_PDF,
             InternalUser::RMA_CORRECTIVE_INVOICE,

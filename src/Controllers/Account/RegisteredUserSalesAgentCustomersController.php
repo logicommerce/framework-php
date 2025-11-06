@@ -120,6 +120,7 @@ class RegisteredUserSalesAgentCustomersController extends BaseHtmlController {
 
         $defaultParametersValue = self::getTheme()->getConfiguration()->getSalesAgentCustomers()->getRowsList()->getDefaultParametersValues();
         $requestParams = array_merge($defaultParametersValue, $this->getRequestParams());
+        $requestParams['q'] = $requestParams['q'] ?? ($this->q !== '' ? $this->q : null);
         $requestParams['includeSubordinates'] = $this->includeSubordinates;
         $requestParams['fromDate'] = $this->fromDate;
         $requestParams['toDate'] = $this->toDate;
@@ -147,27 +148,27 @@ class RegisteredUserSalesAgentCustomersController extends BaseHtmlController {
      * operation of the controller.
      */
     protected function setControllerBaseData(): void {
-        $aux = [];
+        $items = [];
         if ($this->getAllSalesAgentCustomers) {
-            $aux[self::SALES_AGENT_CUSTOMERS] = $this->accountService->getSalesAgentCustomers($this->salesAgentCustomersParametersGroup);
+            $items[self::SALES_AGENT_CUSTOMERS] = $this->accountService->getSalesAgentCustomers($this->salesAgentCustomersParametersGroup);
         } else {
-            $aux[self::SALES_AGENT_CUSTOMERS] = $this->getControllerData(self::SALES_AGENT_CUSTOMERS);
+            $items[self::SALES_AGENT_CUSTOMERS] = $this->getControllerData(self::SALES_AGENT_CUSTOMERS);
         }
 
-        $aux[self::SALES_AGENT_CUSTOMERS_FORM] = FormFactory::getAccountSalesAgentCustomers(
+        $items[self::SALES_AGENT_CUSTOMERS_FORM] = FormFactory::getAccountSalesAgentCustomers(
             $this->q,
             $this->fromDate,
             $this->toDate,
             $this->includeSubordinates
         );
 
-        $aux[self::SALES_AGENT_CUSTOMERS_FORM_REQUEST] = [
+        $items[self::SALES_AGENT_CUSTOMERS_FORM_REQUEST] = [
             'q' => $this->q,
             'includeSubordinates' => $this->includeSubordinates,
             'fromDate' => $this->fromDate->format(Date::DATETIME_FORMAT),
             'toDate' => $this->toDate->format(Date::DATETIME_FORMAT),
         ];
-        $this->setDataValue(self::CONTROLLER_ITEM, $aux);
+        $this->setDataValue(self::CONTROLLER_ITEM, $items);
     }
 
     /**

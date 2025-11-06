@@ -37,32 +37,54 @@
     {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %} 
     {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
     {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
-    {# Campos de Invoicing #}
+
     {% set invoicingParams = [
+        constant('FWK\\Enums\\Parameters::LOCATION'),
+        constant('FWK\\Enums\\Parameters::COUNTRY'),
         constant('FWK\\Enums\\Parameters::ADDRESS'),
         constant('FWK\\Enums\\Parameters::ADDRESS_ADDITIONAL_INFORMATION'),
         constant('FWK\\Enums\\Parameters::NUMBER'),
         constant('FWK\\Enums\\Parameters::PHONE'),
         constant('FWK\\Enums\\Parameters::MOBILE'),
         constant('FWK\\Enums\\Parameters::COMPANY'),
-        constant('FWK\\Enums\\Parameters::VAT')
+        constant('FWK\\Enums\\Parameters::VAT'),
+    ] %}
+
+    {% set generalParams = [
+        constant('FWK\\Enums\\Parameters::P_ID'),
+        constant('FWK\\Enums\\Parameters::IMAGE'),
     ] %}
 
     {% set newFields = [
+        constant('FWK\\Enums\\Parameters::GENDER'),
         constant('FWK\\Enums\\Parameters::FIRST_NAME'),
         constant('FWK\\Enums\\Parameters::LAST_NAME'),
-        constant('FWK\\Enums\\Parameters::EMAIL'),
-        constant('FWK\\Enums\\Parameters::USERNAME'),
-        constant('FWK\\Enums\\Parameters::REGISTERED_USER_P_ID')
+        constant('FWK\\Enums\\Parameters::REGISTERED_USER_EMAIL'),
+        constant('FWK\\Enums\\Parameters::REGISTERED_USER_USERNAME'),
+        constant('FWK\\Enums\\Parameters::REGISTERED_USER_P_ID'),
+        constant('FWK\\Enums\\Parameters::REGISTERED_USER_IMAGE'),
+        constant('FWK\\Enums\\Parameters::BIRTHDAY'),
     ] %}
     
     {% set allContentFields = [
         constant('FWK\\Enums\\Parameters::ACCOUNT_ID'),
+        constant('FWK\\Enums\\Parameters::ID'),
     	constant('FWK\\Enums\\Parameters::JOB'),
         constant('FWK\\Enums\\Parameters::ROLE_ID')
     ] %}
 
 
+    {% set isCompany = session.basket.account.isCompany %}
+
+    {% if args.formPrefix == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUserCreateForm::SAVE_COMPANY_DIVISION') %}
+        {% set accountTabPane = themeConfiguration.forms.account.companyDivision.accountTabPane %}
+        {% set defaultAccountTabPane = themeConfiguration.forms.account.companyDivision.defaultAccountTabPane %}
+    {% else %}
+        {% set accountTabPane = themeConfiguration.forms.account.master.registeredUser.accountTabPane %}
+        {% set defaultAccountTabPane = themeConfiguration.forms.account.master.registeredUser.defaultAccountTabPane %}
+    {% endif %}
+    
+    
     <div class="{{ args.formPrefix }}Form registeredUserForm">
         {% for name, element in args.form.outputElements([constant('FWK\\Enums\\RichFormItems::LC_DATA_VALIDATION')]) %}
             {% if name == constant('FWK\\Core\\Form\\Form::ELEMENT_FORM_START') %}
@@ -70,44 +92,54 @@
 
                 {% set tabsNav %}
                     <ul class="nav nav-tabs accountTypeNavTabs" role="tablist">
-                        {% if args.advcaLicense and session.basket.account.type in [constant('SDK\\Enums\\AccountType::COMPANY'),constant('SDK\\Enums\\AccountType::COMPANY_DIVISION')] %}
-                            <li role="presentation" class="nav-item active">
-                                <a href="#registered_user_tabPane_internal" class="nav-link active"
-                                   aria-controls="registered_user_tabPane_internal" role="tab"
-                                   data-bs-toggle="tab" data-lc-user-registered="internal">
-                                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_INTERNAL')] }}
-                                </a>
-                            </li>
-                            <li role="presentation" class="nav-item">
-                                <a href="#registered_user_tabPane_external" class="nav-link"
-                                   aria-controls="registered_user_tabPane_external" role="tab"
-                                   data-bs-toggle="tab" data-lc-user-registered="external">
-                                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_EXTERNAL')] }}
-                                </a>
-                            </li>
+                        {% if args.advcaLicense and isCompany %}
+                            {% if accountTabPane.internal.included %}
+                                <li role="presentation" class="nav-item {{ tabPaneActive ? 'active' }}">
+                                    <a href="#registered_user_tabPane_internal" class="nav-link {{ tabPaneActive ? 'active': '' }}"
+                                    aria-controls="registered_user_tabPane_internal" role="tab"
+                                    data-bs-toggle="tab" data-lc-user-registered="internal">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_INTERNAL')] }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% if accountTabPane.external.included %}
+                                {% set tabPaneActive = defaultAccountTabPane == constant('FWK\\Core\\Theme\\Dtos\\FormAccountTabPane::EXTERNAL') %}
+                                <li role="presentation" class="nav-item {{ tabPaneActive ? 'active' }}">
+                                    <a href="#registered_user_tabPane_external" class="nav-link {{ tabPaneActive ? 'active': '' }}"
+                                    aria-controls="registered_user_tabPane_external" role="tab"
+                                    data-bs-toggle="tab" data-lc-user-registered="external">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_EXTERNAL')] }}
+                                    </a>
+                                </li>
+                            {% endif %}
                         {% else %}
-                            <li role="presentation" class="nav-item active">
-                                <a href="#registered_user_tabPane_external" class="nav-link active"
-                                   aria-controls="registered_user_tabPane_external" role="tab"
-                                   data-bs-toggle="tab" data-lc-user-registered="external">
-                                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_EXISTENT')] }}
+                            {% if accountTabPane.existent.included %}
+                                {% set tabPaneActive = defaultAccountTabPane == constant('FWK\\Core\\Theme\\Dtos\\FormAccountTabPane::EXISTENT') %}
+                                <li role="presentation" class="nav-item {{ tabPaneActive ? 'active' }}">
+                                    <a href="#registered_user_tabPane_external" class="nav-link {{ tabPaneActive ? 'active': '' }}"
+                                    aria-controls="registered_user_tabPane_external" role="tab"
+                                    data-bs-toggle="tab" data-lc-user-registered="external">
+                                        {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_EXISTENT')] }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endif %}
+                        {% if accountTabPane.new %}
+                            {% set tabPaneActive = defaultAccountTabPane == constant('FWK\\Core\\Theme\\Dtos\\FormAccountTabPane::NEW') %}
+                            <li role="presentation" class="nav-item {{ tabPaneActive ? 'active' }}">
+                                <a href="#registered_user_tabPane_new" class="nav-link {{ tabPaneActive ? 'active' : '' }}"
+                                aria-controls="registered_user_tabPane_new" role="tab"
+                                data-bs-toggle="tab" data-lc-user-registered="new">
+                                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_NEW')] }}
                                 </a>
                             </li>
                         {% endif %}
-                        <li role="presentation" class="nav-item">
-                            <a href="#registered_user_tabPane_new" class="nav-link"
-                               aria-controls="registered_user_tabPane_new" role="tab"
-                               data-bs-toggle="tab" data-lc-user-registered="new">
-                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_NEW')] }}
-                            </a>
-                        </li>
                     </ul>
                 {% endset %}
                 {% set internalContent %}{% endset %}
                 {% set externalContent %}{% endset %}
                 {% set newContent %}{% endset %}
                 {% set allContent %}{% endset %}
-                {% set invoicingTopContent %}{% endset %}
                 {% set invoicingContent %}{% endset %}
                 {% set generalContent %}{% endset %}
                 {% set formSubmit %}{% endset %}
@@ -122,37 +154,49 @@
                     {% endif %}
                     {{ tabsNav }}
                     <div class="tab-content mb-0">
-                        {%- if args.advcaLicense and session.basket.account.type in [constant('SDK\\Enums\\AccountType::COMPANY'),constant('SDK\\Enums\\AccountType::COMPANY_DIVISION')] -%}
-                            <div role="tabpanel"
-                                class="tab-pane tabPaneUserType show active"
-                                id="registered_user_tabPane_internal">
-                                {{- registeredUserSelector.registeredUserSelector({accountId: args.accountId}) -}}
-                                {{internalContent}}
-                            </div>
-                            <div role="tabpanel"
-                                class="tab-pane tabPaneUserType"
-                                id="registered_user_tabPane_external">
-                                {{externalContent}}
-                            </div>
+                        {%- if args.advcaLicense and isCompany -%}
+                            {%- if accountTabPane.internal -%}
+                                {% set tabPaneActive = defaultAccountTabPane == constant('FWK\\Core\\Theme\\Dtos\\FormAccountTabPane::INTERNAL') %}
+                                <div role="tabpanel"
+                                    class="tab-pane tabPaneAccount {{tabPaneActive ? 'show active' : ''}}"
+                                    id="registered_user_tabPane_internal">
+                                    {{- registeredUserSelector.registeredUserSelector({accountId: args.accountId}) -}}
+                                    {{internalContent}}
+                                </div>
+                            {%- endif -%}
+                            {%- if accountTabPane.external -%}
+                                {% set tabPaneActive = defaultAccountTabPane == constant('FWK\\Core\\Theme\\Dtos\\FormAccountTabPane::EXTERNAL') %}
+                                <div role="tabpanel"
+                                    class="tab-pane tabPaneAccount {{tabPaneActive ? 'show active' : ''}}"
+                                    id="registered_user_tabPane_external">
+                                    {{externalContent}}
+                                </div>
+                            {%- endif -%}
                         {%- else -%}
+                            {%- if accountTabPane.existent -%}
+                                {% set tabPaneActive = defaultAccountTabPane == constant('FWK\\Core\\Theme\\Dtos\\FormAccountTabPane::EXISTENT') %}
+                                <div role="tabpanel"
+                                    class="tab-pane tabPaneAccount {{tabPaneActive ? 'show active' : ''}}"
+                                    id="registered_user_tabPane_external">
+                                    {{externalContent}}
+                                </div>
+                            {%- endif -%}
+                        {%- endif -%}
+                        {%- if accountTabPane.new -%}
+                            {% set tabPaneActive = defaultAccountTabPane == constant('FWK\\Core\\Theme\\Dtos\\FormAccountTabPane::NEW') %}
                             <div role="tabpanel"
-                                class="tab-pane tabPaneUserType  show active"
-                                id="registered_user_tabPane_external">
-                                {{externalContent}}
+                                class="tab-pane tabPaneAccount {{tabPaneActive ? 'show active' : ''}}"
+                                id="registered_user_tabPane_new">
+                                {{newContent}}
                             </div>
                         {%- endif -%}
-                        <div role="tabpanel"
-                            class="tab-pane tabPaneUserType"
-                            id="registered_user_tabPane_new">
-                            {{newContent}}
-                        </div>
                     </div>  
                     {{allContent}}
                 </div>
-                   {{ self.registeredUserExtras(args, invoicingTopContent, invoicingContent, generalContent) }}
+                   {{ self.registeredUserExtras(args, invoicingContent, generalContent) }}
                     {{formSubmit}}
                 </div>
-            {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
+            {% elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') %}
                 {% set formSubmit %}
                     {{- legalCheck -}}
                     <div class="formField formButton registeredUserParameter text-center">
@@ -161,62 +205,9 @@
                 {% endset %}
             {% elseif name == constant('FWK\\Enums\\Parameters::Q') %}
                 {% set externalContent = externalContent ~ self.formGroup(element) %}
-                
-            {% elseif name in newFields %}
-                {% set newContent = newContent ~ self.formGroup(element) %}
-
-            {% elseif name == constant('FWK\\Enums\\Parameters::GENDER') %}
-                {% set newContent %}
-                    {{newContent}}
-                    {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/gender.html.twig' with {
-                        name: name,                
-                        input: element
-                    } %}
-                {% endset %}
-            {% elseif name == constant('FWK\\Enums\\Parameters::BIRTHDAY') %}
-                {% set newContent %}
-                    {{newContent}}
-                    <div class="form-group formFieldGroup userFieldGroup">
-                        <div class="input-group date" 
-                            data-datetimepicker="viewDateValue{{ name|ucfirst }}" 
-                            data-language="{{ route.language }}" 
-                            data-years='1910-{{ "now"|date("Y") }}' 
-                            data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
-                            data-submit="{{ name }}"  
-                            data-format="{{ getJSDatePattern() }}">
-                            <label class="form-label" for="viewDateValue{{ name|ucfirst }}">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BIRTH_DATE')] -}}</label>
-                            <input type="text" value="" class="form-control formField viewDateValue" id="viewDateValue{{ name|ucfirst }}" autocomplete="off">
-                            <span class="input-group-addon input-group-text">
-                                <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
-                            </span>
-                        </div>
-                        <input type="hidden" value="{{ args.form.definitionElements[name].value }}" class="DateValue" id="{{ name }}" name="{{ name }}" data-optional="true">
-                    </div>
-                {% endset %}
-            {% elseif name == constant('FWK\\Enums\\Parameters::IMAGE') %}
-                {#{% set newContent = newContent ~ self.fileUploadGroup(element, "registeredUserImageUpload", languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')]) %}#}
             {% elseif name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_ID') %}
                 {% set externalContent = externalContent ~ element|replace({ (classWildcard): '', (attributeWildcard): '' }) %}
-            {% elseif name == constant('FWK\\Enums\\Parameters::LOCATION') %}
-                {% set useLocation = true %}
-            {% elseif name == constant('FWK\\Enums\\Parameters::COUNTRY') 
-	    	    and useLocation and args.locationMode is defined and args.locationMode|length -%}
-                {% set invoicingTopContent %}
-                    {{ invoicingTopContent }}
-                            {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/location.html.twig' with {
-                                input: element,
-                                name: name,
-                                userType: '',
-                                section: '',
-                                selectedCountry: args.selectedCountry,
-                                selectedCountryLocations: args.selectedCountryLocations,
-                                locationMode: args.locationMode,
-                                locationId: 0
-                            } %}
-                {% endset %}
-            {% elseif name == constant('FWK\\Enums\\Parameters::IMAGE2') %}
-                {#{% set generalContent = generalContent ~ self.fileUploadGroup(element, "companyDivisionImageUpload", languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')]) %}#}
-            {%- elseif name in allContentFields -%}
+            {% elseif name in allContentFields %}
                 {% if name == constant('FWK\\Enums\\Parameters::ACCOUNT_ID') %}
                     {% set allContent %}
                         {{allContent}}
@@ -231,27 +222,84 @@
                     {% endset %}
                 {% endif %}
 	    
+            {% elseif name in newFields %}
+                {% if name == constant('FWK\\Enums\\Parameters::GENDER') %}
+                    {% set newContent %}
+                        {{newContent}}
+                        {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/gender.html.twig' with {
+                            name: name,                
+                            input: element
+                        } %}
+                    {% endset %}
+                {% elseif name == constant('FWK\\Enums\\Parameters::BIRTHDAY') %}
+                    {% set newContent %}
+                        {{newContent}}
+                        <div class="form-group formFieldGroup userFieldGroup">
+                            <div class="input-group date" 
+                                data-datetimepicker="viewDateValue{{ name|ucfirst }}" 
+                                data-language="{{ route.language }}" 
+                                data-years='1910-{{ "now"|date("Y") }}' 
+                                data-weekstart="{{ commerceCalendar.getFirstDayOfWeek() - 1 }}"
+                                data-submit="{{ name }}"  
+                                data-format="{{ getJSDatePattern() }}">
+                                <label class="form-label" for="viewDateValue{{ name|ucfirst }}">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::BIRTH_DATE')] -}}</label>
+                                <input type="text" value="" class="form-control formField viewDateValue" id="viewDateValue{{ name|ucfirst }}" autocomplete="off">
+                                <span class="input-group-addon input-group-text">
+                                    <svg class="icon"><use xlink:href="#icon-calendar"></use></svg>
+                                </span>
+                            </div>
+                            <input type="hidden" value="{{ args.form.definitionElements[name].value }}" class="DateValue" id="{{ name }}" name="{{ name }}" data-optional="true">
+                        </div>
+                    {% endset %}
+                {% elseif name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_IMAGE') %}
+                    {% set newContent = newContent ~ self.fileUploadGroup(element, "registeredUserImageUpload", languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')]) %}
+                {% else %}
+                    {% set newContent = newContent ~ self.formGroup(element) %}
+                {% endif %}
             {% elseif name in invoicingParams %}
-                {% set invoicingContent = invoicingContent ~ self.formGroup(element) %}
-	        {% else %}
-                {% set generalContent = generalContent ~ self.formGroup(element) %}
+                {% if name == constant('FWK\\Enums\\Parameters::LOCATION') %}
+                    {% set useLocation = true %}
+                {% elseif name == constant('FWK\\Enums\\Parameters::COUNTRY') 
+                    and useLocation and args.locationMode is defined and args.locationMode|length -%}
+                    {% set invoicingContent %}
+                        {{ invoicingContent }}
+                                {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/location.html.twig' with {
+                                    input: element,
+                                    name: name,
+                                    userType: '',
+                                    section: '',
+                                    selectedCountry: args.selectedCountry,
+                                    selectedCountryLocations: args.selectedCountryLocations,
+                                    locationMode: args.locationMode,
+                                    locationId: 0
+                                } %}
+                    {% endset %}
+                {% else %}
+                    {% set invoicingContent = invoicingContent ~ self.formGroup(element) %}
+                {% endif %}
+	        {% elseif name in generalParams %}
+                {% if name == constant('FWK\\Enums\\Parameters::IMAGE') %}
+                    {% set generalContent = generalContent ~ self.fileUploadGroup(element, "companyDivisionImageUpload", languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_CHOOSE_FILES')]) %}
+                {% elseif name == constant('FWK\\Enums\\Parameters::P_ID') %}
+                    {% set generalContent = generalContent ~ self.formGroup(element) %}
+                {% endif %}
             {% endif %}
         {% endfor %}
     </div>
 {% endmacro registeredUserCreateForm %}
-{% macro registeredUserExtras(args, invoicingTopContent, invoicingContent, generalContent) %}
-        {% if invoicingTopContent|length or invoicingContent|length %}
+{% macro registeredUserExtras(args, invoicingContent, generalContent) %}
+        {% if invoicingContent|length %}
             <div class="registeredUserSection">
                 <div class="registeredUserTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::INVOICING_INFORMATION')] }}</div>
-                {{ invoicingTopContent }}
                 {{ invoicingContent }}
             </div>
         {% endif %}
-
-        {% if generalContent|length %}
-            <div class="registeredUserSection">
-                <div class="registeredUserTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GENERAL_TYPE')] }}</div>
-                {{ generalContent }}
-            </div>
+        {% if themeConfiguration.forms.account.companyDivision.generalFields.enabled %}
+            {% if generalContent|length %}
+                <div class="registeredUserSection">
+                    <div class="registeredUserTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::GENERAL_TYPE')] }}</div>
+                    {{ generalContent }}
+                </div>
+            {% endif %}
         {% endif %}
 {% endmacro registeredUserExtras %}

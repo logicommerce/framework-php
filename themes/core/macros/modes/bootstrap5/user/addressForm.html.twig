@@ -16,6 +16,7 @@
         >
         <input type="hidden" name="id">{# set value in js #}
         <input type="hidden" name="mode">{# set value in js #}
+        <input type="hidden" name="accountId">{# set value in js #}
         <div id="{{ args.prefix }}AddressBookFormTitle">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ADDRESS_BOOK_TITLE')] }}</div>
 	{% else %}
         {{- formElements['formStart']|replace({ (constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD')): 'data-lc-form="addressForm" data-lc-address="' ~ args.prefix ~ '" lc-user-type=""' }) -}}	

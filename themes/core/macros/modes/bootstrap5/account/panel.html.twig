@@ -34,7 +34,7 @@
                                 {%- set registeredUserIdKey = '{' ~ constant('FWK\\Enums\\Parameters::REGISTERED_USER_ID') ~ '}' -%}
                                 {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_REGISTERED_USER'))|replace({ (accountIdKey): constant('SDK\\Enums\\AccountKey::USED'), (registeredUserIdKey): constant('SDK\\Enums\\AccountKey::ME') }) -%}                                
                                 {%- set itemRouteType = constant('SDK\\Enums\\RouteType::ACCOUNT_REGISTERED_USER') -%}
-                            {%- elseif item == 'accountCompanyRoles' and session.basket.account.type in [constant('SDK\\Enums\\AccountType::COMPANY'), constant('SDK\\Enums\\AccountType::COMPANY_DIVISION')] -%}
+                            {%- elseif item == 'accountCompanyRoles' and session.basket.account.isCompany -%}
                                 {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::COMPANY_ROLES')] -%}
                                 {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_ROLES')) -%}
                                 {%- set itemRouteType = constant('SDK\\Enums\\RouteType::ACCOUNT_COMPANY_ROLES') -%}
@@ -43,7 +43,7 @@
                                 {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE')) -%}
                                 {%- set itemRouteType = constant('SDK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE') -%}
                             {%- elseif item == 'accountRegisteredUsers' -%}
-                                {%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}
+                                {%- if session.basket.account.isCompany -%}
                                     {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] -%}
                                 {%- else -%}
                                     {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] -%}

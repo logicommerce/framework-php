@@ -6,6 +6,7 @@ use FWK\Core\Theme\Theme;
 use SDK\Core\Dtos\ElementCollection;
 use FWK\Core\ViewHelpers\ViewHelper;
 use FWK\Core\Exceptions\CommerceException;
+use SDK\Enums\AccountKey;
 
 /**
  * This is the AddressBook class, a macro class for the userViewHelper.
@@ -40,6 +41,12 @@ class AddressBook {
     public bool $showDeleteBilling = true;
 
     public bool $showDeleteShipping = true;
+
+    public bool $showSelectAddressBilling = true;
+
+    public bool $showSelectAddressShipping = true;
+
+    public string $accountId = AccountKey::USED;
 
 
     /**
@@ -91,6 +98,9 @@ class AddressBook {
             'showEditShipping' => $this->showEditShipping,
             'showDeleteBilling' => $this->showDeleteBilling,
             'showDeleteShipping' => $this->showDeleteShipping,
+            'showSelectAddressBilling' => $this->showSelectAddressBilling,
+            'showSelectAddressShipping' => $this->showSelectAddressShipping,
+            'accountId' => $this->accountId
         ];
     }
 }

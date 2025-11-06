@@ -2299,3 +2299,143 @@
     {{ modeUtil.ajaxModalForm(args) }}
     {{ addTimerDebugFlag('utilMacros-ajaxModalForm',false) }}
 {% endmacro ajaxModalForm %}
+
+{#- @documentation
+{
+  "name": "ajaxModalConfirmForm",
+  "description": [
+    { "es": "Renderiza un modal de confirmación reutilizable con textos, ids y clases parametrizables" },
+    { "en": "++" }
+  ],
+  "parameters": [
+    {
+      "param": "modalId",
+      "description": [
+        { "es": "ID único del modal" },
+        { "en": "++" }
+      ],
+      "type": "string",
+      "default": "modalConfirm",
+      "required": "false"
+    },
+    {
+      "param": "modalClass",
+      "description": [
+        { "es": "Clases CSS adicionales para el contenedor del modal" },
+        { "en": "++" }
+      ],
+      "type": "string",
+      "default": "",
+      "required": "false"
+    },
+    {
+      "param": "containerId",
+      "description": [
+        { "es": "ID del contenedor interno del contenido" },
+        { "en": "++" }
+      ],
+      "type": "string",
+      "default": "modalId ~ 'Container'",
+      "required": "false"
+    },
+    {
+      "param": "dialogSize",
+      "description": [
+        { "es": "Clases aplicadas a .modal-dialog para tamaño y comportamiento" },
+        { "en": "++" }
+      ],
+      "type": "string",
+      "default": "modal-sm modal-dialog-centered",
+      "required": "false"
+    },
+    {
+      "param": "titleKey",
+      "description": [
+        { "es": "Clave de idioma para el título del modal" },
+        { "en": "++" }
+      ],
+      "type": "string|FWK\\Enums\\LanguageLabels::CONST",
+      "default": "FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TITLE",
+      "required": "false"
+    },
+    {
+      "param": "textKey",
+      "description": [
+        { "es": "Clave de idioma para el texto descriptivo" },
+        { "en": "++" }
+      ],
+      "type": "string|FWK\\Enums\\LanguageLabels::CONST",
+      "default": "FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TEXT",
+      "required": "false"
+    },
+    {
+      "param": "cancelKey",
+      "description": [
+        { "es": "Clave de idioma del botón Cancelar" },
+        { "en": "++" }
+      ],
+      "type": "string|FWK\\Enums\\LanguageLabels::CONST",
+      "default": "FWK\\Enums\\LanguageLabels::CANCEL",
+      "required": "false"
+    },
+    {
+      "param": "confirmKey",
+      "description": [
+        { "es": "Clave de idioma del botón Confirmar" },
+        { "en": "++" }
+      ],
+      "type": "string|FWK\\Enums\\LanguageLabels::CONST",
+      "default": "FWK\\Enums\\LanguageLabels::CONFIRM",
+      "required": "false"
+    },
+    {
+      "param": "confirmBtnId",
+      "description": [
+        { "es": "ID del botón de confirmación para enganchar JS" },
+        { "en": "++" }
+      ],
+      "type": "string",
+      "default": "modalId ~ 'ConfirmBtn'",
+      "required": "false"
+    },
+    {
+      "param": "btnBaseClass",
+      "description": [
+        { "es": "Clase base común para los botones del modal" },
+        { "en": "++" }
+      ],
+      "type": "string",
+      "default": "confirmModalButton",
+      "required": "false"
+    },
+    {
+      "param": "confirmBtnClass",
+      "description": [
+        { "es": "Clase visual del botón de confirmación" },
+        { "en": "++" }
+      ],
+      "type": "string",
+      "default": "btn-danger",
+      "required": "false"
+    }
+  ],
+  "example": " |{% import macrosCore.util as utilMacros %} |{{ utilMacros.ajaxModalConfirmForm({ |modalId: 'registeredUserDeletePopup', |modalClass: 'registeredUserDeletePopup', |containerId: 'registeredUsersDelete', |dialogSize: 'modal-sm modal-dialog-centered', |titleKey: constant('FWK\\\\Enums\\\\LanguageLabels::POPUP_CONFIRM_TITLE'), |textKey: constant('FWK\\\\Enums\\\\LanguageLabels::POPUP_CONFIRM_TEXT'), |cancelKey: constant('FWK\\\\Enums\\\\LanguageLabels::CANCEL'), |confirmKey: constant('FWK\\\\Enums\\\\LanguageLabels::DELETE'), |confirmBtnId: 'deleteRegisteredUserButtonConfirm', |btnBaseClass: 'deleteRegisteredUserButton', |confirmBtnClass: 'btn-danger' |}) }} |",
+  "viewHelper": "FWK/ViewHelpers/Util/Macro/AjaxModalConfirmForm.php",
+  "relatedCoreFiles": [
+    {
+      "files": "macros/modes/{{coreMode}}/util/confirmModal.html.twig",
+      "description": [
+        { "es": "Macro principal que genera el modal de confirmación reutilizable" },
+        { "en": "++" }
+      ]
+    }
+  ]
+}
+@endDocumentation -#}
+
+{% macro ajaxModalConfirmForm(args) %}
+    {{ addTimerDebugFlag('utilMacros-ajaxModalConfirmForm',true) }}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/modalForm.html.twig' as modeUtil %}
+    {{ modeUtil.ajaxModalConfirmForm(args) }}
+    {{ addTimerDebugFlag('utilMacros-ajaxModalConfirmForm',false) }}
+{% endmacro ajaxModalConfirmForm %}

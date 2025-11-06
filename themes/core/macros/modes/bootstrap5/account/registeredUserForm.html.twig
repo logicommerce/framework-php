@@ -22,8 +22,8 @@
                     name: name,                
                     input: element
                 } %}
-			{%- elseif name == constant('FWK\\Enums\\Parameters::IMAGE') -%}
-                {#<div class="form-group formFieldGroup">
+			{%- elseif name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_IMAGE') -%}
+                <div class="form-group formFieldGroup">
                     <div class="input-group file">
                         {{ element|replace({ (classWildcard): '', (attributeWildcard): 'readonly' }) }}
                         <label class="input-group-btn mb-0">
@@ -41,7 +41,7 @@
                             </span>
                         </label>
                     </div>
-                </div>#}
+                </div>
 			{%- elseif name == constant('FWK\\Enums\\Parameters::BIRTHDAY') -%}
 				<div class="form-group formFieldGroup userFieldGroup">
                     <div class="input-group date" 
@@ -61,15 +61,23 @@
                 </div>
 			{%- elseif name == constant('FWK\\Enums\\Parameters::FIRST_NAME') 
 				or name == constant('FWK\\Enums\\Parameters::LAST_NAME')
-				or name == constant('FWK\\Enums\\Parameters::EMAIL')
-				or name == constant('FWK\\Enums\\Parameters::USERNAME')
-				or name == constant('FWK\\Enums\\Parameters::P_ID')
+				or name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_EMAIL')
+				or name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_USERNAME')
+				or name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_P_ID')
 				or name == constant('FWK\\Enums\\Parameters::REGISTERED_USER_ID')
 				or name == constant('FWK\\Enums\\Parameters::ACCOUNT_ID') -%}
 				<div class="formField userFieldGroup form-group formFieldGroup">
 					{{ element|replace({ (classWildcard): '', (attributeWildcard) : ''}) }}
 				</div>
+            {%- elseif name == constant('FWK\\Enums\\Parameters::SUBSCRIBED') -%}
+                <div class="form-check formFieldGroup userFieldGroup userFieldGroup{{ name|ucfirst }}">
+                    {{ element|replace({ 
+                        (classWildcard): 'btn btn-primary', 
+                        (attributeWildcard): ''
+                    })|raw }}
+                </div>
 			{%- endif -%}
+				
 		{%- endfor -%}
 	</div>
 {% endmacro registeredUserForm %}

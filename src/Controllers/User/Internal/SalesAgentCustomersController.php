@@ -124,6 +124,7 @@ class SalesAgentCustomersController extends BaseHtmlController {
 
         $defaultParametersValue = self::getTheme()->getConfiguration()->getSalesAgentCustomers()->getRowsList()->getDefaultParametersValues();
         $requestParams = array_merge($defaultParametersValue, $this->getRequestParams());
+        $requestParams['q'] = $requestParams['q'] ?? ($this->q !== '' ? $this->q : null);
         $requestParams['includeSubordinates'] = $this->includeSubordinates;
         $requestParams['fromDate'] = $this->fromDate;
         $requestParams['toDate'] = $this->toDate;

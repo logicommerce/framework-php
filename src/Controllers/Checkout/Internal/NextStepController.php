@@ -179,28 +179,29 @@ class NextStepController extends SetUserController {
                     if ($value != $customTagsValues->getValue()) {
                         $editBasketCustomTagParametersGroup = new EditBasketCustomTagParametersGroup();
                         $ctParam = ['customTagId' => $customTagsValues->getCustomTagId()];
-                        $objValue = json_decode($value);
-                        if (is_object($objValue) && property_exists($objValue, 'extension') && property_exists($objValue, 'fileName') && property_exists($objValue, 'value')) {
-                            $customTagData = new CustomTagDataParametersGroup();
-                            $customTagData->setExtension($objValue->extension);
-                            $customTagData->setFileName($objValue->fileName);
-                            $customTagData->setValue($objValue->value);
-                            $ctParam['data'] = $customTagData;
-                            $editBasketCustomTagParametersGroup->setCustomTagId($customTagsValues->getCustomTagId());
-                            $editBasketCustomTagParametersGroup->setData($customTagData);
-                            $this->appliedParameters[self::CUSTOM_TAGS][] = [
-                                'customTagId' => $customTagsValues->getCustomTagId(),
-                                'data' => $customTagData->toArray()
-                            ];
-                        } else {
-                            $ctParam['value'] = $value;
-                            $this->appliedParameters[self::CUSTOM_TAGS][] = $this->userService->generateParametersGroupFromArray($editBasketCustomTagParametersGroup, $ctParam);
+                        if (!is_array($value)) {
+                            $objValue = json_decode($value);
+                            if (is_object($objValue) && property_exists($objValue, 'extension') && property_exists($objValue, 'fileName') && property_exists($objValue, 'value')) {
+                                $customTagData = new CustomTagDataParametersGroup();
+                                $customTagData->setExtension($objValue->extension);
+                                $customTagData->setFileName($objValue->fileName);
+                                $customTagData->setValue($objValue->value);
+                                $ctParam['data'] = $customTagData;
+                                $editBasketCustomTagParametersGroup->setCustomTagId($customTagsValues->getCustomTagId());
+                                $editBasketCustomTagParametersGroup->setData($customTagData);
+                                $this->appliedParameters[self::CUSTOM_TAGS][] = [
+                                    'customTagId' => $customTagsValues->getCustomTagId(),
+                                    'data' => $customTagData->toArray()
+                                ];
+                            } else {
+                                $ctParam['value'] = $value;
+                                $this->appliedParameters[self::CUSTOM_TAGS][] = $this->userService->generateParametersGroupFromArray($editBasketCustomTagParametersGroup, $ctParam);
+                            }
+                            $newCustomTagValues[] = $editBasketCustomTagParametersGroup;
                         }
-                        $newCustomTagValues[] = $editBasketCustomTagParametersGroup;
                     }
                 }
             }
-
             if (!empty($newCustomTagValues)) {
                 $editBasketCustomTagsParametersGroup = new EditBasketCustomTagsParametersGroup();
                 $editBasketCustomTagsParametersGroup->setCustomTags($newCustomTagValues);

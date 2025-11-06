@@ -49,3 +49,46 @@
         </div>
     </div>
 {%- endmacro -%}
+
+{%- macro ajaxModalConfirmForm(args) -%}
+    {%- set modalId        = args.modalId|default('modalConfirm') -%}
+    {%- set modalClass     = args.modalClass|default('') -%}
+    {%- set containerId    = args.containerId|default(modalId ~ 'Container') -%}
+    {%- set dialogSize     = args.dialogSize|default('modal-sm modal-dialog-centered') -%}
+    {%- set titleKey       = args.titleKey|default(constant('FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TITLE')) -%}
+    {%- set textKey        = args.textKey|default(constant('FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TEXT')) -%}
+    {%- set cancelKey      = args.cancelKey|default(constant('FWK\\Enums\\LanguageLabels::CANCEL')) -%}
+    {%- set confirmKey     = args.confirmKey|default(constant('FWK\\Enums\\LanguageLabels::SAVE')) -%}
+    {%- set confirmBtnId   = args.confirmBtnId|default(modalId ~ 'ConfirmBtn') -%}
+    {%- set btnBaseClass   = args.btnBaseClass|default('confirmModalButton') -%}
+    {%- set confirmBtnClass= args.confirmBtnClass|default('btn-danger') -%}
+    {%- set dismissAttr    = 'data-bs-dismiss="modal"' -%}
+    {%- set titleId        = modalId ~ 'Title' -%}
+
+    <div class="lcModal modal fade {{ modalClass }}" id="{{ modalId }}" tabindex="-1" aria-labelledby="{{ titleId }}" aria-hidden="true">
+        <div class="modal-dialog {{ dialogSize }}">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="{{ containerId }}" class="lcModalContainer">
+                        <div class="lcModalContainer">
+                            <div id="{{ titleId }}" class="titleConfirm">{{ languageSheet[titleKey] }}</div>
+                            <div class="textConfirm">{{ languageSheet[textKey] }}</div>
+                            <div class="confirmButtons">
+                                <button type="button"
+                                        class="btn btn-secondary {{ btnBaseClass }} {{ btnBaseClass }}Dismiss buttonDismiss"
+                                        {{ dismissAttr }}>
+                                    {{ languageSheet[cancelKey] }}
+                                </button>
+                                <button type="button"
+                                        class="btn {{ confirmBtnClass }} {{ btnBaseClass }} {{ btnBaseClass }}Confirm"
+                                        id="{{ confirmBtnId }}">
+                                    {{ languageSheet[confirmKey] }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{%- endmacro -%}

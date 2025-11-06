@@ -36,6 +36,8 @@ class Forms extends Element {
 
     public const SHOPPING_LIST_ROW_NOTE = 'shoppingListRowNote';
 
+    public const ACCOUNT = 'account';
+
     private ?FormSetUser $setUser = null;
 
     private ?FormComments $comments = null;
@@ -51,6 +53,8 @@ class Forms extends Element {
     private ?FormShoppingList $shoppingList = null;
 
     private ?FormShoppingListRowNote $shoppingListRowNote = null;
+
+    private ?FormAccount $account = null;
 
     /**
      * This method returns the setUser form configurations.
@@ -154,5 +158,18 @@ class Forms extends Element {
 
     private function setShoppingListRowNote(array $shoppingListRowNote): void {
         $this->shoppingListRowNote = new FormShoppingListRowNote($shoppingListRowNote);
+    }
+
+    /**
+     * This method returns the account form configurations.
+     *
+     * @return FormAccount|NULL
+     */
+    public function getAccount(): ?FormAccount {
+        return $this->account;
+    }
+
+    private function setAccount(array $account): void {
+        $this->account = new FormAccount($account);
     }
 }

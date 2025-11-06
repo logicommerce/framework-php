@@ -7,6 +7,7 @@ use SDK\Core\Services\Service;
 use SDK\Core\Services\Parameters\Groups\ParametersGroup;
 use FWK\Core\FilterInput\FilterInput;
 use FWK\Core\Resources\Session;
+use FWK\Enums\Parameters;
 use SDK\Core\Dtos\ElementCollection;
 use SDK\Core\Resources\BatchRequests;
 use SDK\Core\Services\BatchService;
@@ -108,6 +109,30 @@ trait ServiceTrait {
             }
         }
         return $appliedFilter;
+    }
+
+    /**
+     * This method applies registered user fields from request params to the given registeredUserParametersGroup.
+     * 
+     * @param ParametersGroup $registeredUserParametersGroup
+     * @param array $requestParams
+     * 
+     * @return void
+     */
+    public function applyRegisteredUserFields(ParametersGroup &$registeredUserParametersGroup, array $requestParams): void {
+        $registeredUserFields = [
+            Parameters::REGISTERED_USER_P_ID      => 'setPId',
+            Parameters::REGISTERED_USER_USERNAME  => 'setUsername',
+            Parameters::REGISTERED_USER_EMAIL     => 'setEmail',
+            Parameters::REGISTERED_USER_IMAGE     => 'setImage',
+            Parameters::REGISTERED_USER_STATUS => 'setStatus',
+        ];
+        foreach ($registeredUserFields as $param => $setter) {
+            $value = $requestParams[$param] ?? null;
+            if ($value !== null && strlen(trim($value)) > 0) {
+                $registeredUserParametersGroup->$setter($value);
+            }
+        }
     }
 
     /**

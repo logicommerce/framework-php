@@ -286,6 +286,7 @@ class RoutePaths {
             InternalUser::RETURN => '/' . INTERNAL_PREFIX . '/user/return',
             InternalUser::RETURN_REQUEST => '/' . INTERNAL_PREFIX . '/user/return_request',
             InternalUser::RETURN_TRACING => '/' . INTERNAL_PREFIX . '/user/return_tracing',
+            InternalUser::RETURN_TRACING_FORM => '/' . INTERNAL_PREFIX . '/user/return_tracing_form',
             InternalUser::RMA => '/' . INTERNAL_PREFIX . '/user/rma',
             InternalUser::RMA_PDF => '/' . INTERNAL_PREFIX . '/user/rma_pdf',
             InternalUser::RMA_RETURNS => '/' . INTERNAL_PREFIX . '/user/rma_returns',
@@ -325,7 +326,7 @@ class RoutePaths {
             RouteType::ACCOUNT_REGISTERED_USER_CREATE => '/accounts/' . AccountKey::USED . '/registeredUsers/create',
             RouteType::ACCOUNT_REGISTERED_USER => '/accounts/{' . Parameters::ACCOUNT_ID . '}/registeredUsers/{' . Parameters::REGISTERED_USER_ID . '}',
             RouteType::ACCOUNT_REGISTERED_USER_APPROVE => '/accounts/{' . Parameters::ACCOUNT_ID . '}/registeredUsers/{' . Parameters::REGISTERED_USER_ID . '}/approve',
-            RouteType::ACCOUNT_ORDERS => '/accounts/{' . Parameters::ID_USED . '}/orders',
+            RouteType::ACCOUNT_ORDERS => '/accounts/' . AccountKey::USED . '/orders',
             RouteType::ACCOUNT_ORDER => '/accounts/orders/', //	/accounts/orders/{id}
             RouteType::ACCOUNT_RMAS => '/accounts/' . AccountKey::USED . '/rmas',
             RouteType::ACCOUNT_COMPANY_STRUCTURE => '/accounts/' . AccountKey::USED . '/companyStructure',

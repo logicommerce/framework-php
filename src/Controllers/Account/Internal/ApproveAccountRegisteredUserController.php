@@ -35,6 +35,8 @@ class ApproveAccountRegisteredUserController extends BaseJsonController {
 
     protected ?AccountService $accountService = null;
 
+    protected ?RegisteredUserApproveUpdateParametersGroup $registeredUserApproveUpdateParametersGroup = null;
+
     protected ?ApproveAccountRegisteredUserParametersGroup $approveAccountRegisteredUserParametersGroup = null;
 
     protected string $hash = "";
@@ -80,7 +82,7 @@ class ApproveAccountRegisteredUserController extends BaseJsonController {
      *
      */
     protected function initializeAppliedParameters(): void {
-        $registeredUserApproveUpdate = new RegisteredUserApproveUpdateParametersGroup();
+        $this->registeredUserApproveUpdateParametersGroup = new RegisteredUserApproveUpdateParametersGroup();
 
         $data = $this->getRequestParams();
         $birthday = $data[Parameters::BIRTHDAY] ?? '';
@@ -89,9 +91,10 @@ class ApproveAccountRegisteredUserController extends BaseJsonController {
         } else {
             unset($data[Parameters::BIRTHDAY]);
         }
-        $this->accountService->generateParametersGroupFromArray($registeredUserApproveUpdate, $data);
+        $this->accountService->generateParametersGroupFromArray($this->registeredUserApproveUpdateParametersGroup, $data);
+        $this->accountService->applyRegisteredUserFields($this->registeredUserApproveUpdateParametersGroup, $data);
         $this->accountService->generateParametersGroupFromArray($this->approveAccountRegisteredUserParametersGroup, $data);
-        $this->approveAccountRegisteredUserParametersGroup->setRegisteredUser($registeredUserApproveUpdate);
+        $this->approveAccountRegisteredUserParametersGroup->setRegisteredUser($this->registeredUserApproveUpdateParametersGroup);
     }
 
     /**

@@ -159,6 +159,48 @@
                 "type": "bool",
                 "default": "true",
                 "required": "false"
+            },
+            {
+                "param": "showSelectAddressBilling",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de seleccionar direccion de facturacion"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "showSelectAddressShipping",
+                "description": [
+                    {
+                        "es": "Muestra o no el boton de seleccionar direccion de envio"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "bool",
+                "default": "true",
+                "required": "false"
+            },
+            {
+                "param": "accountId",
+                "description": [
+                    {
+                        "es": "Account id"
+                    },
+                    {
+                        "en": "++"
+                    }
+                ],
+                "type": "string",
+                "default": "used",
+                "required": "false"
             }
         ],
         "example": " |{% import macrosCore.user as userMacros %} |{{ userMacros.addressBook({ |billingAddresses: billingAddresses, |shippingAddresses: shippingAddresses,|selectMode: constant('FWK\\ViewHelpers\\User\\Macro\\AddressBook::SELECT_MODE_RADIO') |}) }} |",

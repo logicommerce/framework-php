@@ -137,7 +137,7 @@ class AccountRegisteredUsersController extends BaseHtmlController {
      */
     final protected function setControllerBaseBatchData(BatchRequests $requests): void {
         $this->accountService->addGetRegisteredUsers($requests, self::REGISTERED_USERS, $this->accountId, $this->accountRegisteredUsersParametersGroup);
-        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES, $this->accountId);
+        $this->accountService->addGetCompanyRoles($requests, self::COMPANY_ROLES);
         $this->accountService->addGetAccounts($requests, self::ACCOUNT, $this->accountId);
     }
     /**
@@ -145,21 +145,21 @@ class AccountRegisteredUsersController extends BaseHtmlController {
      * operation of the controller.
      */
     protected function setControllerBaseData(): void {
-        $aux = [];
-        $aux[self::ACCOUNT] = $this->getControllerData(self::ACCOUNT);
-        $aux[self::REGISTERED_USERS] = $this->getControllerData(self::REGISTERED_USERS);
-        $aux[self::REGISTERED_USERS_ERROR] = "";
-        if (!is_null($aux[self::REGISTERED_USERS]->getError())) {
-            $aux[self::REGISTERED_USERS_ERROR] = Utils::getErrorLabelValue($aux[self::REGISTERED_USERS]);
+        $items = [];
+        $items[self::ACCOUNT] = $this->getControllerData(self::ACCOUNT);
+        $items[self::REGISTERED_USERS] = $this->getControllerData(self::REGISTERED_USERS);
+        $items[self::REGISTERED_USERS_ERROR] = "";
+        if (!is_null($items[self::REGISTERED_USERS]->getError())) {
+            $items[self::REGISTERED_USERS_ERROR] = Utils::getErrorLabelValue($items[self::REGISTERED_USERS]);
         }
 
         $companyRoles = $this->getControllerData(self::COMPANY_ROLES);
-        $aux[self::REGISTERED_USERS_FORM] = FormFactory::getAccountRegisteredUsers(
+        $items[self::REGISTERED_USERS_FORM] = FormFactory::getAccountRegisteredUsers(
             $this->accountRegisteredUsersParametersGroup,
             $companyRoles?->getItems()
         );
-        $aux[self::ACCOUNT_ID] = $this->accountId;
-        $this->setDataValue(self::CONTROLLER_ITEM, $aux);
+        $items[self::ACCOUNT_ID] = $this->accountId;
+        $this->setDataValue(self::CONTROLLER_ITEM, $items);
         $this->setDataValue(self::REGISTERED_USERS_FILTER, $this->registeredUsersFilter);
     }
     /**

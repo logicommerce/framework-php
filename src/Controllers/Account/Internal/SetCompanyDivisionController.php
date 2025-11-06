@@ -47,7 +47,7 @@ class SetCompanyDivisionController extends BaseJsonController {
         $parentAccountId = $this->getRequestParam(Parameters::ID, true);
         $divisionParams = new CompanyDivisionsParametersGroup();
 
-        $divisionImage = $this->getRequestParam(Parameters::IMAGE2, false);
+        $divisionImage = $this->getRequestParam(Parameters::IMAGE, false);
         if (trim($divisionImage) !== '') {
             $divisionParams->setImage($divisionImage);
         }
@@ -94,7 +94,7 @@ class SetCompanyDivisionController extends BaseJsonController {
         if (trim($lastName) !== '') {
             $registeredUserParams->setLastName($lastName);
         }
-        $email = $this->getRequestParam(Parameters::EMAIL, false);
+        $email = $this->getRequestParam(Parameters::REGISTERED_USER_EMAIL, false);
         if (trim($email) !== '') {
             $registeredUserParams->setEmail($email);
         }
@@ -107,12 +107,12 @@ class SetCompanyDivisionController extends BaseJsonController {
                 // log or ignore invalid date
             }
         }
-        $image = $this->getRequestParam(Parameters::IMAGE, false);
+        $image = $this->getRequestParam(Parameters::REGISTERED_USER_IMAGE, false);
         if (trim($image) !== '') {
             $registeredUserParams->setImage($image);
         }
 
-        $username = $this->getRequestParam(Parameters::USERNAME, false);
+        $username = $this->getRequestParam(Parameters::REGISTERED_USER_USERNAME, false);
         if (trim($username) !== '') {
             $registeredUserParams->setUsername($username);
         }

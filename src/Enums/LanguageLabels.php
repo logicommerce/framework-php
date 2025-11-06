@@ -2492,6 +2492,7 @@ abstract class LanguageLabels extends Enum {
     public const FROM_N_TO_M_UNITS = 'fromNToMUnits';
     public const GALLERY_ITEM = 'galleryItem';
     public const GENDER = 'gender';
+    public const GENERAL = 'general';
     public const GENERAL_TYPE = 'generalType';
     public const GIFT = 'gift';
     public const GIFT_CODE = 'giftCode';

@@ -37,7 +37,6 @@ class CompanyRoleController extends BaseHtmlController {
      *
      */
     protected function initializeAppliedParameters(): void {
-        
     }
 
     /**
@@ -58,8 +57,8 @@ class CompanyRoleController extends BaseHtmlController {
      * operation of the controller.
      */
     protected function setControllerBaseData(): void {
-        $aux[self::COMPANY_ROLES_FORM] = FormFactory::getSaveCompanyRoleForm($this->getControllerData(self::ROLE));
-        $this->setDataValue(self::CONTROLLER_ITEM, $aux);
+        $items[self::COMPANY_ROLES_FORM] = FormFactory::getSaveCompanyRoleForm($this->getControllerData(self::ROLE));
+        $this->setDataValue(self::CONTROLLER_ITEM, $items);
     }
 
     /**

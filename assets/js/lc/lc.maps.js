@@ -657,12 +657,14 @@ LC.maps = {
      * @param {object} marker google maps marker
      */
     bounceMarker(marker) {
-        if (marker.animation != google.maps.Animation.BOUNCE) {
-            marker.animation = google.maps.Animation.BOUNCE;
-            setTimeout(function () {
-                marker.animation = null;
-            }, 1475);
-        }
+        setTimeout(() => {
+            if (!marker.content.classList.contains("map-marker-bounce")) {
+                marker.content.classList.add("map-marker-bounce");
+                setTimeout(function () {
+                    marker.content.classList.remove("map-marker-bounce");
+                }, 1475);
+            }
+        }, 0);
     },
 
     /**
@@ -780,17 +782,8 @@ LC.maps = {
                     .filter((index, el) => parseInt(el.value) === data.id);
 
                 this.selectPhysicalLocation($physicalLocation, false, data.id);
+                this.setSelectedIconMarker(marker);
                 this.bounceMarker(marker);
-
-                for (var i = 0; i < this.markers.length; i++) {
-                    let icon = document.createElement('img');
-                    icon.src = this.icon;
-                    this.markers[i].obj.content = icon;
-                }
-
-                let iconSelected = document.createElement('img');
-                iconSelected.src = this.iconSelected;
-                marker.content = iconSelected;
             });
 
         } else if (action === 'center') {
@@ -879,7 +872,7 @@ LC.maps = {
 
     /**
      * Set selected marker icon and reset all other markers
-     * @param {Marker} marker
+     * @param {Marker|object} marker
      */
     setSelectedIconMarker(marker) {
         for (var i = 0; i < this.markers.length; i++) {
@@ -889,7 +882,13 @@ LC.maps = {
         }
         let iconSelected = document.createElement('img');
         iconSelected.src = this.iconSelected;
-        marker.obj.content = iconSelected;
+        iconSelected.classList.add('map-marker-bounce');
+
+        if (marker.obj) {
+            marker.obj.content = iconSelected;
+        } else {
+            marker.content = iconSelected;
+        }
     },
 
     /**

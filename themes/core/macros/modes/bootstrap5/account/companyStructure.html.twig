@@ -1,4 +1,5 @@
 {% macro companyStructure(args) %}
+    {% import 'macros/modes/' ~ coreMode ~ '/util/modalForm.html.twig' as ajaxModalForm %}
     <!-- Drag badge indicator -->
     <div id="companyStructureDragBadge"></div>
 
@@ -58,6 +59,50 @@
             </div>
         </div>
     {% endif %}
+
+    {{ ajaxModalForm.ajaxModalForm({
+        modalId: 'editAccountFormModal',
+        modalClass: 'editAccountFormModal',
+        title: languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT')],
+        contentId: 'editAccountFormModalContent',
+        dialogSize: 'modal-lg modal-dialog-scrollable modal-dialog-centered modal-fullscreen-sm-down'
+    }) }}
+
+    {% if session.basket.account.isCompany -%}
+        {% set manageEmployeesTitle = languageSheet[constant('SITE\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')]%}
+    {% else %}
+        {% set manageEmployeesTitle = languageSheet[constant('SITE\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')]%}
+    {% endif %}
+    {{ ajaxModalForm.ajaxModalForm({
+        modalId: 'manageEmployeesModal',
+        modalClass: 'manageEmployeesModal',
+        title: manageEmployeesTitle,
+        contentId: 'manageEmployeesModalContent',
+        dialogSize: 'w-75 mw-100 company-structure-modal modal-dialog-centered modal-fullscreen-sm-down'
+    }) }}
+
+    {{ ajaxModalForm.ajaxModalForm({
+        modalId: 'accountOrdresModal',
+        modalClass: 'accountOrdresModal',
+        title: languageSheet[constant('SITE\\Enums\\LanguageLabels::MY_ORDERS_ACCOUNTS')],
+        contentId: 'accountOrdresModalContent',
+        dialogSize: 'w-75 mw-100 company-structure-modal modal-dialog-centered modal-fullscreen-sm-down'
+    }) }}
+    {{ ajaxModalForm.ajaxModalForm({
+        modalId: 'saveCompanyDivisionFormModal',
+        modalClass: 'saveCompanyDivisionFormModal',
+        title: languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_COMPANY_STRUCTURE_ADD_DIVISION')],
+        contentId: 'saveCompanyDivisionFormModalContent',
+        dialogSize: 'modal-lg modal-dialog-scrollable modal-dialog-centered'
+    }) }}
+
+    {{ ajaxModalForm.ajaxModalForm({
+        modalId: 'deleteAccountFormModal',
+        modalClass: 'deleteAccountFormModal section section-user section-user-delete-account',
+        title: languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE_ACCOUNT')],
+        contentId: 'deleteAccountFormModalContent',
+        dialogSize: 'modal-lg modal-dialog-scrollable modal-dialog-centered'
+    }) }}
 {% endmacro companyStructure %}
 
 {% macro renderCompanyNode(node, currentUser, permissions, availableActions, isRoot, iconsPath, level, isLastChild, isInUsedAccountBranch) %}
@@ -93,6 +138,13 @@
     {% endif %}
     {# Nodes are expanded by default - no collapsed class #}
     
+    {% if session.basket.account.isCompany %}
+        {% set accountRegisteredUserTitle = languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_EMPLOYEE_TITLE')]|replace({'{{accountName}}': node.name}) %}
+    {% else %}
+        {% set accountRegisteredUserTitle = languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_TITLE')]|replace({'{{accountName}}': node.name}) %}
+    {% endif %}
+    {% set accountOrdresTitle = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_ORDERS_ACCOUNT_NAME')]|replace({'{{accountName}}': node.name})%}
+    {% set accountRegisteredUserEditTitle = languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT')] ~ ' '~ node.name %}
     <div class="{{ nodeClasses }}"
          id="companyNode{{ node.id }}"
          data-node-id="{{ node.id }}"
@@ -206,21 +258,23 @@
                             <button type="button" class="action-dropdown-item"
                                     data-lc-event="click"
                                     data-lc-function="editAccount"
-                                    data-lc-data='{{ outputJsonHtmlString({accountName: node.name, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'>
+                                    data-lc-data='{{ outputJsonHtmlString({title: accountRegisteredUserEditTitle, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'>
                                 <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
                                 <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] }}</span>
                             </button>
                             <button type="button" class="action-dropdown-item"
                                     data-lc-event="click"
                                     data-lc-function="manageEmployees"
-                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'>
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#manageEmployeesModal"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id, title: accountRegisteredUserEditTitle}) }}'>
                                 <svg class="icon icon-employees"><use xlink:href="#icon-employees"></use></svg>
-                                <span>{%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}{%- else -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}{%- endif -%}</span>
+                                <span>{% if session.basket.account.isCompany %}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}{%- else -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}{%- endif -%}</span>
                             </button>
                             <button type="button" class="action-dropdown-item"
                                     data-lc-event="click"
                                     data-lc-function="viewOrders"
-                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'>
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id, title: accountOrdresTitle}) }}'>
                                 <svg class="icon icon-edit"><use xlink:href="#icon-orders"></use></svg>
                                 <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_ORDERS_ACCOUNTS')] }}</span>
                             </button>
@@ -244,16 +298,20 @@
                             <button type="button" class="action-dropdown-item"
                                     data-lc-event="click"
                                     data-lc-function="editAccount"
-                                    data-lc-data='{{ outputJsonHtmlString({accountName: node.name, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'>
+                                    data-bs-toggle="modal"
+                                    data-bs-target="editAccountFormModal"
+                                    data-lc-data='{{ outputJsonHtmlString({title: accountRegisteredUserEditTitle, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'>
                                 <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
                                 <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] }}</span>
                             </button>
                             <button type="button" class="action-dropdown-item"
                                     data-lc-event="click"
                                     data-lc-function="manageEmployees"
-                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'>
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#manageEmployeesModal"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id, title: accountRegisteredUserTitle}) }}'>
                                 <svg class="icon icon-employees"><use xlink:href="#icon-employees"></use></svg>
-                                <span>{%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}{%- else -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}{%- endif -%}</span>
+                                <span>{%- if session.basket.account.isCompany -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}{%- else -%}{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}{%- endif -%}</span>
                             </button>
                         {% endif %}
                     </div>
@@ -265,7 +323,7 @@
                             <button type="button" class="action-link action-edit"
                                     data-lc-event="click"
                                     data-lc-function="editAccount"
-                                    data-lc-data='{{ outputJsonHtmlString({accountName: node.name, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'
+                                    data-lc-data='{{ outputJsonHtmlString({title: accountRegisteredUserEditTitle, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'
                                     data-bs-toggle="tooltip"
                                     title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] }}">
                                 <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
@@ -274,23 +332,20 @@
                             <button type="button" class="action-link action-employees"
                                     data-lc-event="click"
                                     data-lc-function="manageEmployees"
-                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#manageEmployeesModal"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id, title: accountRegisteredUserTitle}) }}'
                                     data-bs-toggle="tooltip"
-                                    title="{%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}
-                                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}
-                                            {%- else -%}
-                                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}
-                                            {%- endif -%}
-                                        ">
+                                    title="{{accountRegisteredUserTitle}}">
                                 <svg class="icon icon-employees"><use xlink:href="#icon-employees"></use></svg>
                             </button>
                             <span class="action-separator">|</span>
                             <button type="button" class="action-link action-orders"
                                     data-lc-event="click"
                                     data-lc-function="viewOrders"
-                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id, title: accountOrdresTitle}) }}'
                                     data-bs-toggle="tooltip"
-                                    title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_ORDERS_ACCOUNTS')] }}">
+                                    title="{{accountOrdresTitle}}">
                                 <svg class="icon icon-edit"><use xlink:href="#icon-orders"></use></svg>
                             </button>
                             <span class="action-separator">|</span>
@@ -318,7 +373,7 @@
                             <button type="button" class="action-link action-edit"
                                     data-lc-event="click"
                                     data-lc-function="editAccount"
-                                    data-lc-data='{{ outputJsonHtmlString({accountName: node.name, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'
+                                    data-lc-data='{{ outputJsonHtmlString({title: accountRegisteredUserEditTitle, accountId: node.id, redirect: routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE'))}) }}'
                                     data-bs-toggle="tooltip"
                                     title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] }}">
                                 <svg class="icon icon-edit"><use xlink:href="#icon-pencil"></use></svg>
@@ -327,9 +382,11 @@
                             <button type="button" class="action-link action-employees"
                                     data-lc-event="click"
                                     data-lc-function="manageEmployees"
-                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id}) }}'
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#manageEmployeesModal"
+                                    data-lc-data='{{ outputJsonHtmlString({accountId: node.id, title: accountRegisteredUserTitle}) }}'
                                     data-bs-toggle="tooltip"
-                                    title="{%- if session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') or session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') -%}
+                                    title="{%- if session.basket.account.isCompany -%}
                                                 {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] }}
                                             {%- else -%}
                                                 {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER')] }}
