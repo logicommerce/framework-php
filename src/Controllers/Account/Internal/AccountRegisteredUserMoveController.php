@@ -4,21 +4,17 @@ namespace FWK\Controllers\Account\Internal;
 
 use FWK\Core\Controllers\BaseHtmlController;
 use FWK\Core\FilterInput\FilterInputFactory;
-use FWK\Core\FilterInput\FilterInputHandler;
 use FWK\Core\Form\FormFactory;
 use FWK\Core\Resources\Loader;
 use FWK\Enums\Parameters;
 use FWK\Enums\Services;
 use FWK\Services\AccountService;
 use SDK\Core\Resources\BatchRequests;
-use SDK\Dtos\Accounts\AccountEmployee;
 use SDK\Dtos\Common\Route;
 use SDK\Enums\AccountKey;
-use SDK\Services\Parameters\Groups\Account\CompanyStructureParametersGroup;
-use SDK\Services\Parameters\Groups\Account\RegisteredUserMoveParametersGroup;
 
 /**
- * This is the registered user update controller.
+ * This is the account registered user move controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

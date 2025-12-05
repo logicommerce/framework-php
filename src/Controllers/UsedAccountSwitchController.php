@@ -4,17 +4,14 @@ namespace FWK\Controllers;
 
 use FWK\Core\Controllers\BaseHtmlController;
 use SDK\Core\Resources\BatchRequests;
-use FWK\Core\FilterInput\FilterInputFactory;
-use FWK\Enums\Parameters;
 use FWK\Core\Resources\Loader;
 use FWK\Enums\Services;
 use FWK\Core\Form\FormFactory;
-use SDK\Core\Dtos\Error;
 use SDK\Dtos\Common\Route;
 use SDK\Services\Parameters\Groups\Account\RegisteredUsersMeAccountsParametersGroup;
 
 /**
- * This is the Change Password Anonymous controller class.
+ * This is the Used Account Switch controller class.
  * This class extends BaseHtmlController, see this class.
  *
  * @twigContent: \themes\{{themeName}}\{{version}}\Content\UsedAccountSwitch\default.html.twig
@@ -26,7 +23,6 @@ use SDK\Services\Parameters\Groups\Account\RegisteredUsersMeAccountsParametersGr
  * @package FWK\Controllers
  */
 class UsedAccountSwitchController extends BaseHtmlController {
-
     public const ACCOUNTS = "accounts";
 
     public const USED_ACCOUNT_SWITCH_FORM = "usedAccountSwitchForm";
@@ -51,11 +47,7 @@ class UsedAccountSwitchController extends BaseHtmlController {
      *            where the method will add the batch requests.
      */
     final protected function setControllerBaseBatchData(BatchRequests $requests): void {
-        $accounts = Loader::service(Services::ACCOUNT)->getRegisteredUsersMeAccounts($this->registeredUsersMeAccountsParametersGroup);
-        $this->setDataValue(self::CONTROLLER_ITEM, [
-            self::ACCOUNTS => $accounts,
-            self::USED_ACCOUNT_SWITCH_FORM => FormFactory::getUsedAccountSwitch($accounts)
-        ]);
+        Loader::service(Services::ACCOUNT)->addGetRegisteredUsersMeAccounts($requests, self::ACCOUNTS, $this->registeredUsersMeAccountsParametersGroup);
     }
 
     /**
@@ -69,6 +61,21 @@ class UsedAccountSwitchController extends BaseHtmlController {
     protected function setBatchData(BatchRequests $request): void {
     }
 
+    /**
+     * This method runs after the batch requests (defined in the setBatchData methods) are resolved,
+     * so here you can work with the response of the batch requests and calculate and set more needed data.
+     *
+     * @param array $additionalData
+     *              Set additiona data to the controller data
+     * 
+     * @return void
+     */
+    protected function setControllerBaseData(): void {
+        $this->setDataValue(self::CONTROLLER_ITEM, [
+            self::ACCOUNTS => $this->getControllerData(self::ACCOUNTS),
+            self::USED_ACCOUNT_SWITCH_FORM => FormFactory::getUsedAccountSwitch($this->getControllerData(self::ACCOUNTS), $this->getSession()?->getUser()?->getId())
+        ]);
+    }
     /**
      * This method runs after the batch requests (defined in the setBatchData methods) are resolved,
      * so here you can work with the response of the batch requests and calculate and set more needed data.

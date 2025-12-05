@@ -5,7 +5,6 @@ namespace FWK\Core\Theme\Dtos;
 use FWK\Core\Theme\Dtos\Traits\FiltrableFormFieldsTrait;
 use SDK\Core\Dtos\Element;
 use SDK\Core\Dtos\Traits\ElementTrait;
-use FWK\Enums\Parameters;
 
 /**
  * This is the 'FormAccountTabPaneField' class, a DTO class for the account tab pane configuration data.
@@ -24,9 +23,9 @@ use FWK\Enums\Parameters;
 class FormAccountTabPaneField extends Element {
     use ElementTrait, FiltrableFormFieldsTrait;
 
-    public const INCLUDED = "INCLUDED";
+    public const INCLUDED = "included";
 
-    private bool $included = true;
+    protected bool $included = true;
 
     /**
      * This method returns if the field is included. 

@@ -130,7 +130,9 @@ abstract class Element {
                 $strAttributes .= ' ' . 'data-lc' . "='" . $attributeValue . "'";
             } elseif (is_bool($attributeValue) && $attributeValue) {
                 $strAttributes .= ' ' . $property;
-            } elseif ((is_string($attributeValue) && strlen($attributeValue)) || (is_numeric($attributeValue) && ($attributeValue >= 0 && ($property != 'step' && $attributeValue != 0))) || ($property === 'step' && $attributeValue != 0)) {
+            } elseif ($property === 'step' && ($attributeValue !== 0 && $attributeValue !== '0' && strlen((string)$attributeValue) > 0)) {
+                $strAttributes .= ' ' . $property . '="' . str_replace('"', '\"', $attributeValue) . '"';
+            } elseif ((is_string($attributeValue) && strlen($attributeValue)) || (is_numeric($attributeValue) && $attributeValue > 0)) {
                 if ($property === 'class') {
                     $attributeValue = trim($attributeValue . ' ' . $this->getElementClassFromTc());
                 }

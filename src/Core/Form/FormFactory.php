@@ -816,7 +816,22 @@ abstract class FormFactory {
         return (new FormItem($inputName, $inputElement));
     }
 
-    private static function accountFields(string $field, FormField $formField, ?Account $account = null, ?AccountAddress $address = null, string $namePrefix = '', RegisteredUser|RegisteredUserSimpleProfile $registeredUser = null, ?MasterVal $masterVal = null, ?CustomCompanyRole $customCompanyRole = null, array $companyRoles = [], string $rolesFilter = CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER, string $paramsPrefix = "", bool $required = false, bool $disabled = false): ?FormItem {
+    private static function accountFields(
+        string $field,
+        FormField $formField,
+        ?Account $account = null,
+        ?AccountAddress $address = null,
+        string $namePrefix = '',
+        RegisteredUser|RegisteredUserSimpleProfile $registeredUser = null,
+        ?MasterVal $masterVal = null,
+        ?CustomCompanyRole $customCompanyRole = null,
+        array $companyRoles = [],
+        string $rolesFilter = CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER,
+        string $paramsPrefix = "",
+        bool $required = false,
+        bool $disabled = false,
+        bool $isCreateField = false,
+    ): ?FormItem {
         $languageSheet = self::getLanguage();
         $labels = $languageSheet->getLabels();
         $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
@@ -837,9 +852,12 @@ abstract class FormFactory {
         }
 
         if (
-            ($userKeyCriteria == UserKeyCriteria::EMAIL and $field == FormRegisteredUserFields::REGISTERED_USER_EMAIL) or
-            ($userKeyCriteria == UserKeyCriteria::PID and $field == FormRegisteredUserFields::REGISTERED_USER_P_ID) or
-            ($userKeyCriteria == UserKeyCriteria::USERNAME and $field == FormRegisteredUserFields::REGISTERED_USER_USERNAME)
+            $isCreateField == false and
+            (
+                ($userKeyCriteria == UserKeyCriteria::EMAIL and $field == FormRegisteredUserFields::REGISTERED_USER_EMAIL) or
+                ($userKeyCriteria == UserKeyCriteria::PID and $field == FormRegisteredUserFields::REGISTERED_USER_P_ID) or
+                ($userKeyCriteria == UserKeyCriteria::USERNAME and $field == FormRegisteredUserFields::REGISTERED_USER_USERNAME)
+            )
         ) {
             $required = true;
             $disabled = true;
@@ -2605,7 +2623,7 @@ abstract class FormFactory {
         $fields = self::getConfiguration()->getForms()->getAccount()->getMaster()->getRegisteredUser()->getFields()->getSortFilterArrayFormFields();
 
         foreach ($fields as $field => $formField) {
-            $formItem = self::accountFields($field, $formField, null, null, '', null, null, null, $companyRoles, $rolesFilter);
+            $formItem = self::accountFields($field, $formField, null, null, '', null, null, null, $companyRoles, $rolesFilter, "", false, false, true);
             if (!is_null($formItem)) {
                 $formItems[] = $formItem;
             }
@@ -3035,7 +3053,7 @@ abstract class FormFactory {
         }
 
         $showAddressBook = self::getConfiguration()->getForms()->getAccount()->getAddressBook()?->getIncluded() ?? false;
-        if ($showAddressBook) {
+        if ($showAddressBook and $account?->isCompany() ?? false) {
             $formItems[] = new FormItem(Parameters::ADDRESS_BOOK, new InputHidden(''));
         }
 

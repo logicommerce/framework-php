@@ -11,7 +11,7 @@ use FWK\Enums\Services;
 use FWK\Services\AccountService;
 
 /**
- * This is the account company structure controller.
+ * This is the registered user controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

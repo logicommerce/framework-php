@@ -7,7 +7,7 @@ use SDK\Core\Resources\BatchRequests;
 use SDK\Dtos\Common\Route;
 
 /**
- * This is the user orders controller.
+ * This is the registered user sales agent controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

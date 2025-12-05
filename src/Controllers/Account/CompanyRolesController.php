@@ -13,11 +13,10 @@ use FWK\Enums\Services;
 use FWK\Services\AccountService;
 use SDK\Core\Resources\BatchRequests;
 use SDK\Dtos\Common\Route;
-use SDK\Enums\AccountKey;
 use SDK\Services\Parameters\Groups\Account\CompanyRolesParametersGroup;
 
 /**
- * This is the account company structure controller.
+ * This is the company roles controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

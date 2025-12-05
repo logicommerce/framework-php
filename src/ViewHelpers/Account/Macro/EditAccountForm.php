@@ -6,30 +6,47 @@ use FWK\Core\Exceptions\CommerceException;
 use FWK\Core\Form\Form;
 use FWK\Core\ViewHelpers\ViewHelper;
 use SDK\Core\Dtos\ElementCollection;
-use SDK\Dtos\Accounts\MasterVal;
+use SDK\Dtos\Accounts\Account;
+use SDK\Enums\AccountKey;
 
 /**
- * This is the RegisteredUserUpdateForm class, a macro class for the accountViewHelper.
- * The purpose of this class is to encapsulate the logic to show customers form from a sales agent.
+ * This is the EditAccountForm class, a macro class for the account view helper.
+ * Encapsulates the logic to render a form used to edit an account.
  *
- * @see Orders::getViewParameters()
- * 
+ * @see EditAccountForm::getViewParameters()
+ *
  * @package FWK\ViewHelpers\Account\Macro
  */
-class RegisteredUserUpdateForm {
+class EditAccountForm {
+
     public ?Form $form = null;
-    public ?MasterVal $registeredUser = null;
-    public ?ElementCollection $currencies = null;
+
+    public ?Account $account = null;
+
+    public string $accountName = '';
+
+    public ?ElementCollection $invoicingAddresses = null;
+
+    public ?ElementCollection $shippingAddresses = null;
+
+    /**@deprecated*/
+    public string $accountId = AccountKey::USED;
+
+    public array $permissions = [];
+
+    public string $errorMessage = '';
+
     /**
-     * Constructor method for RegisteredUserUpdateForm.
+     * Constructor method for RegisteredUserCreateForm.
      *
-     * @see RegisteredUserUpdateForm
+     * @see RegisteredUserCreateForm
      *
      * @param array $arguments
      */
     public function __construct(array $arguments) {
         ViewHelper::mergeArguments($this, $arguments);
     }
+
     /**
      * This method returns all calculated arguments and new parameters for AccountViewHelper.php
      *
@@ -48,9 +65,13 @@ class RegisteredUserUpdateForm {
      */
     protected function getProperties(): array {
         return [
-            'registeredUser' => $this->registeredUser,
             'form' => $this->form,
-            'currencies' => $this->currencies
+            'account' => $this->account,
+            'accountName' => $this->accountName,
+            'invoicingAddresses' => $this->invoicingAddresses,
+            'shippingAddresses' => $this->shippingAddresses,
+            'permissions' => $this->permissions,
+            'errorMessage' => $this->errorMessage,
         ];
     }
 }

@@ -13,7 +13,7 @@ use SDK\Dtos\Accounts\Master;
  *
  * @see Orders::getViewParameters()
  * 
- * @package FWK\ViewHelpers\User\Macro
+ * @package FWK\ViewHelpers\Account\Macro
  */
 class RegisteredUserMoveForm {
     public ?Form $form = null;

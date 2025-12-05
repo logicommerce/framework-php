@@ -23,6 +23,14 @@ use SDK\Services\Parameters\Groups\Account\RegisteredUserParametersGroup;
 use SDK\Services\Parameters\Groups\Account\Addresses\AccountInvoicingAddressParametersGroup;
 use SDK\Services\Parameters\Groups\LocationParametersGroup;
 
+/**
+ * This is the set company division controller.
+ * This class extends BaseJsonController (FWK\Core\Controllers\BaseJsonController), see this class.
+ * 
+ * @see BaseJsonController
+ * 
+ * @package FWK\Controllers\Account\Internal
+ */
 class SetCompanyDivisionController extends BaseJsonController {
 
     protected ?AccountService $accountService = null;

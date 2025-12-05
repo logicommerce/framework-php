@@ -22,7 +22,7 @@ use SDK\Enums\AccountType;
 use SDK\Services\Parameters\Groups\Account\DeleteAccountParametersGroup;
 
 /**
- * This is the DeleteAccountController controller class.
+ * This is the delete account controller.
  * This class extends FWK\Core\Controllers\BaseJsonController, see this class.
  *
  * @see BaseJsonController

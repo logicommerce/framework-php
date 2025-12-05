@@ -10,7 +10,6 @@ use FWK\Core\Controllers\BaseJsonController;
 use FWK\Core\FilterInput\FilterInputFactory;
 use FWK\Core\FilterInput\FilterInputHandler;
 use FWK\Core\Form\FormFactory;
-use FWK\Core\Resources\Language;
 use FWK\Core\Resources\Route;
 use FWK\Core\Resources\RoutePaths;
 use FWK\Core\Resources\Utils;
@@ -24,7 +23,7 @@ use SDK\Services\Parameters\Groups\Account\CompanyRolePermissionsValuesParameter
 use SDK\Services\Parameters\Groups\Account\UpdateCompanyRoleParametersGroup;
 
 /**
- * This is the LogoutSimulationController controller class.
+ * This is the save company role controller.
  * This class extends FWK\Core\Controllers\BaseJsonController, see this class.
  *
  * @see BaseJsonController

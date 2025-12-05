@@ -4,41 +4,40 @@ namespace FWK\ViewHelpers\Account\Macro;
 
 use FWK\Core\ViewHelpers\ViewHelper;
 use SDK\Core\Dtos\ElementCollection;
-use FWK\Core\Form\Form;
 
 /**
- * This is the companyRoles class, a macro class for the accountViewHelper.
- * The purpose of this class is to encapsulate the logic to show customers from a sales agent.
+ * This is the CompanyRoles class, a macro class for the account view helper.
+ * The purpose of this class is to encapsulate the logic that manages company roles and their associated actions.
  *
- * @see Orders::getViewParameters()
- * 
+ * @see CompanyRoles::getViewParameters()
+ *
  * @package FWK\ViewHelpers\Account\Macro
  */
 class CompanyRoles {
     public const NAME = 'name';
     public const DESCRIPTION = 'description';
     public const TARGET = 'target';
-	public const TARGET_DEFAULT = 'targetDefault';
-	public const EMPLOYEES_QUANTITY = 'employeesQuantity';
+    public const TARGET_DEFAULT = 'targetDefault';
+    public const EMPLOYEES_QUANTITY = 'employeesQuantity';
     public const ACTIONS = 'action';
     public const COMPANY_ROLES_PARAMETERS = [
         self::NAME,
-		self::DESCRIPTION,
-		self::TARGET,
-		self::TARGET_DEFAULT,
-		self::EMPLOYEES_QUANTITY,
-		self::ACTIONS,
+        self::DESCRIPTION,
+        self::TARGET,
+        self::TARGET_DEFAULT,
+        self::EMPLOYEES_QUANTITY,
+        self::ACTIONS,
     ];
     public const ACTION_COMPANY_ROLES_ADD = 'actionCompanyRolesAdd';
     public const ACTION_COMPANY_ROLES_EDIT = 'actionCompanyRolesEdit';
     public const ACTION_COMPANY_ROLES_DUPLICATE = 'actionCompanyRolesDuplicate';
     public const ACTION_COMPANY_ROLES_DELETE = 'actionCompanyRolesDelete';
     public array $availableActions = [
-		self::ACTION_COMPANY_ROLES_ADD,
-		self::ACTION_COMPANY_ROLES_EDIT,
-		self::ACTION_COMPANY_ROLES_DUPLICATE,
-		self::ACTION_COMPANY_ROLES_DELETE
-	];
+        self::ACTION_COMPANY_ROLES_ADD,
+        self::ACTION_COMPANY_ROLES_EDIT,
+        self::ACTION_COMPANY_ROLES_DUPLICATE,
+        self::ACTION_COMPANY_ROLES_DELETE
+    ];
     public ?ElementCollection $companyRoles = null;
     public array $parameters = [];
     public string $errorMessage = '';
@@ -66,7 +65,7 @@ class CompanyRoles {
      * @return array
      */
     protected function getProperties(): array {
-        
+
         return [
             'companyRoles' => $this->companyRoles,
             'parameters' => $this->parameters,

@@ -15,7 +15,7 @@ use SDK\Enums\UserKeyCriteria;
 use SDK\Services\Parameters\Groups\Account\RegisteredUserExistsParametersGroup;
 
 /**
- * This is the registered user exists controller.
+ * This is the get registered user exists controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController
@@ -63,7 +63,6 @@ class GetRegisteredUserExistsController extends BaseJsonController {
         $q = $this->getRequestParam(Parameters::Q, false, '');
         if ($this->getRequestParam(Parameters::REGISTERED_USER_SEARCH_TYPE, false, '') == UserKeyCriteria::USERNAME) {
             $this->userKeyCriteria = UserKeyCriteria::USERNAME;
-        
         }
         switch ($this->userKeyCriteria) {
             case UserKeyCriteria::PID:

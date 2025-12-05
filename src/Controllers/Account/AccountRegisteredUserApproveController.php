@@ -16,7 +16,7 @@ use SDK\Dtos\Common\Route;
 use SDK\Services\Parameters\Groups\Account\AccountRegisteredUsersPendingApprovalParametersGroup;
 
 /**
- * This is the AccountRegisteredUserApproveController class.
+ * This is the account registered user approve controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

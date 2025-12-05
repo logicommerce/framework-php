@@ -7,8 +7,10 @@ use FWK\Services\LmsService;
 use SDK\Dtos\Accounts\MasterVal;
 
 /**
- * This is the RegisteredUserApproveForm class, a macro class for the accountViewHelper.
- * It encapsulates the logic to render a form used to approve a registered user.
+ * This is the ApproveRegisteredUser class, a macro class for the account view helper.
+ * The purpose of this class is to encapsulate the logic that handles the approval of a registered user.
+ *
+ * @see ApproveRegisteredUser::getViewParameters()
  *
  * @package FWK\ViewHelpers\Account\Macro
  */

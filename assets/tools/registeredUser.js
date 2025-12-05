@@ -272,6 +272,23 @@ function accountOrdresReloadResults(urlPath) {
     }
 }
 
+function companyRolesReloadResults(urlPath) {
+    var $content = $('#companyRolesReload');
+    if ($content.length === 0) {
+        window.location.href = urlPath;
+    } else {
+        $content.html(DEFAULT_LOADING_SPINNER);
+        $("#companyRolesLoadUrl").val(urlPath);
+        $content.load(urlPath + ' #companyRolesReload > *', function (response, status) {
+            if ($("body.lcContent-accountCompanyRoles").length > 0) {
+                history.pushState({ url: urlPath }, '', urlPath);
+            }
+            $content.find('.lc-companyRolesModal').remove();
+            $content.find('[data-lc-event]').dataEvent();
+        });
+    }
+}
+
 function closeRegisteredUserModalAndReload($modalClose) {
     $modalClose.click();
     var newUrl = $("#accountRegisteredUsersLoadUrl").val();
@@ -282,4 +299,10 @@ function closeAccountOrdresReloadResults($modalClose) {
     $modalClose.click();
     var newUrl = $("#accountOrdersLoadUrl").val();
     accountOrdresReloadResults(newUrl);
+}
+
+function closeCompanyRolesReloadResults($modalClose) {
+    $modalClose.click();
+    var newUrl = $("#companyRolesLoadUrl").val();
+    companyRolesReloadResults(newUrl);
 }

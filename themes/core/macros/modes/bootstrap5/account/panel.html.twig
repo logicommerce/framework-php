@@ -120,8 +120,8 @@
                                 {%- set itemRouteType = constant('SDK\\Enums\\RouteType::ACCOUNT_VOUCHER_CODES') -%}
                             {%- elseif item == 'usedAccountSwitch' -%}
                                 {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::USED_ACCOUNT_SWITCH')] -%}
-                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteTypes\\InternalAccount::USED_ACCOUNT_SWITCH')) -%}
-                                {%- set itemRouteType = constant('FWK\\Enums\\RouteTypes\\InternalAccount::USED_ACCOUNT_SWITCH') -%}
+                                {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::USED_ACCOUNT_SWITCH')) -%}
+                                {%- set itemRouteType = constant('FWK\\Enums\\RouteType::USED_ACCOUNT_SWITCH') -%}
                             {%- endif -%}
                             {%- if args.icons|length and args.icons[item] -%}
                                 {%- set icon = args.icons[item] -%}

@@ -14,14 +14,13 @@ use FWK\Enums\Parameters;
 use FWK\Enums\RouteType;
 use FWK\Enums\Services;
 use FWK\Services\AccountService;
-use FWK\ViewHelpers\Account\Macro\RegisteredUserUpdateForm;
 use SDK\Core\Dtos\Element;
 use SDK\Core\Resources\BatchRequests;
 use SDK\Dtos\Common\Route;
 use SDK\Services\Parameters\Groups\Account\UpdateRegisteredUserParametersGroup;
 
 /**
- * This is the create registered user controller.
+ * This is the update registered user controller.
  * This class extends BaseJsonController (FWK\Core\Controllers\BaseJsonController), see this class.
  *
  * @see BaseJsonController

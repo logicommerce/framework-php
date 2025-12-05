@@ -3,6 +3,11 @@
 	"require" : {
 		"twig/twig" : "3.5.0"
 	},
+	"config": {
+		"audit": {
+			"block-insecure": false
+		}
+	},
 	"homepage" : "https://www.logicommerce.com",
 	"minimum-stability" : "stable",
 	"type" : "project",

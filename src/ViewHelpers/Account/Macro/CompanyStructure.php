@@ -2,7 +2,6 @@
 
 namespace FWK\ViewHelpers\Account\Macro;
 
-use FWK\Core\ViewHelpers\ViewHelper;
 use SDK\Core\Dtos\ElementCollection;
 use SDK\Dtos\Accounts\CompanyStructureTreeNode;
 
@@ -15,35 +14,35 @@ use SDK\Dtos\Accounts\CompanyStructureTreeNode;
  * @package FWK\ViewHelpers\Account\Macro
  */
 class CompanyStructure {
-    
+
     public const COMPANY_TREE = 'companyTree';
     public const CURRENT_USER = 'currentUser';
     public const PERMISSIONS = 'permissions';
-    
+
     public const COMPANY_STRUCTURE_PARAMETERS = [
         self::COMPANY_TREE,
         self::CURRENT_USER,
         self::PERMISSIONS,
     ];
-    
+
     public const ACTION_EDIT = 'actionEdit';
     public const ACTION_EMPLOYEES = 'actionEmployees';
     public const ACTION_ORDERS = 'actionOrders';
     public const ACTION_ADD_DIVISION = 'actionAddDivision';
     public const ACTION_DELETE = 'actionDelete';
-    
+
     public array $availableActions = [
-        self::ACTION_EDIT, 
-        self::ACTION_EMPLOYEES, 
-        self::ACTION_ORDERS, 
-        self::ACTION_ADD_DIVISION, 
+        self::ACTION_EDIT,
+        self::ACTION_EMPLOYEES,
+        self::ACTION_ORDERS,
+        self::ACTION_ADD_DIVISION,
         self::ACTION_DELETE
     ];
-    
+
     public ElementCollection|CompanyStructureTreeNode|null $companyStructure = null;
     public $currentUser = null;
     public array $permissions = [];
-    
+
     /**
      * Constructor.
      */
@@ -51,7 +50,7 @@ class CompanyStructure {
         $this->companyStructure = null;
         $this->permissions = [];
     }
-    
+
     /**
      * Get view parameters for the company structure macro
      *
@@ -67,7 +66,7 @@ class CompanyStructure {
             'parameters' => $parameters
         ];
     }
-    
+
     /**
      * Set company structure data
      *
@@ -78,7 +77,7 @@ class CompanyStructure {
         $this->companyStructure = $companyStructure;
         return $this;
     }
-    
+
     /**
      * Set current user data
      *
@@ -89,7 +88,7 @@ class CompanyStructure {
         $this->currentUser = $currentUser;
         return $this;
     }
-    
+
     /**
      * Set permissions
      *

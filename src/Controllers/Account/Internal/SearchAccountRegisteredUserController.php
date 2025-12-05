@@ -20,8 +20,8 @@ use SDK\Enums\UserKeyCriteria;
 use SDK\Services\Parameters\Groups\Account\SearchAccountRegisteredUserParametersGroup;
 
 /**
- * This is the SearchAccountRegisteredUserController class.
- * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
+ * This is the search account registered user controller.
+ * This class extends BaseJsonController (FWK\Core\Controllers\BaseJsonController), see this class.
  *
  * @see BaseHtmlController
  *

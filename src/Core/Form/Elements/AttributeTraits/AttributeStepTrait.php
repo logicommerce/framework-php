@@ -14,16 +14,16 @@ namespace FWK\Core\Form\Elements\AttributeTraits;
  */
 trait AttributeStepTrait {
 
-    protected int $step = 0;
-    
+    protected string|int $step = 0;
+
     /**
      * This method sets the 'step' attribute with the given value and returns self.
      * 
-     * @param int $step
+     * @param string|int $step
      * 
      * @return self
      */
-    public function setStep(int $step): self {
+    public function setStep(string|int $step): self {
         $this->step = $step;
         return $this;
     }
@@ -31,9 +31,9 @@ trait AttributeStepTrait {
     /**
      * This method returns the current value of the 'step' attribute.
      * 
-     * @return int
+     * @return string|int
      */
-    public function getStep(): int {
+    public function getStep(): string|int {
         return $this->step;
     }
 }

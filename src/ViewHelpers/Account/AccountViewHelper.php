@@ -17,30 +17,43 @@ use FWK\ViewHelpers\Account\Macro\UsedAccountSwitch;
 use FWK\ViewHelpers\Account\Macro\AccountOrders;
 use FWK\ViewHelpers\Account\Macro\ApproveRegisteredUser;
 use FWK\ViewHelpers\Account\Macro\CompanyRoles;
+use FWK\ViewHelpers\Account\Macro\CompanyRolesFilter;
 use FWK\ViewHelpers\Account\Macro\OrdersForm;
 use FWK\ViewHelpers\Account\Macro\CompanyStructure;
+use FWK\ViewHelpers\Account\Macro\EditAccountForm;
 use FWK\ViewHelpers\Account\Macro\Panel;
 use FWK\ViewHelpers\Account\Macro\RegisteredUserApproveForm;
-use FWK\ViewHelpers\User\Macro\Orders;
+use FWK\ViewHelpers\Account\Macro\RegisteredUserForm;
+use FWK\ViewHelpers\Account\Macro\RegisteredUserSelector;
 
 /**
  * This is the AccountViewHelper class.
- * The purpose of this class is to facilitate to Twig the generation of the account's view output (providing some useful methods).
- * <br>This class extends ViewHelper, see this class.
+ * The purpose of this class is to facilitate the generation of account-related view output for Twig, providing several useful methods to render different account-related components.
+ * <br>This class extends the ViewHelper class, see ViewHelper for more details.
  *
  * @see ViewHelper
- *
+ * 
+ * The following macros are available in this class:
+ * 
  * @see AccountViewHelper::customerOrdersMacro()
  * @see AccountViewHelper::registeredUsersFormMacro()
  * @see AccountViewHelper::registeredUsersMacro()
  * @see AccountViewHelper::registeredUserCreateFormMacro()
+ * @see AccountViewHelper::registeredUserFormMacro()
  * @see AccountViewHelper::registeredUserMoveFormMacro()
+ * @see AccountViewHelper::registeredUserSelectorMacro()
  * @see AccountViewHelper::registeredUserUpdateFormMacro()
  * @see AccountViewHelper::salesAgentCustomersMacro()
  * @see AccountViewHelper::salesAgentCustomersFormMacro()
  * @see AccountViewHelper::salesAgentSalesMacro()
  * @see AccountViewHelper::salesAgentSalesFormMacro()
-
+ * @see AccountViewHelper::usedAccountSwitchMacro()
+ * @see AccountViewHelper::accountOrdersMacro()
+ * @see AccountViewHelper::ordersFormMacro()
+ * @see AccountViewHelper::companyStructureMacro()
+ * @see AccountViewHelper::panelMacro()
+ * @see AccountViewHelper::registeredUserApproveFormMacro()
+ * @see AccountViewHelper::approveRegisteredUserMacro()
  *
  * @package FWK\ViewHelpers\Account
  */
@@ -132,6 +145,23 @@ class AccountViewHelper extends ViewHelper {
     }
 
     /**
+     * This method merges the given arguments, calculates and returns the view parameters for the registeredUserSelectorMacro.
+     * The array keys of the returned parameters are:
+     * <ul>
+     * <li>items</li>
+     * </ul>
+     *
+     * @param array $arguments
+     *            Twig macro arguments
+     *            
+     * @return array
+     */
+    public function registeredUserSelectorMacro(array $arguments = []): array {
+        $registeredUserSelector = new RegisteredUserSelector($arguments);
+        return $registeredUserSelector->getViewParameters();
+    }
+
+    /**
      * This method merges the given arguments, calculates and returns the view parameters for the registeredUserUpdateFormMacro.
      * The array keys of the returned parameters are:
      * <ul>
@@ -165,6 +195,22 @@ class AccountViewHelper extends ViewHelper {
         return $registeredUserCreateForm->getViewParameters();
     }
 
+    /**
+     * This method merges the given arguments, calculates and returns the view parameters for the registeredUserFormMacro.
+     * The array keys of the returned parameters are:
+     * <ul>
+     * <li>items</li>
+     * </ul>
+     *
+     * @param array $arguments
+     *            Twig macro arguments
+     *            
+     * @return array
+     */
+    public function registeredUserFormMacro(array $arguments = []): array {
+        $registeredUserForm = new RegisteredUserForm($arguments);
+        return $registeredUserForm->getViewParameters();
+    }
 
     /**
      * This method merges the given arguments, calculates and returns the view parameters for the salesAgentCustomersMacro.
@@ -353,5 +399,43 @@ class AccountViewHelper extends ViewHelper {
     public function approveRegisteredUserMacro(array $arguments = []): array {
         $approveRegisteredUser = new ApproveRegisteredUser($arguments);
         return $approveRegisteredUser->getViewParameters();
+    }
+
+    /**
+     * This method merges the given arguments, calculates and returns the view parameters for the companyRolesFilterMacro.
+     * The purpose of this macro is to encapsulate the logic to show a form used to filter company roles.
+     * <br>
+     * The array keys of the returned parameters are:
+     * <ul>
+     * <li>companyRolesFilter</li>
+     * </ul>
+     *
+     * @param array $arguments
+     *            Twig macro arguments
+     *            
+     * @return array
+     */
+    public function companyRolesFilterMacro(array $arguments = []): array {
+        $companyRolesFilter = new CompanyRolesFilter($arguments);
+        return $companyRolesFilter->getViewParameters();
+    }
+
+    /**
+     * This method merges the given arguments, calculates and returns the view parameters for the editAccountFormMacro.
+     * The purpose of this macro is to encapsulate the logic to show a form used to edit an account.
+     * <br>
+     * The array keys of the returned parameters are:
+     * <ul>
+     * <li>editAccountForm</li>
+     * </ul>
+     *
+     * @param array $arguments
+     *            Twig macro arguments
+     *            
+     * @return array
+     */
+    public function editAccountFormMacro(array $arguments = []): array {
+        $editAccountForm = new EditAccountForm($arguments);
+        return $editAccountForm->getViewParameters();
     }
 }

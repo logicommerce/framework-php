@@ -34,6 +34,8 @@ final class Response {
 
     public const TYPE_JSON = 'json';
 
+    public const TYPE_JSONL = 'jsonl';
+
     public const TYPE_JSONP = 'jsonp';
 
     public const TYPE_PDF = 'pdf';
@@ -51,6 +53,8 @@ final class Response {
     public const MIME_TYPE_CSV = 'text/csv';
 
     public const MIME_TYPE_JSON = 'application/json';
+
+    public const MIME_TYPE_JSONL = 'application/x-ndjson';
 
     public const MIME_TYPE_TEXT = 'text/plain';
 

@@ -14,7 +14,7 @@ use SDK\Core\Resources\BatchRequests;
 
 /**
  * This is the used account controller.
- * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
+ * This class extends BaseJsonController (FWK\Core\Controllers\BaseJsonController), see this class.
  *
  * @see BaseHtmlController
  *

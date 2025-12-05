@@ -7,11 +7,11 @@ use FWK\Core\Form\Form;
 use FWK\Core\ViewHelpers\ViewHelper;
 
 /**
- * This is the RegisteredUsersForm class, a macro class for the accountViewHelper.
- * The purpose of this class is to encapsulate the logic to show customers form from a sales agent.
+ * This is the CompanyRolesFilter class, a macro class for the account view helper.
+ * The purpose of this class is to encapsulate the logic that filters company roles based on the provided parameters.
  *
- * @see Orders::getViewParameters()
- * 
+ * @see CompanyRolesFilter::getViewParameters()
+ *
  * @package FWK\ViewHelpers\Account\Macro
  */
 class CompanyRolesFilter {

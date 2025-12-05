@@ -3,6 +3,7 @@
 namespace FWK\Core\Resources;
 
 use FWK\Enums\RouteItems;
+use FWK\Enums\Services;
 use SDK\Application;
 use SDK\Core\Resources\Environment;
 
@@ -82,6 +83,9 @@ class Language {
         } elseif ($language != self::$language) {
             self::resetInstance();
             self::getInstance($language);
+            if (!empty(Session::getInstance()->getBasket()->getItems())) {
+                Loader::service(Services::BASKET)->recalculate();
+            }
         }
         return self::$instance;
     }

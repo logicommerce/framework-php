@@ -7,6 +7,7 @@ use FWK\Core\Form\Form;
 use FWK\Core\ViewHelpers\ViewHelper;
 use FWK\Services\LmsService;
 use SDK\Dtos\Settings\CountrySettings;
+use SDK\Enums\AccountKey;
 
 /**
  * This is the RegisteredUserCreateForm class, a macro class for the accountViewHelper.
@@ -14,7 +15,7 @@ use SDK\Dtos\Settings\CountrySettings;
  *
  * @see Orders::getViewParameters()
  * 
- * @package FWK\ViewHelpers\User\Macro
+ * @package FWK\ViewHelpers\Account\Macro
  */
 class RegisteredUserCreateForm {
 
@@ -32,7 +33,7 @@ class RegisteredUserCreateForm {
 
     public string $locationMode = '';
 
-    public string $accountId = '';
+    public string $accountId = AccountKey::USED;
 
 
     /**

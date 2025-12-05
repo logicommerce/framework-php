@@ -19,7 +19,7 @@ use SDK\Enums\SessionType;
 use SDK\Services\Parameters\Groups\Account\CompanyRolesParametersGroup;
 
 /**
- * This is the account company structure controller.
+ * This is the account controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

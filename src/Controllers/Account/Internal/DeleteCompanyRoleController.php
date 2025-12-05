@@ -9,18 +9,14 @@ use SDK\Core\Resources\BatchRequests;
 use FWK\Core\Controllers\BaseJsonController;
 use FWK\Core\FilterInput\FilterInputFactory;
 use FWK\Core\FilterInput\FilterInputHandler;
-use FWK\Core\Form\FormFactory;
 use FWK\Core\Resources\Route;
 use FWK\Core\Resources\RoutePaths;
 use FWK\Enums\Parameters;
 use FWK\Enums\RouteType;
 use FWK\Services\AccountService;
-use SDK\Services\Parameters\Groups\Account\AddCompanyRoleParametersGroup;
-use SDK\Services\Parameters\Groups\Account\CompanyRolePermissionsValuesParametersGroup;
-use SDK\Services\Parameters\Groups\Account\UpdateCompanyRoleParametersGroup;
 
 /**
- * This is the LogoutSimulationController controller class.
+ * This is the delete company role controller.
  * This class extends FWK\Core\Controllers\BaseJsonController, see this class.
  *
  * @see BaseJsonController
@@ -49,7 +45,7 @@ class DeleteCompanyRoleController extends BaseJsonController {
      */
     protected function getResponseData(): ?Element {
         $roleId = $this->getRequestParam(Parameters::ID, true);
-		return $this->accountService->deleteCompanyRole($roleId);
+        return $this->accountService->deleteCompanyRole($roleId);
     }
 
     protected function parseResponseData(Element $registeredUser) {

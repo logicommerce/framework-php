@@ -1477,7 +1477,7 @@ LC.dataEvents.accountSalesAgentSales = function (event) {
 
 LC.dataEvents.usedAccountSwitch = function (event) {
     event.preventDefault();
-    var url = `${LC.global.routePaths.ACCOUNT_INTERNAL_USED_ACCOUNT_SWITCH}`;
+    var url = `${LC.global.routePaths.USED_ACCOUNT_SWITCH}`;
     var popup = $('#usedAccountSwitch').html(DEFAULT_LOADING_SPINNER);
 
     $().ready(function () {
@@ -2934,6 +2934,17 @@ LC.dataEvents.accountRegisteredUsersLink = function (event) {
     accountRegisteredUsersReloadResults(baseUrl + params);
 }
 
+LC.dataEvents.accountCompanyRoles = function (event) {
+    event.preventDefault();
+    var loadUrl = $("#companyRolesLoadUrl").val();
+    var url = new URL(loadUrl);
+    var baseUrl = url.origin + url.pathname;
+
+    var $link = $(event.currentTarget);
+    var params = $link.attr('href');
+    companyRolesReloadResults(baseUrl + params);
+}
+
 LC.dataEvents.registeredUsersAdd = function (event) {
     event.preventDefault();
     var modalContent = $('#registeredUsersCreateContent').html(DEFAULT_LOADING_SPINNER);
@@ -3177,8 +3188,70 @@ LC.dataEvents.duplicateCompanyRole = function (event) {
     });
 };
 
-LC.dataEvents.deleteRoleEvents = function (arg) {
-    if (arg?.preventDefault) arg.preventDefault();
+LC.dataEvents.deleteRoleEvents = function (event) {
+    var data = $(event.currentTarget).data('lc-data');
+    var $confirm = $('#deleteCompanyRolesButtonConfirm');
+    $confirm.data('delete-payload', { data: data });
+    $confirm.off('click').one('click', function (e) {
+        event.preventDefault();
+        var stored = $(this).data('delete-payload') || {};
+        var data = stored.data || {};
+        var roleId = data.roleId;
+        var roleName = data.roleName;
+        if (!roleId) {
+            LC.notify('Invalid role ID', { type: 'danger' });
+            return;
+        }
+
+        // Deshabilitar el botón y mostrar indicador de carga
+        var $button = $(event.currentTarget);
+        $button.attr('disabled', true);
+
+        $.ajax({
+            type: "GET",
+            url: `${LC.global.routePaths.ACCOUNT_INTERNAL_DELETE_COMPANY_ROLE}?id=${roleId}`,
+            crossDomain: true,
+            success: function (response) {
+                if (response && response.data && response.data.response && response.data.response.success) {
+                    LC.notify(`Role "${roleName}" deleted successfully`, { type: 'success' });
+                    closeCompanyRolesReloadResults($('#companyRolesDelete .buttonDismiss'));
+                } else {
+                    var errorMessage = response?.data?.response?.message || 'Error deleting role';
+                    LC.notify(errorMessage, { type: 'danger' });
+
+                    $button.attr('disabled', false);
+                    $button.html(originalHtml);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('Delete error:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    error: error
+                });
+
+                var errorMessage = 'An error occurred while deleting the role';
+
+                // Intentar obtener mensaje de error del servidor
+                try {
+                    var errorResponse = JSON.parse(xhr.responseText);
+                    if (errorResponse.data && errorResponse.data.response && errorResponse.data.response.message) {
+                        errorMessage = errorResponse.data.response.message;
+                    }
+                } catch (e) {
+                    // Usar mensaje genérico si no se puede parsear
+                }
+
+                LC.notify(errorMessage, { type: 'danger' });
+
+                // Restaurar el botón
+                $button.attr('disabled', false);
+                $button.html(originalHtml);
+            }
+        });
+    });
+    /*if (arg?.preventDefault) arg.preventDefault();
 
     const $trigger = arg?.currentTarget ? $(arg.currentTarget) : $(arg);
     const roleData = $trigger.data('lc-data') || {};
@@ -3229,76 +3302,9 @@ LC.dataEvents.deleteRoleEvents = function (arg) {
     });
 
     // limpieza
-    $(el).one('hidden.bs.modal', function () { $(this).remove(); });
+    $(el).one('hidden.bs.modal', function () { $(this).remove(); });*/
 };
 
-
-LC.dataEvents.deleteCompanyRole = function (event) {
-    event.preventDefault();
-    var data = $(event.currentTarget).data('lc-data');
-    var roleId = data.roleId;
-    var roleName = data.roleName;
-
-    if (!roleId) {
-        LC.notify('Invalid role ID', { type: 'danger' });
-        return;
-    }
-
-    // Deshabilitar el botón y mostrar indicador de carga
-    var $button = $(event.currentTarget);
-    $button.attr('disabled', true);
-    var originalHtml = $button.html();
-    $button.html('Deleting...');
-
-    $.ajax({
-        type: "GET",
-        url: `${LC.global.routePaths.ACCOUNT_INTERNAL_DELETE_COMPANY_ROLE}?id=${roleId}`,
-        crossDomain: true,
-        success: function (response) {
-            if (response && response.data && response.data.response && response.data.response.success) {
-                LC.notify(`Role "${roleName}" deleted successfully`, { type: 'success' });
-
-                if (response.data.data && response.data.data.redirect) {
-                    setTimeout(function () {
-                        window.location.href = response.data.data.redirect;
-                    }, 500);
-                }
-            } else {
-                var errorMessage = response?.data?.response?.message || 'Error deleting role';
-                LC.notify(errorMessage, { type: 'danger' });
-
-                $button.attr('disabled', false);
-                $button.html(originalHtml);
-            }
-        },
-        error: function (xhr, status, error) {
-            console.error('Delete error:', {
-                status: xhr.status,
-                statusText: xhr.statusText,
-                responseText: xhr.responseText,
-                error: error
-            });
-
-            var errorMessage = 'An error occurred while deleting the role';
-
-            // Intentar obtener mensaje de error del servidor
-            try {
-                var errorResponse = JSON.parse(xhr.responseText);
-                if (errorResponse.data && errorResponse.data.response && errorResponse.data.response.message) {
-                    errorMessage = errorResponse.data.response.message;
-                }
-            } catch (e) {
-                // Usar mensaje genérico si no se puede parsear
-            }
-
-            LC.notify(errorMessage, { type: 'danger' });
-
-            // Restaurar el botón
-            $button.attr('disabled', false);
-            $button.html(originalHtml);
-        }
-    });
-};
 
 LC.dataEvents.editAccount = function (event) {
     event.preventDefault();

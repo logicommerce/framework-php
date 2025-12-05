@@ -25,15 +25,22 @@ use SDK\Services\Parameters\Groups\Account\UpdateAccountRegisteredUsersParameter
 use SDK\Services\Parameters\Groups\Account\UpdateRegisteredUserParametersGroup;
 
 /**
- * This is the UserService class.
- * Remember that a service is an extension of a SDK model that allows to add additional
- * actions to a model request or create new methods to simplify some common requests.
- * In this case, the UserService extends the SDK\Services\Service.
+ * This is the AccountService class.
+ * A service is an extension of a SDK model that adds additional actions to a model request or creates new methods to simplify common requests.
+ * In this case, the AccountService extends the SDK\Services\AccountService.
  *
- * @see UserService::__call()
- *
- * @see Service
- *
+ * @see AccountService::getAllSalesAgentCustomers()
+ * @see AccountService::salesAgentLogin()
+ * @see AccountService::salesAgentLogout()
+ * @see AccountService::updateAccountsInvoicingAddresses()
+ * @see AccountService::createAccountShippingAddresses()
+ * @see AccountService::usedAccount()
+ * @see AccountService::updateAccountById()
+ * @see AccountService::updateAccountRegisteredUser()
+ * @see AccountService::updateRegisteredUserMe()
+ * 
+ * @see AccountService
+ * 
  * @package FWK\Services
  */
 class AccountService extends AccountServiceSDK {
@@ -79,10 +86,8 @@ class AccountService extends AccountServiceSDK {
     }
 
     /**
-     *
      * @see \SDK\Services\AccountService::updateAccountsInvoicingAddresses()
      */
-
     public function updateAccountsInvoicingAddresses(int $id, AccountInvoicingAddressCompatibleParametersGroup $data, string $dataValidatior = ''): ?AccountInvoicingAddress {
         $response =  parent::updateAccountsInvoicingAddresses($id, $data, $dataValidatior);
         if (is_null($response->getError())) {
@@ -94,10 +99,8 @@ class AccountService extends AccountServiceSDK {
 
 
     /**
-     *
      * @see \SDK\Services\AccountService::createAccountShippingAddresses()
      */
-
     public function createAccountShippingAddresses(string $idUsed, AccountShippingAddressParametersGroup $data, string $dataValidatior = ''): ?AccountShippingAddress {
         $response =  parent::createAccountShippingAddresses($idUsed, $data, $dataValidatior);
         if (is_null($response->getError())) {

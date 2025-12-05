@@ -19,7 +19,7 @@ use SDK\Dtos\Common\Route;
 use SDK\Enums\AccountKey;
 
 /**
- * This is the DeleteAccountRegisteredUserController controller class.
+ * This is the delete account registered user controller.
  * This class extends BaseJsonController (FWK\Core\Controllers\BaseJsonController), see this class.
  *
  * @see BaseJsonController

@@ -46,11 +46,13 @@
                                         </div>
                                     </div>
                                     <div class="userOrderRow">
-                                        <div class="userOrderCell">
-                                            <div class="userOrderNum">
-                                                <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_NUMBER')] }}</span> <span class="val">{{ order.documentNumber }}</span>
+                                        {% if order.documentNumber|length > 0 %}
+                                            <div class="userOrderCell">
+                                                <div class="userOrderNum">
+                                                    <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_NUMBER')] }}</span> <span class="val">{{ order.documentNumber }}</span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                         {% if accounts['id' ~ order.ownerAccountId] is defined %}
                                             <div class="userOrderCell">
                                                 <div class="userOrderOwnerAccount">
@@ -230,14 +232,15 @@
                                     </div>
                                 {% endif %}
                                 
-                                {% if order.status == constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL') %}
+                                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_APPROVAL') in args.showOrderActions 
+                                    and order.status == constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL') %}
                                     {% set lcDecisionData = {
                                         orderId: order.id,
                                         decision: constant('SDK\\Enums\\AccountOrderApprovalDecision::APPROVE'),
                                     } %}
                                     <div class="userOrderActionWrap">
                                         <button class="btn btn-link userOrderAction approveLink" data-lc-event="click" data-lc-function="ordersApprovalDecision" data-bs-toggle="modal" data-bs-target="#ordersApprovalDecisionPopup" data-lc-data='{{ outputJsonHtmlString(lcDecisionData) }}'>
-                                            <img src="{{iconsPath ~ 'viewDeliveryNotePdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER_APPROVE')] }}">
+                                            <img src="{{iconsPath ~ 'approveOrder' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER_APPROVE')] }}">
                                             <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER_APPROVE')] }}</span>
                                         </button>
                                     </div>
@@ -248,7 +251,7 @@
                                     } %}
                                     <div class="userOrderActionWrap">
                                         <button class="btn btn-link userOrderAction rejectLink" data-lc-event="click" data-lc-function="ordersApprovalDecision" data-bs-toggle="modal" data-bs-target="#ordersApprovalDecisionPopup" data-lc-data='{{ outputJsonHtmlString(lcDecisionData) }}'>
-                                            <img src="{{iconsPath ~ 'viewDeliveryNotePdf' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER_REJECT')] }}">
+                                            <img src="{{iconsPath ~ 'rejectOrder' ~ constant('USER_ACTIONS_FILE_EXTENSION') }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER_REJECT')] }}">
                                             <span>{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::VIEW_ORDER_REJECT')] }}</span>
                                         </button>
                                     </div>

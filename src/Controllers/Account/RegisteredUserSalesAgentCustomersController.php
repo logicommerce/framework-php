@@ -19,7 +19,7 @@ use SDK\Core\Application;
 use SDK\Services\Parameters\Groups\User\SalesAgentCustomersParametersGroup;
 
 /**
- * This is the sales agent customers controller.
+ * This is the registered user sales agent customers controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

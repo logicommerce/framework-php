@@ -2,7 +2,6 @@
 
 namespace FWK\Controllers\Account\Internal;
 
-use DateTime;
 use FWK\Core\Controllers\BaseHtmlController;
 use FWK\Core\FilterInput\FilterInputFactory;
 use FWK\Core\Form\FormFactory;

@@ -25,9 +25,9 @@
                                     {%- if ruleLabel|length -%}
                                         {%- set typeValue = languageSheet[constant('FWK\\Enums\\LanguageLabels::PRODUCTS')] -%}
                                         {%- set eachValue = rule.from -%}
-
                                         {% if rule.type == constant('SDK\\Enums\\RewardPointsRuleType::BY_AMOUNT') %}
                                             {%- set eachValue = outputHtmlCurrency(rule.from) -%}
+                                            {%- set eachToValue = outputHtmlCurrency(rule.to) -%}
                                         {% elseif rule.type == constant('SDK\\Enums\\RewardPointsRuleType::COMMENT') %}
                                             {%- set typeValue = languageSheet[constant('FWK\\Enums\\LanguageLabels::REVIEWS')] -%}
                                         {% endif %}
@@ -35,10 +35,11 @@
                                         <div class="ruleLabel">
                                             {{- ruleLabel|replace({
                                                 '{{from}}': '<span class="from">' ~ rule.from ~ '</span>',
-                                                '{{to}}': '<span class="to">' ~ rule.from ~ '</span>',
+                                                '{{to}}': '<span class="to">' ~ rule.to ~ '</span>',
                                                 '{{type}}': '<span class="type">' ~ typeValue ~ '</span>',
-                                                '{{value}}': '<span class="value">' ~ rule.earned ~ '</span>',
+                                                '{{value}}': '<span class="value">' ~ rule.value ~ '</span>',
                                                 '{{each}}': '<span class="each">' ~ eachValue ~ '</span>',
+                                                '{{eachTo}}': '<span class="eachTo">' ~ eachToValue ~ '</span>',
                                                 '{{name}}': '<span class="name">' ~ rewardPoint.language.name ~ '</span>',
                                             }) -}}
                                         </div>

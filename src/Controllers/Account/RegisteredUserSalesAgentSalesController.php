@@ -17,7 +17,7 @@ use SDK\Dtos\Common\Route;
 use SDK\Services\Parameters\Groups\User\SalesAgentSalesParametersGroup;
 
 /**
- * This is the account rma returns controller.
+ * This is the registered user sales agent sales controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

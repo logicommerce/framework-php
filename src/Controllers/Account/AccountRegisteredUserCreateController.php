@@ -12,7 +12,7 @@ use SDK\Dtos\Common\Route;
 use SDK\Enums\AccountKey;
 
 /**
- * This is the AccountRegisteredUserCreateController class.
+ * This is the account registered user create controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

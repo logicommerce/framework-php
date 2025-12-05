@@ -11,16 +11,14 @@ use FWK\Core\Form\Elements\AttributeTraits\AttributeRequiredTrait;
 use FWK\Core\Form\Elements\AttributeTraits\AttributeDisabledTrait;
 use FWK\Core\Form\Elements\AttributeTraits\AttributeDataTrait;
 use FWK\Core\Form\Elements\AttributeTraits\AttributeAutocompleteTrait;
-use FWK\Core\FilterInput\FilterInput;
 use FWK\Core\Resources\Language;
-use FWK\Enums\LanguageLabels;
 
 /**
  * MultiSelect
  * This is the MultiSelect class.
  */
 class TableMultiSelect extends Element {
-	use AttributesEventsTraits;
+    use AttributesEventsTraits;
     use AttributeMultipleTrait;
     use AttributeSizeTrait;
     use AttributeIdTrait;
@@ -31,27 +29,30 @@ class TableMultiSelect extends Element {
     use AttributeAutocompleteTrait;
     use LabelTrait;
 
-	private array $options = [];
+    private array $options = [];
     private array $availableChecks = [];
 
-	public const TYPE = 'tablemultiselect';
+    public const TYPE = 'tablemultiselect';
 
-	public function __construct(array $options, array $availableChecks) {
+    public function __construct(array $options, array $availableChecks) {
         $this->options = $options;
         $this->availableChecks = $availableChecks;
     }
 
-	public function outputElement(string $name = '', array $richFormList = []): string {
+    public function outputElement(string $name = '', array $richFormList = []): string {
+        $languageSheet = Language::getInstance();
+        $labels = $languageSheet->getLabels();
+
         if (!strLen($this->getId())) {
             $this->setId($name);
         }
 
         $html = '<div><table class="companyRolesTable"><thead><tr><th class="companyRoleFirstColumn"></th>';
         foreach ($this->availableChecks as $check) {
-            $html .= '<th>' . $check . '</th>';
+            $html .= '<th>' . $languageSheet->getLabelValue($labels['SELECT' . '_' . strtoupper($check)]) . '</th>';
         }
         $html .= '</tr></thead><tbody>';
-        
+
         foreach ($this->options as $option) {
             $attrs = $option->getAttributeWildcard();
             $arrow = (strpos($attrs, 'data-id=') !== false)

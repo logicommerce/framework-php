@@ -8,11 +8,9 @@ use FWK\Core\FilterInput\FilterInputFactory;
 use FWK\Core\FilterInput\FilterInputHandler;
 use FWK\Core\Form\FormFactory;
 use FWK\Core\Resources\Loader;
-use FWK\Core\Resources\RoutePaths;
 use FWK\Core\Resources\Utils;
 use FWK\Enums\LanguageLabels;
 use FWK\Enums\Parameters;
-use FWK\Enums\RouteType;
 use FWK\Enums\Services;
 use FWK\Services\AccountService;
 use SDK\Core\Dtos\Element;
@@ -24,7 +22,7 @@ use SDK\Services\Parameters\Groups\Account\UpdateAccountRegisteredUsersParameter
 use SDK\Services\Parameters\Groups\Account\RegisteredUserParametersGroup;
 
 /**
- * This is the create registered user controller.
+ * This is the update account registered user controller.
  * This class extends BaseJsonController (FWK\Core\Controllers\BaseJsonController), see this class.
  *
  * @see BaseJsonController

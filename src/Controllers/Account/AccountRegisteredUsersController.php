@@ -21,7 +21,7 @@ use SDK\Enums\UserKeyCriteria;
 use SDK\Services\Parameters\Groups\Account\AccountRegisteredUsersParametersGroup;
 
 /**
- * This is the registered users controller.
+ * This is the account registered users controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController

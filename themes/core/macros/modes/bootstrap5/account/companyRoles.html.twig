@@ -1,5 +1,6 @@
 {% macro companyRoles(args) %}
     {% import 'macros/modes/' ~ coreMode ~ '/util/modalForm.html.twig' as ajaxModalForm %}
+    {% import 'macros/util.twig' as utilMacros %}
     {% set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') %} 
     {% set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') %}
     {% set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' %}
@@ -74,7 +75,7 @@
                                                         <span class="duplicateCompanyRoleActionName"><svg class="icon icon-duplicate"><use xlink:href="#icon-duplicate"></use></svg></span>
                                                     </a>
                                                 {%- elseif availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\CompanyRoles::ACTION_COMPANY_ROLES_DELETE') and companyRole.employeesQuantity < 1 -%}
-                                                    <a class="customerAction deleteCompanyRoleAction" href="#" data-lc-function="deleteRoleEvents" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' data-bs-toggle="tooltip" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_DELETE')] }}">
+                                                    <a class="customerAction deleteCompanyRoleAction" href="#" data-lc-function="deleteRoleEvents" data-lc-event="click" data-bs-toggle="modal" data-bs-target="#companyRolesDeletePopup" data-lc-data='{{ outputJsonHtmlString(lcData) }}' title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_DELETE')] }}">
                                                         <span class="deleteCompanyRoleActionName"><svg class="icon icon-delete"><use xlink:href="#icon-trash"></use></svg></span>
                                                     </a>
                                                 {%- endif -%}
@@ -86,30 +87,32 @@
                         {%- endfor -%}
                     </tbody>
                 </table>
-                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\companyRoles::ACTIONS') in args.parameters %}
-                    {% set lcData = {
-                        roleId: 0
-                    } %}
-                    {%- for availableAction in args.availableActions -%}
-                        {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\companyRoles::ACTION_COMPANY_ROLES_ADD') -%}
-                            <a data-lc-function="saveCompanyRole" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' name="saveCompanyRole" id="saveCompanyRole" class="btn btn-primary formField userField btn">
-                                {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_ADD')] }}
-                            </a>
-                        {%- endif -%}
-                    {%- endfor -%}
-                {%- endif -%}
-            </div>
-            
-            {#- Add pagination if provided -#}
-            {%- if args.pagination is defined and args.pagination is not null -%}
-                {% import 'macros/util.twig' as utilMacros %}
-                <div class="pagination-wrapper mt-3">
-                    {{ utilMacros.pagination({
-                        paginationItems: args.pagination.paginationItems,
-                        mode: constant('FWK\\ViewHelpers\\Util\\Macro\\Pagination::MODE_BLOCKS')
-                    }) }}
+                <div class="contentBottom">
+                    {%- if args.companyRoles.pagination.totalItems > 0 and args.companyRoles.pagination.totalItems > args.companyRoles.pagination.perPage -%}
+                            <section id="companyRolesPagination" class="section company-roles-list-pagination-container">
+                                <div class="module module-no-space module-pagination">
+                                    {{- utilMacros.pagination({ 
+                                        pagination: args.companyRoles.pagination, 
+                                        pagerParameters: themeConfiguration.account.companyRolesList.pagination,
+                                        mode: constant('FWK\\ViewHelpers\\Util\\Macro\\Pagination::MODE_BLOCKS'),
+                                    }) -}}
+                                </div>
+                            </section>
+                    {%- endif -%}
+                    {% if constant('FWK\\ViewHelpers\\Account\\Macro\\companyRoles::ACTIONS') in args.parameters %}
+                        {% set lcData = {
+                            roleId: 0
+                        } %}
+                        {%- for availableAction in args.availableActions -%}
+                            {%- if availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\companyRoles::ACTION_COMPANY_ROLES_ADD') -%}
+                                <a data-lc-function="saveCompanyRole" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}' name="saveCompanyRole" id="saveCompanyRole" class="btn btn-primary formField userField btn">
+                                    {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_ADD')] }}
+                                </a>
+                            {%- endif -%}
+                        {%- endfor -%}
+                    {%- endif -%}
                 </div>
-            {%- endif -%}
+            </div>
         {%- endset -%}
 
         {{- companyRolesTable -}}
@@ -134,9 +137,22 @@
     {% endif %}
     {{ ajaxModalForm.ajaxModalForm({
         modalId: 'saveCompanyRoleModal',
-        modalClass: 'saveCompanyRoleModal',
+        modalClass: 'saveCompanyRoleModal lc-companyRolesModal',
         title: languageSheet[constant('FWK\\Enums\\LanguageLabels::COMPANY_ROLE')],
         contentId: 'saveCompanyRoleContent',
         dialogSize: 'modal-lg modal-dialog-scrollable modal-dialog-centered'
+    }) }}
+    {{ ajaxModalForm.ajaxModalConfirmForm({
+        modalId: 'companyRolesDeletePopup',
+        modalClass: 'companyRolesDeletePopup lc-companyRolesModal',
+        containerId: 'companyRolesDelete',
+        dialogSize: 'modal-sm modal-dialog-centered',
+        titleKey:   constant('FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TITLE'),
+        textKey:    constant('FWK\\Enums\\LanguageLabels::POPUP_CONFIRM_TEXT'),
+        cancelKey:  constant('FWK\\Enums\\LanguageLabels::CANCEL'),
+        confirmKey: constant('FWK\\Enums\\LanguageLabels::DELETE'),
+        confirmBtnId: 'deleteCompanyRolesButtonConfirm',
+        btnBaseClass: 'deleteCompanyRolesButton',
+        confirmBtnClass: 'btn-danger'
     }) }}
 {% endmacro companyRoles %}

@@ -11,7 +11,7 @@
     {% set printTagsTitle = true %}
 
     {% set isRoot = session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY_DIVISION') 
-                    and session.basket.account.company.id == args.accountId %}
+                    and session.basket.account.company.id == args.account.id %}
     {% set companyUpdatePermission = true %}
     {% if isRoot %}
         {% set companyUpdatePermission = args.permissions.companyUpdate?? true %}
@@ -80,7 +80,8 @@
                         {{ element|replace({ (classWildcard): '', (attributeWildcard) : '' }) }}
                     </div>
                 {% endset %}
-            {% elseif name == constant('FWK\\Enums\\Parameters::ADDRESS_BOOK') %}
+            {% elseif name == constant('FWK\\Enums\\Parameters::ADDRESS_BOOK')
+                and args.invoicingAddresses is not empty %}
                 {% set addressBookContent %}
                     {{addressBookContent}}
                     <div class="section-user-addressbook card mb-3">
@@ -93,7 +94,7 @@
                                     billingAddresses: args.invoicingAddresses,
                                     shippingAddresses: args.shippingAddresses,
                                     selectMode: constant('FWK\\ViewHelpers\\User\\Macro\\AddressBook::SELECT_MODE_BUTTON'),
-                                    accountId: args.accountId,
+                                    accountId: args.account.id,
                                     showAddNewBilling: companyUpdatePermission,
                                     showAddNewShipping: companyUpdatePermission,
                                     showEditBilling: companyUpdatePermission,

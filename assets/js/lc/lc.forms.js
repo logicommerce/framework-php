@@ -6092,7 +6092,7 @@ LC.UsedAccountSwitchForm = LC.Form.extend({
                 if (data.data.response.success === 1) {
                     if (data.data.data.redirect) {
                         window.location.href = data.data.data.redirect;
-                    } if (window.location.href == LC.global.routePaths.ACCOUNT_INTERNAL_USED_ACCOUNT_SWITCH) {
+                    } if (window.location.href == LC.global.routePaths.USED_ACCOUNT_SWITCH) {
                         window.location.href = LC.global.routePaths.HOME;
                     } else {
                         window.location.reload(true);
@@ -6141,7 +6141,7 @@ LC.AccountRegisteredUserLoaderForm = LC.Form.extend({
         originUrl = originUrl || LC.global.routePaths.ACCOUNT_REGISTERED_USERS;
         if ($(form).find("#accountRegisteredUsersLoadUrl").length > 0) {
             const url = new URL(originUrl);
-            var newUrl = url.toString()
+            var newUrl = url.toString();
             $(form).find("#accountRegisteredUsersLoadUrl").val(newUrl);
         }
 
@@ -6173,8 +6173,40 @@ LC.AccountOrdresLoaderForm = LC.Form.extend({
         originUrl = originUrl || LC.global.routePaths.ACCOUNT_ORDERS;
         if ($(form).find("#accountOrdersLoadUrl").length > 0) {
             const url = new URL(originUrl);
-            var newUrl = url.toString()
+            var newUrl = url.toString();
             $(form).find("#accountOrdersLoadUrl").val(newUrl);
+        }
+
+        this.trigger('initializeCallback');
+        this.el.form.initialized = true;
+    },
+});
+
+/**
+ * @class LC Account Registered User Loader Form
+ * @description Account Registered User Loader Form
+ * @memberOf LC
+ * @extends {LC.Form}
+ */
+LC.CompanyRolesLoaderForm = LC.Form.extend({
+    name: 'companyRolesLoaderForm',
+    elementId: 'requestFormModal',
+    initialized: false,
+    initialize: function (form, originUrl) {
+        this.trigger('initializeBefore');
+        if ($('#companyRolesPagination .pagination a.itemLink').length > 0) {
+            $(document).off('click.pagination')
+                .on('click.pagination', '#companyRolesPagination .pagination a.itemLink', LC.dataEvents.accountCompanyRoles);
+        }
+        if ($('#accountCompanyRolesSort a.viewElement').length > 0) {
+            $(document).off('click.sort')
+                .on('click.sort', '#accountCompanyRolesSort a.viewElement', LC.dataEvents.accountCompanyRoles);
+        }
+        originUrl = originUrl || LC.global.routePaths.ACCOUNT_COMPANY_ROLES;
+        if ($(form).find("#companyRolesLoadUrl").length > 0) {
+            const url = new URL(originUrl);
+            var newUrl = url.toString();
+            $(form).find("#companyRolesLoadUrl").val(newUrl);
         }
 
         this.trigger('initializeCallback');
@@ -7430,7 +7462,15 @@ LC.AccountCompanyRolesFilterForm = LC.Form.extend({
         this.el.$form.serializeArray().forEach(item => {
             jsonResult[item.name] = item.value;
         });
-        var oldParams = new URLSearchParams(window.location.search);
+
+        if ($("#companyRolesLoadUrl").length > 0) {
+            var loadUrl = $("#companyRolesLoadUrl").val();
+            var url = new URL(loadUrl);
+        } else {
+            url = new URL(window.location.href);
+        }
+
+        var oldParams = url.searchParams;
         var sort = oldParams.get("sort");
         var params = new URLSearchParams();
         if (sort) params.set('sort', sort);
@@ -7442,9 +7482,9 @@ LC.AccountCompanyRolesFilterForm = LC.Form.extend({
                 params.delete(key);
             }
         });
-        var baseUrl = window.location.pathname;
+        var baseUrl = url.origin + url.pathname;
         var newUrl = baseUrl + '?' + params.toString();
-        window.location.href = newUrl;
+        companyRolesReloadResults(newUrl);
         return enableSubmit;
     },
     hasBeenSubmitted: function () {
@@ -7773,8 +7813,12 @@ LC.SaveCompanyRoleForm = LC.Form.extend({
                 if (!this.autoSubmit) this.showMessage(message, 'success');
                 else LC.notify(message || 'Role duplicated successfully', { type: 'success' });
 
-                if (response.data.data.redirect && response.data.data.redirect.length) {
+                if ($('#saveCompanyRoleModal').length > 0) {
+                    closeCompanyRolesReloadResults($('#saveCompanyRoleModal .btn-close'));
+                } else if (response.data.data.redirect && response.data.data.redirect.length) {
                     window.location = response.data.data.redirect;
+                } else {
+                    window.location = window.location.href;
                 }
             } else {
                 this.showMessage(message, 'danger');
@@ -7981,502 +8025,3 @@ LC.EditAccountForm = LC.Form.extend({
         this.trigger('callback', response);
     },
 });
-
-LC.CompanyStructure = {
-    // State management
-    expandedNodes: new Set(),
-    loadingNodes: new Set(),
-    movingNodes: new Set(),
-    draggedNode: null,
-    dragOverNode: null,
-
-    // Configuration
-    config: {
-        containerSelector: '#companyStructureTree',
-        nodeSelector: '.userCompanyStructureNode',
-        toggleSelector: '.userCompanyStructureToggleBtn.expandable',
-        loadingOverlaySelector: '#companyStructureLoading'
-    },
-
-    // Initialize the company structure tree
-    init: function () {
-        const container = document.querySelector(this.config.containerSelector);
-        if (!container) return;
-
-        this.bindDragDropEvents();
-        this.initializeExpandedNodes();
-    },
-
-    // Bind drag and drop events (non-LC events)
-    bindDragDropEvents: function () {
-        const container = document.querySelector(this.config.containerSelector);
-        if (!container) return;
-
-        // Drag and drop events
-        container.addEventListener('dragstart', this.handleDragStart.bind(this));
-        container.addEventListener('dragend', this.handleDragEnd.bind(this));
-        container.addEventListener('dragover', this.handleDragOver.bind(this));
-        container.addEventListener('dragenter', this.handleDragEnter.bind(this));
-        container.addEventListener('dragleave', this.handleDragLeave.bind(this));
-        container.addEventListener('drop', this.handleDrop.bind(this));
-    },
-
-    // Initialize expanded nodes from DOM state
-    initializeExpandedNodes: function () {
-        const nodes = document.querySelectorAll(this.config.nodeSelector);
-        nodes.forEach(node => {
-            const children = node.querySelector('.userCompanyStructureChildren');
-            if (children && !children.classList.contains('d-none')) {
-                this.expandedNodes.add(node.dataset.nodeId);
-            }
-        });
-    },
-
-    // Toggle node expand/collapse state
-    toggleNode: async function (nodeId, nodeData) {
-        const nodeElement = document.getElementById('companyNode' + nodeId);
-        if (!nodeElement) return;
-
-        const isExpanded = this.expandedNodes.has(nodeId);
-
-        if (isExpanded) {
-            // Collapse
-            this.collapseNode(nodeId, nodeElement);
-        } else {
-            // Expand (potentially with lazy loading)
-            await this.expandNode(nodeId, nodeElement, nodeData);
-        }
-    },
-
-    // Collapse a node
-    collapseNode: function (nodeId, nodeElement) {
-        this.expandedNodes.delete(nodeId);
-
-        // Hide children
-        const children = nodeElement.querySelector('.userCompanyStructureChildren');
-        if (children) {
-            children.classList.add('d-none');
-        }
-
-        // Update icon state to collapsed (show plus, hide minus)
-        nodeElement.classList.remove('expanded');
-        nodeElement.classList.add('collapsed');
-
-        // Update toggle indicator
-        this.updateToggleIndicator(nodeElement, false);
-    },
-
-    // Expand a node (with potential lazy loading)
-    expandNode: async function (nodeId, nodeElement, nodeData) {
-        // Check if this needs lazy loading
-        if (nodeData.hasSubDivisionsToLoad) {
-            await this.lazyLoadNode(nodeId, nodeElement, nodeData);
-        } else {
-            // Just show existing children
-            const children = nodeElement.querySelector('.userCompanyStructureChildren');
-            if (children) {
-                children.classList.remove('d-none');
-            }
-        }
-
-        this.expandedNodes.add(nodeId);
-
-        // Update icon state to expanded (show minus, hide plus)
-        nodeElement.classList.remove('collapsed');
-        nodeElement.classList.add('expanded');
-
-        this.updateToggleIndicator(nodeElement, true);
-    },
-
-    // Lazy load node children
-    lazyLoadNode: async function (nodeId, nodeElement, nodeData) {
-        if (this.loadingNodes.has(nodeId)) return;
-
-        this.loadingNodes.add(nodeId);
-        this.showNodeLoading(nodeId);
-
-        try {
-            // Call LogiCommerce API to load sub-divisions
-            const response = await this.fetchSubDivisions(nodeId);
-
-            if (response.success && response.children) {
-                await this.insertLazyLoadedChildren(nodeId, response.children);
-            } else {
-                throw new Error(response.message || 'Failed to load divisions');
-            }
-        } catch (error) {
-            console.error('Error loading sub-divisions:', error);
-            this.showError('Failed to load sub-divisions: ' + error.message);
-        } finally {
-            this.loadingNodes.delete(nodeId);
-            this.hideNodeLoading(nodeId);
-        }
-    },
-
-    // Fetch sub-divisions from API using LogiCommerce patterns
-    fetchSubDivisions: async function (accountId) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                type: 'GET',
-                url: `${LC.global.routePaths.ACCOUNT_INTERNAL_COMPANY_STRUCTURE}?accountId=${accountId}&structureFilter=SUB_STRUCTURE`,
-                success: function (response) {
-                    if (response && response.data && response.data.response) {
-                        if (response.data.response.success === 1) {
-                            resolve({
-                                success: true,
-                                children: response.data.data.subCompanyDivisions?.items || []
-                            });
-                        } else {
-                            resolve({
-                                success: false,
-                                message: response.data.response.message || 'Failed to load divisions'
-                            });
-                        }
-                    } else {
-                        resolve({ success: false, message: 'Invalid response format' });
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error loading sub-divisions:', error);
-                    resolve({ success: false, message: 'Network error occurred' });
-                }
-            });
-        });
-    },
-
-    // Insert lazy loaded children into the DOM
-    insertLazyLoadedChildren: async function (nodeId, children) {
-        const container = document.getElementById('lazyChildrenContainer' + nodeId);
-        if (!container) return;
-
-        // TODO: Render children using the same Twig macro pattern
-        // For now, create basic HTML structure
-        let childrenHTML = '';
-        children.forEach((child, index) => {
-            const isLast = index === children.length - 1;
-            childrenHTML += this.createChildNodeHTML(child, isLast);
-        });
-
-        container.innerHTML = childrenHTML;
-        container.classList.remove('d-none');
-
-        // Re-initialize LC events for new elements
-        $(container).find('[data-lc-event]').dataEvent();
-    },
-
-
-    // Update toggle indicator (+/- icons)
-    updateToggleIndicator: function (nodeElement, isExpanded) {
-        const plusIcon = nodeElement.querySelector('.toggle-plus');
-        const minusIcon = nodeElement.querySelector('.toggle-minus');
-
-        if (plusIcon && minusIcon) {
-            if (isExpanded) {
-                plusIcon.classList.add('d-none');
-                minusIcon.classList.remove('d-none');
-            } else {
-                plusIcon.classList.remove('d-none');
-                minusIcon.classList.add('d-none');
-            }
-        }
-    },
-
-    // Show loading indicator for a node
-    showNodeLoading: function (nodeId) {
-        const loadingElement = document.getElementById('lazyLoading' + nodeId);
-        if (loadingElement) {
-            loadingElement.classList.remove('d-none');
-        }
-    },
-
-    // Hide loading indicator for a node
-    hideNodeLoading: function (nodeId) {
-        const loadingElement = document.getElementById('lazyLoading' + nodeId);
-        if (loadingElement) {
-            loadingElement.classList.add('d-none');
-        }
-    },
-
-    // Drag and Drop Handlers
-    handleDragStart: function (event) {
-        const nodeElement = event.target.closest(this.config.nodeSelector);
-        if (!nodeElement || !nodeElement.draggable) {
-            event.preventDefault();
-            return;
-        }
-
-        const nodeData = this.getNodeData(nodeElement);
-        this.draggedNode = nodeData;
-
-        nodeElement.classList.add('being-dragged');
-        event.dataTransfer.effectAllowed = 'move';
-        event.dataTransfer.setData('text/html', nodeElement.outerHTML);
-    },
-
-    handleDragEnd: function (event) {
-        const nodeElement = event.target.closest(this.config.nodeSelector);
-        if (nodeElement) {
-            nodeElement.classList.remove('being-dragged');
-        }
-
-        // Clear drag over states
-        document.querySelectorAll('.drag-over').forEach(el => {
-            el.classList.remove('drag-over');
-        });
-
-        this.draggedNode = null;
-        this.dragOverNode = null;
-    },
-
-    handleDragOver: function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-    },
-
-    handleDragEnter: function (event) {
-        event.preventDefault();
-        const nodeElement = event.target.closest(this.config.nodeSelector);
-
-        if (nodeElement && this.draggedNode) {
-            const nodeData = this.getNodeData(nodeElement);
-
-            if (nodeData && nodeData.accountId !== this.draggedNode.accountId) {
-                // Only allow drop within used account scope (simplified check)
-                if (this.canDropOnNode(nodeData)) {
-                    this.dragOverNode = nodeData.accountId;
-                    nodeElement.classList.add('drag-over');
-                }
-            }
-        }
-    },
-
-    handleDragLeave: function (event) {
-        event.preventDefault();
-        const nodeElement = event.target.closest(this.config.nodeSelector);
-
-        if (nodeElement && !nodeElement.contains(event.relatedTarget)) {
-            nodeElement.classList.remove('drag-over');
-        }
-    },
-
-    handleDrop: async function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const targetElement = event.target.closest(this.config.nodeSelector);
-        if (!targetElement || !this.draggedNode) return;
-
-        const targetData = this.getNodeData(targetElement);
-        if (!targetData || targetData.accountId === this.draggedNode.accountId) return;
-
-        targetElement.classList.remove('drag-over');
-
-        if (!this.canDropOnNode(targetData)) {
-            this.showError('Cannot move outside of used account scope');
-            return;
-        }
-
-        await this.moveNode(this.draggedNode.accountId, targetData.accountId);
-    },
-
-    // Check if a node can be a drop target
-    canDropOnNode: function (nodeData) {
-        // Simplified check - in real implementation, this would verify
-        // that the target is within the used account scope
-        return !nodeData.isRoot;
-    },
-
-    // Move a node to a new parent
-    moveNode: async function (draggedNodeId, targetNodeId) {
-        if (this.movingNodes.has(draggedNodeId)) return;
-
-        this.movingNodes.add(draggedNodeId);
-        this.showGlobalLoading();
-
-        // Add moving state to the node
-        const nodeElement = document.getElementById('companyNode' + draggedNodeId);
-        if (nodeElement) {
-            nodeElement.classList.add('moving');
-        }
-
-        try {
-            // Call LogiCommerce API to move the node
-            const response = await this.moveNodeAPI(draggedNodeId, targetNodeId);
-
-            if (response.success) {
-                // Optimistically update the DOM
-                await this.updateDOMAfterMove(draggedNodeId, targetNodeId);
-                this.showSuccess('Division moved successfully');
-            } else {
-                throw new Error(response.message || 'Move failed');
-            }
-        } catch (error) {
-            console.error('Error moving node:', error);
-            this.showError(this.getErrorMessage(error));
-        } finally {
-            this.movingNodes.delete(draggedNodeId);
-            this.hideGlobalLoading();
-
-            // Remove moving state
-            if (nodeElement) {
-                nodeElement.classList.remove('moving');
-            }
-        }
-    },
-
-    // API call to move a node using LogiCommerce patterns
-    // Based on README: PUT /accounts/{id} changing the parentAccountId
-    moveNodeAPI: async function (nodeId, parentId) {
-        return new Promise((resolve) => {
-            $.post(
-                LC.global.routePaths.ACCOUNT_INTERNAL_MOVE_ACCOUNT,
-                {
-                    data: JSON.stringify({
-                        accountId: nodeId,
-                        parentAccountId: parentId
-                    })
-                },
-                function (response) {
-                    if (response && response.data && response.data.response) {
-                        resolve({
-                            success: response.data.response.success === 1,
-                            message: response.data.response.message,
-                            code: response.data.data?.errorCode
-                        });
-                    } else {
-                        resolve({ success: false, message: 'Invalid response format' });
-                    }
-                },
-                'json'
-            ).fail(function (xhr, status, error) {
-                console.error('Error moving node:', error);
-                resolve({ success: false, message: 'Network error occurred' });
-            });
-        });
-    },
-
-    // Update DOM after successful move
-    updateDOMAfterMove: async function (draggedNodeId, targetNodeId) {
-        // For now, just reload the page to refresh the tree
-        // In a more sophisticated implementation, this would manipulate the DOM directly
-        location.reload();
-    },
-
-    // Utility functions
-    getNodeData: function (element) {
-        const nodeElement = element.closest(this.config.nodeSelector);
-        if (!nodeElement) return null;
-
-        try {
-            return JSON.parse(nodeElement.dataset.lc || '{}');
-        } catch (e) {
-            console.error('Failed to parse node data:', e);
-            return null;
-        }
-    },
-
-    getErrorMessage: function (error) {
-        if (error.code === 'PARENT_ACCOUNT_MOVEMENT_INCOMPATIBLE_INHERITANCE') {
-            return error.message;
-        }
-        return 'An error occurred while moving the division. Please try again.';
-    },
-
-    // UI feedback methods
-    showGlobalLoading: function () {
-        const loadingOverlay = document.querySelector(this.config.loadingOverlaySelector);
-        if (loadingOverlay) {
-            loadingOverlay.classList.remove('d-none');
-        }
-    },
-
-    hideGlobalLoading: function () {
-        const loadingOverlay = document.querySelector(this.config.loadingOverlaySelector);
-        if (loadingOverlay) {
-            loadingOverlay.classList.add('d-none');
-        }
-    },
-
-    showSuccess: function (message) {
-        LC.notify(message, { type: 'success' });
-    },
-
-    showError: function (message) {
-        LC.notify(message, { type: 'danger' });
-    },
-
-    // Initialize handlers for create division modal
-    initCreateDivisionHandlers: function (modal, bootstrapModal, parentAccountId) {
-        const modalContent = modal.querySelector('#createDivisionModalContent');
-        const form = modalContent.querySelector('form');
-
-        if (!form) return;
-
-        // Handle form submission
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Get the active tab to determine mode
-            const activeTab = modalContent.querySelector('.tab-pane.active');
-            const divisionMode = activeTab && activeTab.id === 'division_user_content_existing' ? 'existing' : 'new';
-
-            // Update hidden field
-            const modeField = form.querySelector('input[name="divisionMode"]');
-            if (modeField) {
-                modeField.value = divisionMode;
-            }
-
-            // Update parent account ID
-            const parentField = form.querySelector('input[name="parentAccountId"]');
-            if (parentField) {
-                parentField.value = parentAccountId;
-            }
-
-            // Prepare form data
-            const formData = new FormData(form);
-            const data = {};
-
-            for (const [key, value] of formData.entries()) {
-                data[key] = value;
-            }
-
-            // Submit via AJAX
-            $.ajax({
-                type: 'POST',
-                url: form.action,
-                data: { data: JSON.stringify(data) },
-                success: function (response) {
-                    if (response?.data?.response) {
-                        LC.notify(response.data.response.message, {
-                            type: response.data.response.success === 1 ? 'success' : 'danger'
-                        });
-
-                        if (response.data.response.success === 1) {
-                            bootstrapModal.hide();
-                            // Reload to show new division
-                            setTimeout(() => location.reload(), 1000);
-                        }
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error creating division:', error);
-                    LC.notify('Error creating division', { type: 'danger' });
-                }
-            });
-        });
-
-        // Handle field visibility based on customerType
-        const customerTypeField = form.querySelector('select[name="customerType"]');
-        const companyField = form.querySelector('[data-show-when="customerType:COMPANY"]');
-
-        if (customerTypeField && companyField) {
-            customerTypeField.addEventListener('change', function () {
-                if (this.value === 'COMPANY') {
-                    companyField.style.display = '';
-                } else {
-                    companyField.style.display = 'none';
-                }
-            });
-        }
-    }
-};

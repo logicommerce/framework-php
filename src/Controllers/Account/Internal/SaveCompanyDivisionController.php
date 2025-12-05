@@ -14,6 +14,14 @@ use FWK\Services\LmsService;
 use SDK\Dtos\Common\Route;
 use SDK\Services\Parameters\Groups\Account\CompanyDivisionsParametersGroup;
 
+/**
+ * This is the save company division controller.
+ * This class extends AccountRegisteredUserCreateController (FWK\Controllers\Account\AccountRegisteredUserCreateController), see this class.
+ * 
+ * @see AccountRegisteredUserCreateController
+ * 
+ * @package FWK\Controllers\Account\Internal
+ */
 class SaveCompanyDivisionController extends AccountRegisteredUserCreateController {
     use AddDefaultCountryAndLocationsTrait;
 

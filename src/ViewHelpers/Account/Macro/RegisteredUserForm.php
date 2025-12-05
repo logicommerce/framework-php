@@ -5,24 +5,25 @@ namespace FWK\ViewHelpers\Account\Macro;
 use FWK\Core\Exceptions\CommerceException;
 use FWK\Core\Form\Form;
 use FWK\Core\ViewHelpers\ViewHelper;
+use SDK\Dtos\Accounts\Master;
 
 /**
- * This is the UsedAccountSwitch class, a macro class for the accountViewHelper.
- * The purpose of this class is to encapsulate the logic to show customer orders.
+ * This is the RegisteredUserForm class, a macro class for the account view helper.
+ * The purpose of this class is to encapsulate the logic that filters company roles based on the provided parameters.
  *
- * @see Orders::getViewParameters()
- * 
+ * @see RegisteredUserForm::getViewParameters()
+ *
  * @package FWK\ViewHelpers\Account\Macro
  */
-
-class UsedAccountSwitch {
+class RegisteredUserForm {
 
     public ?Form $form = null;
+    public ?Master $registeredUser = null;
 
     /**
-     * Constructor method for ReturnRequestForm.
+     * Constructor method for CompanyRolesFilter.
      *
-     * @see ReturnRequestForm
+     * @see CompanyRolesFilter
      *
      * @param array $arguments
      */
@@ -31,7 +32,7 @@ class UsedAccountSwitch {
     }
 
     /**
-     * This method returns all calculated arguments and new parameters for accountViewHelper.php
+     * This method returns all calculated arguments and new parameters for CompanyRolesViewHelper.php
      *
      * @return array
      */
@@ -41,7 +42,6 @@ class UsedAccountSwitch {
         }
         return $this->getProperties();
     }
-
     /**
      * Return macro use properties
      *
@@ -49,7 +49,8 @@ class UsedAccountSwitch {
      */
     protected function getProperties(): array {
         return [
-            'form' => $this->form
+            'form' => $this->form,
+            'registeredUser' => $this->registeredUser
         ];
     }
 }

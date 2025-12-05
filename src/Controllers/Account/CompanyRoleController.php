@@ -13,6 +13,14 @@ use FWK\Services\AccountService;
 use SDK\Core\Resources\BatchRequests;
 use SDK\Dtos\Common\Route;
 
+/**
+ * This is the company role controller.
+ * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
+ * 
+ * @see BaseHtmlController
+ * 
+ * @package FWK\Controllers\Account
+ */
 class CompanyRoleController extends BaseHtmlController {
 
     public const COMPANY_ROLES_FORM = 'companyRolesForm';

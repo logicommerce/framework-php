@@ -9,7 +9,7 @@ use SDK\Core\Resources\BatchRequests;
 use FWK\Core\Controllers\BaseJsonController;
 
 /**
- * This is the LogoutSimulationController controller class.
+ * This is the logout simulation controller.
  * This class extends FWK\Core\Controllers\BaseJsonController, see this class.
  *
  * @see BaseJsonController

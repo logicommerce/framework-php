@@ -4,7 +4,7 @@ namespace FWK\ViewHelpers\Account\Macro;
 
 use FWK\Core\ViewHelpers\ViewHelper;
 use SDK\Core\Dtos\ElementCollection;
-use FWK\Core\Form\Form;
+use SDK\Enums\AccountKey;
 
 /**
  * This is the registeredUsers class, a macro class for the accountViewHelper.
@@ -49,7 +49,7 @@ class RegisteredUsers {
     public ?ElementCollection $registeredUsers = null;
     public array $parameters = [];
     public string $errorMessage = '';
-    public string $accountId = '';
+    public string $accountId = AccountKey::USED;
     /**
      * Constructor method for RegisteredUsers.
      *

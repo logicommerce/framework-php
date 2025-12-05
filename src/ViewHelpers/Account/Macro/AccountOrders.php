@@ -8,24 +8,13 @@ use SDK\Core\Dtos\ElementCollection;
 use SDK\Enums\OrderStatus;
 
 /**
- * This is the AccountOrders class, a macro class for the userViewHelper.
- * The purpose of this class is to encapsulate the logic that calculates the view parameters for the user's AccountOrders.
- *
- * @see AccountOrders::ACTION_VIEW
- * @see AccountOrders::ACTION_VIEW_PDF
- * @see AccountOrders::ACTION_RECOVER
- * @see AccountOrders::ACTION_DELIVERY_NOTE
- * @see AccountOrders::ACTION_DELIVERY_NOTE_PDF
- * @see AccountOrders::ACTION_INVOICE
- * @see AccountOrders::ACTION_INVOICE_PDF
- * @see AccountOrders::ACTION_RETURN
- * @see AccountOrders::ACTION_RETURN_TRACING
+ * This is the AccountOrders class, a macro class for the account view helper.
+ * The purpose of this class is to encapsulate the logic that calculates the view parameters for the user's account orders.
  *
  * @see AccountOrders::getViewParameters()
  *
- * @package FWK\ViewHelpers\User\Macro
+ * @package FWK\ViewHelpers\Account\Macro
  */
-
 class AccountOrders {
 
     public const ACTION_VIEW = 'view';
@@ -46,6 +35,8 @@ class AccountOrders {
 
     public const ACTION_RETURN_TRACING = 'returnTracing';
 
+    public const ACTION_APPROVAL = 'approval';
+
     private const ACTIONS = [
         self::ACTION_VIEW,
         self::ACTION_VIEW_PDF,
@@ -56,6 +47,8 @@ class AccountOrders {
         self::ACTION_INVOICE_PDF,
         self::ACTION_RETURN,
         self::ACTION_RETURN_TRACING,
+        self::ACTION_RETURN_TRACING,
+        self::ACTION_APPROVAL
     ];
 
     public const POPUP = 'popup';

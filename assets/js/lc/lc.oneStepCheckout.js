@@ -650,7 +650,7 @@ LC.OneStepCheckout = LC.Form.extend({
                 }
             }
             if (locationInputs === 0) {
-                 allInputsFilled = false;
+                allInputsFilled = false;
             }
             if (allInputsFilled) {
                 this.addressInputTimeout = setTimeout(function () {
@@ -1626,7 +1626,7 @@ LC.OneStepCheckout = LC.Form.extend({
                     // Refresh checkout
                     this.moduleCalls('refreshModule');
                     // Show discount message
-                    this.showMessage(LC.global.languageSheet.oneStepCheckoutRewardPointsRedeemed, 'success');
+                    this.showMessage(LC.global.languageSheet.oneStepCheckoutRewardPointsRedeemmed, 'success');
                 }
             }.bind(this)
         );
@@ -1871,7 +1871,7 @@ LC.OneStepCheckout = LC.Form.extend({
                             if (response.data?.response && response.data?.response?.message) {
                                 this.notify(response.data.response.message, 'danger', true);
                             } else {
-                                this.notify(LC.global.languageSheet.errorCodeUserExistsEmail, 'danger', true);
+                                this.notify(LC.global.languageSheet.errorMessageGeneric, 'danger', true);
                             }
                         }
                     }).bind(this),

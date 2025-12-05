@@ -21,7 +21,7 @@ use SDK\Services\Parameters\Groups\Account\ApproveAccountRegisteredUserParameter
 use SDK\Services\Parameters\Groups\Account\RegisteredUserApproveUpdateParametersGroup;
 
 /**
- * This is the ApproveAccountRegisteredUserController class.
+ * This is the approve account registered user controller.
  * This class extends BaseHtmlController (FWK\Core\Controllers\BaseHtmlController), see this class.
  *
  * @see BaseHtmlController
