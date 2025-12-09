@@ -67,6 +67,7 @@ class EditAccountForm {
         return [
             'form' => $this->form,
             'account' => $this->account,
+            'accountId' => $this->accountId,
             'accountName' => $this->accountName,
             'invoicingAddresses' => $this->invoicingAddresses,
             'shippingAddresses' => $this->shippingAddresses,

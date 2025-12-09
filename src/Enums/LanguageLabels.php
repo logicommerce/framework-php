@@ -53,6 +53,7 @@ use SDK\Core\Enums\Enum;
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TAB_NEW
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_CREATE_TITLE
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_DATE_ADDED
+ * @see LanguageLabels::ACCOUNT_REGISTERED_USER_DATEADDED
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_DEFAULT_CURRENCY
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_DEFAULT_LANGUAGE
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_EMAIL
@@ -115,6 +116,7 @@ use SDK\Core\Enums\Enum;
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_UPDATE_POPUP_CONFIRM_TEXT
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_UPDATE_TITLE
  * @see LanguageLabels::ACCOUNT_REGISTERED_USER_USERNAME
+ * @see LanguageLabels::ACCOUNT_REGISTERED_USER_USER_NAME
  * @see LanguageLabels::ACCOUNT_STATUS_DENIED
  * @see LanguageLabels::ACCOUNT_STATUS_DISABLED
  * @see LanguageLabels::ACCOUNT_STATUS_ENABLED
@@ -1823,6 +1825,8 @@ abstract class LanguageLabels extends Enum {
     public const ACCOUNT_REGISTERED_USER_CREATE_TAB_NEW = 'accountRegisteredUserCreateTabNew';
     public const ACCOUNT_REGISTERED_USER_CREATE_TITLE = 'accountRegisteredUserCreateTitle';
     public const ACCOUNT_REGISTERED_USER_DATE_ADDED = 'accountRegisteredUserDateAdded';
+    /**@deprecado */
+    public const ACCOUNT_REGISTERED_USER_DATEADDED = 'accountRegisteredUserDateadded';
     public const ACCOUNT_REGISTERED_USER_DEFAULT_CURRENCY = 'accountRegisteredUserDefaultCurrency';
     public const ACCOUNT_REGISTERED_USER_DEFAULT_LANGUAGE = 'accountRegisteredUserDefaultLanguage';
     public const ACCOUNT_REGISTERED_USER_EMAIL = 'accountRegisteredUserEmail';
@@ -1885,6 +1889,7 @@ abstract class LanguageLabels extends Enum {
     public const ACCOUNT_REGISTERED_USER_UPDATE_POPUP_CONFIRM_TEXT = 'accountRegisteredUserUpdatePopupConfirmText';
     public const ACCOUNT_REGISTERED_USER_UPDATE_TITLE = 'accountRegisteredUserUpdateTitle';
     public const ACCOUNT_REGISTERED_USER_USERNAME = 'accountRegisteredUserUsername';
+    public const ACCOUNT_REGISTERED_USER_USER_NAME = 'accountRegisteredUserUserName';
     public const ACCOUNT_STATUS_DENIED = 'accountStatusDenied';
     public const ACCOUNT_STATUS_DISABLED = 'accountStatusDisabled';
     public const ACCOUNT_STATUS_ENABLED = 'accountStatusEnabled';
