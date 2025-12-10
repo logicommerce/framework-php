@@ -485,7 +485,10 @@ class BasketViewHelper extends ViewHelper {
             $basketRow = $basket->getItem($hash);
             if (!is_null($basketRow)) {
                 $message = str_replace('{{name}}', $basketRow->getName(), $message);
-                $messageOptions .= ' (' . Utils::parseBasketRowOptions($basketRow->getOptions()) . ')';
+                $mOptions = trim(Utils::parseBasketRowOptions($basketRow->getOptions()));
+                if ($mOptions !== '') {
+                    $messageOptions .= ' (' . $mOptions . ')';
+                }
             }
         }
         $message = str_replace('{{options}}', $messageOptions, $message);

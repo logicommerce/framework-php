@@ -288,7 +288,7 @@ class PhysicalLocations {
         ksort($selectorItems);
         foreach ($selectorItems as $itemKey => $selectorItemValue) {
             $options[] = (new Option($selectorItemValue['value']))
-                ->setValue($name . '_' . $itemKey)
+                ->setValue($name . '_' . $selectorItemValue['value'])
                 ->setData($selectorItemValue);
         }
         return new FormItem(
