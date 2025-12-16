@@ -1994,6 +1994,7 @@ LC.buyFormResources = {
         var properties = {};
         if (itemType == 'notAvailable') {
             properties.className = 'notAvailable';
+            properties.name = LC.global.languageSheet.notAvailable;
             properties.disabled = true;
         } else {
             if (status == "AVAILABLE" || status == "RESERVE") {

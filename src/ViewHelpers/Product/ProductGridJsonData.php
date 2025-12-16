@@ -145,7 +145,7 @@ class ProductGridJsonData {
             foreach ($combination->getStocks() as $combinationStock) {
                 $stock += $combinationStock->getUnits();
                 foreach ($combinationStock->getPrevisions() as $combinationStockPrevision) {
-                    $stock += $combinationStock->getUnits();
+                    $stock += $combinationStockPrevision->getUnits();
                 }
             }
             $this->gridData['combinations']['values'][$combination->getId()] = [
