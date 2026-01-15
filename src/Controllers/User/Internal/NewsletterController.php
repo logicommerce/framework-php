@@ -16,7 +16,6 @@ use FWK\Core\Resources\Utils;
 use FWK\Enums\NewsletterSubscriptionActions;
 use FWK\Services\UserService;
 use SDK\Core\Services\Parameters\Groups\NewsletterSubscriptionParametersGroup;
-use FWK\Core\Controllers\Traits\CheckCaptcha;
 
 /**
  * This is the NewsletterController controller class.
@@ -24,12 +23,9 @@ use FWK\Core\Controllers\Traits\CheckCaptcha;
  *
  * @see BaseJsonController
  * 
- * @uses CheckCaptcha
- *
  * @package FWK\Controllers\User\Internal
  */
 class NewsletterController extends BaseJsonController {
-    use CheckCaptcha;
 
     protected ?NewsletterSubscriptionParametersGroup $newsletterSubscriptionParametersGroup = null;
 
@@ -89,7 +85,6 @@ class NewsletterController extends BaseJsonController {
      * @return Element
      */
     protected function getResponseData(): ?Element {
-        $this->checkCaptcha();
         $response = null;
         switch ($this->appliedParameters[Parameters::TYPE]) {
             case NewsletterSubscriptionActions::CHECK_STATUS:

@@ -410,117 +410,6 @@ abstract class FormFactory {
         return $form;
     }
 
-    /*public static function setAccount(string $formUserType = '', ?Account $account = null, ?AccountLinked $customer = null, ?User $user = null, ?ElementCollection $customTags = null, bool $showUserCustomTags = true, bool $showAddressBook = true, bool $thisAccountUpdatePermissions = true): Form {
-        $languageSheet = self::getLanguage();
-        $idForm = 'customerForm';
-        if (is_null($account)) {
-            $account = new Account();
-        }
-
-        $selectedInvoicingAddressId = $customer?->getSelectedInvoicingAddressId() ?? 0;
-        if ($selectedInvoicingAddressId > 0) {
-            $invoiciongAddress = $account->getAccountAddress($selectedInvoicingAddressId, AccountAddressType::INVOICING);
-        } else {
-            $invoiciongAddress = $account->getDefaultInvoicingAddresses();
-            if (is_null($invoiciongAddress)) {
-                $invoiciongAddress = new InvoicingAddress();
-            }
-        }
-
-        $selectedShippingAddressId = $customer?->getSelectedShippingAddressId() ?? 0;
-        if ($selectedShippingAddressId > 0) {
-            $shippingAddress = $account->getAccountAddress($selectedShippingAddressId, AccountAddressType::SHIPPING);
-        } else {
-            $shippingAddress = $account->getDefaultShippingAddress();
-            if (is_null($shippingAddress)) {
-                $shippingAddress = new ShippingAddress();
-            }
-        }
-
-        $formItems = [];
-        $settings = self::getConfiguration()->getForms()->getSetUser();
-        $userName = Utils::getUserName();
-
-        if ($formUserType === self::SET_USER_TYPE_ADD_CUSTOMER) {
-            $formHead = (new FormHead(RoutePaths::getPath(InternalCheckout::ADD_CUSTOMER), 'CustomerForm'))->setAutocomplete(Input::AUTOCOMPLETE_OFF)->setClass('customerForm');
-        } elseif ($formUserType === self::SET_USER_TYPE_ADD_USER_FAST_REGISTER) {
-            $formHead = (new FormHead(RoutePaths::getPath(InternalUser::ADD_USER_FAST_REGISTER), 'UserFastRegisterForm'))->setAutocomplete(Input::AUTOCOMPLETE_OFF)->setClass('UserFastRegisterForm');
-        } else {
-            $formHead = (new FormHead(RoutePaths::getPath(InternalUser::ADD_USER), 'UserForm'))->setAutocomplete(Input::AUTOCOMPLETE_OFF)->setClass('userForm');
-        }
-        $formHead = $formHead->setMethod(FormHead::METHOD_POST)->setId($idForm)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
-
-        if (Utils::isUserLoggedIn()) {
-            $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
-            $userNameLabel = $languageSheet->getLabelValue(LanguageLabels::USER_P_ID . ucwords((new \ReflectionClassConstant(LanguageLabels::class, $userKeyCriteria))->getValue()));
-            $formItems[] = new FormItem(Parameters::USERNAME, (new InputText($userName))->setClass(self::CLASS_WILDCARD)->setDisabled(true)->setLabelFor($userNameLabel));
-            $formItems[] = new FormItem(Parameters::ADDRESS_ID, new InputHidden($invoiciongAddress->getId()));
-            $formItems[] = new FormItem(Parameters::USER_TYPE, new InputHidden(UserType::getEnum($invoiciongAddress->getCustomerType())));
-            $fieldsByUserType = $settings->getUserFields()->getFieldsByUserType()[UserType::getEnum($invoiciongAddress->getCustomerType())];
-            if (isset($fieldsByUserType)) {
-                $fields = $fieldsByUserType->getUser()->getFields()->getSortFilterArrayFormFields();
-                $unavailableFieldsWithLogin = $settings->getUnavailableFieldsWithLogin()->getSortFilterArrayFields();
-                foreach ($fields as $field => $formField) {
-                    if (!in_array($field, $unavailableFieldsWithLogin)) {
-                        if ($showUserCustomTags && $field === Parameters::CUSTOM_TAGS && !is_null($customTags)) {
-                            self::setUserCustomTags($user, $customTags, $formItems, $field, $settings, $user->getUserAdditionalInformation()->getSimulatedUser(), $thisAccountUpdatePermissions);
-                        } elseif ($field != Parameters::CUSTOM_TAGS) {
-
-                            $newField = self::accountFields($field, $formField, $account, $invoiciongAddress, '', null, null,  null, [], CustomCompanyRoleTarget::COMPANY_STRUCTURE_NON_MASTER, '', false, $user->getUserAdditionalInformation()->getSimulatedUser());
-                            if (!is_null($newField)) {
-                                $formItems[$field] = $newField;
-                            }
-                        }
-                    }
-                }
-            }
-            if ($showAddressBook) {
-                $formItems[FormSetUser::ADDRESSBOOK_FIELDS] = [];
-                $dataFormAddressbook = $settings->getAddressbookFields()->getSortFilterArrayFieldsByUserType();
-
-                $addShippingFields = 0;
-                $shippingFields = $settings->getAddressbookFields()->getShippingFields()->getSortFilterArrayFormFields();
-                foreach ($dataFormAddressbook as $userType => $typeFields) {
-                    $formItems[FormSetUser::ADDRESSBOOK_FIELDS][$userType] = [];
-                    foreach (
-                        [
-                            SetUserTypeForms::BILLING,
-                            SetUserTypeForms::SHIPPING
-                        ] as $groupFields
-                    ) {
-                        if ($groupFields === SetUserTypeForms::SHIPPING) {
-                            $userType = UserType::PARTICULAR;
-                            $fields = $shippingFields;
-                            $addShippingFields += 1;
-                        } else {
-                            $get = 'get' . ucfirst($groupFields);
-                            $fields = $typeFields->$get()->getFields()->getSortFilterArrayFormFields();
-                        }
-                        if ($addShippingFields === 1 || $groupFields === SetUserTypeForms::BILLING) {
-                            $formItems[FormSetUser::ADDRESSBOOK_FIELDS][$userType][$groupFields] = [];
-                            if ($groupFields === SetUserTypeForms::SHIPPING) {
-                                $formItems[FormSetUser::ADDRESSBOOK_FIELDS][$userType][$groupFields][] = new FormItem(Parameters::MODULE, new InputHidden(UserType::PARTICULAR));
-                            }
-                            foreach ($fields as $field => $formField) {
-                                $newField = self::accountFields($field, $formField, $account, ${$groupFields . 'Address'}, $userType . '_' . $groupFields);
-
-                                if (!is_null($newField)) {
-                                    $formItems[FormSetUser::ADDRESSBOOK_FIELDS][$userType][$groupFields][] = $newField;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } 
-        $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit(''))->setClass(self::CLASS_WILDCARD)->setId('customerFormSubmit')->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE)));
-        $form = new Form($formHead, $formItems);
-        if (self::getConfiguration()->getForms()->getUseCaptcha()->getSetUser()) {
-            $form->addCaptcha();
-        };
-        return $form;
-    }*/
-
     private static function setUserCustomTags(User $user, ElementCollection $userCustomTags, array &$formItems, string $field, FormSetUser $settings, bool $simulatedUser = false, bool $thisAccountUpdatePermissions = true): void {
         $customTagsPositions = $settings->getAvailableCustomTagPositions();
         $auxCustomTagsPositions = [];
@@ -1467,9 +1356,6 @@ abstract class FormFactory {
             );
             $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setId('newsletterSubmit')->setClass(self::CLASS_WILDCARD)->setContentText($languageSheet->getLabelValue(LanguageLabels::SMALL_NEWSLETTER_SUBMIT)));
             $form = new Form($formHead, $formItems);
-            if (self::getConfiguration()->getForms()->getUseCaptcha()->getNewsletter()) {
-                $form->addCaptcha();
-            };
         }
         return $form;
     }
@@ -2280,7 +2166,11 @@ abstract class FormFactory {
         $formItems[] = new FormItem(Parameters::ACCOUNT_TYPE, (new Select($types, null, ''))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_TYPE_LABEL))->setRequired(true)->setAutocomplete(Input::AUTOCOMPLETE_OFF)->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         $formItems[] = new FormItem(Parameters::ACCOUNT, (new Select($accounts, null, ''))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_LABEL))->setRequired(true)->setDisabled(true)->setAutocomplete(Input::AUTOCOMPLETE_OFF)->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setClass('usedAccount ' . self::CLASS_WILDCARD)->setId('usedAccountSubmit')->setContentText($languageSheet->getLabelValue(LanguageLabels::SEND_USE_SELECTED_ACCOUNT))->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
-        return new Form($formHead, $formItems);
+        $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getUsedAccountSwitch()) {
+            $form->addCaptcha();
+        }
+        return $form;
     }
 
     /**
@@ -2533,7 +2423,11 @@ abstract class FormFactory {
                 ->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE))
         );
 
-        return new Form($formHead, $formItems);
+        $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getAccountRegisteredUserMove()) {
+            $form->addCaptcha();
+        }
+        return $form;
     }
     /**
      * This static method returns the registered user update Form.
@@ -2603,6 +2497,9 @@ abstract class FormFactory {
         $formItems[] = new FormItem(Parameters::REGISTERED_USER_ID, (new InputHidden($registeredUser->getRegisteredUser()?->getId() == null ? "" : $registeredUser->getRegisteredUser()?->getId()))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setClass(self::CLASS_WILDCARD)->setId('registeredUserUpdateSubmit')->setDisabled(false)->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE)));
         $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getAccountRegisteredUserUpdate()) {
+            $form->addCaptcha();
+        }
         return $form;
     }
 
@@ -2634,6 +2531,9 @@ abstract class FormFactory {
 
         $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setDisabled(false)->setClass('registeredUsersCreate')->setId('registeredUsersCreateSubmit')->setContentText($lang->getLabelValue(LanguageLabels::SAVE))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
         $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getAccountRegisteredUserCreate()) {
+            $form->addCaptcha();
+        }
         return $form;
     }
 
@@ -2676,6 +2576,9 @@ abstract class FormFactory {
 
         $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setDisabled(false)->setClass('registeredUsersApprove')->setId('registeredUsersCreateSubmit')->setContentText($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_APPROVE_BUTTON)));
         $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getAccountRegisteredUserApprove()) {
+            $form->addCaptcha();
+        }
         return $form;
     }
 
@@ -2732,7 +2635,11 @@ abstract class FormFactory {
                 ->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE))
         );
 
-        return new Form($formHead, $formItems);
+        $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getAccountCompanyDivisionCreate()) {
+            $form->addCaptcha();
+        }
+        return $form;
     }
 
     /**
@@ -2961,7 +2868,10 @@ abstract class FormFactory {
                 ->setContentText($L(LanguageLabels::SAVE))
         );
 
-        return new Form($formHead, $formItems);
+        $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getSaveCompanyRoleForm()) {
+            $form->addCaptcha();
+        }
     }
 
     /**
@@ -3067,7 +2977,11 @@ abstract class FormFactory {
                     ->setContentText($languageSheet->getLabelValue(LanguageLabels::SAVE))
             );
         }
-        return new Form($formHead, $formItems);
+        $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getAccountEditForm()) {
+            $form->addCaptcha();
+        }
+        return $form;
     }
 
     /**
@@ -3129,6 +3043,10 @@ abstract class FormFactory {
         }
 
         $formItems[] = new FormItem(Form::SUBMIT, (new ButtonSubmit())->setClass(self::CLASS_WILDCARD)->setId('registeredUserUpdateSubmit')->setDisabled($allDisabled)->setContentText(self::getLanguage()->getLabelValue(LanguageLabels::SAVE)));
-        return new Form($formHead, $formItems);
+        $form = new Form($formHead, $formItems);
+        if (self::getConfiguration()->getForms()->getUseCaptcha()->getSetRegisteredUser()) {
+            $form->addCaptcha();
+        }
+        return $form;
     }
 }

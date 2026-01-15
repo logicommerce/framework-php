@@ -30,6 +30,15 @@ use SDK\Core\Dtos\Element;
  * @see FormUseCaptcha::getShoppingListRowNotes()
  * @see FormUseCaptcha::getStockAlert()
  * @see FormUseCaptcha::getUpdatePassword()
+ * @see FormUseCaptcha::getUsedAccountSwitch()
+ * @see FormUseCaptcha::getAccountRegisteredUserMove()
+ * @see FormUseCaptcha::getAccountRegisteredUserUpdate()
+ * @see FormUseCaptcha::getAccountRegisteredUserCreate()
+ * @see FormUseCaptcha::getAccountRegisteredUserApprove()
+ * @see FormUseCaptcha::getAccountCompanyDivisionCreate()
+ * @see FormUseCaptcha::getAccountEditForm()
+ * @see FormUseCaptcha::getSaveCompanyRoleForm()
+ * @see FormUseCaptcha::getSetRegisteredUser()
  *
  * @see Element
  * @see ElementTrait
@@ -49,6 +58,7 @@ class FormUseCaptcha extends Element {
     public const LOGIN = 'login';
     public const LOST_PASSWORD = 'lostPassword';
     public const NEW_PASSWORD = 'newPassword';
+    // @deprecate
     public const NEWSLETTER = 'newsletter';
     public const POST_COMMENT = 'postComment';
     public const PRODUCT_CONTACT = 'productContact';
@@ -62,6 +72,16 @@ class FormUseCaptcha extends Element {
     public const SHOPPING_LIST_ROW_NOTES = 'shoppingListRowNotes';
     public const STOCK_ALERT = 'stockAlert';
     public const UPDATE_PASSWORD = 'updatePassword';
+    public const USED_ACCOUNT_SWITCH = 'usedAccountSwitch';
+    public const ACCOUNT_REGISTERED_USER_MOVE = 'accountRegisteredUserMove';
+    public const ACCOUNT_REGISTERED_USER_UPDATE = "accountRegisteredUserUpdate";
+    public const ACCOUNT_REGISTERED_USER_CREATE = "accountRegisteredUserCreate";
+    public const ACCOUNT_REGISTERED_USER_APPROVE = "accountRegisteredUserApprove";
+    public const ACCOUNT_COMPANY_DIVISION_CREATE = "accountCompanyDivisionCreate";
+    public const ACCOUNT_EDIT_FORM = "accountEditForm";
+    public const SAVE_COMPANY_ROLE_FORM = "saveCompanyRoleForm";
+    public const SET_REGISTERED_USER = "setRegisteredUser";
+
 
     private bool $address = false;
     private bool $blogSubscribe = false;
@@ -85,6 +105,15 @@ class FormUseCaptcha extends Element {
     private bool $shoppingListRowNotes = false;
     private bool $stockAlert = false;
     private bool $updatePassword = false;
+    private bool $usedAccountSwitch = false;
+    private bool $accountRegisteredUserMove = false;
+    private bool $accountRegisteredUserUpdate = false;
+    private bool $accountRegisteredUserCreate = false;
+    private bool $accountRegisteredUserApprove = false;
+    private bool $accountCompanyDivisionCreate = false;
+    private bool $accountEditForm = false;
+    private bool $saveCompanyRoleForm = false;
+    private bool $setRegisteredUser = false;
 
     /**
      * This method returns the address element configuration
@@ -282,5 +311,86 @@ class FormUseCaptcha extends Element {
      */
     public function getUpdatePassword(): bool {
         return $this->updatePassword;
+    }
+
+    /**
+     * This method returns the usedAccountSwitch element configuration
+     * 
+     * @return bool
+     */
+    public function getUsedAccountSwitch(): bool {
+        return $this->usedAccountSwitch;
+    }
+
+    /**
+     * This method returns the accountRegisteredUserMove element configuration
+     * 
+     * @return bool
+     */
+    public function getAccountRegisteredUserMove(): bool {
+        return $this->accountRegisteredUserMove;
+    }
+
+    /**
+     * This method returns the accountRegisteredUserUpdate element configuration
+     * 
+     * @return bool
+     */
+    public function getAccountRegisteredUserUpdate(): bool {
+        return $this->accountRegisteredUserUpdate;
+    }
+
+    /**
+     * This method returns the accountRegisteredUserCreate element configuration
+     * 
+     * @return bool
+     */
+    public function getAccountRegisteredUserCreate(): bool {
+        return $this->accountRegisteredUserCreate;
+    }
+
+    /**
+     * This method returns the accountRegisteredUserApprove element configuration
+     * 
+     * @return bool
+     */
+    public function getAccountRegisteredUserApprove(): bool {
+        return $this->accountRegisteredUserApprove;
+    }
+
+    /**
+     * This method returns the accountCompanyDivisionCreate element configuration
+     * 
+     * @return bool
+     */
+    public function getAccountCompanyDivisionCreate(): bool {
+        return $this->accountCompanyDivisionCreate;
+    }
+
+    /**
+     * This method returns the accountEditForm element configuration
+     * 
+     * @return bool
+     */
+    public function getAccountEditForm(): bool {
+        return $this->accountEditForm;
+    }
+
+    /**
+     * This method returns the saveCompanyRoleForm element configuration
+     * 
+     * @return bool
+     */
+    public function getSaveCompanyRoleForm(): bool {
+        return $this->saveCompanyRoleForm;
+    }
+
+    /**
+     * This method returns the setRegisteredUser element configuration
+     * 
+     * @return bool
+     */
+    public function getSetRegisteredUser(): bool {
+        return $this->setRegisteredUser;
     }
 }

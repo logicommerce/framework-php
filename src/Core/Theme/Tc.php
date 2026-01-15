@@ -1219,7 +1219,16 @@ abstract class Tc implements TcInterface {
                     FormUseCaptcha::SHOPPING_LIST => true,
                     FormUseCaptcha::SHOPPING_LIST_ROW_NOTES => true,
                     FormUseCaptcha::STOCK_ALERT => true,
-                    FormUseCaptcha::UPDATE_PASSWORD => true
+                    FormUseCaptcha::UPDATE_PASSWORD => true,
+                    FormUseCaptcha::USED_ACCOUNT_SWITCH => true,
+                    FormUseCaptcha::ACCOUNT_REGISTERED_USER_MOVE => true,
+                    FormUseCaptcha::ACCOUNT_REGISTERED_USER_UPDATE => true,
+                    FormUseCaptcha::ACCOUNT_REGISTERED_USER_CREATE => true,
+                    FormUseCaptcha::ACCOUNT_REGISTERED_USER_APPROVE => true,
+                    FormUseCaptcha::ACCOUNT_COMPANY_DIVISION_CREATE => true,
+                    FormUseCaptcha::ACCOUNT_EDIT_FORM => true,
+                    FormUseCaptcha::SAVE_COMPANY_ROLE_FORM => true,
+                    FormUseCaptcha::SET_REGISTERED_USER => true
                 ],
 
             ],

@@ -141,6 +141,7 @@ class BasketGridProduct implements \JsonSerializable {
                                 ];
                             }
                             break;
+                        case OptionType::SELECTOR:
                         case OptionType::SINGLE_SELECTION:
                         case OptionType::SINGLE_SELECTION_IMAGE:
                             $option['values'][] = [

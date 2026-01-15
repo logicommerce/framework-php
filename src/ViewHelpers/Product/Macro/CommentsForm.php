@@ -53,7 +53,6 @@ class CommentsForm {
             throw new CommerceException("The value of [configuration] argument: '" . $this->configuration . "' is required " . self::class, CommerceException::VIEW_HELPER_ARGUMENT_REQUIRED);
         }
 
-        $this->setCommentFieldRequired();
         $this->output = $this->setOutput();
 
         return $this->getProperties();
@@ -63,6 +62,7 @@ class CommentsForm {
      * Remove required contents of comment form input if commentFieldRequired is false
      *
      * @return void
+     * @deprecated Use FormFactory to set required attribute
      */
     private function setCommentFieldRequired(): void {
         if ($this->configuration->getCommentFieldRequired() === false) {
