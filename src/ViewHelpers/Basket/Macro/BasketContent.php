@@ -16,6 +16,7 @@ use FWK\ViewHelpers\Basket\Macro\Output\Footer;
 use FWK\Core\ViewHelpers\Macros\Basket\Macro\BaseOutput;
 use FWK\Dtos\Basket\Basket as FWKBasket;
 use SDK\Enums\DiscountType;
+use SDK\Enums\SessionType;
 
 /**
  * This is the BasketContent class, a macro class for the basket viewHelper.
@@ -135,7 +136,7 @@ class BasketContent extends BaseOutput {
             $basketRow->setLockedStockTimer($basketRow->getHash(), $this->basket->getLockedStockTimers());
         }
 
-        if ($this->saveForLater && Session::getInstance()->getUser()->getId() === 0) {
+        if ($this->saveForLater && Session::getInstance()->getBasket()->getType() === SessionType::ANONYMOUS) {
             $this->saveForLater = false;
         }
 
@@ -165,7 +166,7 @@ class BasketContent extends BaseOutput {
      *
      * @return array
      */
-    protected function getProperties(): array {        
+    protected function getProperties(): array {
         return parent::getProperties() + [
             'basket' => $this->basket,
             'editable' => $this->editable,
@@ -228,7 +229,7 @@ class BasketContent extends BaseOutput {
         $output = '<span class="basketTextQuantity">' . $quantity . '</span>';
 
         $basketRowType = $basketRow->getType();
-        if ($this->editable && ($basketRowType === BasketRowType::PRODUCT || $basketRowType === BasketRowType::BUNDLE || $basketRowType === BasketRowType::LINKED || $basketRowType === BasketRowType::VOUCHER_PURCHASE )) {
+        if ($this->editable && ($basketRowType === BasketRowType::PRODUCT || $basketRowType === BasketRowType::BUNDLE || $basketRowType === BasketRowType::LINKED || $basketRowType === BasketRowType::VOUCHER_PURCHASE)) {
             if ($this->quantityPlugin) {
                 $output = '<input type="text" class="{{className}} basketQuantity validate-integer" name="' . $nameAttr . '" value="' . $quantity . '" data-lc-row-type="' . $basketRowType . '" data-lc-quantity="quantity" min=1 max=99999999>';
             } elseif ($this->showSelectableBox && $this->selectableBoxRows > 0) {

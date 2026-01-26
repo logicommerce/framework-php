@@ -2872,6 +2872,7 @@ abstract class FormFactory {
         if (self::getConfiguration()->getForms()->getUseCaptcha()->getSaveCompanyRoleForm()) {
             $form->addCaptcha();
         }
+        return $form;
     }
 
     /**

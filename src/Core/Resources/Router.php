@@ -12,7 +12,7 @@ use FWK\Enums\RouteType;
 use FWK\Core\Resources\Route as FwkRoute;
 use SDK\Application;
 use FWK\Core\Theme\Theme;
-
+use SDK\Enums\SessionType;
 
 /**
  * The Router class responsability is to analyze the path of the request, determine the controller that has to process it and enroute the request to the corresponding controller.
@@ -110,7 +110,7 @@ final class Router {
             }
             if (!$themeConfigurationCommerce->getMaintenanceAllowAccess() && !in_array($this->route->getType(), $themeConfigurationCommerce->getMaintenanceAvailableRoutes())) {
                 $this->closeCommerce();
-            } else if (LcFWK::getLoginRequired() && Session::getInstance()->getUser()->getId() === 0 && !in_array($this->route->getType(), $themeConfigurationCommerce->getLoginRequiredAvailableRoutes())) {
+            } else if (LcFWK::getLoginRequired() && Session::getInstance()->getBasket()->getType() === SessionType::ANONYMOUS && !in_array($this->route->getType(), $themeConfigurationCommerce->getLoginRequiredAvailableRoutes())) {
                 $this->loginRequired();
             } else {
                 switch ($this->route->getStatus()) {
@@ -195,7 +195,7 @@ final class Router {
     }
 
     private function location() {
-        $redirectURL =  Utils::interceptURL($this->route->getRedirectUrl());        
+        $redirectURL =  Utils::interceptURL($this->route->getRedirectUrl());
         Response::redirect($redirectURL . Utils::parseArrayToPathParameters(Utils::deleteParamsFromRequest([URL_ROUTE])), $this->route->getStatus(), true);
     }
 }

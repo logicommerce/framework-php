@@ -76,7 +76,9 @@ class SetDeliveryController extends BaseJsonController {
      * @return Element
      */
     protected function getResponseData(): ?Element {
-        return $this->getDeliveryResponseData();
+        $delivery = $this->getDeliveryResponseData();
+        $this->updatePickingCountry($delivery);
+        return $delivery;
     }
 
     /**

@@ -230,10 +230,11 @@ class OscRecalculateController extends SetUserController {
         $delivery = $this->getDelivery();
         if (!empty($delivery)) {
             if ($delivery[Parameters::TYPE] === DeliveryType::SHIPPING) {
-                $this->getDeliveryResponseData($delivery[Parameters::TYPE], $delivery[Parameters::DELIVERY_HASH], $delivery[Parameters::SHIPMENTS]);
+                $getDelivery = $this->getDeliveryResponseData($delivery[Parameters::TYPE], $delivery[Parameters::DELIVERY_HASH], $delivery[Parameters::SHIPMENTS]);
             } elseif ($delivery[Parameters::TYPE] === DeliveryType::PICKING) {
-                $this->getDeliveryResponseData($delivery[Parameters::TYPE], $delivery[Parameters::DELIVERY_HASH], [], $delivery[Parameters::PROVIDER_PICKUP_POINT_HASH]);
+                $getDelivery = $this->getDeliveryResponseData($delivery[Parameters::TYPE], $delivery[Parameters::DELIVERY_HASH], [], $delivery[Parameters::PROVIDER_PICKUP_POINT_HASH]);
             }
+            $this->updatePickingCountry($getDelivery);
         }
     }
 

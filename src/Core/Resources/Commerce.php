@@ -84,7 +84,7 @@ class Commerce {
                 Utils::addTimerDebugFlag('Session-start', Timer::START_SUFFIX);
                 $session = Session::getInstance();
                 $onError = $session->start();
-                Application::getInstance()->setPlugins($session->getNavigationHash());
+                Application::getInstance()->setPlugins($session->getNavigationHash() ?? "");
                 Utils::addTimerDebugFlag('Session-start', Timer::END_SUFFIX);
                 if (!$onError) {
                     Language::reloadInstance($session->getGeneralSettings()->getLanguage());

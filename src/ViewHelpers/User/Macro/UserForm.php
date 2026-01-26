@@ -13,6 +13,7 @@ use SDK\Core\Dtos\ElementCollection;
 use FWK\Core\Form\Form as CoreForm;
 use FWK\Core\Resources\Utils;
 use FWK\Services\LmsService;
+use SDK\Enums\SessionType;
 
 /**
  * This is the UserForm class, a macro class for the userViewHelper.
@@ -93,7 +94,7 @@ class UserForm {
             throw new CommerceException("The value of [selectedCountry] argument: '" . $this->selectedCountry . "' is required " . self::class, CommerceException::VIEW_HELPER_ARGUMENT_REQUIRED);
         }
         $session = Session::getInstance();
-        if ($session !== null && $session->getUser()->getId() !== 0) {
+        if ($session !== null && Session::getInstance()->getBasket()->getType() === SessionType::REGISTERED) {
             if (is_null($this->billingAddresses) && ($this->routeType === RouteType::CHECKOUT_CUSTOMER || $this->routeType === RouteType::CHECKOUT_CUSTOMER_NEW_REGISTER)) {
                 throw new CommerceException("The value of [billingAddresses] argument: '" . $this->billingAddresses . "' is required " . self::class, CommerceException::VIEW_HELPER_ARGUMENT_REQUIRED);
             }

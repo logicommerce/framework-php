@@ -107,6 +107,8 @@ class Session {
 
     public const ASSOCIATED_ACCOUNTS = 'associatedAccounts';
 
+    public const USE_DELIVERY_PICKING = 'useDeliveryPicking';
+
     private static $instance = null;
 
     private static $resetBasket = false;
@@ -144,6 +146,8 @@ class Session {
     protected array $warnings = [];
 
     protected ?string $navigationHash = null;
+
+    protected bool $useDeliveryPicking = false;
 
     final private function __construct() {
     }
@@ -273,6 +277,7 @@ class Session {
         $this->updatedAt = (isset($_SESSION[self::UPDATED_AT]) ? $_SESSION[self::UPDATED_AT] : null);
         $this->warnings = (isset($_SESSION[self::WARNING]) ? $_SESSION[self::WARNING] : []);
         $this->navigationHash = isset($_SESSION[self::NAVIGATION_HASH]) ? $_SESSION[self::NAVIGATION_HASH] : null;
+        $this->useDeliveryPicking = isset($_SESSION[self::USE_DELIVERY_PICKING]) ? $_SESSION[self::USE_DELIVERY_PICKING] : false;
     }
 
     /**
@@ -587,11 +592,12 @@ class Session {
 
         $initRouteHome = false;
         if (
+            !$this->useDeliveryPicking &&
             $countryNavigationAssignament != Commerce::COUNTRY_NAVIGATION_ASSIGNAMENT_NONE
             && ($oldCountry != $newCountry || !$sameUseShippingAddress)
             && !is_null($newCountry)
         ) {
-            $setCountry = Loader::service(Services::SESSION)->setCountry($newCountry);
+            $setCountry = $this->setCountry($newCountry);
             if (is_null($setCountry->getError())) {
                 $initRouteHome = true;
             }
@@ -611,6 +617,22 @@ class Session {
         $this->setUpdatedAt($oldBasket, $basket);
     }
 
+    public function getCountry() {
+        $basket = $this->getBasket();
+        $countryCode = $basket->getCustomer()?->getInvoicingAddress()?->getLocation()?->getGeographicalZone()?->getCountryCode();
+        $countryNavigationAssignament = $this->getDefaultTheme()->getConfiguration()->getCommerce()->getCountryNavigationAssignament();
+        if ($countryNavigationAssignament == Commerce::COUNTRY_NAVIGATION_ASSIGNAMENT_SHIPPING && $basket->getBasketUser()?->getUser()?->getUseShippingAddress() === true) {
+            $countryCode = $basket->getCustomer()?->getShippingAddress()?->getLocation()?->getGeographicalZone()?->getCountryCode();
+        }
+        return $countryCode;
+    }
+
+    public function setCountry(?String $newCountryCode = null): ?Basket {
+        if (is_null($newCountryCode)) {
+            $newCountryCode = $this->getCountry();
+        }
+        return Loader::service(Services::SESSION)->setCountry($newCountryCode);
+    }
     /**
      * This method returns the session Basket.
      *
@@ -1168,5 +1190,29 @@ class Session {
      */
     public function getAssociatedAccounts(): ?bool {
         return $_SESSION[self::ASSOCIATED_ACCOUNTS];
+    }
+
+    /**
+     * This method sets use delivery picking
+     *
+     * @return void
+     */
+    public function setUseDeliveryPicking(bool $useDeliveryPicking): void {
+        $doCommit = $this->startWritableSession();
+        $_SESSION[self::USE_DELIVERY_PICKING] = $useDeliveryPicking;
+        $this->useDeliveryPicking = $_SESSION[self::USE_DELIVERY_PICKING];
+        if ($doCommit) {
+            $this->commitSession();
+        }
+    }
+
+    /**
+     * This method returns use delivery picking
+     *
+     * @return bool
+     * 
+     */
+    public function getUseDeliveryPicking(): bool {
+        return $this->useDeliveryPicking;
     }
 }

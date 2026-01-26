@@ -45,7 +45,7 @@
 		</div>
 	{% endif %}
 
-	{% if not args.output and not session.user.id and args.blogSettings.commentsMode != constant('SDK\\Enums\\BlogPostCommentMode::ANONYMOUS_AND_REGISTERED_USERS') %}
+	{% if not args.output and session.basket.type == constant('SDK\\Enums\\SessionType::ANONYMOUS') and args.blogSettings.commentsMode != constant('SDK\\Enums\\BlogPostCommentMode::ANONYMOUS_AND_REGISTERED_USERS') %}
 		<div id="postFormCommentAccountRequired" class="commentFormAccountRequired">
 			<div class="accountRequiredBlock">
 				<div class="questionText">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::COMMENT_ACCOUNT_REQUIRED')] -}}</div>

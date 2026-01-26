@@ -50,7 +50,7 @@
 		</div>
 	{% endif %}
 
-	{% if not args.output and not session.user.id and not themeConfiguration.forms.comments.anonymousRatingEnabled %}
+	{% if not args.output and session.basket.type == constant('SDK\\Enums\\SessionType::ANONYMOUS') and not themeConfiguration.forms.comments.anonymousRatingEnabled %}
 		<div id="productFormCommentAccountRequired" class="commentFormAccountRequired">
 			<div class="accountRequiredBlock">
 				<div class="questionText">{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::COMMENT_ACCOUNT_REQUIRED')] -}}</div>

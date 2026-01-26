@@ -2,7 +2,7 @@
     {%- set classWildcard = constant('FWK\\Core\\Form\\FormFactory::CLASS_WILDCARD') -%}
     {%- set attributeWildcard = constant('FWK\\Core\\Form\\FormFactory::ATTRIBUTE_WILDCARD') -%}
 
-    {%- if session.user.id and not args.userWarnings|length -%}
+    {%- if session.basket.type == constant('SDK\\Enums\\SessionType::REGISTERED') and not args.userWarnings|length -%}
         <div class="loginForm loginFormLoggedIn">
             <div class="moduleText loginFormText">
                 {%- if session.user.userAdditionalInformation.simulatedUser -%}

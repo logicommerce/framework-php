@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace FWK\Core\Controllers\Traits;
 
+use FWK\Core\Resources\Session;
+use FWK\Core\Theme\Dtos\Commerce;
 use SDK\Core\Dtos\Element;
 use SDK\Services\Parameters\Groups\Basket\EditShipmentParametersGroup;
 use SDK\Services\Parameters\Groups\Basket\EditShipmentsParametersGroup;
 use FWK\Enums\Parameters;
 use SDK\Enums\DeliveryType;
+use SDK\Enums\PickingDeliveryType;
 
 /**
  * This is the set delivery trait.
@@ -66,5 +69,32 @@ trait SetDeliveryTrait {
             return true;
         }
         return false;
+    }
+
+    protected function updatePickingCountry(?Element $delivery): void {
+        $countryNavigationAssignament = Session::getInstance()->getDefaultTheme()->getConfiguration()->getCommerce()->getCountryNavigationAssignament();
+        if (
+            $delivery !== null &&
+            $delivery->getError() === null
+        ) {
+            $deliveryType = $delivery?->getDelivery()?->getType();
+            if (
+                $deliveryType === DeliveryType::PICKING
+                &&
+                $countryNavigationAssignament === Commerce::COUNTRY_NAVIGATION_ASSIGNAMENT_SHIPPING
+            ) {
+                $deliveryPickupType = $delivery?->getDelivery()?->getMode()?->getType();
+                if ($deliveryPickupType === PickingDeliveryType::PROVIDER_PICKUP_POINT || $deliveryPickupType === PickingDeliveryType::PICKUP_POINT_PHYSICAL_LOCATION) {
+                    $newCountryCode = $delivery?->getDelivery()?->getZone()?->getCountryCode();
+                    $basket = Session::getInstance()->setCountry($newCountryCode);
+                    if ($basket->getError() === null) {
+                        Session::getInstance()->setUseDeliveryPicking(true);
+                    }
+                }
+            } elseif (Session::getInstance()->getUseDeliveryPicking()) {
+                Session::getInstance()->setUseDeliveryPicking(false);
+                Session::getInstance()->setCountry();
+            }
+        }
     }
 }

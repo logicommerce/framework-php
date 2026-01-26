@@ -16,6 +16,7 @@ use FWK\Core\Resources\Response;
 use FWK\Core\Resources\RoutePaths;
 use FWK\Core\Resources\Session;
 use FWK\Core\Resources\Utils;
+use FWK\Core\Theme\Dtos\Commerce;
 use FWK\Core\Theme\Dtos\CommerceLockedStock;
 use FWK\Enums\Parameters;
 use FWK\Enums\RouteType;
@@ -90,6 +91,9 @@ class EndOrderController extends BaseHtmlController {
         if ($fail) {
             $this->onFailureAction($order, $payResponse);
             Session::getInstance()->setBasket($this->basketService->getBasket());
+        } elseif (Session::getInstance()->getUseDeliveryPicking()) {
+            Session::getInstance()->setCountry();
+            Session::getInstance()->setUseDeliveryPicking(false);
         }
     }
 
