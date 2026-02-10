@@ -26,7 +26,7 @@
 
         {%- elseif name == constant('FWK\\Core\\Form\\Form::SUBMIT') -%}
 
-            {%- set attrAriaLabel = "arial-label='" ~ languageSheet[constant('FWK\\Enums\\LanguageLabels::SEARCH')]|striptags ~ "' " -%}
+            {%- set attrAriaLabel = "aria-label='" ~ languageSheet[constant('FWK\\Enums\\LanguageLabels::SEARCH')]|striptags ~ "' " -%}
             <div class="moduleField moduleButton {{ args.form.template }}ModuleField" id="{{ args.form.template }}SubmitContainer">
                 {{- element|replace({ (classWildcard): '', (attributeWildcard): attrAriaLabel }) -}}
             </div>

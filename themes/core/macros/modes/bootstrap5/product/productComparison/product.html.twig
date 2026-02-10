@@ -45,7 +45,7 @@
                         class: 'btn btn-secondary',
                     }) -}#}
 
-                    <a data-lc-event="click" data-lc-function="deleteProductComparison" href="#" data-lc-data="{{ product.id }}" class="btn delete-comparison-btn">
+                    <a data-lc-event="click" data-lc-function="deleteProductComparison" href="#" data-lc-data="{{ product.id }}" class="btn delete-comparison-btn" aria-label="{{languageSheet[constant('FWK\\Enums\\LanguageLabels::DELETE')]}} {{ product.id }}">
                         <svg class="icon icon-delete"><use xlink:href="#icon-trash"></use></svg>
                     </a>
 

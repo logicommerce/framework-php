@@ -2218,7 +2218,8 @@ abstract class FormFactory {
 
         if (
             in_array(Session::getInstance()?->getBasket()?->getAccount()?->getType(),  AccountType::getCompanyTypes()) &&
-            LmsService::getAdvcaLicense()
+            LmsService::getAdvcaLicense() &&
+            Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()
         ) {
 
             $includeSubCompanyStructureOptions = [

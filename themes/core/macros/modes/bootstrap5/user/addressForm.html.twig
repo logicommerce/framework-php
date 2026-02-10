@@ -47,51 +47,53 @@
         {% endif %}
 
         {% for userTypeName, userTypeElement in formElement %}
-            {% if useShippingWithoutType %}
-                {%- set userTypeName = constant('SDK\\Enums\\UserType::PARTICULAR') -%}
-            {%- endif -%}
-            {# Print userTypes tab panes #}
-            {%- set tabPanelActive = (session.basket.account.getUserType() == userTypeName) or useShippingWithoutType -%}
-            {% if isGeneral or tabPanelActive %}
-                <div role="tabpanel" class="tab-pane tabPaneUserType {% if userTypeName == args.defaultUserType or useShippingWithoutType or tabPanelActive %} active {% endif %}" id="{{ args.prefix }}_tabPane_{{ userTypeName }}">
-                    {% for addressTypeName, addressType in userTypeElement %}
-                        {% if addressTypeName == args.prefix %}
-                            <div class="formFields {{ addressTypeName }}FormFields">
-                                {% for fieldName, field in addressType %}
-                                    {% set fieldNameData = fieldName|split('_') %}
-                                    {% set fieldNameData = fieldName|split('_') %}
+            {% if userTypeElement[args.prefix] is defined and userTypeElement[args.prefix] is not empty %}
+                {% if useShippingWithoutType %}
+                    {%- set userTypeName = constant('SDK\\Enums\\UserType::PARTICULAR') -%}
+                {%- endif -%}
+                {# Print userTypes tab panes #}
+                {%- set tabPanelActive = (session.basket.account.getUserType() == userTypeName) or useShippingWithoutType -%}
+                {% if isGeneral or tabPanelActive %}
+                    <div role="tabpanel" class="tab-pane tabPaneUserType {% if userTypeName == args.defaultUserType or useShippingWithoutType or tabPanelActive %} active {% endif %}" id="{{ args.prefix }}_tabPane_{{ userTypeName }}">
+                        {% for addressTypeName, addressType in userTypeElement %}
+                            {% if addressTypeName == args.prefix %}
+                                <div class="formFields {{ addressTypeName }}FormFields">
+                                    {% for fieldName, field in addressType %}
+                                        {% set fieldNameData = fieldName|split('_') %}
+                                        {% set fieldNameData = fieldName|split('_') %}
 
-                                    {% if fieldNameData[2] == constant('FWK\\Enums\\Parameters::LOCATION') %}
-                                        {% set useLocation = true %}
-                                    {% elseif fieldNameData[2] == constant('FWK\\Enums\\Parameters::COUNTRY') and useLocation and args.locationMode|length %}
-                                        {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/location.html.twig' with { 
-                                            input: field, 
-                                            name: fieldNameData[2]|default(''),
-                                            userType: fieldNameData[0]|default(''),
-                                            section: fieldNameData[1]|default(''),
-                                            selectedCountry: args.selectedCountry,
-                                            selectedCountryLocations: args.selectedCountryLocations,
-                                            locationMode: args.locationMode
-                                        } %}
-                                    {% else %}
-                                        {% if fieldNameData[2] in inputsTemplates %}
-                                            {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/' ~ fieldNameData[2] ~ '.html.twig' %}
+                                        {% if fieldNameData[2] == constant('FWK\\Enums\\Parameters::LOCATION') %}
+                                            {% set useLocation = true %}
+                                        {% elseif fieldNameData[2] == constant('FWK\\Enums\\Parameters::COUNTRY') and useLocation and args.locationMode|length %}
+                                            {% include 'macros/modes/' ~ coreMode ~ '/user/form/inputs/location.html.twig' with { 
+                                                input: field, 
+                                                name: fieldNameData[2]|default(''),
+                                                userType: fieldNameData[0]|default(''),
+                                                section: fieldNameData[1]|default(''),
+                                                selectedCountry: args.selectedCountry,
+                                                selectedCountryLocations: args.selectedCountryLocations,
+                                                locationMode: args.locationMode
+                                            } %}
                                         {% else %}
-                                            {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/_default.html.twig' %}
+                                            {% if fieldNameData[2] in inputsTemplates %}
+                                                {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/' ~ fieldNameData[2] ~ '.html.twig' %}
+                                            {% else %}
+                                                {% set inputTemplate = 'macros/modes/' ~ coreMode ~ '/user/form/inputs/_default.html.twig' %}
+                                            {% endif %}
+                                            {% include inputTemplate with { 
+                                                input: field, 
+                                                name: fieldNameData[2]|default(''),
+                                                userType: fieldNameData[0]|default(''),
+                                                section: fieldNameData[1]|default(''),
+                                                definitionElement: args.form.definitionElements[constant('FWK\\Core\\Theme\\Dtos\\FormSetUser::ADDRESSBOOK_FIELDS')][userTypeName][addressTypeName][fieldName]
+                                            } %}
                                         {% endif %}
-                                        {% include inputTemplate with { 
-                                            input: field, 
-                                            name: fieldNameData[2]|default(''),
-                                            userType: fieldNameData[0]|default(''),
-                                            section: fieldNameData[1]|default(''),
-                                            definitionElement: args.form.definitionElements[constant('FWK\\Core\\Theme\\Dtos\\FormSetUser::ADDRESSBOOK_FIELDS')][userTypeName][addressTypeName][fieldName]
-                                        } %}
-                                    {% endif %}
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {%- endif -%}
             {%- endif -%}
         {% endfor %}
 

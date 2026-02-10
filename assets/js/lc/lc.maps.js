@@ -618,12 +618,16 @@ LC.maps = {
                 longitude = data.location.coordinate.longitude;
             let icon = document.createElement('img');
             icon.src = this.icon;
+            const markerAriaLabel = `logo ${data.id}`;
+            icon.setAttribute('alt', markerAriaLabel);
+            icon.setAttribute('aria-label', markerAriaLabel);
             const marker = new google.maps.marker.AdvancedMarkerElement({
                 id: index,
                 map: this.map,
                 position: { lat: latitude, lng: longitude },
                 content: icon
             });
+            marker.lcPhysicalLocationId = data.id;
 
             this.addEventMarker(marker, 'click', 'centerAndDisplay', data);
             if (this.options.showMarkerInfo) {
@@ -878,11 +882,23 @@ LC.maps = {
         for (var i = 0; i < this.markers.length; i++) {
             let icon = document.createElement('img');
             icon.src = this.icon;
+            const markerLabel = `logo ${this.markers[i].id}`;
+            icon.setAttribute('alt', markerLabel);
+            icon.setAttribute('aria-label', markerLabel);
             this.markers[i].obj.content = icon;
         }
         let iconSelected = document.createElement('img');
         iconSelected.src = this.iconSelected;
         iconSelected.classList.add('map-marker-bounce');
+        let markerLabelId = '';
+        if (marker && marker.id) {
+            markerLabelId = marker.id;
+        } else if (marker && marker.lcPhysicalLocationId) {
+            markerLabelId = marker.lcPhysicalLocationId;
+        }
+        const markerSelectedLabel = markerLabelId ? `logo ${markerLabelId}` : 'logo';
+        iconSelected.setAttribute('alt', markerSelectedLabel);
+        iconSelected.setAttribute('aria-label', markerSelectedLabel);
 
         if (marker.obj) {
             marker.obj.content = iconSelected;

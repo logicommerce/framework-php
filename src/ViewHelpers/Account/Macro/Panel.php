@@ -122,8 +122,8 @@ class Panel {
 
     private function pruneItemsForAdvca(): void {
         $basket = Session::getInstance()->getBasket();
-        $type   = $basket->getAccount()->getType();
-        $mode   = $basket->getMode()->getType();
+        $type   = $basket?->getAccount()?->getType();
+        $mode   = $basket?->getMode()?->getType();
 
         $useADVCA = LmsService::getAdvcaLicense()
             && in_array($type, [AccountType::COMPANY, AccountType::COMPANY_DIVISION], true)
@@ -138,7 +138,7 @@ class Panel {
     }
 
     private function pruneItemsForSalesAgentSim(): void {
-        if (Session::getInstance()->getBasket()->getMode()->getType() !== SessionUsageModeType::SALES_AGENT_SIMULATION) {
+        if (Session::getInstance()?->getBasket()?->getMode()?->getType() !== SessionUsageModeType::SALES_AGENT_SIMULATION) {
             return;
         }
 

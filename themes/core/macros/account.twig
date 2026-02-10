@@ -1140,7 +1140,11 @@
     {{ addTimerDebugFlag('accountMacros_editAccountForm', true) }}
     {% set viewParameters = viewHelpers.account.editAccountFormMacro(args) %}
     {% import 'macros/modes/' ~ coreMode ~ '/account/editAccountForm.html.twig' as modeAccount %}
-    {{ modeAccount.editAccountForm(viewParameters) }}
+    {% from "macros/form.twig" import legalCheck as legalCheckMacro %}
+    {% set legalCheck %}
+        {{ legalCheckMacro({}) }}
+    {% endset %}
+    {{ modeAccount.editAccountForm(viewParameters, legalCheck) }}
     {{ addTimerDebugFlag('accountMacros_editAccountForm', false) }}
 {% endmacro %}
 

@@ -7,6 +7,7 @@
             id="buyFormSubmit{{ args.id }}" 
             data-show-label="{{ args.showLabel == true ? 'true' : 'false' }}" 
             class="buyFormSubmit buy {{ args.class|length ? args.class : 'btn btn-primary' }} initializeDisabled"
+            aria-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BUY')] }} {{ args.id }}"
             {% if args.formButtonHook|length %}
                 data-lc-formButton="{{ args.formButtonHook }}"
             {% endif %}

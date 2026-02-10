@@ -1720,6 +1720,10 @@ LC.fn('quantity', {
             this.maxValue = parseInt(element.attr('max'));
             this.multipleValue = parseInt(element.attr('multipleValue')) || 1;
             this.multipleFrom = parseInt(element.attr('multipleFrom')) || 1;
+            const quantityLabel = element.attr('aria-label') || (LC.global && LC.global.languageSheet && LC.global.languageSheet.quantity) || 'Quantity';
+            if (!element.attr('aria-label')) {
+                element.attr('aria-label', quantityLabel);
+            }
 
             // Create vars
             this.$container = $('<div/>', { class: 'input-group input-group-quantity' });
@@ -1733,6 +1737,7 @@ LC.fn('quantity', {
                 'data-field': this.fieldName,
                 html: '<span class="glyphicon glyphicon-minus"></span>',
             })
+                .attr('aria-label', `${quantityLabel} -`)
                 .appendTo(this.$minus)
                 .click(this.clickBtn.bind(this));
 
@@ -1743,6 +1748,7 @@ LC.fn('quantity', {
                 'data-field': this.fieldName,
                 html: '<span class="glyphicon glyphicon-plus"></span>',
             })
+                .attr('aria-label', `${quantityLabel} +`)
                 .appendTo(this.$plus)
                 .click(this.clickBtn.bind(this));
 

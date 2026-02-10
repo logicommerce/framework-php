@@ -1076,7 +1076,7 @@ class Session {
 
 
         foreach ($basket->getItems() as $item) {
-            if ($item->getType() == BasketRowType::PRODUCT && !empty($this->basketGridProducts[$item->getId()]->getCombinations())) {
+            if ($item->getType() == BasketRowType::PRODUCT && !empty($this->basketGridProducts[$item->getId()]?->getCombinations())) {
                 $this->basketGridProducts[$item->getId()]->updateCombination($item);
             }
         }

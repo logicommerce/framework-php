@@ -1,16 +1,18 @@
 {#-
-	@description Print user type nav tabs
+	@description Print user type nav tabs (only for userTypes that have the required addressType)
 
     @param {array} elements             Total usertypes from defined into theme configuration class
     @param {string} defaultUserType     Default user type defined into theme configuration class
-    @param {string} tabPanePrefix       Prefix for html nav tabs
+    @param {string} tabPanePrefix       Prefix for html nav tabs (billing/shipping)
 -#}
 {%- macro userTypeNavTabs(elements, defaultUserType, tabPanePrefix = 'user') -%}
     <ul class="nav nav-tabs userTypeNavTabs" role="tablist">
         {%- for name, element in elements -%}
-            <li role="presentation" class="nav-item">
-                <a href="#{{ tabPanePrefix }}_tabPane_{{ name }}" class="nav-link {% if name == defaultUserType %}active{% endif %}" aria-controls="{{ tabPanePrefix }}_tabPane_{{ name }}" role="tab" data-bs-toggle="tab" data-lc-user-type="{{ name }}">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::' ~ name ~ '_TYPE')] }}</a>
-            </li>
+            {% if element[tabPanePrefix] is defined and element[tabPanePrefix]|length > 0 %}
+                <li role="presentation" class="nav-item">
+                    <a href="#{{ tabPanePrefix }}_tabPane_{{ name }}" class="nav-link {% if name == defaultUserType %}active{% endif %}" aria-controls="{{ tabPanePrefix }}_tabPane_{{ name }}" role="tab" data-bs-toggle="tab" data-lc-user-type="{{ name }}">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::' ~ name ~ '_TYPE')] }}</a>
+                </li>
+            {% endif %}
         {%- endfor -%}
     </ul>
 {%- endmacro -%}

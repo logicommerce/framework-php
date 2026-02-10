@@ -1,7 +1,7 @@
 {% macro accountOrders(args) %}
     {% import 'macros/modes/' ~ coreMode ~ '/user/rmas.html.twig' as macroRmas %}
     {% import 'macros/modes/' ~ coreMode ~ '/util/modalForm.html.twig' as ajaxModalForm %}
-    {% if args.userId > 0 and settings.accountRegisteredUsersSettings.cardinalityPlus %}
+    {% if args.userId > 0 %}
         {% if args.orders.items|length > 0 %}
             {%- set iconsPath = getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) ~ '/userActions/' -%}
 

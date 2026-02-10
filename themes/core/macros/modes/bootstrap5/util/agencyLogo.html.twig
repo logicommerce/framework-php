@@ -4,7 +4,7 @@
             {%- if route.type == constant('SDK\\Enums\\RouteType::HOME') -%}
                 <a rel="{{ args.linkRel }}" target="_blank" href="{{ args.link }}" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {{ args.name|escape }}">
             {%- endif -%}
-                <img class="{{ args.class }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {{ args.name|escape }}" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {{ args.name|escape }}" src="{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) }}/{{ args.logoImgSrc }}">
+                <img class="{{ args.class }}" alt="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {{ args.name|escape }}" aria-label="logo{{ args.id }}" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ECOMMERCE_BY')] }} {{ args.name|escape }}" src="{{ getAssetsImgPath(constant('FWK\\Core\\Resources\\Assets::ENVIRONMENT_COMMERCE')) }}/{{ args.logoImgSrc }}">
             {%- if route.type == constant('SDK\\Enums\\RouteType::HOME') -%}
                 </a>
             {%- endif -%}

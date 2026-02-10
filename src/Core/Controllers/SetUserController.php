@@ -116,6 +116,25 @@ abstract class SetUserController extends BaseJsonController {
 
     public const CUSTOM_TAGS = 'customTags';
 
+    private const LEGACY_POST_USER_COMMERCE_IDS = [
+        '233', //'ESEOESE',
+        '136', //'TRES',
+        '70', //'EUREKAKIDS',
+        '237', //'SALGAR',
+        '285', //'SOMOSPLENUM',
+        '223', //'JUGAR I JUGAR',
+        '330', //'MILAN',
+        '291', //'OUTLET MOTO',
+        '293', //'CAJADECARTON.ES',
+        '225', //'CASHDISPLAY',
+        '371', //'VAUKURA',
+        '180', //'MUNICHSPORTS.COM',
+        '98', //'CASAS',
+        '100', //'CAMILA\'S',
+        '167', //'ONA LLIBRES',
+        '287', //'CARMINA SHOEMAKER',
+    ];
+
     /**
      * This constant is an array that defines the fields to consider when creating a user.
      */
@@ -611,7 +630,7 @@ abstract class SetUserController extends BaseJsonController {
                     $dataValidator = 'getUpdateUser' . $type;
                     $dataValidator = $themeConfiguration->getDataValidators()->$dataValidator();
                     $isAccountUpdateBlocked = false;
-                    if (!Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()) {
+                    if ($this->shouldUseLegacyPostUser()) {
                         $responseUpdateUser = $this->userService->updateUser($this->userParametersGroup, $dataValidator);
                     } else {
                         $thisAccountUpdatePermissions = true;
@@ -625,7 +644,7 @@ abstract class SetUserController extends BaseJsonController {
                         }
 
                         if (!$isAccountUpdateBlocked) {
-                            $this->accountParametersGroup = UserToAccountFactory::mapUpdateUserToUpdateAccount($this->userParametersGroup, Session::getInstance()?->getBasket()?->getAccountRegisteredUser()?->isMaster() ?? true, $isAccountUpdateBlocked);
+                            $this->accountParametersGroup = UserToAccountFactory::mapUpdateUserToUpdateAccount($this->userParametersGroup, Session::getInstance()?->getBasket()?->getAccountRegisteredUser()?->isMaster() ?? true);
                             $responseUpdateUser = $this->accountService->updateUsedAccount(AccountKey::USED, $this->accountParametersGroup, $dataValidator);
                         }
                         $updateAccountRegisteredUsersParametersGroup = new UpdateAccountRegisteredUsersParametersGroup();
@@ -659,14 +678,14 @@ abstract class SetUserController extends BaseJsonController {
                 } else {
                     $dataValidator = 'getNewUser' . ($this->getTypeForm() === FormFactory::SET_USER_TYPE_ADD_USER_FAST_REGISTER ? 'FastRegister' : '') . $type;
                     $dataValidator = $themeConfiguration->getDataValidators()->$dataValidator();
-                    if (!Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()) {
+                    if ($this->shouldUseLegacyPostUser()) {
                         $responseUser = $this->userService->createUser($this->userParametersGroup, $dataValidator);
                     } else {
                         if (isset($this->data[self::USER]['createAccount']) && $this->data[self::USER]['createAccount'] == true) {
                             $this->accountParametersGroup = UserToAccountFactory::mapCreateUserToCreateAccount($this->userParametersGroup, self::getTheme()?->getConfiguration()?->getAccount()?->getAccountType());
                             $responseUser = $this->accountService->createAccount($this->accountParametersGroup, $dataValidator);
                         } else {
-                            $this->accountParametersGroup = UserToAccountFactory::mapCreateUserToUpdateOmsBasketCustomer($this->userParametersGroup, self::getTheme()?->getConfiguration()?->getAccount()?->getAccountType());
+                            $this->accountParametersGroup = UserToAccountFactory::mapCreateUserToUpdateOmsBasketCustomer($this->userParametersGroup);
                             $responseUser = Loader::service(Services::BASKET)->updateOmsBasketCustomer($this->accountParametersGroup, $dataValidator);
                         }
                     }
@@ -714,6 +733,17 @@ abstract class SetUserController extends BaseJsonController {
     protected function userExists(string $value): bool {
         $userExists = $this->userService->getUserExists($value);
         return $userExists->getExists();
+    }
+
+    private function shouldUseLegacyPostUser(): bool {
+        $commerceId = (string) \SDK\Core\Resources\Environment::get('COMMERCE_ID');
+        foreach (self::LEGACY_POST_USER_COMMERCE_IDS as $legacyCommerceId) {
+            if ($commerceId === $legacyCommerceId) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
