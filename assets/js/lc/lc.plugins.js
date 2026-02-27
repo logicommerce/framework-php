@@ -1720,7 +1720,10 @@ LC.fn('quantity', {
             this.maxValue = parseInt(element.attr('max'));
             this.multipleValue = parseInt(element.attr('multipleValue')) || 1;
             this.multipleFrom = parseInt(element.attr('multipleFrom')) || 1;
-            const quantityLabel = element.attr('aria-label') || (LC.global && LC.global.languageSheet && LC.global.languageSheet.quantity) || 'Quantity';
+            const rawLabel = element.attr('aria-label') || (LC.global && LC.global.languageSheet && LC.global.languageSheet.quantity) || 'Quantity';
+            const tmp = document.createElement('div');
+            tmp.innerHTML = rawLabel;
+            const quantityLabel = (tmp.textContent || '').trim();
             if (!element.attr('aria-label')) {
                 element.attr('aria-label', quantityLabel);
             }

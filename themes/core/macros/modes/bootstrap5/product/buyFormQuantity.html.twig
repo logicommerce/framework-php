@@ -1,8 +1,9 @@
 {%- macro buyFormQuantity(args) -%}
     {% set minQuantity = args.forceMinQuantityZero ? 0 : args.minQuantity%}
+    {% set quantityLabel = languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')]|striptags|trim %}
     {%- if (args.showOrderBox is not null and args.showOrderBox == true) or (args.showOrderBox is null and args.product.definition.showOrderBox) -%}
         {%- if args.showSelectableBox -%}
-            <select class="quantitySelect buyFormQuantity form-select {{ args.class }}"  id="{{- args.id -}}" name="quantity" aria-label="{{languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')]}}" autocomplete="off">
+            <select class="quantitySelect buyFormQuantity form-select {{ args.class }}"  id="{{- args.id -}}" name="quantity" aria-label="{{ quantityLabel|e('html_attr') }}" autocomplete="off">
                 {%- for optionIndex in range(minQuantity, args.selectableBoxRows, args.minQuantity) -%}
                     <option value="{{- optionIndex -}}">{{- optionIndex -}}</option>
                 {%- endfor -%}
@@ -15,7 +16,7 @@
                 class="buyFormQuantity {{ args.class }}"  
                 id="{{- args.id -}}"
                 name="quantity"
-                aria-label="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::QUANTITY')] }}"
+                aria-label="{{ quantityLabel|e('html_attr') }}"
                 value="{{- minQuantity -}}" 
                 data-input="true" 
                 min="{{- args.minQuantity -}}" 
