@@ -603,14 +603,14 @@ class Session {
             }
         }
 
-        if ($newLanguage != $oldLanguage || $initRouteHome) {
-            $this->initRouteHome();
-        }
-
         $oldCurrency = $oldBasket->getBasketUser()?->getUser()?->getCurrencyCode();
         $newCurrency = $basket->getBasketUser()?->getUser()?->getCurrencyCode();
 
-        if ($newCurrency != $oldCurrency || $initRouteHome) {
+        if (
+            $initRouteHome
+            || $newLanguage != $oldLanguage
+            || $newCurrency != $oldCurrency
+        ) {
             $this->initRouteHome();
         }
 

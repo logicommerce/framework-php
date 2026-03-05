@@ -66,7 +66,6 @@ class UserService extends UserServiceSDK {
         if (is_null($response->getError()) || $response->getError()->getCode() === 'A01000-USER_IS_LOGGED_IN') {
             Session::getInstance()->loginReset(is_null($response->getError()) ? $response : null);
         }
-        Loader::service(Services::BASKET)->getBasket();
         return $response;
     }
 
