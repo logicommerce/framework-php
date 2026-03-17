@@ -670,7 +670,7 @@ abstract class FormFactory {
                 $params = self::getPluginConnectorTypeParametersGroup(PluginConnectorType::MAILING_SYSTEM);
                 $mailSystemPlugins = $pluginService->getPlugins($params);
                 if (!empty($mailSystemPlugins->getItems())) {
-                    if (Utils::isUserLoggedIn($user) or strlen(Utils::getUserName($user))) {
+                    if (Utils::isUserLoggedIn($user)) {
                         $inputElement = (new ButtonButton())->setDisabled(true)->setData([Parameters::EMAIL => $user->getEmail(), Parameters::TYPE => NewsletterSubscriptionActions::CHECK_STATUS])->setContentText($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBE));
                     } else {
                         $inputElement = (new InputCheckbox('1'))->setChecked(false)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBED));
@@ -973,7 +973,7 @@ abstract class FormFactory {
                 $params = self::getPluginConnectorTypeParametersGroup(PluginConnectorType::MAILING_SYSTEM);
                 $mailSystemPlugins = $pluginService->getPlugins($params);
                 if (!empty($mailSystemPlugins->getItems())) {
-                    if (Utils::isUserLoggedIn($user) or strlen(Utils::getUserName($user))) {
+                    if (Utils::isUserLoggedIn($user)) {
                         $inputElement = (new ButtonButton())->setDisabled(true)->setData([Parameters::EMAIL => $user->getEmail(), Parameters::TYPE => NewsletterSubscriptionActions::SUBSCRIBE])->setContentText($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBE));
                     } else {
                         $inputElement = (new InputCheckbox('1'))->setChecked(false)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBED));
