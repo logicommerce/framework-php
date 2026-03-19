@@ -2104,7 +2104,9 @@ abstract class FormFactory {
         $languageSheet = self::getLanguage();
         $countries[] = (new Option($languageSheet->getLabelValue(LanguageLabels::SELECT_YOUR_COUNTRY)))->setValue('default')->setSelected(is_null($countryCode) ? true : false);
         $languages[] = (new Option($languageSheet->getLabelValue(LanguageLabels::SELECT_YOUR_LANGUAGE)))->setValue('default')->setSelected(is_null($languageCode) ? true : false);
-        foreach ($countriesLinks as $countriesLink) {
+        $countriesLinksArray = iterator_to_array($countriesLinks);
+        usort($countriesLinksArray, fn($a, $b) => strcasecmp($a->getName(), $b->getName()));
+        foreach ($countriesLinksArray as $countriesLink) {
             $countries[] = (new Option($countriesLink->getName()))->setValue($countriesLink->getCode())->setData($countriesLink)->setSelected(is_null($countryCode) ? false : ($countryCode == $countriesLink->getCode()));
             foreach ($countriesLink->getLanguages() as $language) {
                 $languages[] = (new Option($language->getName()))->setValue($countriesLink->getCode() . '-' . $language->getCode())->setData($language)->setSelected(is_null($languageCode) ? false : ($languageCode == $language->getCode()));

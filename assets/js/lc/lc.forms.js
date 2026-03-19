@@ -5953,8 +5953,21 @@ LC.CountriesLinksForm = LC.Form.extend({
         this.$languageOptions = this.$language.find('option');
         this.$languageOptions.hide();
         this.submitButton = this.el.$form.find('button[type="submit"], input[type="submit"]');
+        this.alternates = {};
+        document.querySelectorAll('link[rel="alternate"][hreflang]').forEach((el) => {
+            var lang = el.getAttribute('hreflang');
+            var href = el.getAttribute('href');
+            if (lang && href) {
+                this.alternates[lang.toLowerCase()] = href;
+            }
+        });
 
         if (this.$country.val() != 'default') {
+            this.$languageOptions.each((index, el) => {
+                if ($(el).val().startsWith(this.$country.val() + '-') || $(el).val() == 'default') {
+                    $(el).show();
+                }
+            });
             this.$language.prop('disabled', false);
             if (this.$language.val() != 'default') {
                 this.submitButton.prop('disabled', false);
@@ -5988,6 +6001,36 @@ LC.CountriesLinksForm = LC.Form.extend({
 
     },
 
+    // Returns the translated URL for the current page in the selected language,
+    // using <link rel="alternate"> tags from the page head. Falls back to the base URL.
+    _getRedirectUrl: function () {
+        var optionVal = this.$language.val();
+        if (optionVal && optionVal !== 'default') {
+            var parts = optionVal.split('-');
+            if (parts.length === 2) {
+                var countryCode = parts[0].toLowerCase();
+                var langCode = parts[1].toLowerCase();
+                var url = this.alternates[langCode + '-' + countryCode]
+                    || this.alternates[countryCode + '-' + langCode]
+                    || this.alternates[langCode];
+                if (url) {
+                    return url;
+                }
+
+                var targetBase = (this.data.url || '').replace(/\/$/, '');
+                if (targetBase) {
+                    for (var key in this.alternates) {
+                        var altHref = this.alternates[key];
+                        if (altHref === targetBase || altHref.startsWith(targetBase + '/')) {
+                            return altHref;
+                        }
+                    }
+                }
+            }
+        }
+        return this.data.url;
+    },
+
     submit: function (event) {
         // Before trigger
         this.trigger('submitBefore', this);
@@ -6002,7 +6045,7 @@ LC.CountriesLinksForm = LC.Form.extend({
             this.el.$form.find('input[name="countryCode"]').val(this.$country.val());
             this.superForm('submit', event);
         } else {
-            window.location = this.data.url;
+            window.location = this._getRedirectUrl();
         }
     },
 
@@ -6011,7 +6054,7 @@ LC.CountriesLinksForm = LC.Form.extend({
         this.trigger('onReceiveBefore', data);
 
         if (data.data.response.success == 1) {
-            window.location = this.data.url;
+            window.location = this._getRedirectUrl();
         }
         this.superForm('onReceive', data);
 
