@@ -2107,9 +2107,14 @@ abstract class FormFactory {
         $countriesLinksArray = iterator_to_array($countriesLinks);
         usort($countriesLinksArray, fn($a, $b) => strcasecmp($a->getName(), $b->getName()));
         foreach ($countriesLinksArray as $countriesLink) {
-            $countries[] = (new Option($countriesLink->getName()))->setValue($countriesLink->getCode())->setData($countriesLink)->setSelected(is_null($countryCode) ? false : ($countryCode == $countriesLink->getCode()));
+            $countries[] = (new Option($countriesLink->getName()))->setValue($countriesLink->getCode())->setData($countriesLink)->setSelected(empty($countryCode) ? false : ($countryCode == $countriesLink->getCode()));
             foreach ($countriesLink->getLanguages() as $language) {
-                $languages[] = (new Option($language->getName()))->setValue($countriesLink->getCode() . '-' . $language->getCode())->setData($language)->setSelected(is_null($languageCode) ? false : ($languageCode == $language->getCode()));
+                $selected = empty($languageCode) ? false : (
+                    empty($countryCode)
+                    ? ($languageCode == $language->getCode())
+                    : ($countryCode == $countriesLink->getCode() && $languageCode == $language->getCode())
+                );
+                $languages[] = (new Option($language->getName()))->setValue($countriesLink->getCode() . '-' . $language->getCode())->setData($language)->setSelected($selected);
             }
         }
         $formItems = [];

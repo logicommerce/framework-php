@@ -1904,12 +1904,13 @@ LC.OneStepCheckout = LC.Form.extend({
             arrAddress = ['locationList'],
             noFillFields = [];
 
-        // Unchecked checkboxes are not included in serializeArray; add useShippingAddress explicitly
-        this.el.$form.find('.userForm input[type="checkbox"][name$="useShippingAddress"]').each(function () {
-            if (!$(this).prop('checked') && $(this).attr('name')) {
-                arrDataUserForm.push({ name: $(this).attr('name'), value: '0' });
-            }
-        });
+        this.el.$form.find('.userForm')
+            .find('input[type="checkbox"][name="useShippingAddress"], .tabPaneUserType.active input[type="checkbox"][name$="useShippingAddress"]')
+            .each(function () {
+                if (!$(this).prop('checked') && $(this).attr('name')) {
+                    arrDataUserForm.push({ name: $(this).attr('name'), value: '0' });
+                }
+            });
 
         // Fill with fields
         for (let i = 0; i < arrDataForm.length; i++) {
