@@ -15,9 +15,12 @@
             {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::BUY')] }}
         </button>
 
-        {% if args.expressCheckout == true %}       
+        {% if args.expressCheckout == true %}
             {%- for expressCheckoutPlugin in args.expressCheckoutPlugins -%}
-                {%- include 'plugins/' ~ ucwords(expressCheckoutPlugin.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/product/expressCheckoutBuyFormSubmit.html.twig' ignore missing with {args: args, plugin: expressCheckoutPlugin} -%}
+                {%- for paymentSystem in expressCheckoutPlugin.paymentSystems -%}
+                    {% set args = args | merge({'id': args.id}) %}
+                    {%- include 'plugins/' ~ ucwords(expressCheckoutPlugin.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/product/expressCheckoutBuyFormSubmit.html.twig' ignore missing with {args: args, plugin: expressCheckoutPlugin, paymentSystem: paymentSystem} -%}
+                {%- endfor -%}
             {%- endfor -%}
         {% endif %}
 

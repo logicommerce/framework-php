@@ -25,6 +25,7 @@ use FWK\Core\Resources\SeoItems;
 use FWK\Core\Resources\RoutePaths;
 use FWK\Core\Resources\DateTimeFormatter;
 use FWK\Enums\Parameters;
+use FWK\Enums\RouteType;
 use FWK\Twig\TwigLoaderInterface;
 use SDK\Core\Exceptions\InvalidParameterException;
 
@@ -43,6 +44,7 @@ use SDK\Core\Exceptions\InvalidParameterException;
  * @loggedInRequired: protected bool $loggedInRequired. Default value false, sets true for return a forbidden request if the user is not logged in.
  * @salesAgentRequired: protected bool $salesAgentRequired. Default value false, sets true for return a forbidden request if the user is not a sales agent.
  * @companyAccountsRequired: protected bool $companyAccountsRequired. Default value false, sets true for return a forbidden request if the user is not a company account.
+ * @cardinalityPlusRequired: protected bool $cardinalityPlusRequired. Default value false, sets true for return a forbidden request if the user is not a cardinality plus.
  * @simulatedUserForbbiden: protected bool $simulatedUserForbbiden. Default value false, sets true for return a forbidden request if the user is a simulated user.
  * 
  * @getAllSalesAgentCustomers: protected bool $getAllSalesAgentCustomers. Default value true, sets false for get paginated brands
@@ -127,6 +129,12 @@ abstract class Controller {
      * This attribute define if the controller required a company account in session
      */
     protected bool $companyAccountsRequired = false;
+
+
+    /**
+     * This attribute define if the controller required a cardinality plus in settings
+     */
+    protected bool $cardinalityPlusRequired = false;
 
     /**
      * This attribute define if the controller simulated user
@@ -246,6 +254,18 @@ abstract class Controller {
      */
     abstract protected function validateCompanyAccounts(): void;
 
+
+    /**
+     * This method validate if the session is a cardinality plus
+     *
+     * @return void
+     */
+    protected function validateCardinalityPlus(): void {
+        if (!Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()) {
+            Response::redirect(RoutePaths::getPath(RouteType::ACCOUNT));
+        }
+    }
+
     /**
      * This method validate if the session is a simulated user
      *
@@ -318,6 +338,10 @@ abstract class Controller {
 
         if ($this->companyAccountsRequired) {
             $this->validateCompanyAccounts();
+        }
+
+        if ($this->cardinalityPlusRequired) {
+            $this->validateCardinalityPlus();
         }
 
         if ($this->simulatedUserForbbiden) {

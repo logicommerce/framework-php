@@ -265,7 +265,7 @@ abstract class FormFactory {
         }
         $formHead = $formHead->setMethod(FormHead::METHOD_POST)->setId($idForm)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
 
-        if (Utils::isUserLoggedIn($user)) {
+        if (Utils::isSessionLoggedIn()) {
             $userKeyCriteria = Application::getInstance()->getEcommerceSettings()->getUserAccountsSettings()->getUserKeyCriteria();
             $userNameLabel = $languageSheet->getLabelValue(LanguageLabels::USER_P_ID . ucwords((new \ReflectionClassConstant(LanguageLabels::class, $userKeyCriteria))->getValue()));
             $formItems[] = new FormItem(Parameters::USERNAME, (new InputText($userName))->setClass(self::CLASS_WILDCARD)->setDisabled(true)->setLabelFor($userNameLabel));
@@ -670,7 +670,7 @@ abstract class FormFactory {
                 $params = self::getPluginConnectorTypeParametersGroup(PluginConnectorType::MAILING_SYSTEM);
                 $mailSystemPlugins = $pluginService->getPlugins($params);
                 if (!empty($mailSystemPlugins->getItems())) {
-                    if (Utils::isUserLoggedIn($user)) {
+                    if (Utils::isSessionLoggedIn()) {
                         $inputElement = (new ButtonButton())->setDisabled(true)->setData([Parameters::EMAIL => $user->getEmail(), Parameters::TYPE => NewsletterSubscriptionActions::CHECK_STATUS])->setContentText($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBE));
                     } else {
                         $inputElement = (new InputCheckbox('1'))->setChecked(false)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBED));
@@ -698,6 +698,9 @@ abstract class FormFactory {
         }
         if (method_exists($inputElement, 'setRegex')) {
             $inputElement = $inputElement->setRegex($formField->getRegex());
+        }
+        if (method_exists($inputElement, 'setExtraDataAttributes') && count($formField->getExtraDataAttributes())) {
+            $inputElement = $inputElement->setExtraDataAttributes($formField->getExtraDataAttributes(), $field);
         }
         if (method_exists($inputElement, 'setDisabled') && !$inputElement->getDisabled() && $field != Parameters::USE_SHIPPING_ADDRESS) {
             $inputElement = $inputElement->setDisabled($disabled);
@@ -973,7 +976,7 @@ abstract class FormFactory {
                 $params = self::getPluginConnectorTypeParametersGroup(PluginConnectorType::MAILING_SYSTEM);
                 $mailSystemPlugins = $pluginService->getPlugins($params);
                 if (!empty($mailSystemPlugins->getItems())) {
-                    if (Utils::isUserLoggedIn($user)) {
+                    if (Utils::isSessionLoggedIn()) {
                         $inputElement = (new ButtonButton())->setDisabled(true)->setData([Parameters::EMAIL => $user->getEmail(), Parameters::TYPE => NewsletterSubscriptionActions::SUBSCRIBE])->setContentText($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBE));
                     } else {
                         $inputElement = (new InputCheckbox('1'))->setChecked(false)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::SUBSCRIBED));
@@ -1017,6 +1020,9 @@ abstract class FormFactory {
             }
             if (method_exists($inputElement, 'setRegex')) {
                 $inputElement = $inputElement->setRegex($formField->getRegex());
+            }
+            if (method_exists($inputElement, 'setExtraDataAttributes') && count($formField->getExtraDataAttributes())) {
+                $inputElement = $inputElement->setExtraDataAttributes($formField->getExtraDataAttributes(), $paramsName);
             }
             if (method_exists($inputElement, 'setDisabled') && !$inputElement->getDisabled() && $paramsName != Parameters::USE_SHIPPING_ADDRESS) {
                 $inputElement = $inputElement->setDisabled($disabled);
@@ -1339,7 +1345,7 @@ abstract class FormFactory {
             $formHead = (new FormHead(RoutePaths::getPath(InternalUser::NEWSLETTER), 'newsletterForm'))->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setId('newsletterForm')->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
             $formItems = [];
             $user = Session::getInstance()->getUser();
-            if (Utils::isUserLoggedIn($user) or strlen(Utils::getUserName($user))) {
+            if (Utils::isSessionLoggedIn()) {
                 $action = NewsletterSubscriptionActions::CHECK_STATUS;
                 $formItems[] = new FormItem(Parameters::EMAIL, (new InputHidden($user->getEmail())));
             } else {
@@ -2200,26 +2206,27 @@ abstract class FormFactory {
             ->setId('toDate')->setRequired(true)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::TO_DATE))
             ->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
 
-        if (is_null($data[Parameters::ONLY_CREATED_BY_ME])) {
-            $data[Parameters::ONLY_CREATED_BY_ME] = 1;
-        }
-        $onlyCreatedByMeOptions = [
-            (new Option($languageSheet->getLabelValue(LanguageLabels::NO)))->setValue(0)->setSelected($data[Parameters::ONLY_CREATED_BY_ME] == 0),
-            (new Option($languageSheet->getLabelValue(LanguageLabels::YES)))->setValue(1)->setSelected($data[Parameters::ONLY_CREATED_BY_ME] == 1)
-        ];
         if (is_null($data[Parameters::INCLUDE_SUBCOMPANY_STRUCTURE])) {
             $data[Parameters::INCLUDE_SUBCOMPANY_STRUCTURE] = 1;
         }
 
-        $statusOptions = [];
+        if (Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()) {
+            if (is_null($data[Parameters::ONLY_CREATED_BY_ME])) {
+                $data[Parameters::ONLY_CREATED_BY_ME] = 1;
+            }
+            $onlyCreatedByMeOptions = [
+                (new Option($languageSheet->getLabelValue(LanguageLabels::NO)))->setValue(0)->setSelected($data[Parameters::ONLY_CREATED_BY_ME] == 0),
+                (new Option($languageSheet->getLabelValue(LanguageLabels::YES)))->setValue(1)->setSelected($data[Parameters::ONLY_CREATED_BY_ME] == 1)
+            ];
+            $formItems[] = new FormItem(Parameters::ONLY_CREATED_BY_ME, (new Select($onlyCreatedByMeOptions, null, LanguageLabels::ORDER_ONLY_MY_ORDERS))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ORDER_ONLY_MY_ORDERS))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
+        }
 
+        $statusOptions = [];
         $statusIdList = !empty($data[Parameters::STATUS_ID_LIST]) ? explode(',', $data[Parameters::STATUS_ID_LIST]) : [];
         foreach (OrderStatus::getServiceValidStatuses() as $statusOption) {
             $statusOptionLabel = $languageSheet->getLabelValue($labels['STATUS' . '_' . $statusOption]);
             $statusOptions[] = (new Option($statusOptionLabel))->setValue($statusOption)->setData($statusOption)->setSelected(count($statusIdList) > 0 ? false : !empty(array_filter($statusIdList, fn($item) => strpos($item, $statusOption) !== false)));
         }
-
-        $formItems[] = new FormItem(Parameters::ONLY_CREATED_BY_ME, (new Select($onlyCreatedByMeOptions, null, LanguageLabels::ORDER_ONLY_MY_ORDERS))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ORDER_ONLY_MY_ORDERS))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
 
         $formItems[] = new FormItem(Parameters::STATUS_ID_LIST, (new MultiSelect($statusOptions, null, $statusIdList))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ORDER_STATUSES))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
 
@@ -2490,6 +2497,7 @@ abstract class FormFactory {
                             ->setDisabled($registeredUser->isMaster() and $registeredUser->getAccount()->getType() != AccountType::COMPANY_DIVISION)
                             ->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE))
                             ->setClass(self::CLASS_WILDCARD)
+                            ->setExtraDataAttributes($formField->getExtraDataAttributes(), Parameters::ROLE_ID)
                             ->setAttributeWildcard('data-account-type="' . $accountTypeStr . '" ' . self::ATTRIBUTE_WILDCARD)
                     );
                 }
@@ -2659,7 +2667,7 @@ abstract class FormFactory {
      */
     private static function getPluginConnectorTypeParametersGroup(String $connectorType): ?PluginConnectorTypeParametersGroup {
         $params = new PluginConnectorTypeParametersGroup();
-        $params->setType($connectorType);
+        $params->setConnectorType($connectorType);
         $params->setNavigationHash(Session::getInstance()->getNavigationHash());
         return $params;
     }

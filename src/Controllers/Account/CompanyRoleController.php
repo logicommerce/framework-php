@@ -26,8 +26,15 @@ class CompanyRoleController extends BaseHtmlController {
     public const COMPANY_ROLES_FORM = 'companyRolesForm';
     public const ROLE = 'role';
 
+    protected bool $loggedInRequired = true;
+
+    protected bool $cardinalityPlusRequired = true;
+
     protected int $roleId = 0;
+
     protected ?AccountService $accountService = null;
+
+    protected bool $companyAccountsRequired = true;
 
     /**
      * Constructor.

@@ -31,6 +31,7 @@ use SDK\Core\Enums\Enum;
  * @see ControllerData::MACROS_CORE_THIRD_PARTY
  * @see ControllerData::MACROS_CORE_USER
  * @see ControllerData::MACROS_CORE_UTIL
+ * @see ControllerData::MACROS_CORE_WIDGET
  * @see ControllerData::REQUEST_PARAMETERS
  * @see ControllerData::ROUTE
  * @see ControllerData::ROUTE_PATHS
@@ -88,6 +89,8 @@ abstract class ControllerData extends Enum {
     public const MACROS_CORE_USER = 'user';
 
     public const MACROS_CORE_UTIL = 'util';
+
+    public const MACROS_CORE_WIDGET = 'widget';
 
     public const REQUEST_PARAMETERS = 'requestParams';
 

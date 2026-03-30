@@ -47,6 +47,8 @@ class CommerceException extends SdkException {
 
     public const DATE_TIME_FORMATTER_INIT_REQUIRED = 'F030-D000';
 
+    public const ELEMENT_INVALID_EXTRA_DATA_ATTRIBUTE = 'F030-E000';
+
     public const FILL_FROM_PARENT_TRAIT_REQUIRED_ELEMENT_TRAIT = 'F030-F200';
 
     public const FILTER_INPUT_UNDEFINED_STRING_FORMAT = 'F030-F100';

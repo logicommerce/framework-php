@@ -57,7 +57,7 @@ class FillDataFunction {
     private function getUserNick(): string {
         $nick = '';
         $defaultBillingAddress = $this->user->getDefaultBillingAddress();
-        if (Utils::isUserLoggedIn($this->user) && !is_null($defaultBillingAddress)) {
+        if (Utils::isSessionLoggedIn() && !is_null($defaultBillingAddress)) {
             if ($defaultBillingAddress->getUserType() === UserType::BUSINESS) {
                 if (strlen($defaultBillingAddress->getCompany())) {
                     $nick = $defaultBillingAddress->getCompany();

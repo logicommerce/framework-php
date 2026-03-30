@@ -20,16 +20,17 @@ use FWK\Services\LmsService;
 use SDK\Core\Dtos\ElementCollection;
 use SDK\Core\Enums\MethodType;
 use SDK\Core\Resources\Date;
+use SDK\Core\Resources\Environment;
 use SDK\Core\Resources\Redis;
 use SDK\Dtos\Basket\Basket;
 use SDK\Dtos\Basket\BasketLockedStockTimers;
 use SDK\Dtos\Catalog\Product\ProductComparison;
 use SDK\Dtos\PaymentValidationResponse;
 use SDK\Dtos\User\User;
-use SDK\Enums\AddressType;
 use SDK\Enums\BasketRowType;
 use SDK\Enums\LicenseType;
 use SDK\Enums\ListRowReferenceType;
+use SDK\Enums\SessionType;
 use SDK\Services\Parameters\Groups\Product\ProductsParametersGroup;
 
 /**
@@ -280,6 +281,7 @@ class Session {
         $this->useDeliveryPicking = isset($_SESSION[self::USE_DELIVERY_PICKING]) ? $_SESSION[self::USE_DELIVERY_PICKING] : false;
     }
 
+
     /**
      * This method login reset values
      *
@@ -294,7 +296,7 @@ class Session {
         } else {
             $this->setBasket($basket);
         }
-        if (Utils::isUserLoggedIn($this->getUser())) {
+        if ($this->isLogged()) {
             $this->setAggregateDataFromApiRequest();
         } else {
             $this->setAggregateData();
@@ -660,7 +662,7 @@ class Session {
             $this->salesAgentUser = $user;
             $_SESSION[self::SALES_AGENT_USER] = $this->salesAgentUser;
         }
-        if (Utils::isUserLoggedIn($this->getUser()) && !$this->getShoppingList()->isInit()) {
+        if ($this->isLogged() && !$this->getShoppingList()->isInit()) {
             $this->updateShoppingList();
         }
         $this->setBasketToken();
@@ -731,6 +733,15 @@ class Session {
      */
     public function getUser(): User {
         return $this->user;
+    }
+
+    /**
+     * This method returns true if the session user is logged in, false otherwise.
+     *
+     * @return bool
+     */
+    public function isLogged(): bool {
+        return $this->getBasket()->getType() === SessionType::REGISTERED;
     }
 
     /**

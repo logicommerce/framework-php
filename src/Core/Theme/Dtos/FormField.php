@@ -14,6 +14,7 @@ use SDK\Core\Dtos\Traits\ElementTrait;
  * @see FormField::getRequired()
  * @see FormField::getPriority()
  * @see FormField::getRegex()
+ * @see FormField::getExtraDataAttributes()
  * @see FormField::getKeyName()
  * @see FormField::setKeyName()
  *
@@ -25,27 +26,31 @@ use SDK\Core\Dtos\Traits\ElementTrait;
 
 class FormField extends Element {
     use ElementTrait;
-    
+
     public const INCLUDED = 'included';
 
     public const REQUIRED = 'required';
-    
+
     public const PRIORITY = 'priority';
 
     public const REGEX = 'regex';
-    
+
+    public const EXTRA_DATA_ATTRIBUTES = 'extraDataAttributes';
+
     protected bool $included = false;
 
     protected bool $required = false;
-    
+
     protected int $priority = 0;
 
     protected string $regex = '';
 
+    protected array $extraDataAttributes = [];
+
     protected string $keyName = '';
 
     /**
-     * This method returns if the field is included. 
+     * This method returns if the field is included.
      *
      * @return bool
      */
@@ -61,9 +66,9 @@ class FormField extends Element {
     public function getPriority(): int {
         return $this->priority;
     }
-    
+
     /**
-     * This method returns if the field is required. 
+     * This method returns if the field is required.
      *
      * @return bool
      */
@@ -78,6 +83,15 @@ class FormField extends Element {
      */
     public function getRegex(): string {
         return $this->regex;
+    }
+
+    /**
+     * This method returns the custom data-* attributes for the field.
+     *
+     * @return array<string, string>
+     */
+    public function getExtraDataAttributes(): array {
+        return $this->extraDataAttributes;
     }
 
     /**

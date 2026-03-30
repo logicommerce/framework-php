@@ -2,6 +2,7 @@
 
 namespace FWK\Core\Form\Elements;
 
+use FWK\Core\Exceptions\CommerceException;
 use FWK\Core\FilterInput\FilterInput;
 use FWK\Core\Resources\Loader;
 use FWK\Core\Theme\Theme;
@@ -39,6 +40,8 @@ abstract class Element {
     public const TYPE = '';
 
     protected string $attributeWildcard = '';
+
+    protected array $extraDataAttributes = [];
 
     /**
      * This method returns the type of the Element.
@@ -92,6 +95,49 @@ abstract class Element {
     }
 
     /**
+     * Sets custom HTML attributes. Only data-* attributes are allowed.
+     *
+     * @param array<string, string> $attributes e.g. ['data-validation-error-msg' => 'Formato incorrecto']
+     *
+     * @return self
+     */
+    public function setExtraDataAttributes(array $attributes, string $fieldName = ''): self {
+        foreach ($attributes as $name => $value) {
+            if (strpos($name, 'data-') !== 0) {
+                $fieldContext = $fieldName ? ' on field "' . $fieldName . '"' : '';
+                throw new CommerceException(self::class . ' Invalid extra data attribute "' . $name . '"' . $fieldContext . ': only data-* attributes are allowed.', CommerceException::ELEMENT_INVALID_EXTRA_DATA_ATTRIBUTE);
+            }
+            $this->extraDataAttributes[$name] = $value;
+        }
+        return $this;
+    }
+
+    /**
+     * Returns a single custom attribute value by name, or null if not set.
+     *
+     * @param string $name
+     *
+     * @return string|null
+     */
+    public function getExtraDataAttribute(string $name): ?string {
+        return $this->extraDataAttributes[$name] ?? null;
+    }
+
+    /**
+     * Returns the extra attributes rendered as a pre-formatted HTML string.
+     * Called automatically by outputAttributes() via reflection.
+     *
+     * @return string
+     */
+    public function getExtraDataAttributes(): string {
+        $html = '';
+        foreach ($this->extraDataAttributes as $name => $value) {
+            $html .= ' ' . htmlspecialchars($name, ENT_QUOTES) . '="' . htmlspecialchars($value, ENT_QUOTES) . '"';
+        }
+        return $html;
+    }
+
+    /**
      * This method outputs the attributes (html) of the Element.
      * 
      * @param string $name
@@ -126,6 +172,8 @@ abstract class Element {
             $attributeValue = static::$method();
             if ($property === 'attributeWildcard') {
                 $strAttributes .= ' ' . $attributeValue;
+            } elseif ($property === 'extraDataAttributes') {
+                $strAttributes .= $attributeValue;
             } elseif ($property === 'data') {
                 $strAttributes .= ' ' . 'data-lc' . "='" . $attributeValue . "'";
             } elseif (is_bool($attributeValue) && $attributeValue) {

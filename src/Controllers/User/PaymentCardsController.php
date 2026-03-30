@@ -45,7 +45,7 @@ class PaymentCardsController extends BaseHtmlController {
     final protected function setControllerBaseBatchData(BatchRequests $requests): void {
         $this->pluginService = Loader::service(Services::PLUGIN);
         $params = new PluginConnectorTypeParametersGroup();
-        $params->setType(PluginConnectorType::PAYMENT_SYSTEM);
+        $params->setConnectorType(PluginConnectorType::PAYMENT_SYSTEM);
         $params->setNavigationHash($this->getSession()->getNavigationHash());
         $this->paymentSystemPlugins = $this->pluginService->getPlugins($params);
         foreach ($this->paymentSystemPlugins as $paymentSystemPlugin) {
@@ -64,12 +64,12 @@ class PaymentCardsController extends BaseHtmlController {
         $paymentCards = [];
         foreach ($this->paymentSystemPlugins as $paymentSystemPlugin) {
             $pluginPaymentTokenCollection = $this->getControllerData(PaymentCards::USER_PLUGIN_PAYMENT_TOKENS . '_' . $paymentSystemPlugin->getId());
-            $paymentCards[$pluginPaymentTokenCollection->getModule()][PaymentCards::USER_PLUGIN_PAYMENT_TOKENS] = $pluginPaymentTokenCollection;
+            $paymentCards[$pluginPaymentTokenCollection->getModule() . '_' . $paymentSystemPlugin->getId()][PaymentCards::USER_PLUGIN_PAYMENT_TOKENS] = $pluginPaymentTokenCollection;
         }
         $pluginsProperties = [];
         foreach ($this->paymentSystemPlugins as $paymentSystemPlugin) {
             $pluginsProperties = $this->getControllerData(PaymentCards::PLUGINS_PROPERTIES . '_' . $paymentSystemPlugin->getId());
-            $paymentCards[$pluginsProperties->getPluginModule()][PaymentCards::PLUGINS_PROPERTIES] = $pluginsProperties;
+            $paymentCards[$pluginsProperties->getPluginModule() . '_' . $paymentSystemPlugin->getId()][PaymentCards::PLUGINS_PROPERTIES] = $pluginsProperties;
         }
         $this->setDataValue(self::CONTROLLER_ITEM, $paymentCards);
     }

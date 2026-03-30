@@ -424,6 +424,10 @@ abstract class Parameters extends Enum {
 
     public const DATE_ADDED = 'dateAdded';
 
+    public const DCS_PAGE_ID = 'dcsPageId';
+
+    public const DCS_TOKEN = 'dcsToken';
+
     public const DECISION = 'decision';
 
     public const DEFAULT_ADDRESS = 'defaultAddress';
@@ -911,4 +915,8 @@ abstract class Parameters extends Enum {
     public const VISIBLE_ON_MAP = 'visibleOnMap';
 
     public const VOTE = 'vote';
+
+    public const WIDGET_ID = 'widgetId';
+
+    public const ROUTE_ID = 'routeId';
 }

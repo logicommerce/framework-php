@@ -31,6 +31,8 @@ class AccountRegisteredUserController extends BaseHtmlController {
 
     protected bool $loggedInRequired = true;
 
+    protected bool $cardinalityPlusRequired = true;
+
     protected string $accountId = '';
 
     protected int $registeredUserId = 0;

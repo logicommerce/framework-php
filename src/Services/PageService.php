@@ -99,7 +99,7 @@ class PageService extends PageServiceSDK {
     public function getPagesByParentId(int $id): ?ElementCollection {
         return $this->getPages($this->getParametersByParentId($id));
     }
-    
+
     /**
      * This method returns the Dtos of those pages whose position matches the given one.
      * 
@@ -226,7 +226,7 @@ class PageService extends PageServiceSDK {
     public function addGetPagesByParentId(BatchRequests $batchRequests, string $batchName, int $id): void {
         $this->addGetPages($batchRequests, $batchName, $this->getParametersByParentId($id));
     }
-    
+
     /**
      * This method adds the batch request to get those pages whose position matches any of the given idList.
      * 
@@ -292,19 +292,19 @@ class PageService extends PageServiceSDK {
         $pageParametersGroup->setIdList($idList);
         return $pageParametersGroup;
     }
-    
+
     private function getParametersByPId(string $pId): PageParametersGroup {
         $pageParametersGroup = new PageParametersGroup();
         $pageParametersGroup->setPId($pId);
         return $pageParametersGroup;
     }
-    
+
     private function getParametersByParentId(int $id): PageParametersGroup {
         $pageParametersGroup = new PageParametersGroup();
         $pageParametersGroup->setParentId($id);
         return $pageParametersGroup;
     }
-    
+
     private function getParametersBySearchCriteria(string $searchCriteria): PageParametersGroup {
         $pageParametersGroup = new PageParametersGroup();
         $pageParametersGroup->setQ($searchCriteria);

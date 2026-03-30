@@ -39,11 +39,13 @@
                                                 <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DATE_ORDERED')] }}</span> <span class="val">{{ formatDateTime(order.date) }}</span>
                                             </div>
                                         </div>
-                                        <div class="userOrderCell">
-                                            <div class="userOrderCreator">
-                                                <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_CREATOR')] }}</span> <span class="val">{{ order.registeredUserCreator.firstName }} {{ order.registeredUserCreator.lastName }}</span>
+                                        {% if settings.accountRegisteredUsersSettings.cardinalityPlus %}
+                                            <div class="userOrderCell">
+                                                <div class="userOrderCreator">
+                                                    <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_CREATOR')] }}</span> <span class="val">{{ order.registeredUserCreator.firstName }} {{ order.registeredUserCreator.lastName }}</span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        {% endif %}
                                     </div>
                                     <div class="userOrderRow">
                                         {% if order.documentNumber|length > 0 %}

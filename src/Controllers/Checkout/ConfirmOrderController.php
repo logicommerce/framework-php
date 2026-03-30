@@ -15,6 +15,7 @@ use FWK\Core\Resources\Session;
 use FWK\Core\Resources\Response;
 use FWK\Enums\Parameters;
 use FWK\Core\Resources\RoutePaths;
+use FWK\Core\Resources\Router;
 use FWK\Dtos\Documents\Document;
 use FWK\Enums\RouteType;
 use SDK\Enums\PaymentType;
@@ -123,7 +124,7 @@ class ConfirmOrderController extends BaseHtmlController {
                     } while ($validatePaymentStatus == PaymentValidateStatus::ACCEPTED);
                 }
                 if (!is_null($paymentValidationResponse->getError())) {
-                    throw new CommerceException($paymentValidationResponse->getError()->getMessage(), CommerceException::CONFIRM_ORDER_VALIDATE_PAYMENT, null, $paymentValidationResponse->getError());
+                    Response::redirect(RoutePaths::getPath(RouteType::CHECKOUT_DENIED_ORDER));
                 }
             }
             if ($validatePaymentStatus == PaymentValidateStatus::OK || $validatePaymentStatus == PaymentValidateStatus::VALIDATED || $validatePaymentStatus == PaymentValidateStatus::ACCEPTED) {
@@ -132,13 +133,16 @@ class ConfirmOrderController extends BaseHtmlController {
                 $this->token = $paymentValidationResponse->getToken();
             }
             if ($validatePaymentStatus == PaymentValidateStatus::KO) {
-                $basket = Loader::service(Services::BASKET)->getBasket();
+                /** @var SDK\Services\BasketService */
+                $basketService = Loader::service(Services::BASKET);
+                $basket = $basketService->getBasket();
                 if (!empty($basket->getItems())) {
                     Response::redirect(RoutePaths::getPath(RouteType::CHECKOUT_DENIED_ORDER));
                 }
             }
         }
         if (is_null($basket)) {
+            /** @var SDK\Dtos\Basket\Basket */
             $basket = Loader::service(Services::BASKET)->getBasket();
         }
         if ($this->orderId === 0) {
@@ -162,7 +166,7 @@ class ConfirmOrderController extends BaseHtmlController {
 
         $this->pluginService = Loader::service(Services::PLUGIN);
         $params = new PluginConnectorTypeParametersGroup();
-        $params->setType(PluginConnectorType::CONFIRM_ORDER);
+        $params->setConnectorType(PluginConnectorType::CONFIRM_ORDER);
         $params->setNavigationHash($this->getSession()->getNavigationHash());
         $this->confirmOrderPlugins = $this->pluginService->getPlugins($params);
         foreach ($this->confirmOrderPlugins as $confirmOrderPlugin) {

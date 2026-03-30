@@ -24,6 +24,8 @@ class RegisteredUserController extends BaseHtmlController {
 
     protected bool $loggedInRequired = true;
 
+    protected bool $cardinalityPlusRequired = true;
+
     protected ?AccountService $accountService = null;
 
     /**

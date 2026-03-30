@@ -50,7 +50,7 @@ class AddCommentController extends BaseJsonController {
         $canComment = false;
         if ($blogSettings->getCommentsMode() === BlogPostCommentMode::ANONYMOUS_AND_REGISTERED_USERS) {
             $canComment = true;
-        } elseif ($blogSettings->getCommentsMode() === BlogPostCommentMode::ONLY_REGISTERED_USERS && $this->getSession() !== null && $this->getSession()->getUser()->getId() !== 0) {
+        } elseif ($blogSettings->getCommentsMode() === BlogPostCommentMode::ONLY_REGISTERED_USERS && $this->getSession() !== null && $this->getSession()->isLogged()) {
             $canComment = true;
         }
         if (!$canComment) {

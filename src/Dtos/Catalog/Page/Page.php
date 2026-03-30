@@ -12,7 +12,6 @@ use SDK\Dtos\Catalog\Page\Page as SDKPage;
  *
  * @package FWK\Dtos\Catalog
  */
-class Page extends SDKPage{
+class Page extends SDKPage {
     use RelatedItemsTrait;
-
 }

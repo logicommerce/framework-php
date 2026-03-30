@@ -39,6 +39,8 @@ class OrdersController extends BaseHtmlController {
 
     public const ACCOUNT = 'account';
 
+    protected bool $loggedInRequired = true;
+
     protected array $ordersFilter = [];
 
     protected array $additionalRequestParameters = [];

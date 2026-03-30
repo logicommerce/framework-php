@@ -221,7 +221,7 @@ LC.OneStepCheckout = LC.Form.extend({
             initializeMethod: 'initializeLockedStocks',
         },
         saveForLater: {
-            autoRefresh: LC.global.session.login || globalThis?.lcCommerceSession?.userId ? true : false,
+            autoRefresh: LC.global.session.login ? true : false,
             initializeMethod: 'initializeSaveForLater',
         },
         selectableGifts: {

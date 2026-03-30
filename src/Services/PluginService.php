@@ -11,9 +11,18 @@ use FWK\Services\Traits\ServiceTrait;
 use SDK\Core\Dtos\ElementCollection;
 use SDK\Core\Dtos\PluginProperties;
 use SDK\Enums\PluginConnectorType;
+use Plugins\ComLogicommerceMagicfront\Dtos\Common\PluginProperties as MagicFrontPluginProperties;
 use FWK\Core\Dtos\ElementCollection as DtosElementCollection;
+use FWK\Core\Resources\Loader;
 use FWK\Dtos\Common\Plugin as FWKPlugin;
+use FWK\Dtos\Basket\PaymentSystem;
+use FWK\Dtos\Common\PluginExpressCheckout;
+use FWK\Enums\RouteTypes\InternalResources;
+use FWK\Enums\RouteTypes\InternalUser;
+use FWK\Enums\Services;
 use SDK\Dtos\Common\Plugin;
+use SDK\Application;
+use SDK\Core\Enums\Resource;
 use SDK\Services\Parameters\Groups\PluginConnectorTypeParametersGroup;
 use SDK\Services\Parameters\Groups\PluginModuleParametersGroup;
 
@@ -36,6 +45,12 @@ class PluginService extends PluginServiceSDK {
     private const ADD_FILTER_INTERVAL_PARAMETERS = [];
 
     private const ADD_FILTER_ID_VALUE_PARAMETERS = [];
+
+    private ?BasketService $basketService = null;
+
+    private const OVERRIDE_PLUGIN_PIDS = [
+        'com.logicommerce.magicfront',
+    ];
 
     private function getParametersByRouteType(string $routeType): AssetParametersGroup {
         $trackerParametersGroup = new AssetParametersGroup();
@@ -109,23 +124,55 @@ class PluginService extends PluginServiceSDK {
     public function getExpressCheckoutPlugins(): ?ElementCollection {
         $params = $this->getPluginConnectorTypeParametersGroup(PluginConnectorType::EXPRESS_CHECKOUT);
         $plugins = $this->getPlugins($params);
-        $expressCheckoutPlugins = DtosElementCollection::fillFromParentCollection($plugins, FWKPlugin::class);
-
-        foreach ($expressCheckoutPlugins->getItems() as $expressCheckoutPluginKey => $expressCheckoutPlugin) {
+        $expressCheckoutPlugins = DtosElementCollection::fillFromParentCollection($plugins, PluginExpressCheckout::class);
+        $this->basketService = Loader::service(Services::BASKET);
+        $paymentSystems = $this->basketService->getPaymentSystems();
+        foreach ($expressCheckoutPlugins->getItems() as $expressCheckoutPlugin) {
+            /** @var PluginExpressCheckout $expressCheckoutPlugin */
             $pluginProperties = $this->getPluginProperties($expressCheckoutPlugin->getId());
-            $expressCheckoutActive = false;
-            foreach ($pluginProperties->getProperties() as $pluginPropertieKey => $pluginPropertie) {
-                if ($pluginPropertie->getName() === 'expressCheckout' && $pluginPropertie->getValue() === 'true') {
-                    $expressCheckoutActive = true;
-                }
-                $expressCheckoutPlugin->setProperties($pluginProperties);
-            }
-            if (!$expressCheckoutActive) {
-                $expressCheckoutPlugins->remove($expressCheckoutPluginKey, false);
-            }
+            $pluginPaymentSystems = $this->getPluginAccountPaymentSystems(
+                $paymentSystems->getItems(),
+                $expressCheckoutPlugin->getId(),
+                $pluginProperties->getConnectors()
+            );
+            $expressCheckoutPlugin->setPaymentSystems($pluginPaymentSystems);
+            $expressCheckoutPlugin->setProperties($pluginProperties);
         }
         $expressCheckoutPlugins->resetIndex();
         return $expressCheckoutPlugins;
+    }
+
+    private function getPluginAccountPaymentSystems(array $paymentSystems, int $pluginAccountId, array $connectors): ?array {
+        $pluginPaymentSystems = [];
+        foreach ($paymentSystems as $paymentSystem) {
+            $paymentSystemConnector = $this->getPluginAccountConnector($connectors, PluginConnectorType::PAYMENT_SYSTEM);
+            if ($paymentSystemConnector !== null && $paymentSystem->getPluginId() === $pluginAccountId) {
+                $connectorItem = $this->getPluginAccountConnectorItem($paymentSystemConnector, $paymentSystem->getId());
+                if ($connectorItem !== null) {
+                    $paymentSystem->setPluginPropertiesConnectorItemProperties($connectorItem->getProperties());
+                    $pluginPaymentSystems[] = $paymentSystem;
+                }
+            }
+        }
+        return $pluginPaymentSystems;
+    }
+
+    private function getPluginAccountConnector(array $connectors, string $type): mixed {
+        foreach ($connectors as $connector) {
+            if ($connector->getType() === $type) {
+                return $connector;
+            }
+        }
+        return null;
+    }
+
+    private function getPluginAccountConnectorItem(mixed $connector, int $itemId): mixed {
+        foreach ($connector->getItems() as $item) {
+            if ($item->getItemId() === $itemId) {
+                return $item;
+            }
+        }
+        return null;
     }
 
     /**
@@ -199,10 +246,60 @@ class PluginService extends PluginServiceSDK {
         return false;
     }
 
-    private function getPluginConnectorTypeParametersGroup(String $connectorType): ?PluginConnectorTypeParametersGroup {
+    private function getPluginConnectorTypeParametersGroup(string $connectorType): ?PluginConnectorTypeParametersGroup {
         $params = new PluginConnectorTypeParametersGroup();
-        $params->setType($connectorType);
+        $params->setConnectorType($connectorType);
         $params->setNavigationHash($this->getNavigationHash());
         return $params;
+    }
+
+    /**
+     * Returns all active override plugins (those whose pId is listed in OVERRIDE_PLUGIN_PIDS).
+     * To add a plugin to this mechanism, add its pId to OVERRIDE_PLUGIN_PIDS.
+     *
+     * @return Plugin[]
+     *
+     */
+    public function getOverridePlugins(): array {
+        $plugins = Application::getInstance()->getEcommercePlugins();
+        if (is_null($plugins)) {
+            $plugins = $this->getElements(Plugin::class, Resource::PLUGINS);
+        }
+        $indexed = [];
+        foreach ($plugins as $plugin) {
+            $indexed[$plugin->getPId()] = $plugin;
+        }
+        $result = [];
+        foreach (self::OVERRIDE_PLUGIN_PIDS as $pId) {
+            if (isset($indexed[$pId]) && $indexed[$pId]->isActive()) {
+                $result[] = $indexed[$pId];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Returns if the MagicFront plugin is enabled for the given route type
+     *
+     * @param string $routeType
+     *
+     * @return bool
+     *
+     */
+    public function isPluginMagicFrontEnabled(string $routeType): bool {
+        $plugins = Application::getInstance()->getEcommercePlugins();
+        if (is_null($plugins)) {
+            $plugins = $this->getElements(Plugin::class, Resource::PLUGINS);
+        }
+        foreach ($plugins as $plugin) {
+            if ($plugin->getPId() == 'com.logicommerce.magicfront') {
+                return $plugin->isActive();
+            }
+        }
+        return false;
+        /** @var MagicFrontPluginProperties|null $properties */
+        /*
+        $properties = $this->getPluginPropertiesByConnectorType(PluginConnectorType::MAGIC_FRONT);
+        return $properties !== null && in_array($routeType, $properties->getAvailablePages());*/
     }
 }

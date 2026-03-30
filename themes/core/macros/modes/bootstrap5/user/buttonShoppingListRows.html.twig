@@ -1,6 +1,6 @@
 {% macro buttonShoppingListRows(args) %}
 	{% set display %} 
-		{% if session.user.id == 0 %} style="display: none" {% endif %}	
+		{% if not session.isLogged %} style="display: none" {% endif %}
 	{% endset %}
 	{% if args.type == constant('FWK\\ViewHelpers\\User\\Macro\\ButtonShoppingListRows::TYPE_SEND') %}
 		<button type="button" class="userSendShoppingListRows {{ args.class }}" {{ display }} data-bs-toggle="modal" data-bs-target="#userSendShoppingListRows" data-lc-required='{ "el": "#userSendShoppingListRows", "macro": "buttonShoppingListRows" }'>

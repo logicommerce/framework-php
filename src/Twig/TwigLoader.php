@@ -11,11 +11,11 @@ use Twig\Loader\FilesystemLoader;
 use SDK\Core\Resources\Timer;
 use FWK\Core\Controllers\ControllersFactory;
 use FWK\Core\Resources\LcFWK;
-use FWK\Core\Resources\Session;
 use FWK\Enums\ControllerData;
 use FWK\Enums\TwigAutoescape;
 use FWK\Core\Resources\Utils;
 use FWK\Enums\RouteItems;
+use FWK\Enums\Services;
 use FWK\Enums\TwigContentTypes;
 use SDK\Application;
 
@@ -49,6 +49,8 @@ final class TwigLoader implements TwigLoaderInterface {
     private $pageContent;
 
     private $corePath;
+
+    private $overridePluginPaths = [];
 
     private $data;
 
@@ -99,15 +101,25 @@ final class TwigLoader implements TwigLoaderInterface {
      * @return void
      */
     public function load(array $data = [], int $autoescape = 0, bool $loadCore = true) {
+        $this->getOverridePluginPaths();
+
         if (is_dir($this->getTheme())) {
-            $loader = new \Twig\Loader\FilesystemLoader([
-                $this->getTheme(),
-                $this->getThemeFWK(),
-                FWK_LOAD_PATH . '/themes/default'
-            ]);
+            $loader = new \Twig\Loader\FilesystemLoader(array_merge(
+                $this->overridePluginPaths,
+                [
+                    $this->getTheme(),
+                    $this->getThemeFWK(),
+                    FWK_LOAD_PATH . '/themes/default'
+                ]
+            ));
         } else {
-            $loader = new \Twig\Loader\FilesystemLoader($this->getThemeFWK());
+            $loader = new \Twig\Loader\FilesystemLoader(array_merge(
+                $this->overridePluginPaths,
+                [$this->getThemeFWK()]
+            ));
         }
+
+
         $this->data = $data;
         $twigOptions = [];
         $twigOptions['debug'] = LcFWK::getTwigDevel();
@@ -135,7 +147,6 @@ final class TwigLoader implements TwigLoaderInterface {
     private function loadCore(array $twigOptions) {
         $coreTwigLoader = new FilesystemLoader($this->corePath);
         $this->coreTwig = $this->initEnvironment($coreTwigLoader, $twigOptions);
-
         Loader::twigFunctions(TwigContentTypes::CORE)->addFunctions($this->twig);
         Loader::twigFunctions(TwigContentTypes::CORE)->addFunctions($this->coreTwig);
         Loader::twigExtensions(TwigContentTypes::CORE)->addExtensions($this->twig);
@@ -158,6 +169,11 @@ final class TwigLoader implements TwigLoaderInterface {
             ControllerData::MACROS_CORE_USER => $this->coreTwig->load('macros/user.twig'),
             ControllerData::MACROS_CORE_UTIL => $this->coreTwig->load('macros/util.twig')
         ];
+
+        try {
+            $coreMacros[ControllerData::MACROS_CORE_WIDGET] = $this->coreTwig->load('macros/widget.twig');
+        } catch (\Twig\Error\LoaderError $e) {
+        }
 
         $this->twig->addGlobal(ControllerData::MACROS_CORE, $coreMacros);
     }
@@ -185,6 +201,7 @@ final class TwigLoader implements TwigLoaderInterface {
         $localLayout = $localVersion . $basicLayout;
         $basicContent = (is_null($content) ? 'Content/' . ControllersFactory::getPath($this->routeType) . '/' . $this->pageContent . '.' . $format . '.twig' : $content);
         $localContent = $localVersion . $basicContent;
+        $pluginContent = 'overrideContent/' . ControllersFactory::getPath($this->routeType) . '/' . $this->pageContent . '.' . $format . '.twig';
 
         $this->twig->addGlobal(ControllerData::VERSION, $localVersion);
 
@@ -195,19 +212,46 @@ final class TwigLoader implements TwigLoaderInterface {
             }
         }
 
-        try {
-            $this->twig->addGlobal(ControllerData::LAYOUT, $localLayout);
-            $this->twig->addGlobal(ControllerData::CONTENT, $localContent);
-            $templateWrapper = $this->twig->load($localContent);
-        } catch (\Twig\Error\LoaderError $th) {
-            $this->twig->addGlobal(ControllerData::LAYOUT, $basicLayout);
-            $this->twig->addGlobal(ControllerData::CONTENT, $basicContent);
-            $templateWrapper = $this->twig->load($basicContent);
+        $templateWrapper = null;
+        $templateWrapperError = false;
+        if (is_null($content) && count($this->overridePluginPaths) > 0) {
+            try {
+                $this->twig->addGlobal(ControllerData::LAYOUT, $localLayout);
+                $this->twig->addGlobal(ControllerData::CONTENT, $pluginContent);
+                $templateWrapper = $this->twig->load($pluginContent);
+            } catch (\Twig\Error\LoaderError $th) {
+                $templateWrapperError = true;
+            }
+        }
+
+        if ($templateWrapperError || $templateWrapper === null) {
+            try {
+                $this->twig->addGlobal(ControllerData::LAYOUT, $localLayout);
+                $this->twig->addGlobal(ControllerData::CONTENT, $localContent);
+                $templateWrapper = $this->twig->load($localContent);
+            } catch (\Twig\Error\LoaderError $th) {
+                $this->twig->addGlobal(ControllerData::LAYOUT, $basicLayout);
+                $this->twig->addGlobal(ControllerData::CONTENT, $basicContent);
+                $templateWrapper = $this->twig->load($basicContent);
+            }
         }
         $renderization = $this->twig->render($templateWrapper, $this->data);
 
         Utils::addTimerDebugFlag('TwigLoader-render', Timer::END_SUFFIX);
         return $renderization;
+    }
+
+    private function getOverridePluginPaths(): void {
+        /** @var \FWK\Services\PluginService $pluginService */
+        $pluginService = Loader::service(Services::PLUGIN);
+        $this->overridePluginPaths = [];
+        foreach ($pluginService->getOverridePlugins() as $overridePlugin) {
+            $pluginDir = Utils::getCamelFromSnake($overridePlugin->getModule(), '.');
+            $path = PLUGINS_LOAD_PATH . '/' . $pluginDir . '/themes/default';
+            if (is_dir($path)) {
+                $this->overridePluginPaths[] = $path;
+            }
+        }
     }
 
     /**

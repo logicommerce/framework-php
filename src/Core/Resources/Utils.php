@@ -28,6 +28,7 @@ use SDK\Enums\BasketWarningCode;
 use SDK\Enums\CompanyRoleType;
 use SDK\Enums\MasterType;
 use SDK\Enums\OptionType;
+use SDK\Enums\SessionType;
 
 /**
  * This is the Utils class.
@@ -497,11 +498,13 @@ abstract class Utils {
         if (is_null($session)) {
             $session = Session::getInstance();
         }
-        return self::isUserLoggedIn($session->getUser());
+        return $session->getBasket()->getType() === SessionType::REGISTERED;
     }
 
     /**
      * This method returns true if the user is logged, false otherwise.
+     *
+     * @deprecated Use Utils::isSessionLoggedIn() or Session::isLogged() instead.
      *
      * @param ?User $user
      *
@@ -511,10 +514,7 @@ abstract class Utils {
         if (is_null($user)) {
             $user = Session::getInstance()->getUser();
         }
-        if ($user->getId() > 0 && $user->getActive() && $user->getVerified()) {
-            return true;
-        }
-        return false;
+        return $user->getUserAdditionalInformation()->getSessionType() === SessionType::REGISTERED;
     }
 
     /**

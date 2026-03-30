@@ -49,7 +49,7 @@ class AddCommentController extends BaseJsonController {
         $canComment = false;
         if (self::getTheme()->getConfiguration()->getForms()->getComments()->getAnonymousRatingEnabled()) {
             $canComment = true;
-        } elseif ($this->getSession() !== null && $this->getSession()->getUser()->getId() !== 0) {
+        } elseif ($this->getSession() !== null && $this->getSession()->isLogged()) {
             $canComment = true;
         }
         if (!$canComment) {

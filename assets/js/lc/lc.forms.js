@@ -3286,6 +3286,29 @@ LC.CheckoutForm = LC.Form.extend({
         for (var i in this.dataForm) this.dataForm[i] = this.dataForm[i].join();
     },
 
+    loadingWindow: function(buttonStep, message) {
+        const loadingWindowContent = `
+            <div class="messageContainer">
+                ${message || "Processing your payment, please wait..."}<br/><br/>
+            </div>
+            <div id="modalLoadingContainer" class="loadingPaymentContainer"></div>
+            <div id="paymentProcessingLoading" style="display: none;"></div>
+            <div id="paymentSteps"></div>`;
+        $(buttonStep).prop('disabled', true);
+        $('#paymentProcessingLoading').css("display", "block");
+        $('<span/>').appendTo($(document.body)).box({
+            uid: 'modalLoadingWindow',
+            triggerOnClick: false,
+            keepSrc: true,
+            backdrop: 'static',
+            showFooter: false,
+            showHeader: true,
+            showClose: true,
+            source: loadingWindowContent,
+            type: 'html',
+        });
+    },
+
     /**
      * Submit current data, preventing lost data
      * @memberOf LC.CheckoutForm

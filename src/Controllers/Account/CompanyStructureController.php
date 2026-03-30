@@ -26,10 +26,16 @@ class CompanyStructureController extends BaseHtmlController {
     public const COMPANY_STRUCTURE = "companyStructure";
     public const COMPANY_STRUCTURE_FORM = "companyStructureForm";
 
-    protected string $q = '';
-    protected AccountService $accountService;
     protected bool $loggedInRequired = true;
+
     protected bool $companyAccountsRequired = true;
+
+    protected bool $cardinalityPlusRequired = true;
+
+    protected string $q = '';
+
+    protected AccountService $accountService;
+
     protected ?CompanyStructureParametersGroup $companyStructureParametersGroup = null;
 
     /**

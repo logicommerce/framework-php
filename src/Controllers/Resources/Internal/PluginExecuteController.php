@@ -85,7 +85,7 @@ class PluginExecuteController extends BaseJsonController {
             $data = Session::getInstance()->getBasket();
         }
         $params = new PluginConnectorTypeParametersGroup();
-        $params->setType(PluginConnectorType::NONE);
+        $params->setConnectorType(PluginConnectorType::NONE);
         $params->setNavigationHash($this->getSession()->getNavigationHash());
         /** @var \SDK\Services\PluginService */
         $pluginService = Loader::service(Services::PLUGIN);

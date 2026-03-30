@@ -1,6 +1,6 @@
 {% macro buttonWishlist(args) %}
 	{% set display %} 
-		{% if session.user.id == 0 %} style="display: none" {% endif %}	
+		{% if not session.isLogged %} style="display: none" {% endif %}
 	{% endset %}
 	{% if args.type == constant('FWK\\ViewHelpers\\User\\Macro\\ButtonWishlist::TYPE_SEND') %}
 		<button type="button" class="userSendWishlist userSendWishlist {{ args.class }}" {{ display }} data-bs-toggle="modal" data-bs-target="#userSendWishlist" data-lc-required='{ "el": "#userSendWishlist", "macro": "buttonWishlist" }'>

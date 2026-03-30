@@ -1337,3 +1337,14 @@ div.expired[data-lc-basket-expires]>div.expired {
   -webkit-animation: none;
   animation: none
 }
+
+.loadingPaymentContainer{
+  z-index: 20;
+  background: rgba(255, 255, 255, 0.4);
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: none;
+}

@@ -31,11 +31,18 @@ class AccountCompanyRolesController extends BaseHtmlController {
     public const COMPANY_ROLES_ERROR = 'companyRolesError';
     public const ITEM_LIST_DATA = 'itemListData';
 
+    protected bool $loggedInRequired = true;
+
+    protected bool $cardinalityPlusRequired = true;
+
     protected AccountService $accountService;
+
     protected ?CompanyRolesParametersGroup $companyRolesParametersGroup = null;
 
     protected ?ItemList $itemListConfiguration = null;
+
     protected array $additionalRequestParameters = [];
+
     protected array $companyRolesFilter = [];
 
     /**

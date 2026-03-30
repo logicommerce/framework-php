@@ -2,10 +2,14 @@
 
 namespace FWK\Core\Resources;
 
+use FWK\Core\Controllers\Controller;
+use FWK\Core\Controllers\ControllersFactory;
+use FWK\Core\Resources\Utils;
+use FWK\Services\PluginService;
+use SDK\Enums\PluginConnectorType;
 use SDK\Core\Enums\Traits\EnumResolverTrait;
 use SDK\Core\Resources\Server;
 use SDK\Core\Resources\Timer;
-use SDK\Core\Resources\Environment;
 use SDK\Dtos\Common\Route;
 use FWK\Enums\Services;
 use FWK\Enums\RouteType;
@@ -136,10 +140,32 @@ final class Router {
         if (!is_null($this->internalController)) {
             $controller = $this->internalController;
         } else {
-            $controller = Loader::controller($this->route);
+            $controller = $this->resolveControllerWithPluginSupport();
         }
         $controller->run($data);
         Utils::addTimerDebugFlag('Router-executeController', Timer::END_SUFFIX);
+    }
+
+    private function resolveControllerWithPluginSupport(): Controller {
+        /** @var PluginService $pluginService */
+        $pluginService = Loader::service(Services::PLUGIN);
+        $overridePlugins = $pluginService->getOverridePlugins();
+        if (empty($overridePlugins)) {
+            return Loader::controller($this->route);
+        }
+
+        $pluginNamespaces = array_map(
+            fn($plugin) => 'Plugins\\' . Utils::getCamelFromSnake($plugin->getModule(), '.') . '\\',
+            $overridePlugins
+        );
+
+        $locationsWithPluginsFirst = array_merge($pluginNamespaces, Loader::LOCATIONS);
+        $controller = ControllersFactory::getController($this->route, $locationsWithPluginsFirst);
+        if ($controller === null) {
+            return Loader::controller($this->route);
+        }
+
+        return $controller;
     }
 
     /**

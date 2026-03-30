@@ -41,13 +41,18 @@ class AccountRegisteredUsersController extends BaseHtmlController {
 
     protected bool $loggedInRequired = true;
 
+    protected bool $cardinalityPlusRequired = true;
+
     protected string $userKeyCriteria = '';
 
     protected ?ItemList $itemListConfiguration = null;
+
     protected array $additionalRequestParameters = [];
+
     protected array $registeredUsersFilter = [];
 
     protected ?AccountService $accountService = null;
+
     protected ?AccountRegisteredUsersParametersGroup $accountRegisteredUsersParametersGroup = null;
 
     protected string $accountId = AccountKey::USED;

@@ -106,15 +106,18 @@
                         <a class="paypal-express-checkout-plugin express-checkout-plugin logout btn btn-secondary" href="#" data-lc-function="expressCheckout" data-lc-event="click" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>{{- languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPRESS_CHECKOUT_LOGOUT')]|replace({ '{{pluginName}}': expressCheckoutPluginName }) -}}</a>
                     </div>
                 </div>
-            {%- elseif session.basket.items|length > 0 -%}
+            {%- elseif session.basket.items|length > 0 and session.user.id == 0 -%}
                 <div class="express-checkout-login">
                     {%- if args.showTitle -%}
                         <div class="title">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::EXPRESS_CHECKOUT_TITLE')] }}</div>
                     {%- endif -%}
                     {%- for expressCheckoutPlugin in args.expressCheckoutPlugins -%}
-                        {%- include 'plugins/' ~ ucwords(expressCheckoutPlugin.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/util/expressCheckoutLogin.html.twig' ignore missing with {args: args, expressCheckoutPlugin: expressCheckoutPlugin} -%}
+                        {%- for paymentSystem in expressCheckoutPlugin.paymentSystems -%}
+                            {% set args = args | merge({'id': args.id}) %}
+                            {%- include 'plugins/' ~ ucwords(expressCheckoutPlugin.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/util/expressCheckoutLogin.html.twig' ignore missing with {args: args, expressCheckoutPlugin: expressCheckoutPlugin, paymentSystem: paymentSystem} -%}
+                        {%- endfor -%}
                     {%- endfor -%}
-                </div>                
+                </div>
             {%- endif -%}
         </div>
     {%- endif -%}

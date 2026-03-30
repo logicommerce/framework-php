@@ -32,7 +32,7 @@ trait AddPluginPaymentSystemTrait {
      */
     protected function getAddPluginsPaymentSystems(BatchRequests $requests): void {
         $params = new PluginConnectorTypeParametersGroup();
-        $params->setType(PluginConnectorType::PAYMENT_SYSTEM);
+        $params->setConnectorType(PluginConnectorType::PAYMENT_SYSTEM);
         $params->setNavigationHash(Session::getInstance()->getNavigationHash());
         /** @var \SDK\Service\PluginService */
         $pluginService = Loader::service(Services::PLUGIN);
