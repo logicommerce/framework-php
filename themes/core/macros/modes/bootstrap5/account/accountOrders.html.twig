@@ -39,7 +39,7 @@
                                                 <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::DATE_ORDERED')] }}</span> <span class="val">{{ formatDateTime(order.date) }}</span>
                                             </div>
                                         </div>
-                                        {% if settings.accountRegisteredUsersSettings.cardinalityPlus %}
+                                        {% if settings.accountRegisteredUsersSettings.cardinalityPlus or args.advcaAnyTier %}
                                             <div class="userOrderCell">
                                                 <div class="userOrderCreator">
                                                     <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_CREATOR')] }}</span> <span class="val">{{ order.registeredUserCreator.firstName }} {{ order.registeredUserCreator.lastName }}</span>
@@ -55,7 +55,7 @@
                                                 </div>
                                             </div>
                                         {% endif %}
-                                        {% if accounts['id' ~ order.ownerAccountId] is defined %}
+                                        {% if args.advcaAnyTier and args.isCompanyType and accounts['id' ~ order.ownerAccountId] is defined %}
                                             <div class="userOrderCell">
                                                 <div class="userOrderOwnerAccount">
                                                     <span class="lbl">{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ORDER_OWNER_ACCOUNT')] }}</span> <span class="val">{{ accounts['id'~ order.ownerAccountId] }}</span>
@@ -133,7 +133,8 @@
                                 {% set lcData = lcData|merge({ 'documentType': 'invoice', 'popupTitle': languageSheet[constant('FWK\\Enums\\LanguageLabels::INVOICE_NUMBER')] }) %}
                                 {% for invoice in order.invoices %}
                                     {% set lcData = lcData|merge({ 'documentId': invoice.id, 'documentNumber':invoice.documentNumber }) %}
-                                    {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE') in args.showOrderActions %}
+                                    {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE') in args.showOrderActions
+                                        and order.status != constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL') %}
                                         <div class="userOrderActionWrap">
                                             <button class="btn btn-link userOrderAction invoice"
                                                 {% if args.documentView == constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::POPUP') %}
@@ -150,7 +151,8 @@
                                         </div>
 
                                     {% endif %}
-                                    {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE_PDF') in args.showOrderActions %}
+                                    {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE_PDF') in args.showOrderActions
+                                        and order.status != constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL') %}
                                         <div class="userOrderActionWrap">
                                             <button class="btn btn-link userOrderAction invoicePDF" data-lc-event="click" data-lc-function="viewDocument" data-lc-data='{{ outputJsonHtmlString(lcData|merge({'pdf':true})) }}'>
                                                 {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_INVOICE_PDF') in args.showOrderIcons %}
@@ -190,7 +192,10 @@
                                 {% endfor %}
                                 {# return order #}
                                 {% set lcData = lcData|merge({ 'documentType': 'returnForm' }) %}
-                                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RETURN') in args.showOrderActions and order.allowReturn and order.ownerAccountId == session.user.id %}
+                                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RETURN') in args.showOrderActions
+                                    and order.allowReturn
+                                    and order.ownerAccountId == session.basket.account.id
+                                    and order.status != constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL') %}
                                     {% set lcData = lcData|merge({ 'documentId': order.id }) %}
                                     <div class="userOrderActionWrap" id="returnOrderDiv">
                                         <button class="btn btn-link userOrderAction viewOrder" 
@@ -211,7 +216,8 @@
 
                                 {# return tracing #}                                
                                 {% set lcData = lcData|merge({ 'documentType': 'returnTracing' }) %}
-                                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RETURN_TRACING') in args.showOrderActions %}
+                                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_RETURN_TRACING') in args.showOrderActions
+                                    and order.status != constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL') %}
                                     {% set lcData = lcData|merge({ 'documentId': order.id }) %}
                                     <div class="userOrderActionWrap returnTracing returnTracing{{ order.id }}" 
                                         {% if order.rmas is empty %}
@@ -234,8 +240,9 @@
                                     </div>
                                 {% endif %}
                                 
-                                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_APPROVAL') in args.showOrderActions 
-                                    and order.status == constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL') %}
+                                {% if constant('FWK\\ViewHelpers\\Account\\Macro\\AccountOrders::ACTION_APPROVAL') in args.showOrderActions
+                                    and order.status == constant('SDK\\Enums\\OrderStatus::PENDING_APPROVAL')
+                                    and args.advcaApprovalLicense %}
                                     {% set lcDecisionData = {
                                         orderId: order.id,
                                         decision: constant('SDK\\Enums\\AccountOrderApprovalDecision::APPROVE'),

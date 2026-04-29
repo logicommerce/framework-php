@@ -20,7 +20,7 @@
                                 {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] -%}
                                 {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT')) -%}
                                 {%- set itemRouteType = constant('SDK\\Enums\\RouteType::ACCOUNT') -%}
-                            {%- elseif item == 'registeredUser' and settings.accountRegisteredUsersSettings.cardinalityPlus -%}
+                            {%- elseif item == 'registeredUser' -%}
                                 {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] -%}
                                 {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::REGISTERED_USER')) -%}
                                 {%- set itemRouteType = constant('SDK\\Enums\\RouteType::REGISTERED_USER') -%}
@@ -28,7 +28,7 @@
                                 {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::MY_ADDRESS_BOOK_ACCOUNTS')] -%}
                                 {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_ADDRESSES')) -%}
                                 {%- set itemRouteType = constant('SDK\\Enums\\RouteType::ACCOUNT_ADDRESSES') -%}
-                            {%- elseif item == 'accountRegisteredUser'and settings.accountRegisteredUsersSettings.cardinalityPlus -%}
+                            {%- elseif item == 'accountRegisteredUser' -%}
                                 {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::EDIT_DATA')] -%}
                                 {%- set accountIdKey = '{' ~ constant('FWK\\Enums\\Parameters::ACCOUNT_ID') ~ '}' -%}
                                 {%- set registeredUserIdKey = '{' ~ constant('FWK\\Enums\\Parameters::REGISTERED_USER_ID') ~ '}' -%}
@@ -42,7 +42,7 @@
                                 {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::COMPANY_STRUCTURE')] -%}
                                 {%- set link = routePaths.getPath(constant('FWK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE')) -%}
                                 {%- set itemRouteType = constant('SDK\\Enums\\RouteType::ACCOUNT_COMPANY_STRUCTURE') -%}
-                            {%- elseif item == 'accountRegisteredUsers' and settings.accountRegisteredUsersSettings.cardinalityPlus -%}
+                            {%- elseif item == 'accountRegisteredUsers' -%}
                                 {%- if session.basket.account.isCompany -%}
                                     {%- set label = languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_EMPLOYEE')] -%}
                                 {%- else -%}

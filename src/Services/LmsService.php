@@ -34,6 +34,10 @@ class LmsService extends LmsServiceSDK {
 
     private static ?bool $advcaLicense = null;
 
+    private static ?bool $advcagLicense = null;
+
+    private static ?bool $advcabLicense = null;
+
     private static ?bool $shoppingListLicense = null;
 
     private static ?bool $locationSearchZipCity = null;
@@ -60,6 +64,48 @@ class LmsService extends LmsServiceSDK {
             }
         }
         return self::$advcaLicense;
+    }
+
+    public static function getAdvcagLicense(): bool {
+        if (is_null(self::$advcagLicense)) {
+            self::$advcagLicense = false;
+            foreach (self::getApplicationLicenses() as $license) {
+                if ($license->getPId() === 'ADVCAG') {
+                    self::$advcagLicense = true;
+                    break;
+                }
+            }
+        }
+        return self::$advcagLicense;
+    }
+
+    public static function getAdvcabLicense(): bool {
+        if (is_null(self::$advcabLicense)) {
+            self::$advcabLicense = false;
+            foreach (self::getApplicationLicenses() as $license) {
+                if ($license->getPId() === 'ADVCAB') {
+                    self::$advcabLicense = true;
+                    break;
+                }
+            }
+        }
+        return self::$advcabLicense;
+    }
+
+    /**
+     * Returns true if the shop has role/permissions management (ADVCAB Business or ADVCA Enterprise tier).
+     * Use this to gate: role fields, company roles menu, company structure menu.
+     */
+    public static function hasAdvcaRolesManagement(): bool {
+        return self::getAdvcabLicense() || self::getAdvcaLicense();
+    }
+
+    /**
+     * Returns true if the shop has any ADVCA tier (Growth, Business or Enterprise).
+     * Use this to gate: CardinalityPlus features (include sub-structure orders filter, owner account display).
+     */
+    public static function hasAnyAdvcaTier(): bool {
+        return self::getAdvcagLicense() || self::getAdvcabLicense() || self::getAdvcaLicense();
     }
 
     public static function getShoppingListLicense(): bool {

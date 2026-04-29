@@ -22,35 +22,61 @@
             {%- for controlTypePart in customTag.controlType|split('_') -%}
                 {%- set parsedControlType = parsedControlType ~ controlTypePart|lower|capitalize -%}
             {%- endfor -%}
-            {%- set selected = false -%}
-            {%- if customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
-                {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and customTag.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+            {%- set isImageType = customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE')
+                or customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::SINGLE_SELECTION_IMAGE')
+                or customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE') -%}
+            {%- set isMultipleSelection = customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION') -%}
+            {%- set isMultipleSelectionImage = customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE') -%}
+            {%- set baseValues = customTag.values -%}
+            {%- set baseFilterValues = customTag.filterValues -%}
+            {# Merge applied values for multi-select so user-picked options stay visible after faceted narrowing #}
+            {%- if appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined
+                and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined -%}
+                {%- if isMultipleSelection -%}
+                    {%- for appliedValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+                        {%- if appliedValue not in baseValues -%}
+                            {%- set baseValues = baseValues|merge([appliedValue]) -%}
+                        {%- endif -%}
+                    {%- endfor -%}
+                {%- elseif isMultipleSelectionImage -%}
+                    {%- for appliedValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+                        {%- if appliedValue not in baseFilterValues -%}
+                            {%- set baseValues = baseValues|merge([appliedValue]) -%}
+                            {%- set baseFilterValues = baseFilterValues|merge([appliedValue]) -%}
+                        {%- endif -%}
+                    {%- endfor -%}
+                {%- endif -%}
             {%- endif -%}
-            {%- for value in customTag.values -%}
+            {%- for key, value in baseValues -%}
                 {%- set uid = random(10000000, 99999999) -%}
-                {%- set selected = selected or appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
-                <div 
+                {%- set checkValue = isImageType and baseFilterValues[key] is defined ? baseFilterValues[key] : value -%}
+                {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and checkValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+                <div
                     class="form-group form-check filterElement customTagsFilterElement customTagType{{ parsedControlType }}"
                     data-ct='{{ outputJsonHtmlString({ position: customTag.position, group: customTag.groupPosition, type: customTag.controlType }) }}'
                 >
-                    <input 
-                        class="form-check-input filterElement customTagsFilterElement" 
-                        type="checkbox" 
+                    <input
+                        class="form-check-input filterElement customTagsFilterElement"
+                        type="checkbox"
                         name="{{ constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG') }}{{ constant('FWK\\Core\\FilterInput\\FilterInputHandler::DYNAMIC_NAME_PARAM_DELIMITER') }}{{ customTag.id }}"
                         {% if selected %} checked {% endif %}
-                        {%- if customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') and filter.filterValues|length -%}
-                            value="{{ customTag.filterValues|first|escape }}" 
-                        {% else %}
-                            value="{{ value|escape }}" 
-                        {%- endif -%}
+                        value="{{ checkValue|escape }}"
                         id="CTGFE{{ customTag.id }}_{{ uid }}"
                     >
                     {%- if customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::DATE') -%}
                         {%- set value = value|date(getTwigDatePattern()) -%}
                     {%- elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::BOOLEAN') -%}
                         {%- set value = (value == '1' or value == 'true') ? languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] -%}
-                    {%- elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
-                        {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ value ~ '" alt="' ~ customTag.name|escape ~ '">' ~ customTag.name  -%}
+                    {%- elseif isImageType -%}
+                        {%- if customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
+                            {# Legacy IMAGE: keep showing customTag.name as label (unchanged behavior) #}
+                            {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ (value|e('html_attr')) ~ '" alt="' ~ customTag.name|escape ~ '">' ~ customTag.name|escape -%}
+                        {%- else -%}
+                            {# @deprecated nameValues — for new image types, only render label when per-value name is provided #}
+                            {%- set hasNameValue = customTag.nameValues[key] is defined and customTag.nameValues[key]|length -%}
+                            {%- set imageAlt = hasNameValue ? customTag.nameValues[key] : customTag.name -%}
+                            {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ (value|e('html_attr')) ~ '" alt="' ~ imageAlt|escape ~ '">' ~ (hasNameValue ? customTag.nameValues[key]|escape : '') -%}
+                        {%- endif -%}
                     {%- elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::NUMBER') -%}
                         {% if value matches '/[0-9]+(\.[0-9]+)?(e|E)[0-9]+/' %}
                             {%- set value = value|number_format(0, '.', '') -%}

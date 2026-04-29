@@ -8,6 +8,7 @@ use FWK\Core\Resources\Session;
 use FWK\Enums\RouteType;
 use FWK\Enums\RouteTypes\InternalUser;
 use FWK\Services\LmsService;
+use SDK\Application;
 use SDK\Dtos\Accounts\RegisteredUserSimpleProfile;
 use SDK\Enums\AccountType;
 use SDK\Enums\SessionUsageModeType;
@@ -104,12 +105,12 @@ class Panel {
     public function getViewParameters(): array {
         $this->pruneBlockForSalesAgent();
         $this->pruneItemsForAdvca();
+        $this->pruneItemsForRegisteredUsersAccess();
         $this->pruneItemsForSalesAgentSim();
 
         if (!Session::getInstance()->getAssociatedAccounts()) {
             $this->removeItems(['usedAccountSwitch']);
         }
-
         $this->validateList($this->itemsList);
         return $this->getProperties();
     }
@@ -125,16 +126,26 @@ class Panel {
         $type   = $basket?->getAccount()?->getType();
         $mode   = $basket?->getMode()?->getType();
 
-        $useADVCA = LmsService::getAdvcaLicense()
+        $hasRolesManagement = LmsService::hasAdvcaRolesManagement()
             && in_array($type, [AccountType::COMPANY, AccountType::COMPANY_DIVISION], true)
             && $mode !== SessionUsageModeType::SALES_AGENT_SIMULATION;
 
-        if ($useADVCA) {
+        if ($hasRolesManagement) {
             return;
         }
 
-        // TODO: ADD - AND RegisteredFrontOfficeSession.Employee.role.permissions[ROLES_READ] is true
-        $this->removeItems(['accountCompanyStructure', 'companyRoles']);
+        $this->removeItems(['accountCompanyStructure', 'accountCompanyRoles']);
+    }
+
+    private function pruneItemsForRegisteredUsersAccess(): void {
+        $hasAccess = Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()
+            || LmsService::hasAnyAdvcaTier();
+        if ($hasAccess) {
+            return;
+        }
+
+        // Without cardinalityPlus and without any ADVCA tier, registered-user-related CTAs are not available.
+        $this->removeItems(['accountRegisteredUsers', 'accountRegisteredUser', 'registeredUser']);
     }
 
     private function pruneItemsForSalesAgentSim(): void {

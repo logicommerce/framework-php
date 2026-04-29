@@ -1,30 +1,58 @@
 {%- macro elements(filter, appliedFilters) -%}
-    {%- set selected = false -%}
-    {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
-        {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and filter.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+    {%- set isImageType = filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE')
+        or filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::SINGLE_SELECTION_IMAGE')
+        or filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE') -%}
+    {%- set isMultipleSelection = filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION') -%}
+    {%- set isMultipleSelectionImage = filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE') -%}
+    {%- set baseValues = filter.values -%}
+    {%- set baseFilterValues = filter.filterValues -%}
+    {# Merge applied values for multi-select so user-picked options stay visible after faceted narrowing #}
+    {%- if appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined
+        and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined -%}
+        {%- if isMultipleSelection -%}
+            {%- for appliedValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+                {%- if appliedValue not in baseValues -%}
+                    {%- set baseValues = baseValues|merge([appliedValue]) -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- elseif isMultipleSelectionImage -%}
+            {%- for appliedValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+                {%- if appliedValue not in baseFilterValues -%}
+                    {%- set baseValues = baseValues|merge([appliedValue]) -%}
+                    {%- set baseFilterValues = baseFilterValues|merge([appliedValue]) -%}
+                {%- endif -%}
+            {%- endfor -%}
+        {%- endif -%}
     {%- endif -%}
-    {%- for value in filter.values|usort -%}
+    {# Image types skip usort to keep values[i]/filterValues[i] index alignment #}
+    {%- set iterableValues = isImageType ? baseValues : baseValues|usort -%}
+    {%- for key, value in iterableValues -%}
         {%- set uid = random(10000000, 99999999) -%}
-        {%- set selected = selected or appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+        {%- set checkValue = isImageType and baseFilterValues[key] is defined ? baseFilterValues[key] : value -%}
+        {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and checkValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
         <div class="form-group form-check filterElement customTagsFilterElement">
-            <input 
-                class="form-check-input filterElement customTagsFilterElement" 
-                type="checkbox" 
+            <input
+                class="form-check-input filterElement customTagsFilterElement"
+                type="checkbox"
                 name="{{ constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG') }}{{ constant('FWK\\Core\\FilterInput\\FilterInputHandler::DYNAMIC_NAME_PARAM_DELIMITER') }}{{ filter.id }}"
                 {% if selected %} checked {% endif %}
-                {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') and filter.filterValues|length -%}
-                    value="{{ filter.filterValues|first|escape }}" 
-                {% else %}
-                    value="{{ value|escape }}" 
-                {%- endif -%}
+                value="{{ checkValue|escape }}"
                 id="CTFE{{ filter.id }}_{{ uid }}"
             >
             {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::DATE') -%}
                 {%- set value = value|date(getTwigDatePattern()) -%}
             {%- elseif filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::BOOLEAN') -%}
                 {%- set value = (value == '1' or value == 'true') ? languageSheet[constant('FWK\\Enums\\LanguageLabels::YES')] : languageSheet[constant('FWK\\Enums\\LanguageLabels::NO')] -%}
-            {%- elseif filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
-                {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ value ~ '" alt="' ~ filter.name|escape ~ '">' ~ filter.name  -%}
+            {%- elseif isImageType -%}
+                {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
+                    {# Legacy IMAGE: keep showing filter.name as label (unchanged behavior) #}
+                    {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ (value|e('html_attr')) ~ '" alt="' ~ filter.name|escape ~ '">' ~ filter.name|escape -%}
+                {%- else -%}
+                    {# @deprecated nameValues — for new image types, only render label when per-value name is provided #}
+                    {%- set hasNameValue = filter.nameValues[key] is defined and filter.nameValues[key]|length -%}
+                    {%- set imageAlt = hasNameValue ? filter.nameValues[key] : filter.name -%}
+                    {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ (value|e('html_attr')) ~ '" alt="' ~ imageAlt|escape ~ '">' ~ (hasNameValue ? filter.nameValues[key]|escape : '') -%}
+                {%- endif -%}
             {%- elseif filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::NUMBER') -%}
                 {% if value matches '/[0-9]+(\.[0-9]+)?(e|E)[0-9]+/' %}
                     {%- set value = value|number_format(0, '.', '') -%}

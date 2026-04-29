@@ -116,25 +116,6 @@ abstract class SetUserController extends BaseJsonController {
 
     public const CUSTOM_TAGS = 'customTags';
 
-    private const LEGACY_POST_USER_COMMERCE_IDS = [
-        '233', //'ESEOESE',
-        '136', //'TRES',
-        '70', //'EUREKAKIDS',
-        '237', //'SALGAR',
-        '285', //'SOMOSPLENUM',
-        '223', //'JUGAR I JUGAR',
-        '330', //'MILAN',
-        '291', //'OUTLET MOTO',
-        '293', //'CAJADECARTON.ES',
-        '225', //'CASHDISPLAY',
-        '371', //'VAUKURA',
-        '180', //'MUNICHSPORTS.COM',
-        '98', //'CASAS',
-        '100', //'CAMILA\'S',
-        '167', //'ONA LLIBRES',
-        '287', //'CARMINA SHOEMAKER',
-    ];
-
     /**
      * This constant is an array that defines the fields to consider when creating a user.
      */
@@ -630,32 +611,30 @@ abstract class SetUserController extends BaseJsonController {
                     $dataValidator = 'getUpdateUser' . $type;
                     $dataValidator = $themeConfiguration->getDataValidators()->$dataValidator();
                     $isAccountUpdateBlocked = false;
-                    if ($this->shouldUseLegacyPostUser()) {
-                        $responseUpdateUser = $this->userService->updateUser($this->userParametersGroup, $dataValidator);
-                    } else {
-                        $thisAccountUpdatePermissions = true;
-                        if ($this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getType() === MasterType::EMPLOYEE) {
-                            $roleId = $this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getRole()?->getId() ?? 0;
-                            if ($roleId !== 0) {
-                                $companyRole = $this->accountService->getCompanyRole($roleId);
-                                $thisAccountUpdatePermissions = $companyRole?->getPermissions()?->getThisAccountUpdate() ?? true;
-                            }
-                            $isAccountUpdateBlocked = Utils::isAccountUpdateBlocked($thisAccountUpdatePermissions);
-                        }
 
-                        if (!$isAccountUpdateBlocked) {
-                            $this->accountParametersGroup = UserToAccountFactory::mapUpdateUserToUpdateAccount($this->userParametersGroup, Session::getInstance()?->getBasket()?->getAccountRegisteredUser()?->isMaster() ?? true);
-                            $responseUpdateUser = $this->accountService->updateUsedAccount(AccountKey::USED, $this->accountParametersGroup, $dataValidator);
+                    $thisAccountUpdatePermissions = true;
+                    if ($this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getType() === MasterType::EMPLOYEE) {
+                        $roleId = $this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getRole()?->getId() ?? 0;
+                        if ($roleId !== 0) {
+                            $companyRole = $this->accountService->getCompanyRole($roleId);
+                            $thisAccountUpdatePermissions = $companyRole?->getPermissions()?->getThisAccountUpdate() ?? true;
                         }
-                        $updateAccountRegisteredUsersParametersGroup = new UpdateAccountRegisteredUsersParametersGroup();
-
-                        if (!$this->getSession()?->getBasket()?->getAccountRegisteredUser()?->isMaster()) {
-                            $updateAccountRegisteredUsersParametersGroup->setUseShippingAddress($this->data[self::USER][Parameters::USE_SHIPPING_ADDRESS] ?? false);
-                            $responseUpdateAccount = $this->accountService->updateAccountRegisteredUser(AccountKey::USED, $this->getSession()->getBasket()->getAccountRegisteredUser()->getRegisteredUserId(), $updateAccountRegisteredUsersParametersGroup, $dataValidator);
-                            $this->responseMessageError = Utils::getErrorLabelValue($responseUpdateAccount);
-                            $this->responseError = $responseUpdateAccount->getError();
-                        }
+                        $isAccountUpdateBlocked = Utils::isAccountUpdateBlocked($thisAccountUpdatePermissions);
                     }
+
+                    if (!$isAccountUpdateBlocked) {
+                        $this->accountParametersGroup = UserToAccountFactory::mapUpdateUserToUpdateAccount($this->userParametersGroup, Session::getInstance()?->getBasket()?->getAccountRegisteredUser()?->isMaster() ?? true);
+                        $responseUpdateUser = $this->accountService->updateUsedAccount(AccountKey::USED, $this->accountParametersGroup, $dataValidator);
+                    }
+                    $updateAccountRegisteredUsersParametersGroup = new UpdateAccountRegisteredUsersParametersGroup();
+
+                    if (!$this->getSession()?->getBasket()?->getAccountRegisteredUser()?->isMaster()) {
+                        $updateAccountRegisteredUsersParametersGroup->setUseShippingAddress($this->data[self::USER][Parameters::USE_SHIPPING_ADDRESS] ?? false);
+                        $responseUpdateAccount = $this->accountService->updateAccountRegisteredUser(AccountKey::USED, $this->getSession()->getBasket()->getAccountRegisteredUser()->getRegisteredUserId(), $updateAccountRegisteredUsersParametersGroup, $dataValidator);
+                        $this->responseMessageError = Utils::getErrorLabelValue($responseUpdateAccount);
+                        $this->responseError = $responseUpdateAccount->getError();
+                    }
+
                     if (!$isAccountUpdateBlocked) {
                         $this->responseMessageError = Utils::getErrorLabelValue($responseUpdateUser);
                         $this->responseError = $responseUpdateUser->getError();
@@ -678,16 +657,12 @@ abstract class SetUserController extends BaseJsonController {
                 } else {
                     $dataValidator = 'getNewUser' . ($this->getTypeForm() === FormFactory::SET_USER_TYPE_ADD_USER_FAST_REGISTER ? 'FastRegister' : '') . $type;
                     $dataValidator = $themeConfiguration->getDataValidators()->$dataValidator();
-                    if ($this->shouldUseLegacyPostUser()) {
-                        $responseUser = $this->userService->createUser($this->userParametersGroup, $dataValidator);
+                    if (isset($this->data[self::USER]['createAccount']) && $this->data[self::USER]['createAccount'] == true) {
+                        $this->accountParametersGroup = UserToAccountFactory::mapCreateUserToCreateAccount($this->userParametersGroup, self::getTheme()?->getConfiguration()?->getAccount()?->getAccountType());
+                        $responseUser = $this->accountService->createAccount($this->accountParametersGroup, $dataValidator);
                     } else {
-                        if (isset($this->data[self::USER]['createAccount']) && $this->data[self::USER]['createAccount'] == true) {
-                            $this->accountParametersGroup = UserToAccountFactory::mapCreateUserToCreateAccount($this->userParametersGroup, self::getTheme()?->getConfiguration()?->getAccount()?->getAccountType());
-                            $responseUser = $this->accountService->createAccount($this->accountParametersGroup, $dataValidator);
-                        } else {
-                            $this->accountParametersGroup = UserToAccountFactory::mapCreateUserToUpdateOmsBasketCustomer($this->userParametersGroup);
-                            $responseUser = Loader::service(Services::BASKET)->updateOmsBasketCustomer($this->accountParametersGroup, $dataValidator);
-                        }
+                        $this->accountParametersGroup = UserToAccountFactory::mapCreateUserToUpdateOmsBasketCustomer($this->userParametersGroup);
+                        $responseUser = Loader::service(Services::BASKET)->updateOmsBasketCustomer($this->accountParametersGroup, $dataValidator);
                     }
                     if (is_null($responseUser->getError())) {
                         $response[self::USER] = new User($responseUser->getBasketUser()->toArray());
@@ -733,17 +708,6 @@ abstract class SetUserController extends BaseJsonController {
     protected function userExists(string $value): bool {
         $userExists = $this->userService->getUserExists($value);
         return $userExists->getExists();
-    }
-
-    private function shouldUseLegacyPostUser(): bool {
-        $commerceId = (string) \SDK\Core\Resources\Environment::get('COMMERCE_ID');
-        foreach (self::LEGACY_POST_USER_COMMERCE_IDS as $legacyCommerceId) {
-            if ($commerceId === $legacyCommerceId) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

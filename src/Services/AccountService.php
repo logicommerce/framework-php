@@ -180,6 +180,32 @@ class AccountService extends AccountServiceSDK {
     }
 
     /**
+     * Persists navigation currency/language on the AccountRegisteredUser
+     * relation of the current session so the preference survives across
+     * logins. No-op when the session has no AccountRegisteredUser (anonymous).
+     * Each argument is optional; pass only the field you are syncing.
+     *
+     * @param string|null $currency
+     * @param string|null $language
+     *
+     * @return MasterVal|NULL
+     */
+    public function updateRegisteredUserDefaults(?string $currency = null, ?string $language = null): ?MasterVal {
+        $aru = Session::getInstance()->getBasket()->getAccountRegisteredUser();
+        if ($aru === null) {
+            return null;
+        }
+        $params = new UpdateAccountRegisteredUsersParametersGroup();
+        if ($currency !== null) {
+            $params->setDefaultCurrency($currency);
+        }
+        if ($language !== null) {
+            $params->setDefaultLanguage($language);
+        }
+        return $this->updateAccountRegisteredUser(AccountKey::USED, $aru->getRegisteredUserId(), $params);
+    }
+
+    /**
      * Update registered user me
      * @param UpdateRegisteredUserParametersGroup $data
      * @return RegisteredUser

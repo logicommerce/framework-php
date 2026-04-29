@@ -1,0 +1,4 @@
+{#- Render multi-selection values as comma-separated list. Filter out duplicates with empty value (API returns language-flattened duplicates). -#}
+{%- for selected in customTag.values|filter(v => v.value|length) -%}
+    {{- selected.value -}}{%- if not loop.last -%}, {% endif -%}
+{%- endfor -%}

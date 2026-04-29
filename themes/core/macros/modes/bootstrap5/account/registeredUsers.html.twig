@@ -53,7 +53,7 @@
                                     <td class="registeredUserTitle master">
                                         {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_MASTER')] }}
                                     </td>
-                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ROLE') %}
+                                {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ROLE') and args.advcaRolesLicense %}
                                     <td class="registeredUserTitle role">
                                         {{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE')] }}
                                     </td>
@@ -104,7 +104,7 @@
                                         <td class="registeredUserContent id">{{ registeredUser.pid }}</td>
                                     {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::MASTER') %}
                                         <td class="registeredUserContent master">{{ item.master == 'true' ? languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_MASTER_YES')]: languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_SEARCH_MASTER_NO')] }}</td>
-                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ROLE') %}
+                                    {% elseif param == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ROLE') and args.advcaRolesLicense %}
                                         {% if item.role.name is empty %}
                                             {% if item.isMaster and session.basket.account.type == constant('SDK\\Enums\\AccountType::COMPANY') %}
                                                 <td class="registeredUserContent role">{{- languageSheet[constant('SITE\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_COMPANY_MASTER_ROLE_DEFAULT')] -}}</td>
@@ -130,7 +130,7 @@
                                                         </span>
                                                     </a>
                                                 
-                                                {%- elseif availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTION_REGISTERED_USERS_MOVE') and not item.master -%}
+                                                {%- elseif availableAction == constant('FWK\\ViewHelpers\\Account\\Macro\\RegisteredUsers::ACTION_REGISTERED_USERS_MOVE') and not item.master and args.advcaRolesLicense -%}
                                                     <a class="customerAction" href="#" data-lc-function="registeredUserMove" data-lc-event="click" data-bs-toggle="modal" data-bs-target="#registeredUserMovePopup" data-lc-data='{{ outputJsonHtmlString(lcData) }}'>
                                                         <span data-bs-toggle="tooltip" title="{{ languageSheet[constant('FWK\\Enums\\LanguageLabels::ACCOUNT_REGISTERED_USER_ACTION_MOVE')] }}">
                                                             <svg class="icon icon-move"><use xlink:href="#icon-move"></use></svg>

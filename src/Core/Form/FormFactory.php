@@ -940,7 +940,7 @@ abstract class FormFactory {
                 $inputElement = (new InputCheckbox('1'))->setId('defaultRole')->setChecked($isChecked)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::DEFAULT));
                 break;
             case Parameters::ROLE_ID:
-                if (in_array($accountType,  AccountType::getCompanyTypes()) && LmsService::getAdvcaLicense()) {
+                if (in_array($accountType,  AccountType::getCompanyTypes()) && LmsService::hasAdvcaRolesManagement()) {
                     $isMaster = $account?->getMaster()?->isMaster() ?? false;
                     $roleId = $account?->getMaster()?->getRole()?->getId() ?? 0;
                     $roleOptions[] = (new Option($languageSheet->getLabelValue(LanguageLabels::ACCOUNT_REGISTERED_USER_ROLE_DEFAULT)))->setValue(0)->setSelected($roleId === 0);
@@ -2210,7 +2210,10 @@ abstract class FormFactory {
             $data[Parameters::INCLUDE_SUBCOMPANY_STRUCTURE] = 1;
         }
 
-        if (Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()) {
+        if (
+            Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()
+            || LmsService::hasAnyAdvcaTier()
+        ) {
             if (is_null($data[Parameters::ONLY_CREATED_BY_ME])) {
                 $data[Parameters::ONLY_CREATED_BY_ME] = 1;
             }
@@ -2231,9 +2234,8 @@ abstract class FormFactory {
         $formItems[] = new FormItem(Parameters::STATUS_ID_LIST, (new MultiSelect($statusOptions, null, $statusIdList))->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ORDER_STATUSES))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD));
 
         if (
-            in_array(Session::getInstance()?->getBasket()?->getAccount()?->getType(),  AccountType::getCompanyTypes()) &&
-            LmsService::getAdvcaLicense() &&
-            Application::getInstance()->getEcommerceSettings()->getAccountRegisteredUsersSettings()->getCardinalityPlus()
+            in_array(Session::getInstance()?->getBasket()?->getAccount()?->getType(), AccountType::getCompanyTypes()) &&
+            LmsService::hasAdvcaRolesManagement()
         ) {
 
             $includeSubCompanyStructureOptions = [
@@ -2296,7 +2298,7 @@ abstract class FormFactory {
 
         if (
             in_array(Session::getInstance()?->getBasket()?->getAccount()?->getType(),  AccountType::getCompanyTypes()) &&
-            LmsService::getAdvcaLicense() &&
+            LmsService::hasAdvcaRolesManagement() &&
             count($companyRoles) > 0
         ) {
             $roleOptions = [
@@ -2461,7 +2463,7 @@ abstract class FormFactory {
         $fields = self::getConfiguration()->getForms()->getAccount()->getAccountRegisteredUserFields()->getSortFilterArrayFormFields();
         foreach ($fields as $field => $formField) {
             if ($field == Parameters::ROLE_ID) {
-                if ($registeredUser instanceof EmployeeVal && LmsService::getAdvcaLicense()) {
+                if ($registeredUser instanceof EmployeeVal && LmsService::hasAdvcaRolesManagement()) {
                     $roleOptions = [];
                     $select = false;
                     foreach ($companyRoles as $companyRole) {
@@ -2853,26 +2855,28 @@ abstract class FormFactory {
                 ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)
         );
 
-        foreach (
-            [
-                [Parameters::ALLOW_DIRECT_ORDER_CREATION,            'allowDirectOrderCreation',            LanguageLabels::ALLOW_DIRECT_ORDER_CREATION],
-                [Parameters::ALLOW_DIRECT_ORDER_APPROVAL_THIS_ACCOUNT, 'allowDirectOrderApprovalThisAccount', LanguageLabels::ALLOW_DIRECT_ORDER_APPROVAL_THIS_ACCOUNT],
-                [Parameters::ALLOW_DIRECT_ORDER_APPROVAL_SUB_ACCOUNTS, 'allowDirectOrderApprovalSubAccounts', LanguageLabels::ALLOW_DIRECT_ORDER_APPROVAL_SUB_ACCOUNTS],
-            ] as [$pKey, $id, $label]
-        ) {
-            $checkbox = (new InputCheckbox('1'))
-                ->setId($id)
-                ->setLabelFor($L($label))
-                ->setClass(self::CLASS_WILDCARD)
-                ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
+        if (LmsService::getAdvcaLicense()) {
+            foreach (
+                [
+                    [Parameters::ALLOW_DIRECT_ORDER_CREATION,            'allowDirectOrderCreation',            LanguageLabels::ALLOW_DIRECT_ORDER_CREATION],
+                    [Parameters::ALLOW_DIRECT_ORDER_APPROVAL_THIS_ACCOUNT, 'allowDirectOrderApprovalThisAccount', LanguageLabels::ALLOW_DIRECT_ORDER_APPROVAL_THIS_ACCOUNT],
+                    [Parameters::ALLOW_DIRECT_ORDER_APPROVAL_SUB_ACCOUNTS, 'allowDirectOrderApprovalSubAccounts', LanguageLabels::ALLOW_DIRECT_ORDER_APPROVAL_SUB_ACCOUNTS],
+                ] as [$pKey, $id, $label]
+            ) {
+                $checkbox = (new InputCheckbox('1'))
+                    ->setId($id)
+                    ->setLabelFor($L($label))
+                    ->setClass(self::CLASS_WILDCARD)
+                    ->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
 
-            if ($isDivisionMaster) {
-                $checkbox->setChecked(true)->setDisabled(true);
-            } else {
-                $checkbox->setChecked($isEdit ? !empty($parameters[Parameters::ROLE_PERMISSIONS][$pKey]) : true);
+                if ($isDivisionMaster) {
+                    $checkbox->setChecked(true)->setDisabled(true);
+                } else {
+                    $checkbox->setChecked($isEdit ? !empty($parameters[Parameters::ROLE_PERMISSIONS][$pKey]) : true);
+                }
+
+                $formItems[] = new FormItem($pKey, $checkbox);
             }
-
-            $formItems[] = new FormItem($pKey, $checkbox);
         }
 
         $formItems[] = new FormItem(

@@ -48,7 +48,7 @@ class RegisteredUserCreateForm {
     }
 
     private function getAdvcaLicense(): bool {
-        return LmsService::getAdvcaLicense();
+        return LmsService::hasAnyAdvcaTier();
     }
 
     /**

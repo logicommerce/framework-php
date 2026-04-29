@@ -2,15 +2,25 @@
     {%- for value in filter.values|sort((a, b) => ('%06d'|format(a.priority) ~ ':' ~ a.value) <=> ('%06d'|format(b.priority) ~ ':' ~ b.value)) -%}
         {%- set optionName = filter.filterName|url_encode -%}
         {%- set optionValue = value.value|url_encode -%}
-        {%- set selected = 
-            appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')] is defined 
+        {# Applied filter state comes from two possible URL sources and the stored key/value encoding differs by source:
+           (1) Hand-typed URL: urldecode in Utils::getQueryStringParameters fully decodes, so key AND value are stored decoded.
+           (2) Form submission: pre-encoded checkbox name/value gets double-encoded by the browser; after one server-side urldecode, key AND value remain URL-encoded literals.
+           For (1) we url_encode the stored value to match optionValue; for (2) the stored value is already URL-encoded so we compare directly. #}
+        {%- set selected =
+            appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')] is defined
             and (
                 (
-                    appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode] is defined 
-                    and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode]|map(af => af|url_encode) 
+                    appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name] is defined
+                    and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name]|map(af => af|url_encode)
                 ) or (
-                    appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode] is defined 
-                    and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode]|map(af => af|url_encode) 
+                    appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode] is defined
+                    and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode]
+                ) or (
+                    appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName] is defined
+                    and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName]|map(af => af|url_encode)
+                ) or (
+                    appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode] is defined
+                    and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode]
                 )
             )
         -%}

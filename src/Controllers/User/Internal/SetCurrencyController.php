@@ -11,6 +11,7 @@ use SDK\Core\Dtos\Element;
 use SDK\Core\Resources\BatchRequests;
 use FWK\Core\Controllers\BaseJsonController;
 use FWK\Services\SessionService;
+use FWK\Services\AccountService;
 use FWK\Enums\Parameters;
 
 /**
@@ -25,6 +26,8 @@ class SetCurrencyController extends BaseJsonController {
 
     private ?SessionService $sessionService = null;
 
+    private ?AccountService $accountService = null;
+
     private string $code = '';
 
     /**
@@ -35,6 +38,7 @@ class SetCurrencyController extends BaseJsonController {
     public function __construct(Route $route) {
         parent::__construct($route);
         $this->sessionService = Loader::service(Services::SESSION);
+        $this->accountService = Loader::service(Services::ACCOUNT);
     }
 
     /**
@@ -65,7 +69,12 @@ class SetCurrencyController extends BaseJsonController {
      * @return Element
      */
     protected function getResponseData(): ?Element {
-        return $this->sessionService->setCurrency($this->getRequestParam(Parameters::CODE, true));
+        $code = $this->getRequestParam(Parameters::CODE, true);
+        $response = $this->sessionService->setCurrency($code);
+        if (is_null($response->getError())) {
+            $this->accountService->updateRegisteredUserDefaults(currency: $code);
+        }
+        return $response;
     }
 
     /**

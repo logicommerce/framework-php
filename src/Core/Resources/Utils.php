@@ -537,7 +537,7 @@ abstract class Utils {
      * @return bool
      */
     public static function isCompanyAccounts(): bool {
-        return LmsService::getAdvcaLicense();
+        return LmsService::hasAnyAdvcaTier();
     }
 
     /**
@@ -560,7 +560,7 @@ abstract class Utils {
                 $accountRegisteredUser?->getRole()?->getType() == CompanyRoleType::CUSTOM
             ) &&
             !$thisAccountUpdatePermissions &&
-            LmsService::getAdvcaLicense());
+            LmsService::hasAdvcaRolesManagement());
     }
 
     /**

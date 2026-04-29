@@ -37,9 +37,12 @@ class ApproveRegisteredUser {
     }
 
     private function getAdvcaLicense(): bool {
-        return LmsService::getAdvcaLicense();
+        return LmsService::hasAnyAdvcaTier();
     }
 
+    private function getAdvcaRolesLicense(): bool {
+        return LmsService::hasAdvcaRolesManagement();
+    }
     /**
      * Returns macro use properties.
      *
@@ -49,6 +52,7 @@ class ApproveRegisteredUser {
         return [
             'registeredUser' => $this->registeredUser,
             'advcaLicense' => $this->getAdvcaLicense(),
+            'advcaRolesLicense' => $this->getAdvcaRolesLicense(),
         ];
     }
 }

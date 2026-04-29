@@ -469,6 +469,9 @@ class Session {
      * @return void
      */
     public function initRoute(Route $route): void {
+        if ($this->getGeneralSettings()->getLanguage() !== $route->getLanguage()) {
+            Loader::service(Services::ACCOUNT)->updateRegisteredUserDefaults(language: $route->getLanguage());
+        }
         Language::reloadInstance($route->getLanguage());
         if (
             $this->getGeneralSettings()->getCurrency() != $route->getCurrency()
@@ -482,6 +485,7 @@ class Session {
     public function initRouteHome(?Route $route = null): void {
         $storeURL = Loader::service(Services::ROUTE)->getStoreURL($route);
         if (is_null($storeURL['route']->getError())) {
+            $oldCountry = $this->getGeneralSettings()->getCountry();
             $doCommit = $this->startWritableSession();
             $_SESSION[self::GENERAL_SETTINGS] = new SessionGeneralSettings($this->getGenerialSettingsFromStoreURL($storeURL));
             $this->generalSettings = $_SESSION[self::GENERAL_SETTINGS];
@@ -491,6 +495,10 @@ class Session {
                 $this->commitSession();
             }
             $this->initRoute($storeURL['route']);
+            $newCountry = $this->getGeneralSettings()->getCountry();
+            if (!is_null($route) && $oldCountry !== $newCountry) {
+                Loader::service(Services::BASKET)->recalculate();
+            }
         }
     }
 

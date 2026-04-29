@@ -64,7 +64,14 @@ class FilterInputHandler {
         switch ($orginQueryParams) {
             case self::PARAMS_FROM_GET:
                 foreach ($_GET as $param => $value) {
-                    $queryParams[$param][] = $value;
+                    // PHP parses ?param[]=a&param[]=b as an array; expand each element individually
+                    if (is_array($value)) {
+                        foreach ($value as $v) {
+                            $queryParams[$param][] = $v;
+                        }
+                    } else {
+                        $queryParams[$param][] = $value;
+                    }
                 }
                 break;
             case self::PARAMS_FROM_QUERY_STRING:

@@ -1,0 +1,4 @@
+{#- Multi selection with image: each entry has its own image + label text. Filter duplicates with empty value. -#}
+{%- for selected in customTag.values|filter(v => v.value|length) -%}
+    <img class="customTagImageValue" src="{{ selected.image }}" alt="{{ selected.value|escape }}" title="{{ selected.value|escape }}">
+{%- endfor -%}

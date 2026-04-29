@@ -3286,7 +3286,7 @@ LC.CheckoutForm = LC.Form.extend({
         for (var i in this.dataForm) this.dataForm[i] = this.dataForm[i].join();
     },
 
-    loadingWindow: function(buttonStep, message) {
+    loadingWindow: function (buttonStep, message) {
         const loadingWindowContent = `
             <div class="messageContainer">
                 ${message || "Processing your payment, please wait..."}<br/><br/>
@@ -3733,7 +3733,18 @@ LC.ProductsFilter = LC.Form.extend({
             $(e).attr('value', decodeURIComponent($(e).attr('value')));
         });
 
-        this.el.form.submit();
+        // Build deduplicated URL from form data to prevent repeated params (e.g. filterCustomTag_X appearing
+        // twice when both a hidden input and a checked checkbox exist for the same name/value pair).
+        const seen = new Set();
+        const params = new URLSearchParams();
+        for (const [name, value] of new FormData(this.el.form)) {
+            const key = name + '=' + value;
+            if (!seen.has(key)) {
+                seen.add(key);
+                params.append(name, value);
+            }
+        }
+        window.location.href = this.el.form.action.split('?')[0] + '?' + params.toString();
 
         // Callback trigger
         this.trigger('submitCallback');

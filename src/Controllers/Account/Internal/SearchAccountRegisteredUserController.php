@@ -7,14 +7,17 @@ use FWK\Core\Exceptions\CommerceException;
 use FWK\Core\FilterInput\FilterInputFactory;
 use FWK\Core\FilterInput\FilterInputHandler;
 use FWK\Core\Resources\Loader;
+use FWK\Core\Resources\Session;
 use FWK\Core\Theme\Dtos\ItemList;
 use FWK\Enums\Parameters;
 use FWK\Enums\Services;
 use FWK\Services\AccountService;
+use FWK\Services\LmsService;
 use SDK\Core\Resources\BatchRequests;
 use SDK\Dtos\Common\Route;
 use SDK\Core\Application;
 use SDK\Core\Dtos\Element;
+use SDK\Enums\AccountType;
 use SDK\Enums\IncludeCompanyStructure;
 use SDK\Enums\UserKeyCriteria;
 use SDK\Services\Parameters\Groups\Account\SearchAccountRegisteredUserParametersGroup;
@@ -105,7 +108,14 @@ class SearchAccountRegisteredUserController extends BaseJsonController {
             $this->getRequestParams()
         );
         $this->accountService->generateParametersGroupFromArray($this->searchAccountRegisteredUserParametersGroup, $registeredUsersRequest);
-        $this->searchAccountRegisteredUserParametersGroup->setIncludeCompanyStructure(IncludeCompanyStructure::ALL);
+
+        if (
+            in_array(Session::getInstance()?->getBasket()?->getAccount()?->getType(), AccountType::getCompanyTypes(), true) &&
+            LmsService::hasAdvcaRolesManagement()
+        ) {
+            $this->searchAccountRegisteredUserParametersGroup->setIncludeCompanyStructure(IncludeCompanyStructure::ALL);
+        }
+
         $this->searchAccountRegisteredUserParametersGroup->setPage($page);
         return $this->accountService->getRegisteredUserSearch($accountId, $this->searchAccountRegisteredUserParametersGroup);
     }

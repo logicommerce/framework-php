@@ -2,9 +2,12 @@
 
 namespace FWK\ViewHelpers\Account\Macro;
 
+use FWK\Core\Resources\Session;
 use FWK\Core\ViewHelpers\ViewHelper;
 use FWK\Core\Exceptions\CommerceException;
+use FWK\Services\LmsService;
 use SDK\Core\Dtos\ElementCollection;
+use SDK\Enums\AccountType;
 use SDK\Enums\OrderStatus;
 
 /**
@@ -147,6 +150,11 @@ class AccountOrders {
         return $this->getProperties();
     }
 
+    private function isCompanyType(): bool {
+        $type = Session::getInstance()->getBasket()?->getAccount()?->getType();
+        return in_array($type, AccountType::getCompanyTypes(), true);
+    }
+
     /**
      * Return macro use properties
      *
@@ -163,6 +171,9 @@ class AccountOrders {
             'returnProductsView' => $this->returnProductsView,
             'returnTracingView' => $this->returnTracingView,
             'showStatus' => $this->showStatus,
+            'advcaAnyTier' => LmsService::hasAnyAdvcaTier(),
+            'advcaApprovalLicense' => LmsService::getAdvcaLicense(),
+            'isCompanyType' => $this->isCompanyType(),
         ];
     }
 }

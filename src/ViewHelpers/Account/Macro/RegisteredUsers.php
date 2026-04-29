@@ -3,6 +3,7 @@
 namespace FWK\ViewHelpers\Account\Macro;
 
 use FWK\Core\ViewHelpers\ViewHelper;
+use FWK\Services\LmsService;
 use SDK\Core\Dtos\ElementCollection;
 use SDK\Enums\AccountKey;
 
@@ -80,6 +81,7 @@ class RegisteredUsers {
             'errorMessage' => $this->errorMessage,
             'accountId' => $this->accountId,
             'availableActions' => $this->availableActions,
+            'advcaRolesLicense' => LmsService::hasAdvcaRolesManagement(),
         ];
     }
 }

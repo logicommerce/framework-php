@@ -52,20 +52,29 @@
                         {%- endif -%}
                     {%- endif -%}
                 {%- else -%}
-                    {%- set selected = false -%}
-                    {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
-                        {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and filter.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
-                        {%- if selected -%}
-                            {%- set nAppliedFilters = nAppliedFilters + 1 -%}
-                        {%- endif -%}
-                    {%- endif -%}
-                    {%- if not selected -%}
-                        {%- for value in filter.values|usort -%}
-                            {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+                    {# Multi-select & non-legacy image types: count applied directly (image filter.values are URLs that won't match applied paths) #}
+                    {%- if (filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION')
+                            or filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE')
+                            or filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::SINGLE_SELECTION_IMAGE'))
+                        and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined
+                        and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined -%}
+                        {%- set nAppliedFilters = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id]|length -%}
+                    {%- else -%}
+                        {%- set selected = false -%}
+                        {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
+                            {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and filter.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
                             {%- if selected -%}
                                 {%- set nAppliedFilters = nAppliedFilters + 1 -%}
                             {%- endif -%}
-                        {%- endfor -%}
+                        {%- endif -%}
+                        {%- if not selected -%}
+                            {%- for value in filter.values|usort -%}
+                                {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+                                {%- if selected -%}
+                                    {%- set nAppliedFilters = nAppliedFilters + 1 -%}
+                                {%- endif -%}
+                            {%- endfor -%}
+                        {%- endif -%}
                     {%- endif -%}
                 {%- endif -%}
                 <span class="n-applied-filter n-{{ nAppliedFilters }} badge rounded-pill bg-primary">{{ nAppliedFilters }}</span>

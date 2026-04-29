@@ -18,15 +18,23 @@
                 {%- set nAppliedFilters = 0 -%}
                 {%- for value in filter.values -%}
                     {%- set optionValue = value.value|url_encode -%}
-                    {%- set selected = 
-                        appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')] is defined 
+                    {# Same dual-form key/value compare strategy as option.html.twig:
+                       raw key => value needs url_encode (stored decoded); encoded key => value compared directly (stored url-encoded literal). #}
+                    {%- set selected =
+                        appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')] is defined
                         and (
                             (
-                                appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode] is defined 
-                                and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode]|map(af => af|url_encode) 
+                                appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name] is defined
+                                and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name]|map(af => af|url_encode)
                             ) or (
-                                appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode] is defined 
-                                and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode]|map(af => af|url_encode) 
+                                appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode] is defined
+                                and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.name|url_encode]
+                            ) or (
+                                appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName] is defined
+                                and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName]|map(af => af|url_encode)
+                            ) or (
+                                appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode] is defined
+                                and optionValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_OPTION')][filter.filterName|url_encode]
                             )
                         )
                     -%}
