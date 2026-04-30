@@ -14,6 +14,7 @@ use SDK\Enums\PluginConnectorType;
 use Plugins\ComLogicommerceMagicfront\Dtos\Common\PluginProperties as MagicFrontPluginProperties;
 use FWK\Core\Dtos\ElementCollection as DtosElementCollection;
 use FWK\Core\Resources\Loader;
+use FWK\Core\Resources\Session;
 use FWK\Dtos\Common\Plugin as FWKPlugin;
 use FWK\Dtos\Basket\PaymentSystem;
 use FWK\Dtos\Common\PluginExpressCheckout;
@@ -117,11 +118,23 @@ class PluginService extends PluginServiceSDK {
     }
 
     /**
-     * Returns the Express checkout active plugins
+     * Returns the Express checkout active plugins.
+     *
+     * Result is cached at session scope to avoid the multiple sync API calls
+     * (getPlugins, getPaymentSystems, getPluginProperties × N) that fetching requires.
+     * On a cache hit, returns from session immediately. On a cache miss, performs the
+     * API work and stores the result in session for the rest of this and subsequent
+     * requests (cache is cleared on login / logout in Session::loginReset()).
      *
      * @return ElementCollection|NULL
      */
     public function getExpressCheckoutPlugins(): ?ElementCollection {
+        $session = Session::getInstance();
+        $cached = $session->getExpressCheckoutPlugins();
+        if (!is_null($cached)) {
+            return $cached;
+        }
+
         $params = $this->getPluginConnectorTypeParametersGroup(PluginConnectorType::EXPRESS_CHECKOUT);
         $plugins = $this->getPlugins($params);
         $expressCheckoutPlugins = DtosElementCollection::fillFromParentCollection($plugins, PluginExpressCheckout::class);
@@ -139,6 +152,7 @@ class PluginService extends PluginServiceSDK {
             $expressCheckoutPlugin->setProperties($pluginProperties);
         }
         $expressCheckoutPlugins->resetIndex();
+        $session->setExpressCheckoutPlugins($expressCheckoutPlugins);
         return $expressCheckoutPlugins;
     }
 

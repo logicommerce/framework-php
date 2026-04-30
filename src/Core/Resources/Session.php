@@ -110,6 +110,8 @@ class Session {
 
     public const USE_DELIVERY_PICKING = 'useDeliveryPicking';
 
+    public const EXPRESS_CHECKOUT_PLUGINS = 'expressCheckoutPlugins';
+
     private static $instance = null;
 
     private static $resetBasket = false;
@@ -149,6 +151,8 @@ class Session {
     protected ?string $navigationHash = null;
 
     protected bool $useDeliveryPicking = false;
+
+    protected ?ElementCollection $expressCheckoutPlugins = null;
 
     final private function __construct() {
     }
@@ -279,6 +283,7 @@ class Session {
         $this->warnings = (isset($_SESSION[self::WARNING]) ? $_SESSION[self::WARNING] : []);
         $this->navigationHash = isset($_SESSION[self::NAVIGATION_HASH]) ? $_SESSION[self::NAVIGATION_HASH] : null;
         $this->useDeliveryPicking = isset($_SESSION[self::USE_DELIVERY_PICKING]) ? $_SESSION[self::USE_DELIVERY_PICKING] : false;
+        $this->expressCheckoutPlugins = $_SESSION[self::EXPRESS_CHECKOUT_PLUGINS] ?? null;
     }
 
 
@@ -302,6 +307,7 @@ class Session {
             $this->setAggregateData();
         }
         $this->setAssociatedAccounts(false);
+        $this->clearExpressCheckoutPlugins();
         if ($doCommit) {
             $this->commitSession();
         }
@@ -1023,6 +1029,46 @@ class Session {
      */
     final public function getValues() {
         return $this->values;
+    }
+
+    /**
+     * Returns the cached Express checkout plugins, or null if not populated yet.
+     * Pure getter — does NOT fetch from the API. Population happens in
+     * PluginService::getExpressCheckoutPlugins(), which calls setExpressCheckoutPlugins()
+     * after building the collection.
+     *
+     * Cache is invalidated on loginReset() (login / logout), since available plugin
+     * properties and per-account payment systems may differ per user.
+     *
+     * @return ElementCollection|null
+     */
+    public function getExpressCheckoutPlugins(): ?ElementCollection {
+        return $this->expressCheckoutPlugins;
+    }
+
+    /**
+     * Stores the given Express checkout plugins collection in the session cache.
+     *
+     * @param ElementCollection|null $expressCheckoutPlugins
+     * @return void
+     */
+    public function setExpressCheckoutPlugins(?ElementCollection $expressCheckoutPlugins = null): void {
+        $doCommit = $this->startWritableSession();
+        $_SESSION[self::EXPRESS_CHECKOUT_PLUGINS] = $expressCheckoutPlugins;
+        $this->expressCheckoutPlugins = $expressCheckoutPlugins;
+        if ($doCommit) {
+            $this->commitSession();
+        }
+    }
+
+    /**
+     * Clears the cached Express checkout plugins. Forces the next call to
+     * PluginService::getExpressCheckoutPlugins() to re-fetch from the API.
+     *
+     * @return void
+     */
+    public function clearExpressCheckoutPlugins(): void {
+        $this->setExpressCheckoutPlugins(null);
     }
 
     /**
