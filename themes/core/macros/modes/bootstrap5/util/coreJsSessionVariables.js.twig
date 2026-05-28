@@ -36,7 +36,9 @@
         ],
         {#--#}lockedStocksAggregateData: {{- outputJsonHtmlString(session.lockedStocksAggregateData)|default('[]') -}},
         {#--#}basketGridProducts: {{- outputJsonHtmlString(session.basketGridProducts)|default(defaultString) -}},
-        {#--#}routeWarningAccepted: {{- session.routeWarningAccepted ? 'true' : 'false' -}},
+        {#--#}forcedCountry: '{{- session.forcedCountry -}}',
+        {# Backwards-compatible alias for commerce templates still reading session.routeWarningAccepted. -#}
+        {#--#}routeWarningAccepted: {{- session.forcedCountry|length > 0 ? 'true' : 'false' -}},
 
     {#--#}};
 {%- endmacro coreJsSessionVariables -%}

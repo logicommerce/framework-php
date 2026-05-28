@@ -94,7 +94,7 @@ class Session {
 
     public const VALUES = 'values';
 
-    public const ROUTE_WARNING_ACCEPTED = 'routeWarningAccepted';
+    public const FORCED_COUNTRY = 'forcedCountry';
 
     public const UPDATED_AT = 'updatedAt';
 
@@ -142,7 +142,7 @@ class Session {
 
     protected array $values = [];
 
-    protected bool $routeWarningAccepted = false;
+    protected string $forcedCountry = '';
 
     protected ?Date $updatedAt = null;
 
@@ -278,7 +278,7 @@ class Session {
         $this->values = (isset($_SESSION[self::VALUES]) ? $_SESSION[self::VALUES] : []);
         $this->shoppingList = $_SESSION[self::SHOPPING_LIST];
         $this->basketGridProducts = (isset($_SESSION[self::BASKET_GRID_PRODUCTS]) ? $_SESSION[self::BASKET_GRID_PRODUCTS] : []);
-        $this->routeWarningAccepted = (isset($_SESSION[self::ROUTE_WARNING_ACCEPTED]) ? $_SESSION[self::ROUTE_WARNING_ACCEPTED] : false);
+        $this->forcedCountry = (isset($_SESSION[self::FORCED_COUNTRY]) ? $_SESSION[self::FORCED_COUNTRY] : '');
         $this->updatedAt = (isset($_SESSION[self::UPDATED_AT]) ? $_SESSION[self::UPDATED_AT] : null);
         $this->warnings = (isset($_SESSION[self::WARNING]) ? $_SESSION[self::WARNING] : []);
         $this->navigationHash = isset($_SESSION[self::NAVIGATION_HASH]) ? $_SESSION[self::NAVIGATION_HASH] : null;
@@ -1167,27 +1167,40 @@ class Session {
     }
 
     /**
-     * This method accept route warning
+     * Stores the country the user is currently being forced into (typically
+     * after closing the route-warning modal on a country that's not theirs).
+     * The modal stays suppressed while the navigation country matches this
+     * value; switching to a different non-home country re-opens it.
      *
-     * @return void
+     * @param string $country ISO country code
      */
-    public function acceptRouteWarning(): void {
+    public function setForcedCountry(string $country): void {
         $doCommit = $this->startWritableSession();
-        $_SESSION[self::ROUTE_WARNING_ACCEPTED] = true;
-        $this->routeWarningAccepted = $_SESSION[self::ROUTE_WARNING_ACCEPTED];
+        $_SESSION[self::FORCED_COUNTRY] = $country;
+        $this->forcedCountry = $_SESSION[self::FORCED_COUNTRY];
         if ($doCommit) {
             $this->commitSession();
         }
     }
 
     /**
-     * This method returns route accepted
+     * Returns the forced country, or empty string if none.
+     */
+    public function getForcedCountry(): string {
+        return $this->forcedCountry;
+    }
+
+    /**
+     * Backwards-compatible alias kept for commerce templates that still read
+     * `session.routeWarningAccepted`. Returns true once any forced country has
+     * been recorded (matches the old boolean semantics of "user has accepted
+     * the warning at least once in this session").
      *
-     * @return bool
-     * 
+     * @deprecated Use getForcedCountry() and compare against the current
+     *             navigation country to get per-country modal suppression.
      */
     public function getRouteWarningAccepted(): bool {
-        return $this->routeWarningAccepted;
+        return $this->forcedCountry !== '';
     }
 
     /**

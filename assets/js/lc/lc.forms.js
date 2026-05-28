@@ -5984,12 +5984,17 @@ LC.CountriesLinksForm = LC.Form.extend({
     name: 'countriesLinksForm',
 
     initialize: function (form) {
+        if (this.el.form.initialized) return;
+        this.el.form.initialized = true;
+
         this.$country = this.el.$form.find('#country');
         this.$country.prop('disabled', false);
         this.$language = this.el.$form.find('#language');
-        this.$languageOptions = this.$language.find('option');
-        this.$languageOptions.hide();
         this.submitButton = this.el.$form.find('button[type="submit"], input[type="submit"]');
+
+        var initialLanguage = this.$language.val();
+        this.$languageOptions = this.$language.find('option').detach();
+
         this.alternates = {};
         document.querySelectorAll('link[rel="alternate"][hreflang]').forEach((el) => {
             var lang = el.getAttribute('hreflang');
@@ -5999,31 +6004,35 @@ LC.CountriesLinksForm = LC.Form.extend({
             }
         });
 
+        var attachForCountry = (countryCode) => {
+            this.$languageOptions.detach();
+            this.$languageOptions.filter(function () {
+                var v = $(this).attr('value') || '';
+                return v === 'default' || (countryCode && v.indexOf(countryCode + '-') === 0);
+            }).appendTo(this.$language);
+        };
+
         if (this.$country.val() != 'default') {
-            this.$languageOptions.each((index, el) => {
-                if ($(el).val().startsWith(this.$country.val() + '-') || $(el).val() == 'default') {
-                    $(el).show();
-                }
-            });
+            attachForCountry(this.$country.val());
+            if (initialLanguage && this.$language.find('option[value="' + initialLanguage + '"]').length) {
+                this.$language.val(initialLanguage);
+            }
             this.$language.prop('disabled', false);
             if (this.$language.val() != 'default') {
                 this.submitButton.prop('disabled', false);
             }
         } else {
+            attachForCountry(null);
             this.submitButton.prop('disabled', true);
         }
 
         this.$country.on('change', (event) => {
-            this.$languageOptions.hide();
             this.submitButton.prop('disabled', true);
             if ($(event.target).val() == 'default') {
+                attachForCountry(null);
                 this.$language.prop('disabled', true);
             } else {
-                this.$languageOptions.each((index, el) => {
-                    if ($(el).val().startsWith($(event.target).val() + '-') || $(el).val() == 'default') {
-                        $(el).show();
-                    }
-                });
+                attachForCountry($(event.target).val());
                 this.$language.prop('disabled', false);
             }
             this.$language.val('default');

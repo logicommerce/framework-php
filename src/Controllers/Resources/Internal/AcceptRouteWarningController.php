@@ -3,7 +3,10 @@
 namespace FWK\Controllers\Resources\Internal;
 
 use FWK\Core\Controllers\BaseJsonController;
+use FWK\Core\FilterInput\FilterInputFactory;
+use FWK\Core\FilterInput\FilterInputHandler;
 use FWK\Core\Resources\Session;
+use FWK\Enums\Parameters;
 use SDK\Core\Dtos\Element;
 use SDK\Core\Resources\BatchRequests;
 
@@ -24,23 +27,39 @@ class AcceptRouteWarningController extends BaseJsonController {
     protected function initializeAppliedParameters(): void {
     }
 
+    protected function getFilterParams(): array {
+        return FilterInputFactory::getCountryCodeParameter();
+    }
+
+    protected function getOriginParams() {
+        return FilterInputHandler::PARAMS_FROM_POST;
+    }
+
     /**
-     * This method launches the adequate actions against the SDK (through the FWK services) and returns the response data. 
+     * Persists the navigation country the user has just confirmed by closing
+     * the route-warning modal. If the caller posts a `countryCode` parameter
+     * (e.g. when the user explicitly picks a country in a form) we use that;
+     * otherwise we fall back to the current navigation country from session
+     * general settings.
      *
      * @return Element
      */
     protected function getResponseData(): ?Element {
         $session = Session::getInstance();
-        $session->acceptRouteWarning();
+        $country = $this->getRequestParam(Parameters::COUNTRY_CODE);
+        if (empty($country)) {
+            $country = $session->getGeneralSettings()->getCountry();
+        }
+        $session->setForcedCountry(strtoupper((string)$country));
         return new class($session) extends Element {
-            private bool $acceptRouteWarning = true;
+            private string $forcedCountry = '';
 
             public function __construct($session) {
-                $this->acceptRouteWarning = $session->getRouteWarningAccepted();
+                $this->forcedCountry = $session->getForcedCountry();
             }
 
             public function jsonSerialize(): mixed {
-                return ['acceptRouteWarning' => $this->acceptRouteWarning];
+                return ['forcedCountry' => $this->forcedCountry];
             }
         };
     }
