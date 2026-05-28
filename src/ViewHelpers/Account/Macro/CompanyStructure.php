@@ -3,7 +3,7 @@
 namespace FWK\ViewHelpers\Account\Macro;
 
 use SDK\Core\Dtos\ElementCollection;
-use SDK\Dtos\Accounts\CompanyStructureTreeNode;
+use SDK\Dtos\Accounts\BaseCompanyStructureTreeNode;
 
 /**
  * This is the CompanyStructure class, a macro class for the accountViewHelper.
@@ -39,7 +39,7 @@ class CompanyStructure {
         self::ACTION_DELETE
     ];
 
-    public ElementCollection|CompanyStructureTreeNode|null $companyStructure = null;
+    public ElementCollection|BaseCompanyStructureTreeNode|null $companyStructure = null;
     public $currentUser = null;
     public array $permissions = [];
 
@@ -70,10 +70,10 @@ class CompanyStructure {
     /**
      * Set company structure data
      *
-     * @param ElementCollection|CompanyStructureTreeNode $companyStructure
+     * @param ElementCollection|BaseCompanyStructureTreeNode $companyStructure
      * @return self
      */
-    public function setCompanyStructure(ElementCollection|CompanyStructureTreeNode $companyStructure): self {
+    public function setCompanyStructure(ElementCollection|BaseCompanyStructureTreeNode $companyStructure): self {
         $this->companyStructure = $companyStructure;
         return $this;
     }
@@ -97,6 +97,19 @@ class CompanyStructure {
      */
     public function setPermissions(array $permissions): self {
         $this->permissions = $permissions;
+        return $this;
+    }
+
+    /**
+     * Set the list of actions allowed to render in the company structure tree.
+     * Pass a subset of ACTION_* constants to restrict which buttons appear
+     * (e.g. for non-master users). Defaults to all 5 actions.
+     *
+     * @param array $availableActions
+     * @return self
+     */
+    public function setAvailableActions(array $availableActions): self {
+        $this->availableActions = $availableActions;
         return $this;
     }
 }

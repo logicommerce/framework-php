@@ -600,6 +600,8 @@ return [
     LanguageLabels::ERROR_CODE_RETURN_REQUEST_CANT_BE_DELETED => "Return request can't be deleted ",
     LanguageLabels::ERROR_CODE_RETURN_REQUESTS_NOT_FOUND => "Return request not found",
     LanguageLabels::ERROR_CODE_REWARD_POINTS_INSUFICIENT_POINTS => "There are not enough points to get reward",
+    LanguageLabels::ERROR_CODE_REWARD_POINTS_MAX_REDEEM_POINTS_EXCEEDED => "The number of points to redeem exceeds the maximum allowed",
+    LanguageLabels::ERROR_CODE_REWARD_POINTS_MINIMUM_IMPORT_POINTS => "The minimum purchase amount to redeem points has not been reached",
     LanguageLabels::ERROR_CODE_REWARD_POINTS_NO_REDEEM_RULES => "There isn't any rule to redeem points",
     LanguageLabels::ERROR_CODE_SALES_AGENT_CUSTOMER_NOT_VALID => "The indicated customer does not exist or does not met all the conditions to be simulated by this Sales Agent",
     LanguageLabels::ERROR_CODE_SESSION_USAGE_MODE_NOT_ADMITTED => "This action is not admited for the current usage mode of this session",

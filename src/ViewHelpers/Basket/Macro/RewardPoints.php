@@ -2,6 +2,7 @@
 
 namespace FWK\ViewHelpers\Basket\Macro;
 
+use SDK\Core\Dtos\ElementCollection;
 use FWK\Core\ViewHelpers\ViewHelper;
 use FWK\Core\Exceptions\CommerceException;
 use SDK\Dtos\Basket\Basket;
@@ -21,6 +22,8 @@ class RewardPoints {
     public string $class = '';
 
     public bool $showHeader = true;
+
+    public ?array $pluginRewardPoints = null;
 
     /**
      * Constructor method for RewardPoints.
@@ -57,6 +60,7 @@ class RewardPoints {
             'basket' => $this->basket,
             'class' => $this->class,
             'showHeader' => $this->showHeader,
+            'pluginRewardPoints' => $this->pluginRewardPoints,
         ];
     }
 }

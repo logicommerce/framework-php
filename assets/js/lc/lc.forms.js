@@ -1667,8 +1667,11 @@ LC.ProductSubscribeStockForm = LC.Form.extend({
     name: 'productSubscribeStockForm',
 
     options: {},
+    initialized: false,
 
     initialize: function (form) {
+        if (this.el.form.initialized) return;
+        this.el.form.initialized = true;
         // Before trigger
         this.trigger('initOptionsBefore');
         this.data = this.el.$form.data('productStock');

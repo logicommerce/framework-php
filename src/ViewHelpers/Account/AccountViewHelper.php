@@ -356,6 +356,9 @@ class AccountViewHelper extends ViewHelper {
         if (isset($arguments['permissions'])) {
             $companyStructure->setPermissions($arguments['permissions']);
         }
+        if (isset($arguments['availableActions']) && is_array($arguments['availableActions'])) {
+            $companyStructure->setAvailableActions($arguments['availableActions']);
+        }
         return $companyStructure->getViewParameters($arguments['parameters'] ?? []);
     }
 

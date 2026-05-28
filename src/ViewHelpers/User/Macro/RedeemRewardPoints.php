@@ -25,6 +25,8 @@ class RedeemRewardPoints {
 
     public bool $showDistribution = true;
 
+    public ?array $pluginRewardPoints = null;
+
     /**
      * Constructor method for RedeemRewardPoints.
      * 
@@ -72,7 +74,8 @@ class RedeemRewardPoints {
         return [
             'rewardPoints' => $this->rewardPoints,
             'showPending' => $this->showPending,
-            'showDistribution' => $this->showDistribution
+            'showDistribution' => $this->showDistribution,
+            'pluginRewardPoints' => $this->pluginRewardPoints
         ];
     }
 }

@@ -2636,6 +2636,8 @@ abstract class LanguageLabels extends Enum {
     public const ERROR_CODE_RETURN_REQUEST_CANT_BE_DELETED = 'errorCodeReturnRequestCantBeDeleted';
     public const ERROR_CODE_RETURN_REQUESTS_NOT_FOUND = 'errorCodeReturnRequestsNotFound';
     public const ERROR_CODE_REWARD_POINTS_INSUFICIENT_POINTS = 'errorCodeRewardPointsInsuficientPoints';
+    public const ERROR_CODE_REWARD_POINTS_MAX_REDEEM_POINTS_EXCEEDED = 'errorCodeRewardPointsMaxRedeemPointsExceeded';
+    public const ERROR_CODE_REWARD_POINTS_MINIMUM_IMPORT_POINTS = 'errorCodeRewardPointsMinimumImportPoints';
     public const ERROR_CODE_REWARD_POINTS_NO_REDEEM_RULES = 'errorCodeRewardPointsNoRedeemRules';
     public const ERROR_CODE_SALES_AGENT_CUSTOMER_NOT_VALID = 'errorCodeSalesAgentCustomerNotValid';
     public const ERROR_CODE_SESSION_USAGE_MODE_NOT_ADMITTED = 'errorCodeSessionUsageModeNotAdmitted';

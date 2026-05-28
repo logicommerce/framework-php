@@ -8,6 +8,7 @@ use FWK\Core\Resources\Loader;
 use FWK\Enums\Services;
 
 use FWK\Core\Controllers\Traits\AddPluginPaymentSystemTrait;
+use FWK\Core\Controllers\Traits\AddPluginRewardPointsTrait;
 use FWK\Services\BasketService;
 
 use FWK\Services\PluginService;
@@ -22,15 +23,19 @@ use SDK\Core\Dtos\ElementCollection;
  * @package FWK\Controllers\Checkout\Internal
  */
 class OscPaymentsController extends BaseHtmlController {
-    use AddPluginPaymentSystemTrait;
+    use AddPluginPaymentSystemTrait, AddPluginRewardPointsTrait;
 
     protected const PAYMENT_SYSTEMS = 'paymentSystems';
+
+    protected const REWARD_POINTS = 'pluginRewardPoints';
 
     private ?BasketService $basketService = null;
 
     private ?PluginService $pluginService = null;
 
     private ?ElementCollection $paymentSystemPlugins = null;
+
+    private ?ElementCollection $rewardPointsPlugins = null;
 
     /**
      * This method is the one in charge of defining all the data batch requests that are
@@ -43,6 +48,7 @@ class OscPaymentsController extends BaseHtmlController {
         $this->basketService = Loader::service(Services::BASKET);
         $this->basketService->addGetPaymentSystems($requests, self::PAYMENT_SYSTEMS);
         $this->getAddPluginsPaymentSystems($requests);
+        $this->getAddPluginsRewardPoints($requests, self::REWARD_POINTS);
     }
 
     /**
@@ -53,8 +59,10 @@ class OscPaymentsController extends BaseHtmlController {
         $paymentSystems = $this->getControllerData(self::PAYMENT_SYSTEMS);
         $this->checkCriticalServiceLoaded($paymentSystems);
         $this->getAddPluginsPaymentProperties($paymentSystems);
+        $pluginRewardPoints = $this->getControllerData(self::REWARD_POINTS);
         $this->setDataValue(self::CONTROLLER_ITEM, [
-            self::PAYMENT_SYSTEMS => $paymentSystems
+            self::PAYMENT_SYSTEMS => $paymentSystems,
+            self::REWARD_POINTS => $pluginRewardPoints
         ]);
     }
 

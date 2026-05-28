@@ -3,6 +3,7 @@
 namespace FWK\Controllers\User;
 
 use FWK\Core\Controllers\BaseHtmlController;
+use FWK\Core\Controllers\Traits\AddPluginRewardPointsTrait;
 use FWK\Core\Resources\Loader;
 use FWK\Enums\Services;
 use SDK\Core\Resources\BatchRequests;
@@ -18,6 +19,9 @@ use SDK\Services\UserService;
  * @package FWK\Controllers\User
  */
 class RewardPointsController extends BaseHtmlController {
+    use AddPluginRewardPointsTrait;
+
+    public const PLUGIN_REWARD_POINTS = 'pluginRewardPoints';
 
     protected bool $simulatedUserForbbiden = true;
 
@@ -37,11 +41,12 @@ class RewardPointsController extends BaseHtmlController {
      * This method is the one in charge of defining all the data batch requests that are
      * basic for the controller and adding them to the BatchRequests given by parameter.
      *
-     * @param BatchRequests $request
+     * @param BatchRequests $requests
      *            where the method will add the batch requests.
      */
     final protected function setControllerBaseBatchData(BatchRequests $requests): void {
         $this->userService->addGetRewardPoints($requests, self::CONTROLLER_ITEM);
+        $this->getAddPluginsRewardPoints($requests);
     }
 
     /**
@@ -73,5 +78,7 @@ class RewardPointsController extends BaseHtmlController {
      * @return void
      */
     protected function setData(array $additionalData = []): void {
+        $pluginRewardPoints = $this->getAccountPluginsRewardPoints();
+        $this->setDataValue(self::PLUGIN_REWARD_POINTS, $pluginRewardPoints);
     }
 }

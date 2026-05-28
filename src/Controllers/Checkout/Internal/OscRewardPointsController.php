@@ -4,6 +4,7 @@ namespace FWK\Controllers\Checkout\Internal;
 
 use SDK\Core\Resources\BatchRequests;
 use FWK\Core\Controllers\BaseHtmlController;
+use FWK\Core\Controllers\Traits\AddPluginRewardPointsTrait;
 use FWK\Core\Resources\Loader;
 use FWK\Enums\Services;
 use FWK\Services\UserService;
@@ -18,8 +19,11 @@ use SDK\Dtos\Common\Route;
  * @package FWK\Controllers\Checkout\Internal
  */
 class OscRewardPointsController extends BaseHtmlController {
+    use AddPluginRewardPointsTrait;
 
     public const USER_REWARD_POINTS = 'userRewardPoints';
+
+    public const PLUGIN_REWARD_POINTS = 'pluginRewardPoints';
 
     protected ?UserService $userService = null;
 
@@ -42,6 +46,7 @@ class OscRewardPointsController extends BaseHtmlController {
      */
     final protected function setControllerBaseBatchData(BatchRequests $requests): void {
         $this->userService->addGetRewardPoints($requests, self::USER_REWARD_POINTS);
+        $this->getAddPluginsRewardPoints($requests);
     }
 
     /**
@@ -54,6 +59,7 @@ class OscRewardPointsController extends BaseHtmlController {
      * @return void
      */
     protected function setData(array $additionalData = []): void {
+        $this->setDataValue(self::PLUGIN_REWARD_POINTS, $this->getPluginsRewardPoints());
     }
 
     /**

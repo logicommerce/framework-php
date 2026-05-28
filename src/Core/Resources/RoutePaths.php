@@ -71,7 +71,9 @@ class RoutePaths {
     final private function __construct() {
         self::$urlPrefix = Utils::interceptURL(Session::getInstance()->getGeneralSettings()->getDefaultRoute()->getUrlPrefix());
         $parts = parse_url(self::$urlPrefix);
-        self::$urlPrefixInternal = $parts['scheme'] . '://' . $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '');
+        if (isset($parts['scheme'], $parts['host'])) {
+            self::$urlPrefixInternal = $parts['scheme'] . '://' . $parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '');
+        }
     }
 
     /**

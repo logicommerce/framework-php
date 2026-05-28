@@ -22,9 +22,9 @@
 
         {%- set badgeAppliedFilters -%}
             {%- set nAppliedFilters = 0 -%}
-            {%- if 
-                (appliedFilters[constant('FWK\\Enums\\Parameters::FROM_PRICE')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::TO_PRICE')] is defined) and 
-                (fromValue > minValue or toValue < maxValue)
+            {%- if
+                (appliedFilters[constant('FWK\\Enums\\Parameters::FROM_PRICE')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::TO_PRICE')] is defined) and
+                (fromValue != minValue or toValue != maxValue)
             -%}
                 {%- set nAppliedFilters = 1 -%}
             {%- endif -%}

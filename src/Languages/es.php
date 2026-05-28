@@ -604,6 +604,8 @@ return [
     LanguageLabels::ERROR_CODE_RETURN_REQUEST_CANT_BE_DELETED => "No se puede suprimir la devolución",
     LanguageLabels::ERROR_CODE_RETURN_REQUESTS_NOT_FOUND => "No se ha encontrado la solicitud de devolución",
     LanguageLabels::ERROR_CODE_REWARD_POINTS_INSUFICIENT_POINTS => "No hay suficientes puntos para obtener la recompensa.",
+    LanguageLabels::ERROR_CODE_REWARD_POINTS_MAX_REDEEM_POINTS_EXCEEDED => "El número de puntos a canjear excede el máximo permitido",
+    LanguageLabels::ERROR_CODE_REWARD_POINTS_MINIMUM_IMPORT_POINTS => "El importe mínimo de compra para canjear puntos no se ha alcanzado",
     LanguageLabels::ERROR_CODE_REWARD_POINTS_NO_REDEEM_RULES => "No hay ninguna regla para canjear puntos",
     LanguageLabels::ERROR_CODE_SALES_AGENT_CUSTOMER_NOT_VALID => "El cliente indicado no existe o no cumple todas las condiciones para ser simulado por este Agente de Ventas",
     LanguageLabels::ERROR_CODE_SESSION_USAGE_MODE_NOT_ADMITTED => "Esta acción no está admitida para el modo de uso actual de esta sesión",

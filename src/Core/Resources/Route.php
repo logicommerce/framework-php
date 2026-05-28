@@ -79,15 +79,16 @@ class Route extends SDKRoute {
     }
 
     /**
-     * Overrides getId() in SDKRoute
-     * Analizes if the Route type is page and pageType is RouteType::CATEGORY for return the category Id
-     * 
-     * 
-     * 
+     * Overrides getId() in SDKRoute.
+     *
+     * Pages of type CATEGORY / BLOG_CATEGORY link to another entity; surface
+     * that entity's ID (page.itemId) so downstream controllers receive it
+     * instead of the Page's own ID.
+     *
      * @see SDKRoute::getId()
      */
     public function getId(): int {
-        if ($this->page !== null && $this->page->getPageType() === RouteType::CATEGORY) {
+        if ($this->page !== null && in_array($this->page->getPageType(), [RouteType::CATEGORY, RouteType::BLOG_CATEGORY], true)) {
             return $this->page->getItemId();
         }
         return $this->id;

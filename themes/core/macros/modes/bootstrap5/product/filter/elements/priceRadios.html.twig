@@ -1,4 +1,4 @@
-{%- macro elements(filters, appliedFilters) -%}
+{%- macro elements(filters, appliedFilters, fromValue, toValue, minValue, maxValue) -%}
     {%- set currentPrice = filters.priceRange.min|round(0, 'floor') -%}
     {%- set intervalPrice = max((filters.priceRange.max - currentPrice) // 5, 1) -%}
     {%- set intervalMaxPrice = filters.priceRange.max|round(0, 'ceil') -%}

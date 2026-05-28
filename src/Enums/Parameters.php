@@ -270,7 +270,8 @@ use SDK\Core\Enums\Enum;
  * @see Parameters::TO_PAYMENT_DATE
  * @see Parameters::TO_PRICE
  * @see Parameters::TO_PROCESSING_DATE
- * @see Parameters::TOKEN 
+ * @see Parameters::TOKEN
+ * @see Parameters::MF_TOKEN
  * @see Parameters::TRANSACTION_ID
  * @see Parameters::TAX
  * @see Parameters::TAX_INCLUDED
@@ -427,6 +428,8 @@ abstract class Parameters extends Enum {
     public const DCS_PAGE_ID = 'dcsPageId';
 
     public const DCS_TOKEN = 'dcsToken';
+
+    public const MF_TOKEN = 'mfToken';
 
     public const DECISION = 'decision';
 

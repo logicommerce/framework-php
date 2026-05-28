@@ -5,6 +5,7 @@ namespace FWK\Controllers\Checkout;
 use FWK\Core\Controllers\BaseHtmlController;
 use FWK\Core\Controllers\Traits\AddDefaultCountryAndLocationsTrait;
 use FWK\Core\Controllers\Traits\AddPluginPaymentSystemTrait;
+use FWK\Core\Controllers\Traits\AddPluginRewardPointsTrait;
 use FWK\Core\Controllers\Traits\CheckoutRedirectTrait;
 use FWK\Core\Controllers\Traits\SetPhysicalLocationsFromDeliveries;
 use FWK\Core\Exceptions\CommerceException;
@@ -36,7 +37,8 @@ use SDK\Services\Parameters\Groups\Document\PickupPointProvidersParametersGroup;
  * @package FWK\Controllers\Checkout
  */
 class CheckoutController extends BaseHtmlController {
-    use AddDefaultCountryAndLocationsTrait, SetPhysicalLocationsFromDeliveries, AddPluginPaymentSystemTrait;
+    use AddDefaultCountryAndLocationsTrait, SetPhysicalLocationsFromDeliveries, 
+    AddPluginPaymentSystemTrait, AddPluginRewardPointsTrait;
 
     use CheckoutRedirectTrait {
         __construct as __constructCheckoutRedirectTrait;
@@ -76,9 +78,13 @@ class CheckoutController extends BaseHtmlController {
 
     public const USER_CUSTOM_TAGS = 'userCustomTags';
 
+    public const PLUGIN_REWARD_POINTS = 'pluginRewardPoints';
+
     private ?PluginService $pluginService = null;
 
     private ?ElementCollection $paymentSystemPlugins = null;
+
+    private ?array $pluginRewardPoints = null;
 
     private ?BasketService $basketService = null;
 
@@ -120,6 +126,7 @@ class CheckoutController extends BaseHtmlController {
             $this->basketService->addGetPaymentSystems($requests, self::PAYMENT_SYSTEMS);
             $this->basketService->addGetProviderPickupPointPickingDeliveriesSelectedPickupPoint($requests, self::SELECTED_PROVIDER_PICKUP_POINT);
             $this->getAddPluginsPaymentSystems($requests);
+            $this->getAddPluginsRewardPoints($requests);
 
             $selectedCountryId = Utils::getSelectedCountryId();
             if ($selectedCountryId !== null && $selectedCountryId !== '') {
@@ -190,6 +197,7 @@ class CheckoutController extends BaseHtmlController {
         }
 
         $this->getAddPluginsPaymentProperties($paymentSystems);
+        $pluginRewardPoints = $this->getPluginsRewardPoints();
 
         $this->setDataValue(
             self::CONTROLLER_ITEM,
@@ -200,6 +208,7 @@ class CheckoutController extends BaseHtmlController {
                     self::BILLING_ADDRESSES => $billingAddresses,
                     self::SHIPPING_ADDRESSES => $shippingAddresses
                 ],
+                self::PLUGIN_REWARD_POINTS => $pluginRewardPoints,
                 self::CUSTOMER_FORM => FormFactory::setUser(FormFactory::SET_USER_TYPE_ADD_CUSTOMER, $this->getSession()->getUser(), $this->getControllerData(self::USER_CUSTOM_TAGS), true, true, $thisAccountUpdatePermissions),
                 self::DEFAULT_SELECTED_COUNTRY => $this->getDefaultCountry(),
                 self::DEFAULT_SELECTED_COUNTRY_LOCATIONS => $this->getDefaultCountryLocations(),

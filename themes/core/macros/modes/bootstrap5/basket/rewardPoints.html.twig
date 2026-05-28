@@ -1,5 +1,12 @@
 {% macro rewardPoints(args) %}
-    {%- if args.basket.rewardPoints|length -%}
+    {%- set foundPlugin = false -%}
+    {%- for pluginRewardPoint in args.pluginRewardPoints -%}
+        {%- set plugin = pluginRewardPoint.plugin -%}
+        {%- set properties = pluginRewardPoint.properties -%}
+        {%- include 'plugins/' ~ ucwords(plugin.module, '.') ~ '/core/macros/modes/' ~ coreMode ~ '/basket/utils/rewardPoints.html.twig' ignore missing with {pluginRewardPoint: plugin, pluginRewardPointsProperties: properties  } -%}
+        {%- set foundPlugin = true -%}
+    {%- endfor -%}
+    {%- if args.basket.rewardPoints|length and not foundPlugin -%}
         <div class="rewardPointsSummary {{- args.class|length ? ' ' ~ args.class : '' -}}">
             {%- for rewardPoint in args.basket.rewardPoints -%}
                 <div class="rewardPointsItem">
