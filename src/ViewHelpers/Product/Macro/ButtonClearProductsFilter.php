@@ -73,6 +73,7 @@ class ButtonClearProductsFilter {
             constant('URL_ROUTE'),
             Parameters::FILTER_CUSTOMTAG_INTERVAL,
             Parameters::FILTER_CUSTOMTAG_RANGE,
+            Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL,
         ]);
 
         $this->setOutput();

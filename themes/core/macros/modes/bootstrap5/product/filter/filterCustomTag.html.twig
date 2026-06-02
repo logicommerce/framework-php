@@ -15,9 +15,10 @@
 
     {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/customTagRangeSlider.html.twig' as filterProductMacroRange -%}
     {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/customTag.html.twig' as filterProductMacro -%}
+    {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/customTagRangeIntervals.html.twig' as filterProductMacroRangeIntervals -%}
 
     {%- for filter in filterCustomTags -%}
-        {%- if filter.values|length -%}
+        {%- if filter.values|length or filter.ranges|length -%}
             {%- set uid = random(10000000, 99999999) -%}
             {%- set parsedControlType = '' -%}
             {%- for controlTypePart in filter.controlType|split('_') -%}
@@ -26,7 +27,9 @@
             {%- set isRangeSlider = filter.minValue != '' and filter.maxValue != '' and filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::NUMBER') -%}
 
             {%- set elements -%}
-                {%- if isRangeSlider and filter.position in configuration.itemsToRangeSlider -%}
+                {%- if filter.ranges|length -%}
+                    {{- filterProductMacroRangeIntervals.elements(filter, appliedFilters) -}}
+                {%- elseif isRangeSlider and filter.position in configuration.itemsToRangeSlider -%}
                     {{- filterProductMacroRange.elements(filter, appliedFilters) -}}
                 {%- else -%}
                     {{- filterProductMacro.elements(filter, appliedFilters) -}}
@@ -36,7 +39,12 @@
             {%- set badgeAppliedFilters -%}
                 {%- set nAppliedFilters = 0 -%}
 
-                {%- if isRangeSlider and filter.position in configuration.itemsToRangeSlider -%}
+                {%- if filter.ranges|length -%}
+                    {%- if requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL')] is defined
+                        and requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL')][filter.id] is defined -%}
+                        {%- set nAppliedFilters = 1 -%}
+                    {%- endif -%}
+                {%- elseif isRangeSlider and filter.position in configuration.itemsToRangeSlider -%}
                     {%- if 
                         (requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL')] is defined 
                         and requestParams[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_INTERVAL')][filter.id] is defined)

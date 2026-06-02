@@ -98,6 +98,7 @@ use SDK\Core\Enums\Enum;
  * @see Parameters::FILTER_CUSTOMTAG_RANGE
  * @see Parameters::FILTER_CUSTOMTAG_GROUP
  * @see Parameters::FILTER_CUSTOMTAG_INTERVAL
+ * @see Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL
  * @see Parameters::FILTER_INDEXABLE
  * @see Parameters::FILTER_OPTION
  * @see Parameters::FIRST_NAME
@@ -494,6 +495,8 @@ abstract class Parameters extends Enum {
     public const FILTER_CUSTOMTAG = 'filterCustomTag';
 
     public const FILTER_CUSTOMTAG_RANGE = 'filterCustomTagRange';
+
+    public const FILTER_CUSTOMTAG_RANGE_INTERVAL = 'filterCustomTagRangeInterval';
 
     public const FILTER_CUSTOMTAG_GROUP = 'filterCustomTagGroup';
 

@@ -447,6 +447,9 @@ abstract class FilterInputFactory {
                 FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false,
                 FilterInput::CONFIGURATION_FILTER_KEY_REGEX_VALIDATE => FilterInput::REGEX_VALIDATE_FLOAT_RANGE
             ]),
+            Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL => new FilterInput([
+                FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false
+            ]),
             Parameters::FILTER_CUSTOMTAG_INTERVAL => new FilterInput([
                 FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false,
                 FilterInput::CONFIGURATION_FILTER_KEY_REGEX_VALIDATE => FilterInput::REGEX_VALIDATE_INTERVAL

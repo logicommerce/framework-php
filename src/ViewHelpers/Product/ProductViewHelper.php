@@ -668,13 +668,14 @@ class ProductViewHelper extends ViewHelper {
         $filterCustomTag = self::isEnabledFilter($applicableFilters->getFilterCustomTag(), isset($appliedFilters[Parameters::FILTER_CUSTOMTAG]));
         $filterCustomTagGroup = self::isEnabledFilter($applicableFilters->getFilterCustomTagGroup(), isset($appliedFilters[Parameters::FILTER_CUSTOMTAG]));
         $filterCustomTagInterval = self::isEnabledFilter($applicableFilters->getFilterCustomTag(), isset($appliedFilters[Parameters::FILTER_CUSTOMTAG_INTERVAL]));
+        $filterCustomTagRangeInterval = self::isEnabledFilter($applicableFilters->getFilterCustomTag(), isset($appliedFilters[Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL]));
         $filterOption = self::isEnabledFilter($applicableFilters->getFilterOption(), isset($appliedFilters[Parameters::FILTER_OPTION]));
         $onlyFeatured = self::isEnabledFilter($applicableFilters->getOnlyFeatured(), isset($appliedFilters[Parameters::ONLY_FEATURED]));
         $onlyOffers = self::isEnabledFilter($applicableFilters->getOnlyOffers(), isset($appliedFilters[Parameters::ONLY_OFFERS]));
         $priceRange = self::isEnabledFilter($applicableFilters->getPriceRange(), isset($appliedFilters[Parameters::FROM_PRICE]) && isset($appliedFilters[Parameters::TO_PRICE]));
         $q = self::isEnabledFilter($applicableFilters->getQ(), isset($appliedFilters[Parameters::Q]) && strlen($appliedFilters[Parameters::Q]));
 
-        if ($brandList || $categoryList || $filterCustomTag || $filterCustomTagGroup || $filterCustomTagInterval || $filterOption || $onlyFeatured || $onlyOffers || $priceRange || $q) {
+        if ($brandList || $categoryList || $filterCustomTag || $filterCustomTagGroup || $filterCustomTagInterval || $filterCustomTagRangeInterval || $filterOption || $onlyFeatured || $onlyOffers || $priceRange || $q) {
             return true;
         }
         return false;

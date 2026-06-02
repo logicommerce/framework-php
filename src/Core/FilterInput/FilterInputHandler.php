@@ -38,6 +38,7 @@ class FilterInputHandler {
     public const ARRAY_PARAMS = [
         Parameters::FILTER_CUSTOMTAG,
         Parameters::FILTER_OPTION,
+        Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL,
         Parameters::FILTER_CUSTOMTAG_INTERVAL,
         Parameters::VALUES,
         Parameters::OPTIONS,
@@ -50,6 +51,7 @@ class FilterInputHandler {
         Parameters::CUSTOM_TAGS,
         Parameters::FILTER_CUSTOMTAG,
         Parameters::FILTER_CUSTOMTAG_RANGE,
+        Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL,
         Parameters::FILTER_CUSTOMTAG_INTERVAL,
         Parameters::FILTER_OPTION,
         Parameters::OPTION_ID,

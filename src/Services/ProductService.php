@@ -69,6 +69,7 @@ class ProductService extends ProductServiceSDK {
     private const ADD_FILTER_ID_VALUE_PARAMETERS = [
         Parameters::FILTER_CUSTOMTAG_INTERVAL,
         Parameters::FILTER_CUSTOMTAG,
+        Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL,
         Parameters::FILTER_OPTION
     ];
 

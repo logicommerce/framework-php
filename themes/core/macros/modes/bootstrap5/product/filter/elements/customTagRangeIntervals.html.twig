@@ -1,0 +1,22 @@
+{%- macro elements(filter, appliedFilters) -%}
+{%- for range in filter.ranges -%}
+        {%- set uid = random(10000000, 99999999) -%}
+        {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL')] is defined
+            and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL')][filter.id] is defined
+            and (range.id ~ '') in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL')][filter.id] -%}
+        <div class="form-group form-check filterElement customTagsFilterElement">
+            <input
+                class="form-check-input filterElement customTagsFilterElement"
+                type="radio"
+                name="{{ constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG_RANGE_INTERVAL') }}{{ constant('FWK\\Core\\FilterInput\\FilterInputHandler::DYNAMIC_NAME_PARAM_DELIMITER') }}{{ filter.id }}"
+                value="{{ range.id }}"
+                {% if selected %} checked {% endif %}
+                id="CTRFE{{ filter.id }}_{{ uid }}"
+            >
+            <label class="form-check-label filterElement customTagsFilterElement" for="CTRFE{{ filter.id }}_{{ uid }}">
+                {{- range.name -}}
+                {%- if range.description %} <span class="customTagRangeDescription">{{ range.description }}</span>{% endif -%}
+            </label>
+        </div>
+    {%- endfor -%}
+{%- endmacro -%}
