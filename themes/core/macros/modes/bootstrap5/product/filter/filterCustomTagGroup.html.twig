@@ -26,14 +26,14 @@
                         {%- else -%}
                             {%- set selected = false -%}
                             {%- if customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
-                                {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and customTag.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+                                {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and (customTag.customTagValues|first).filterValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
                                 {%- if selected -%}
                                     {%- set nAppliedFilters = nAppliedFilters + 1 -%}
                                 {%- endif -%}
                             {%- endif -%}
                             {%- if not selected -%}
-                                {%- for value in customTag.values -%}
-                                    {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+                                {%- for item in customTag.customTagValues -%}
+                                    {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and item.filterValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
                                     {%- if selected -%}
                                         {%- set nAppliedFilters = nAppliedFilters + 1 -%}
                                     {%- endif -%}

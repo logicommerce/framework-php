@@ -18,7 +18,7 @@
     {%- import 'macros/modes/' ~ coreMode ~ '/product/filter/elements/customTagRangeIntervals.html.twig' as filterProductMacroRangeIntervals -%}
 
     {%- for filter in filterCustomTags -%}
-        {%- if filter.values|length or filter.ranges|length -%}
+        {%- if filter.customTagValues|length or filter.ranges|length -%}
             {%- set uid = random(10000000, 99999999) -%}
             {%- set parsedControlType = '' -%}
             {%- for controlTypePart in filter.controlType|split('_') -%}
@@ -60,7 +60,7 @@
                         {%- endif -%}
                     {%- endif -%}
                 {%- else -%}
-                    {# Multi-select & non-legacy image types: count applied directly (image filter.values are URLs that won't match applied paths) #}
+                    {# Multi-select & non-legacy image types: count applied directly (image display values are URLs that won't match applied paths) #}
                     {%- if (filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION')
                             or filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE')
                             or filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::SINGLE_SELECTION_IMAGE'))
@@ -70,14 +70,14 @@
                     {%- else -%}
                         {%- set selected = false -%}
                         {%- if filter.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::IMAGE') -%}
-                            {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and filter.filterValues|first in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+                            {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and (filter.customTagValues|first).filterValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
                             {%- if selected -%}
                                 {%- set nAppliedFilters = nAppliedFilters + 1 -%}
                             {%- endif -%}
                         {%- endif -%}
                         {%- if not selected -%}
-                            {%- for value in filter.values|usort -%}
-                                {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and value in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
+                            {%- for item in filter.customTagValues -%}
+                                {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] is defined and item.filterValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][filter.id] -%}
                                 {%- if selected -%}
                                     {%- set nAppliedFilters = nAppliedFilters + 1 -%}
                                 {%- endif -%}

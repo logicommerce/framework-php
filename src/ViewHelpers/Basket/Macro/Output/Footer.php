@@ -268,7 +268,11 @@ class Footer {
 
                     $discountValue = 0;
                     if ($discount->getType() === DiscountType::AMOUNT || $discount->getType() === DiscountType::REWARD_POINTS) {
-                        $discountValue = -$discount->getValue();
+                        if ($this->basketOutput->showTaxIncluded == true) {
+                            $discountValue = -$discount->getValueWithTaxes();
+                        } else {
+                            $discountValue = -$discount->getValue();
+                        }
                     }
 
                     $name = $discount->getName();

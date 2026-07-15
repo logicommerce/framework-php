@@ -39,7 +39,7 @@ trait AddPluginRewardPointsTrait {
         /** @var \SDK\Service\PluginService */
         $pluginService = Loader::service(Services::PLUGIN);
         $this->rewardPointsPlugins = $pluginService->getPlugins($params);
-        foreach ($this->rewardPointsPlugins as $rewardPointsPlugin) {
+        foreach (($this->rewardPointsPlugins ?? []) as $rewardPointsPlugin) {
             $batchName = Services::PLUGIN . '_' . PluginConnectorType::REWARD_POINTS . '_' . $rewardPointsPlugin->getId();
             $pluginService->addGetPluginProperties($requests, $batchName, $rewardPointsPlugin->getId());
         }
@@ -47,7 +47,7 @@ trait AddPluginRewardPointsTrait {
 
     protected function getPluginsRewardPoints(): mixed {
         $rewardPointsPlugins = [];
-        foreach ($this->rewardPointsPlugins as $rewardPointsPlugin) {
+        foreach (($this->rewardPointsPlugins ?? []) as $rewardPointsPlugin) {
             $plugin = [];
             $batchName = Services::PLUGIN . '_' . PluginConnectorType::REWARD_POINTS . '_' . $rewardPointsPlugin->getId();
             $plugin[self::PLUGIN] = $rewardPointsPlugin;
@@ -65,7 +65,7 @@ trait AddPluginRewardPointsTrait {
 
     protected function getAccountPluginsRewardPoints(): mixed {
         $rewardPointsPlugins = [];
-        foreach ($this->rewardPointsPlugins as $rewardPointsPlugin) {
+        foreach (($this->rewardPointsPlugins ?? []) as $rewardPointsPlugin) {
             $plugin = [];
             $batchName = Services::PLUGIN . '_' . PluginConnectorType::REWARD_POINTS . '_' . $rewardPointsPlugin->getId();
             $plugin[self::PLUGIN] = $rewardPointsPlugin;
@@ -82,5 +82,4 @@ trait AddPluginRewardPointsTrait {
         }
         return $rewardPointsPlugins;
     }
-
 }

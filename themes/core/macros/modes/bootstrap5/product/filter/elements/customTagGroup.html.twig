@@ -4,13 +4,13 @@
     {%- set ctBoolShowValue = '' -%}
     {%- for customTagId in group.customTags -%}
         {%- for customTag in filters.filterCustomTag|filter(customTag => customTag.id == customTagId) -%}
-            {%- for value in customTag.values -%}
+            {%- for item in customTag.customTagValues -%}
                 {%- if customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::BOOLEAN') -%}
                     {%- if '#' ~ customTag.name ~ '#' in ctBoolShowed -%}
                         {% set ctBoolShowValue = ctBoolShowValue ~ '/#' ~ customTag.name ~ '#' %}
                     {%- else -%}
                         {% set ctBoolShowed = ctBoolShowed ~ '/#' ~ customTag.name ~ '#' %}
-                    {%- endif -%}    
+                    {%- endif -%}
                 {%- endif -%}
             {%- endfor -%}
         {%- endfor -%}
@@ -27,29 +27,23 @@
                 or customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE') -%}
             {%- set isMultipleSelection = customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION') -%}
             {%- set isMultipleSelectionImage = customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE') -%}
-            {%- set baseValues = customTag.values -%}
-            {%- set baseFilterValues = customTag.filterValues -%}
+            {%- set customTagValues = customTag.customTagValues -%}
             {# Merge applied values for multi-select so user-picked options stay visible after faceted narrowing #}
             {%- if appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined
-                and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined -%}
-                {%- if isMultipleSelection -%}
-                    {%- for appliedValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
-                        {%- if appliedValue not in baseValues -%}
-                            {%- set baseValues = baseValues|merge([appliedValue]) -%}
-                        {%- endif -%}
-                    {%- endfor -%}
-                {%- elseif isMultipleSelectionImage -%}
-                    {%- for appliedValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
-                        {%- if appliedValue not in baseFilterValues -%}
-                            {%- set baseValues = baseValues|merge([appliedValue]) -%}
-                            {%- set baseFilterValues = baseFilterValues|merge([appliedValue]) -%}
-                        {%- endif -%}
-                    {%- endfor -%}
-                {%- endif -%}
+                and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined
+                and (isMultipleSelection or isMultipleSelectionImage) -%}
+                {%- set knownFilterValues = customTagValues|map(item => item.filterValue) -%}
+                {%- for appliedValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
+                    {%- if appliedValue not in knownFilterValues -%}
+                        {%- set customTagValues = customTagValues|merge([{ 'value': appliedValue, 'filterValue': appliedValue, 'name': null }]) -%}
+                        {%- set knownFilterValues = knownFilterValues|merge([appliedValue]) -%}
+                    {%- endif -%}
+                {%- endfor -%}
             {%- endif -%}
-            {%- for key, value in baseValues -%}
+            {%- for item in customTagValues -%}
                 {%- set uid = random(10000000, 99999999) -%}
-                {%- set checkValue = isImageType and baseFilterValues[key] is defined ? baseFilterValues[key] : value -%}
+                {%- set checkValue = item.filterValue -%}
+                {%- set value = item.value -%}
                 {%- set selected = appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')] is defined and appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] is defined and checkValue in appliedFilters[constant('FWK\\Enums\\Parameters::FILTER_CUSTOMTAG')][customTag.id] -%}
                 <div
                     class="form-group form-check filterElement customTagsFilterElement customTagType{{ parsedControlType }}"
@@ -72,10 +66,10 @@
                             {# Legacy IMAGE: keep showing customTag.name as label (unchanged behavior) #}
                             {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ (value|e('html_attr')) ~ '" alt="' ~ customTag.name|escape ~ '">' ~ customTag.name|escape -%}
                         {%- else -%}
-                            {# @deprecated nameValues — for new image types, only render label when per-value name is provided #}
-                            {%- set hasNameValue = customTag.nameValues[key] is defined and customTag.nameValues[key]|length -%}
-                            {%- set imageAlt = hasNameValue ? customTag.nameValues[key] : customTag.name -%}
-                            {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ (value|e('html_attr')) ~ '" alt="' ~ imageAlt|escape ~ '">' ~ (hasNameValue ? customTag.nameValues[key]|escape : '') -%}
+                            {# For image selection types, only render label when a per-value name is provided #}
+                            {%- set hasNameValue = item.name is not null and item.name|length -%}
+                            {%- set imageAlt = hasNameValue ? item.name : customTag.name -%}
+                            {%- set value = '<img class="img-fluid customTagsFilterImage" src="' ~ (value|e('html_attr')) ~ '" alt="' ~ imageAlt|escape ~ '">' ~ (hasNameValue ? item.name|escape : '') -%}
                         {%- endif -%}
                     {%- elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::NUMBER') -%}
                         {% if value matches '/[0-9]+(\.[0-9]+)?(e|E)[0-9]+/' %}

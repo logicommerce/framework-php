@@ -7,14 +7,15 @@ use SDK\Core\Resources\BatchRequests;
 use SDK\Enums\RouteType;
 use SDK\Services\Parameters\Groups\AssetParametersGroup;
 use SDK\Services\PluginService as PluginServiceSDK;
+use FWK\Services\Traits\PluginOverrideTrait;
 use FWK\Services\Traits\ServiceTrait;
 use SDK\Core\Dtos\ElementCollection;
 use SDK\Core\Dtos\PluginProperties;
 use SDK\Enums\PluginConnectorType;
-use Plugins\ComLogicommerceMagicfront\Dtos\Common\PluginProperties as MagicFrontPluginProperties;
 use FWK\Core\Dtos\ElementCollection as DtosElementCollection;
 use FWK\Core\Resources\Loader;
 use FWK\Core\Resources\Session;
+use FWK\Core\Resources\Utils;
 use FWK\Dtos\Common\Plugin as FWKPlugin;
 use FWK\Dtos\Basket\PaymentSystem;
 use FWK\Dtos\Common\PluginExpressCheckout;
@@ -22,8 +23,6 @@ use FWK\Enums\RouteTypes\InternalResources;
 use FWK\Enums\RouteTypes\InternalUser;
 use FWK\Enums\Services;
 use SDK\Dtos\Common\Plugin;
-use SDK\Application;
-use SDK\Core\Enums\Resource;
 use SDK\Services\Parameters\Groups\PluginConnectorTypeParametersGroup;
 use SDK\Services\Parameters\Groups\PluginModuleParametersGroup;
 
@@ -40,6 +39,7 @@ use SDK\Services\Parameters\Groups\PluginModuleParametersGroup;
 class PluginService extends PluginServiceSDK {
 
     use ServiceTrait;
+    use PluginOverrideTrait;
 
     private const REGISTRY_KEY = RegistryService::PLUGIN_SERVICE;
 
@@ -48,10 +48,6 @@ class PluginService extends PluginServiceSDK {
     private const ADD_FILTER_ID_VALUE_PARAMETERS = [];
 
     private ?BasketService $basketService = null;
-
-    private const OVERRIDE_PLUGIN_PIDS = [
-        'com.logicommerce.magicfront',
-    ];
 
     private function getParametersByRouteType(string $routeType): AssetParametersGroup {
         $trackerParametersGroup = new AssetParametersGroup();
@@ -267,53 +263,4 @@ class PluginService extends PluginServiceSDK {
         return $params;
     }
 
-    /**
-     * Returns all active override plugins (those whose pId is listed in OVERRIDE_PLUGIN_PIDS).
-     * To add a plugin to this mechanism, add its pId to OVERRIDE_PLUGIN_PIDS.
-     *
-     * @return Plugin[]
-     *
-     */
-    public function getOverridePlugins(): array {
-        $plugins = Application::getInstance()->getEcommercePlugins();
-        if (is_null($plugins)) {
-            $plugins = $this->getElements(Plugin::class, Resource::PLUGINS);
-        }
-        $indexed = [];
-        foreach ($plugins as $plugin) {
-            $indexed[$plugin->getPId()] = $plugin;
-        }
-        $result = [];
-        foreach (self::OVERRIDE_PLUGIN_PIDS as $pId) {
-            if (isset($indexed[$pId]) && $indexed[$pId]->isActive()) {
-                $result[] = $indexed[$pId];
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * Returns if the MagicFront plugin is enabled for the given route type
-     *
-     * @param string $routeType
-     *
-     * @return bool
-     *
-     */
-    public function isPluginMagicFrontEnabled(string $routeType): bool {
-        $plugins = Application::getInstance()->getEcommercePlugins();
-        if (is_null($plugins)) {
-            $plugins = $this->getElements(Plugin::class, Resource::PLUGINS);
-        }
-        foreach ($plugins as $plugin) {
-            if ($plugin->getPId() == 'com.logicommerce.magicfront') {
-                return $plugin->isActive();
-            }
-        }
-        return false;
-        /** @var MagicFrontPluginProperties|null $properties */
-        /*
-        $properties = $this->getPluginPropertiesByConnectorType(PluginConnectorType::MAGIC_FRONT);
-        return $properties !== null && in_array($routeType, $properties->getAvailablePages());*/
-    }
 }

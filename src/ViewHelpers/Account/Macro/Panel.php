@@ -39,42 +39,56 @@ class Panel {
         ""
     ];
 
+    private const ACCOUNT_ITEMS = [
+        'user',
+        'addressBook',
+        'accountCompanyStructure',
+        'accountCompanyRoles',
+        'accountRegisteredUsers'
+    ];
+
+    private const ORDER_ITEMS = [
+        'orders',
+        'rmas',
+        'rewardPoints'
+    ];
+
+    private const DELETE_ACCOUNT_ITEMS = [
+        'deleteAccount'
+    ];
+
+    private const DATA_FOR_ACCOUNT_ITEMS = [
+        'accountRegisteredUser',
+        'shoppingLists',
+        'stockAlerts',
+        'subscriptions',
+        'paymentCards'
+    ];
+
+    private const PROFILE_ITEMS = [
+        'registeredUser',
+        'changePassword'
+    ];
+
+    private const SALES_AGENT_ITEMS = [
+        'registeredUserSalesAgent',
+        'registeredUserSalesAgentCustomers',
+        'registeredUserSalesAgentSales'
+    ];
+
+    private const SESSION_ITEMS = [
+        'logout',
+        'usedAccountSwitch'
+    ];
+
     public const ITEMS_LIST = [
-        [
-            'user',
-            'addressBook',
-            'accountCompanyStructure',
-            'accountCompanyRoles',
-            'accountRegisteredUsers'
-        ],
-        [
-            'orders',
-            'rmas',
-            'rewardPoints'
-        ],
-        [
-            'deleteAccount'
-        ],
-        [
-            'accountRegisteredUser',
-            'shoppingLists',
-            'stockAlerts',
-            'subscriptions',
-            'paymentCards'
-        ],
-        [
-            'registeredUser',
-            'changePassword'
-        ],
-        [
-            'registeredUserSalesAgent',
-            'registeredUserSalesAgentCustomers',
-            'registeredUserSalesAgentSales'
-        ],
-        [
-            'logout',
-            'usedAccountSwitch'
-        ]
+        self::ACCOUNT_ITEMS,
+        self::ORDER_ITEMS,
+        self::DELETE_ACCOUNT_ITEMS,
+        self::DATA_FOR_ACCOUNT_ITEMS,
+        self::PROFILE_ITEMS,
+        self::SALES_AGENT_ITEMS,
+        self::SESSION_ITEMS,
     ];
 
     public array $itemsList = self::ITEMS_LIST;
@@ -111,13 +125,14 @@ class Panel {
         if (!Session::getInstance()->getAssociatedAccounts()) {
             $this->removeItems(['usedAccountSwitch']);
         }
+        $this->syncKeysWithItemsList();
         $this->validateList($this->itemsList);
         return $this->getProperties();
     }
 
     private function pruneBlockForSalesAgent(): void {
         if ($this?->user?->isSalesAgent() !== true) {
-            $this?->removeByIndex(5);
+            $this->removeGroups(static fn(array $group) => self::isSalesAgentGroup($group));
         }
     }
 
@@ -154,7 +169,7 @@ class Panel {
         }
 
         $this->removeItems(['accountRegisteredUsers', 'rmas', 'paymentCards', 'accountRegisteredUser', 'usedAccountSwitch', 'changePassword']);
-        $this->removeByIndex(2);
+        $this->removeItems(['deleteAccount']);
     }
 
     private function removeItems(array $needles): void {
@@ -170,9 +185,39 @@ class Panel {
         );
     }
 
-    private function removeByIndex(int $index): void {
-        array_splice($this->itemsList, $index, 1);
-        array_splice($this->keys, $index, 1);
+    private function removeGroups(callable $predicate): void {
+        foreach ($this->itemsList as $index => $group) {
+            if ($predicate($group)) {
+                unset($this->itemsList[$index], $this->keys[$index]);
+            }
+        }
+
+        $this->itemsList = array_values($this->itemsList);
+        $this->keys = array_values($this->keys);
+    }
+
+    private function syncKeysWithItemsList(): void {
+        $this->keys = array_map(
+            static fn(array $group) => self::getKeyForGroup($group),
+            $this->itemsList
+        );
+    }
+
+    private static function isSalesAgentGroup(array $group): bool {
+        return count($group) > 0 && count(array_diff($group, self::SALES_AGENT_ITEMS)) === 0;
+    }
+
+    private static function getKeyForGroup(array $group): string {
+        if (count(array_intersect($group, self::ACCOUNT_ITEMS)) > 0) {
+            return self::KEY_ACCOUNT;
+        }
+        if (count(array_intersect($group, self::DATA_FOR_ACCOUNT_ITEMS)) > 0) {
+            return self::KEY_DATA_FOR_ACCOUNT;
+        }
+        if (count(array_intersect($group, self::PROFILE_ITEMS)) > 0) {
+            return self::KEY_PROFILE;
+        }
+        return '';
     }
 
     /**

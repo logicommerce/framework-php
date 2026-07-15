@@ -266,6 +266,9 @@ class Session {
      */
     protected function initSelfProperties(): void {
         $this->basketToken = isset($_SESSION[self::BASKET_TOKEN]) ? $_SESSION[self::BASKET_TOKEN] : null;
+        if (!isset($_SESSION[self::GENERAL_SETTINGS])) {
+            $this->restoreGeneralSettings();
+        }
         $this->generalSettings = $_SESSION[self::GENERAL_SETTINGS];
         $this->defaultTheme = $this->getDefaultTheme();
         $this->defaultRoute = $this->getDefaultRoute();
@@ -506,6 +509,13 @@ class Session {
                 Loader::service(Services::BASKET)->recalculate();
             }
         }
+    }
+
+    protected function restoreGeneralSettings(): void {
+        $storeURL = Loader::service(Services::ROUTE)->getStoreURL();
+        $this->startWritableSession();
+        $_SESSION[self::GENERAL_SETTINGS] = new SessionGeneralSettings($this->getGenerialSettingsFromStoreURL($storeURL));
+        $this->commitSession(false);
     }
 
     protected function setDefaultGeneralSettings(array $storeURL): void {

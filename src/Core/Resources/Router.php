@@ -149,7 +149,7 @@ final class Router {
     private function resolveControllerWithPluginSupport(): Controller {
         /** @var PluginService $pluginService */
         $pluginService = Loader::service(Services::PLUGIN);
-        $overridePlugins = $pluginService->getOverridePlugins();
+        $overridePlugins = $pluginService->getControllerOverridePlugins($this->route->getType(), $this->route);
         if (empty($overridePlugins)) {
             return Loader::controller($this->route);
         }

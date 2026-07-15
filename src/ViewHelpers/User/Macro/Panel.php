@@ -34,46 +34,54 @@ class Panel {
         self::KEY_ACCOUNT,
     ];
 
+    private const DATA_ITEMS = [
+        'user',
+        'addressBook',
+        'accountCompanyStructure',
+        'changePassword',
+        'accountRegisteredUsers',
+    ];
+
+    private const ORDER_ITEMS = [
+        'shoppingLists',
+        'wishlist',
+        'stockAlerts',
+        'subscriptions',
+        'orders',
+        'rmas',
+        'salesAgent',
+        'paymentCards',
+        'rewardPoints',
+        'voucherCodes',
+    ];
+
+    private const SALES_AGENT_ITEMS = [
+        'salesAgent',
+        'salesAgentCustomers',
+        'salesAgentSales',
+        'registeredUserSalesAgent',
+        'registeredUserSalesAgentCustomers',
+        'registeredUserSalesAgentSales',
+    ];
+
+    private const ACCOUNT_ITEMS = [
+        'logout',
+        'deleteAccount',
+        'usedAccountSwitch',
+    ];
+
     public const ITEMS_LIST = [
-        [
-            'user',
-            'addressBook',
-            'accountCompanyStructure',
-            'changePassword',
-            'accountRegisteredUsers',
-        ],
-        [
-            'shoppingLists',
-            'wishlist',
-            'stockAlerts',
-            'subscriptions',
-            'orders',
-            'rmas',
-            'salesAgent',
-            'paymentCards',
-            'rewardPoints',
-            'voucherCodes',
-        ],
-        [
-            'salesAgent',
-            'salesAgentCustomers',
-            'salesAgentSales',
-            'registeredUserSalesAgent',
-            'registeredUserSalesAgentCustomers',
-            'registeredUserSalesAgentSales',
-        ],
-        [
-            'logout',
-            'deleteAccount',
-            'usedAccountSwitch',
-        ]
+        self::DATA_ITEMS,
+        self::ORDER_ITEMS,
+        self::SALES_AGENT_ITEMS,
+        self::ACCOUNT_ITEMS,
     ];
 
     public array $itemsList = self::ITEMS_LIST;
 
     public array $icons = [];
 
-    private array $keys = self::KEYS;
+    public array $keys = self::KEYS;
 
     private ?User $user = null;
 
@@ -95,14 +103,46 @@ class Panel {
      * @return array
      */
     public function getViewParameters(): array {
-        // Is sales agent is false remove third items list block
         if ($this->user->getSalesAgent() !== true) {
-            array_splice($this->itemsList, 2, 1);
-            array_splice($this->keys, 2, 1);
+            $this->pruneSalesAgentBlock();
         }
+        $this->syncKeysWithItemsList();
         $this->validateList($this->itemsList);
 
         return $this->getProperties();
+    }
+
+    private function pruneSalesAgentBlock(): void {
+        $this->itemsList = array_values(
+            array_filter(
+                $this->itemsList,
+                static fn(array $group) => !self::isSalesAgentGroup($group)
+            )
+        );
+    }
+
+    private function syncKeysWithItemsList(): void {
+        $this->keys = array_map(
+            static fn(array $group) => self::getKeyForGroup($group),
+            $this->itemsList
+        );
+    }
+
+    private static function isSalesAgentGroup(array $group): bool {
+        return count($group) > 0 && count(array_diff($group, self::SALES_AGENT_ITEMS)) === 0;
+    }
+
+    private static function getKeyForGroup(array $group): string {
+        if (self::isSalesAgentGroup($group)) {
+            return self::KEY_SALES_AGENT;
+        }
+        if (count(array_intersect($group, self::ACCOUNT_ITEMS)) > 0) {
+            return self::KEY_ACCOUNT;
+        }
+        if (count(array_intersect($group, self::DATA_ITEMS)) > 0) {
+            return self::KEY_DATA;
+        }
+        return self::KEY_ORDERS;
     }
 
     /**

@@ -458,6 +458,9 @@ abstract class Controller {
             $this->twig->load($data + $this->getData(), $autoescape, $loadCore);
             $this->addTwigBaseFunctions($this->twig);
             $this->addTwigBaseExtensions($this->twig);
+            if ($this->route !== null) {
+                $this->twig->applyPluginInitializers((string) $this->route->getType(), $this->getData());
+            }
         }
         Utils::addTimerDebugFlag('setTwig', Timer::END_SUFFIX);
         return $this->twig;

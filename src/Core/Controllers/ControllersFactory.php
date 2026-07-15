@@ -168,10 +168,34 @@ abstract class ControllersFactory {
         foreach ($locations as $location) {
             $class = $location . $controller;
             if (class_exists($class)) {
+                $class = self::preferCommercePluginOverride($class, $controller);
                 return new $class($route);
             }
         }
         return null;
+    }
+
+    /**
+     * Route a resolved plugin controller (Plugins\<Module>\Controllers\<Leaf>) to a
+     * commerce override SITE\Overrides\<Module>\Controllers\<Leaf> when it exists and
+     * extends the plugin controller; otherwise leave the match untouched.
+     */
+    private static function preferCommercePluginOverride(string $matched, string $controller): string {
+        $pluginPrefix = 'Plugins\\';
+        if (strncmp($matched, $pluginPrefix, strlen($pluginPrefix)) !== 0) {
+            return $matched;
+        }
+        $afterPlugins = substr($matched, strlen($pluginPrefix));
+        $pos = strpos($afterPlugins, '\\' . self::CONTROLLERS_PATH . '\\');
+        if ($pos === false) {
+            return $matched;
+        }
+        $module = substr($afterPlugins, 0, $pos);
+        $overrideClass = SITE_NAMESPACE . 'Overrides\\' . $module . '\\' . $controller;
+        if (class_exists($overrideClass) && is_subclass_of($overrideClass, $matched)) {
+            return $overrideClass;
+        }
+        return $matched;
     }
 
     private static function getPluginControllerObject(Route $route, array $locations, string $namespace, string $plugin): ?Controller {

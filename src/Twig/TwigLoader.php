@@ -52,7 +52,11 @@ final class TwigLoader implements TwigLoaderInterface {
 
     private $overridePluginPaths = [];
 
+    private bool $hasControllerOverridePlugin = false;
+
     private $data;
+
+    private $pluginLayoutOverride;
 
     /**
      * Constructor. Creates the TwigLoader and initializes it with the given Theme. 
@@ -179,25 +183,40 @@ final class TwigLoader implements TwigLoaderInterface {
     }
 
     /**
-     * This method uses Twig Environment to render the page and returns the renderization. 
-     * The renderization is based on the Theme provided in the TwigLoader creation, 
-     * the data provided with the load method and the format specified by parameter(by default html).
+     * Invokes each active override plugin's {@see PluginTwigInitializer::apply()}
+     * so plugins can inject functions/globals and optionally pick a layout.
+     * Called from {@see Controller::setTwig()} on every render.
+     */
+    public function applyPluginInitializers(string $routeType, array $controllerData): void {
+        if (count($this->overridePluginPaths) === 0) {
+            return;
+        }
+        $pluginService = Loader::service(Services::PLUGIN);
+        foreach ($pluginService->getActiveTwigInitializers($routeType) as $init) {
+            $override = $init->apply($this->twig, $this->coreTwig, $routeType, $controllerData);
+            if ($override !== null) {
+                $this->pluginLayoutOverride = $override;
+            }
+        }
+    }
+
+    /**
+     * Renders the current route using the Theme + data provided to load().
      *
-     * @param string $content
-     *            -> If different to null, it overrides the theme content to load in Twig
-     * @param string $layout
-     *            -> If different to null, it overrides the theme layout to load in Twig
-     * @param string $format
-     *            -> Default value: 'html'. Set the format to mark the name of the layout. For example, with "json" value, Twig renderization will load default.json.twig
-     *            
-     * @return string
+     * @param string $content  Override the theme content template (relative path under themeVersion).
+     * @param string $layout   Override the theme layout template (relative path under themeVersion).
+     * @param string $format   Output format (default 'html'); selects `default.<format>.twig`.
+     *
+     * @return string Rendered output.
      */
     public function render(String $content = null, String $layout = null, String $format = 'html') {
         Utils::addTimerDebugFlag('TwigLoader-render', Timer::START_SUFFIX);
         $localVersion = (strlen($this->themeVersion) ? $this->themeVersion : '');
         $localVersion = $localVersion . (strlen($localVersion) ? '/' : '');
 
-        $basicLayout = (is_null($layout) ? 'layouts/' . $this->pageLayout . '.' . $format . '.twig' : $layout);
+        $basicLayout = $layout
+            ?? $this->pluginLayoutOverride
+            ?? 'layouts/' . $this->pageLayout . '.' . $format . '.twig';
         $localLayout = $localVersion . $basicLayout;
         $basicContent = (is_null($content) ? 'Content/' . ControllersFactory::getPath($this->routeType) . '/' . $this->pageContent . '.' . $format . '.twig' : $content);
         $localContent = $localVersion . $basicContent;
@@ -214,7 +233,7 @@ final class TwigLoader implements TwigLoaderInterface {
 
         $templateWrapper = null;
         $templateWrapperError = false;
-        if (is_null($content) && count($this->overridePluginPaths) > 0) {
+        if (is_null($content) && $this->hasControllerOverridePlugin) {
             try {
                 $this->twig->addGlobal(ControllerData::LAYOUT, $localLayout);
                 $this->twig->addGlobal(ControllerData::CONTENT, $pluginContent);
@@ -245,13 +264,22 @@ final class TwigLoader implements TwigLoaderInterface {
         /** @var \FWK\Services\PluginService $pluginService */
         $pluginService = Loader::service(Services::PLUGIN);
         $this->overridePluginPaths = [];
-        foreach ($pluginService->getOverridePlugins() as $overridePlugin) {
+        foreach ($pluginService->getOverridePlugins($this->routeType) as $overridePlugin) {
             $pluginDir = Utils::getCamelFromSnake($overridePlugin->getModule(), '.');
+            // Commerce override wins over the plugin's own templates (same path under the hub).
+            $commerceOverride = SITE_PATH . '/overrides/' . $pluginDir . '/themes/default';
+            if (is_dir($commerceOverride)) {
+                $this->overridePluginPaths[] = $commerceOverride;
+            }
             $path = PLUGINS_LOAD_PATH . '/' . $pluginDir . '/themes/default';
             if (is_dir($path)) {
                 $this->overridePluginPaths[] = $path;
             }
         }
+        // Gates `overrideContent/...` lookup: layout-active plugin doesn't imply controller takeover.
+        $this->hasControllerOverridePlugin = count(
+            $pluginService->getControllerOverridePlugins($this->routeType)
+        ) > 0;
     }
 
     /**
