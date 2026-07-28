@@ -84,6 +84,19 @@ class UserService extends UserServiceSDK {
     }
 
     /**
+     *
+     * @see \SDK\Services\UserService::verify()
+     */
+    public function verify(string $uniqueId): ?Status {
+        $response = parent::verify($uniqueId);
+        if (is_null($response->getError())) {
+            // refresh sessionBasket, as the BasketUser 'verified' status may have changed
+            Loader::service(Services::BASKET)->getBasket();
+        }
+        return $response;
+    }
+
+    /**
      * Returns all current sales agent customers
      *
      * @param SalesAgentCustomersParametersGroup $params
