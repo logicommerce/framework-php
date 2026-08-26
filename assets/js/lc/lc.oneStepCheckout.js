@@ -435,6 +435,22 @@ LC.OneStepCheckout = LC.Form.extend({
             },
             errorMessageKey: 'userAddressValidation'
         });
+
+        $.formUtils.addValidator({
+            name: 'userTaxIdValidation',
+            validatorFunction: function (value, $elem, conf, language, $form) {
+                const data = $elem.data('userTaxIdValidationFailedOsc');
+                this.errorMessage = '';
+                if (typeof data === 'undefined') {
+                    return true;
+                } else if (data === true) {
+                    this.errorMessage = $elem.data('userTaxIdValidationMessagesOsc');
+                    return false
+                }
+                return true;
+            },
+            errorMessageKey: 'userTaxIdValidation'
+        });
     },
 
     /**
@@ -569,6 +585,7 @@ LC.OneStepCheckout = LC.Form.extend({
         // Check email input
         this.inputEmail = this.getInputEmail();
         this.inputAddress = this.getInputAddress();
+        this.inputTaxId = this.getInputTaxId();
 
         // Turn off data-validation on email
         this.restoreUserFormValidation();
@@ -665,6 +682,31 @@ LC.OneStepCheckout = LC.Form.extend({
                 }.bind(this), this.emailInputDelay);
             }
         });
+
+        // Own taxId validation (nif & vat)
+        this.userForm.el.$form
+            .find('.userFieldGroupNif input[type="text"], .userFieldGroupVat input[type="text"]')
+            .on('input', (event) => {
+                var inputTaxId = event.target;
+                $(inputTaxId).data('userTaxIdValidationFailedOsc', false);
+                if (this.taxIdInputValue === inputTaxId.value) {
+                    return;
+                }
+                if (this.taxIdInputTimeout) {
+                    clearTimeout(this.taxIdInputTimeout);
+                }
+                this.taxIdInputValue = inputTaxId.value;
+                this.fillDataForm(this.dataModules.userForm);
+                this.taxIdInputTimeout = setTimeout(function () {
+                    this.recalculateBasket(
+                        this.dataModules.userForm,
+                        true,
+                        function (response) {
+                            $(inputTaxId.parentNode).removeClass('lcLoading');
+                        }.bind(this)
+                    );
+                }.bind(this), this.emailInputDelay);
+            });
 
         // Recalculate basket on select Postal Code
         this.userForm.selectPostalCodeCallback('userInfo', function () {
@@ -775,6 +817,22 @@ LC.OneStepCheckout = LC.Form.extend({
             }
         });
         return inputAddress;
+    },
+
+    getInputTaxId: function () {
+        // Attach the taxId validator to every nif/vat input across all user-type tabs and
+        // billing/shipping sections, so the currently active field is always validated
+        // regardless of the selected user type (particular/empresa/autónomo).
+        const $inputs = this.userForm.el.$form
+            .find('.userFieldGroupNif input[type="text"], .userFieldGroupVat input[type="text"]');
+        $inputs.attr('data-validation', function () {
+            const thisAttr = $(this).attr('data-validation') || '';
+            if (thisAttr.includes('userTaxIdValidation')) {
+                return thisAttr;
+            }
+            return (thisAttr ? thisAttr + ',' : '') + 'userTaxIdValidation';
+        });
+        return $inputs;
     },
 
     /**
@@ -2019,6 +2077,7 @@ LC.OneStepCheckout = LC.Form.extend({
      */
     responseActions: function (response) {
         this.validateAddressBook(response);
+        this.validateTaxId(response);
 
         // Registered email
         if (this.hasOwnProperty('inputEmail')) {
@@ -2090,6 +2149,74 @@ LC.OneStepCheckout = LC.Form.extend({
                 .find('span.form-error')
                 .remove();
         }
+    },
+
+    validateTaxId: function (response) {
+        const validTaxId = response?.data?.data?.user?.validTaxId;
+        if (!validTaxId) {
+            return;
+        }
+        this.inputTaxId = this.getInputTaxId();
+        const notifications = [];
+        ['billing', 'shipping'].forEach((section) => {
+            const sectionResult = validTaxId[section];
+            if (!sectionResult) {
+                return;
+            }
+            ['nif', 'vat'].forEach((field) => {
+                const fieldResult = sectionResult[field];
+                if (!fieldResult) {
+                    return;
+                }
+                const groupClass = '.userFieldGroup' + field.charAt(0).toUpperCase() + field.slice(1);
+                if (section == 'billing') { 
+                    section = 'user';
+                }
+                const $inputs = this.userForm.el.$form.find(
+                    '.tab-pane.active .' + section + 'FormFields ' + groupClass + ' input[type="text"]:visible'
+                );
+                if (!$inputs.length) {
+                    return;
+                }
+                if (fieldResult.isValid === false) {
+                    let message = (fieldResult.messages || [])
+                        .map((item) => item.detail || item.message)
+                        .filter(Boolean)
+                        .join('<br>');
+                    if (field === 'vat') {
+                        message = LC.global.languageSheet.errorCodeAccountInvoicingAddressVatInvalid;
+                    } else {
+                        message = LC.global.languageSheet.errorCodeAccountInvoicingAddressNifInvalid;
+                    }
+                    if (notifications.indexOf(message) === -1) {
+                        notifications.push(message);
+                    }
+                    $inputs.each((index, el) => {
+                        $(el)
+                            .data('userTaxIdValidationFailedOsc', true)
+                            .data('userTaxIdValidationMessagesOsc', message)
+                            .closest('.form-group')
+                            .addClass('has-error')
+                            .removeClass('has-success')
+                            .find('span.form-error')
+                            .remove()
+                            .end()
+                            .append(`<span class="help-block form-error">${message}</span>`);
+                    });
+                } else if (fieldResult.isValid === true) {
+                    $inputs.each((index, el) => {
+                        $(el)
+                            .data('userTaxIdValidationFailedOsc', false)
+                            .closest('.form-group')
+                            .addClass('has-success')
+                            .removeClass('has-error')
+                            .find('span.form-error')
+                            .remove();
+                    });
+                }
+            });
+        });
+        notifications.forEach((message) => this.notify(message, 'danger', true));
     },
 
     // Utils

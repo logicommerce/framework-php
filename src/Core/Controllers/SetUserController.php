@@ -36,6 +36,10 @@ use SDK\Enums\MasterType;
 use SDK\Services\Parameters\Groups\Account\AccountParametersGroup;
 use SDK\Services\Parameters\Groups\Account\UpdateAccountRegisteredUsersParametersGroup;
 use SDK\Services\Parameters\Groups\User\Addresses\AddressValidateParametersGroup;
+use SDK\Services\Parameters\Groups\TaxIdValidateParametersGroup;
+use SDK\Enums\TaxIdType;
+use SDK\Enums\TaxIdOwnerType;
+use SDK\Enums\UserType;
 
 /**
  * This is the base controller for the set user controllers.
@@ -565,7 +569,86 @@ abstract class SetUserController extends BaseJsonController {
     }
 
     /**
-     * This method launches the adequate actions against the SDK (through the FWK services) and returns the response data. 
+     * Validates the taxId (nif and vat) of the billing and shipping sections against the taxId validator
+     * plugin configured in the Commerce. Each section and field is validated independently so the frontend
+     * can flag the proper input (there are several user-type forms and a billing/shipping section, each with
+     * its own nif/vat fields).
+     *
+     * A field is only flagged as invalid when the validator returns an INVALID status; missing taxId
+     * validator plugin, empty values or any other status do not block the checkout.
+     *
+     * @return array {billing: sectionResult, shipping: sectionResult}
+     *               where sectionResult = {nif: {isValid: bool, messages: array}, vat: {isValid: bool, messages: array}}
+     */
+    protected function validateUserTaxId(): array {
+        return [
+            self::BILLING => $this->validateTaxIdSection(self::BILLING),
+            self::SHIPPING => $this->validateTaxIdSection(self::SHIPPING)
+        ];
+    }
+
+    /**
+     * Validates the nif and vat of the given user form section (billing or shipping).
+     *
+     * @param string $section self::BILLING or self::SHIPPING
+     *
+     * @return array {nif: {isValid: bool, messages: array}, vat: {isValid: bool, messages: array}}
+     */
+    private function validateTaxIdSection(string $section): array {
+        $result = [
+            Parameters::NIF => ['isValid' => true, 'messages' => []],
+            Parameters::VAT => ['isValid' => true, 'messages' => []]
+        ];
+        if (empty($this->data[$section])) {
+            return $result;
+        }
+        $countryCode = $this->data[$section]['locationAppliedParameters'][Parameters::COUNTRY_CODE] ?? '';
+        if (strlen($countryCode) === 0) {
+            return $result;
+        }
+        $ownerType = $this->getTaxIdOwnerType($this->data[$section][Parameters::USER_TYPE] ?? '');
+        $taxIdTypeByField = [
+            Parameters::NIF => TaxIdType::TIN,
+            Parameters::VAT => TaxIdType::CONSUMPTION_TAX
+        ];
+        foreach ([Parameters::NIF, Parameters::VAT] as $field) {
+            $taxId = $this->data[$section][$field] ?? '';
+            if (!is_string($taxId) || strlen(trim($taxId)) === 0) {
+                continue;
+            }
+            $parametersGroup = new TaxIdValidateParametersGroup();
+            $parametersGroup->setTaxId($taxId);
+            $parametersGroup->setCountryCode($countryCode);
+            $parametersGroup->setTaxIdType($taxIdTypeByField[$field]);
+            $parametersGroup->setTaxIdOwnerType($ownerType);
+            $validated = $this->userService->taxIdValidate($parametersGroup);
+
+            if (!is_null($validated) && $validated->isInvalid()) {
+                $result[$field]['isValid'] = false;
+                $result[$field]['messages'] = $validated->getMessages();
+            } else {
+                $result[$field]['messages'] = "hola";
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Maps the user type (particular/company/freelance) to the taxId owner type expected by the validator.
+     * Individuals are natural persons; companies and freelancers are treated as legal entities.
+     *
+     * @param string $userType
+     *
+     * @return string see \SDK\Enums\TaxIdOwnerType
+     */
+    private function getTaxIdOwnerType(string $userType): string {
+        return UserType::getEnum($userType) === UserType::PARTICULAR
+            ? TaxIdOwnerType::NATURAL_PERSON
+            : TaxIdOwnerType::LEGAL_ENTITY;
+    }
+
+    /**
+     * This method launches the adequate actions against the SDK (through the FWK services) and returns the response data.
      *
      * @return Element
      */

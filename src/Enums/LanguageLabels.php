@@ -2232,6 +2232,8 @@ abstract class LanguageLabels extends Enum {
     public const ERROR_CODE_ACCOUNT_PID_EXISTS = 'errorCodeAccountPidExists';
     public const ERROR_CODE_ACCOUNT_REGISTERED_USER_ALREADY_EXISTS = 'errorCodeAccountRegisteredUserAlreadyExists';
     public const ERROR_CODE_ACCOUNT_REGISTERED_USER_LIMITED_CARDINALITY = 'errorCodeAccountRegisteredUserLimitedCardinality';
+    public const ERROR_CODE_ACCOUNT_INVOICING_ADDRESS_VAT_INVALID = 'errorCodeAccountInvoicingAddressVatInvalid';
+    public const ERROR_CODE_ACCOUNT_INVOICING_ADDRESS_NIF_INVALID = 'errorCodeAccountInvoicingAddressNifInvalid';
     public const ERROR_CODE_ACCOUNT_REGISTERED_USER_PENDING_APPROVAL = 'errorCodeAccountRegisteredUserPendingApproval';
     public const ERROR_CODE_ACCOUNT_SHIPPING_ADDRESSES_CARDINALITY_MAXIMUM = 'errorCodeAccountShippingAddressesCardinalityMaximum';
     public const ERROR_CODE_ACCOUNT_SHIPPING_ADDRESSES_CARDINALITY_MINIMUM = 'errorCodeAccountShippingAddressesCardinalityMinimum';

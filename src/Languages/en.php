@@ -443,6 +443,8 @@ return [
     LanguageLabels::ERROR_CODE_ACCOUNT_PID_EXISTS => "PId already registered for another account",
     LanguageLabels::ERROR_CODE_ACCOUNT_REGISTERED_USER_ALREADY_EXISTS => "The account is already linked to the registered user",
     LanguageLabels::ERROR_CODE_ACCOUNT_REGISTERED_USER_LIMITED_CARDINALITY => "CardinalityPlus is not actived",
+    LanguageLabels::ERROR_CODE_ACCOUNT_INVOICING_ADDRESS_VAT_INVALID => "VAT is not valid",
+    LanguageLabels::ERROR_CODE_ACCOUNT_INVOICING_ADDRESS_NIF_INVALID => "NIF is not valid",
     LanguageLabels::ERROR_CODE_ACCOUNT_REGISTERED_USER_PENDING_APPROVAL => "The state of the relationship can not be modified until the relationship is approved by the registered user of this relationship",
     LanguageLabels::ERROR_CODE_ACCOUNT_SHIPPING_ADDRESSES_CARDINALITY_MAXIMUM => "Can't create more shipping addresses for this account",
     LanguageLabels::ERROR_CODE_ACCOUNT_SHIPPING_ADDRESSES_CARDINALITY_MINIMUM => "This account has to have at least one shipping address because some of its registered users use shipping addresses",

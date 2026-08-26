@@ -445,6 +445,8 @@ return [
     LanguageLabels::ERROR_CODE_ACCOUNT_PID_EXISTS => "PId ya está registrado en otra cuenta",
     LanguageLabels::ERROR_CODE_ACCOUNT_REGISTERED_USER_ALREADY_EXISTS => "La cuenta ya está vinculada al usuario registrado",
     LanguageLabels::ERROR_CODE_ACCOUNT_REGISTERED_USER_LIMITED_CARDINALITY => "CardinalityPlus no está activado",
+    LanguageLabels::ERROR_CODE_ACCOUNT_INVOICING_ADDRESS_VAT_INVALID => "El VAT introducido no es válido",
+    LanguageLabels::ERROR_CODE_ACCOUNT_INVOICING_ADDRESS_NIF_INVALID => "El NIF introducido no es válido",
     LanguageLabels::ERROR_CODE_ACCOUNT_REGISTERED_USER_PENDING_APPROVAL => "El estado de la relación no puede modificarse hasta que el usuario registrado de esta relación apruebe la relación",
     LanguageLabels::ERROR_CODE_ACCOUNT_SHIPPING_ADDRESSES_CARDINALITY_MAXIMUM => "No se pueden crear más direcciones de envío para esta cuenta",
     LanguageLabels::ERROR_CODE_ACCOUNT_SHIPPING_ADDRESSES_CARDINALITY_MINIMUM => "Esta cuenta tiene que tener al menos una dirección de envío porque algunos de sus usuarios registrados utilizan direcciones de envío",
