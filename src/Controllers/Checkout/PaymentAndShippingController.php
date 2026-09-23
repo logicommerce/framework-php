@@ -8,6 +8,7 @@ use SDK\Enums\RouteType;
 use FWK\Core\Controllers\BaseHtmlController;
 use FWK\Core\Controllers\Traits\SetPhysicalLocationsFromDeliveries;
 use FWK\Core\Controllers\Traits\AddPluginPaymentSystemTrait;
+use FWK\Core\Controllers\Traits\AddPluginRewardPointsTrait;
 use FWK\Core\Resources\Loader;
 use FWK\Core\Resources\Response;
 use FWK\Enums\Services;
@@ -30,7 +31,7 @@ use SDK\Services\Parameters\Groups\Document\PickupPointProvidersParametersGroup;
  */
 class PaymentAndShippingController extends BaseHtmlController {
     // Overrride __construct 
-    use SetPhysicalLocationsFromDeliveries, AddPluginPaymentSystemTrait;
+    use SetPhysicalLocationsFromDeliveries, AddPluginPaymentSystemTrait, AddPluginRewardPointsTrait;
 
     use CheckoutRedirectTrait {
         __construct as __constructCheckoutRedirectTrait;
@@ -54,11 +55,15 @@ class PaymentAndShippingController extends BaseHtmlController {
 
     public const DEFAULT_PHYSICAL_LOCATION_ID = 'defaultPhysicalLocationId';
 
+    public const PLUGIN_REWARD_POINTS = 'pluginRewardPoints';
+
     private ?BasketService $basketService = null;
 
     private ?PluginService $pluginService = null;
 
     private ?ElementCollection $paymentSystemPlugins = null;
+
+    private ?array $pluginRewardPoints = null;
 
     protected ?PickupPointProvidersParametersGroup $pickupPointProvidersParametersGroup = null;
 
@@ -95,6 +100,7 @@ class PaymentAndShippingController extends BaseHtmlController {
             }
 
             $this->getAddPluginsPaymentSystems($requests);
+            $this->getAddPluginsRewardPoints($requests);
         } else {
             $this->setDataValue(self::DELIVERIES, null);
             $this->setDataValue(self::PAYMENT_SYSTEMS, null);
@@ -126,6 +132,8 @@ class PaymentAndShippingController extends BaseHtmlController {
         $deliveries->merge($this->getControllerData(self::SELECTED_PROVIDER_PICKUP_POINT));
         $this->setDataValue(self::DELIVERIES, $deliveries);
         $this->getAddPluginsPaymentProperties($this->getControllerData(self::PAYMENT_SYSTEMS));
+        $pluginRewardPoints = $this->getPluginsRewardPoints();
+        $this->setDataValue(self::PLUGIN_REWARD_POINTS, $pluginRewardPoints);
     }
 
     /**

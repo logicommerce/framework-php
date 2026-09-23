@@ -22,5 +22,8 @@
                 window.location.href = window.location.href;
             {%- endif -%}
         }
+        if (LC?.resources?.pluginListener) {
+            LC.resources.pluginListener('onUserLogin', {}, args);
+        }
     </script>
 {% endmacro oauthCallback %}

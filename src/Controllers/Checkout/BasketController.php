@@ -4,6 +4,7 @@ namespace FWK\Controllers\Checkout;
 
 use FWK\Core\Controllers\Traits\CheckoutRedirectTrait;
 use FWK\Core\Controllers\BaseHtmlController;
+use FWK\Core\Controllers\Traits\AddPluginRewardPointsTrait;
 use FWK\Core\Exceptions\CommerceException;
 use SDK\Core\Resources\BatchRequests;
 use FWK\Enums\Services;
@@ -21,13 +22,19 @@ use SDK\Dtos\Common\Route;
  */
 class BasketController extends BaseHtmlController {
 
+    use AddPluginRewardPointsTrait;
+
     use CheckoutRedirectTrait {
         __construct as __constructCheckoutRedirectTrait;
     }
 
     public const BASKET = 'basket';
 
+    public const PLUGIN_REWARD_POINTS = 'pluginRewardPoints';
+
     private ?SettingsService $settingsService = null;
+
+    private ?array $pluginRewardPoints = null;
 
     /**
      * Constructor.
@@ -50,6 +57,7 @@ class BasketController extends BaseHtmlController {
         if (!$this->settingsService->getBasketStockLockingSettings()->getActive()) {
             $this->getBasketService()->addGetBasket($requests, self::BASKET);
         }
+        $this->getAddPluginsRewardPoints($requests);
     }
 
     /**
@@ -64,6 +72,8 @@ class BasketController extends BaseHtmlController {
             }
             $this->setDataValue(self::BASKET, $basket);
         }
+        $pluginRewardPoints = $this->getPluginsRewardPoints();
+        $this->setDataValue(self::PLUGIN_REWARD_POINTS, $pluginRewardPoints);
     }
 
     private function getBasketService(): BasketService {

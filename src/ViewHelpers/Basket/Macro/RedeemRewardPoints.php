@@ -24,6 +24,8 @@ class RedeemRewardPoints {
 
     public ?ElementCollection $rewardPoints = null;
 
+    public ?array $pluginRewardPoints = null;
+
     public bool $showSelectableBox = false;
 
     public string $class = '';
@@ -106,6 +108,7 @@ class RedeemRewardPoints {
             'class' => $this->class,
             'quantityPlugin' => $this->quantityPlugin,
             'showRewardPointsHeader' => $this->showRewardPointsHeader,
+            'pluginRewardPoints' => $this->pluginRewardPoints,
         ];
     }
 }
