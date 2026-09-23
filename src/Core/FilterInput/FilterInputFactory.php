@@ -1113,6 +1113,25 @@ abstract class FilterInputFactory {
     }
 
     /**
+     * This static method returns the predefined filterInput configurations for the parameters of a SetSession request.
+     * Returns an array where the key of each position is the name of the parameter and the value of the posisiton is the corresponding properly initialized filterInput.
+     * The 'REDIRECT' parameter only accepts relative paths of the same host.
+     *
+     * @return array
+     */
+    public static function getSetSessionParameters(): array {
+        return [
+            Parameters::BASKET_TOKEN => new FilterInput([
+                FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false,
+            ]),
+            Parameters::REDIRECT => new FilterInput([
+                FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false,
+                FilterInput::CONFIGURATION_FILTER_KEY_REGEX_VALIDATE => FilterInput::REGEX_VALIDATE_LOCAL_PATH,
+            ]),
+        ];
+    }
+
+    /**
      * This static method returns the predefined filterInput configurations for the parameters of a Account Id request.
      * Returns an array where the key of each position is the name of the parameter and the value of the posisiton is the corresponding properly initialized filterInput.
      *

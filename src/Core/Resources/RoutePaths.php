@@ -257,6 +257,7 @@ class RoutePaths {
             InternalResources::RELATED_ITEMS => '/' . INTERNAL_PREFIX . '/resources/related_items',
             InternalResources::SEND_DATA => '/' . INTERNAL_PREFIX . '/resources/send_data',
             InternalResources::SEND_MAIL => '/' . INTERNAL_PREFIX . '/resources/send_mail',
+            InternalResources::SET_SESSION => '/' . INTERNAL_PREFIX . '/resources/set_session',
             InternalResources::SET_NAVIGATION_COUNTRY => '/' . INTERNAL_PREFIX . '/resources/set_navigation_country',
             InternalUser::ADD_USER => '/' . INTERNAL_PREFIX . '/user/add_user',
             InternalUser::ADD_USER_FAST_REGISTER => '/' . INTERNAL_PREFIX . '/user/add_user_fast_register',

@@ -21,6 +21,7 @@ use SDK\Core\Enums\Enum;
  * @see InternalResources::RELATED_ITEMS
  * @see InternalResources::SEND_DATA
  * @see InternalResources::SEND_MAIL
+ * @see InternalResources::SET_SESSION
  * @see InternalResources::SET_NAVIGATION_COUNTRY
  *
  * @see Enum
@@ -52,6 +53,8 @@ class InternalResources extends Enum {
     public const SEND_DATA = 'RESOURCES_INTERNAL_SEND_DATA';
 
     public const SEND_MAIL = 'RESOURCES_INTERNAL_SEND_MAIL';
+
+    public const SET_SESSION = 'RESOURCES_INTERNAL_SET_SESSION';
 
     public const SET_NAVIGATION_COUNTRY = 'RESOURCES_INTERNAL_SET_NAVIGATION_COUNTRY';
 }

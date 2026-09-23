@@ -93,6 +93,9 @@ class FilterInput {
 
     public const REGEX_VALIDATE_INTERVAL = '/^([0-9]*[.])?[0-9]+' . self::REGEX_VALIDATE_RANGE_SEPARATOR . '([0-9]*[.])?[0-9]+$|^(([0-9]*[.])?[0-9])$/';
 
+    // Relative path of the same host: starts with a single '/' (not '//' or '/\', which browsers treat as another host) and has no control characters
+    public const REGEX_VALIDATE_LOCAL_PATH = '/^\/(?![\/\\\\])[^\x00-\x1F\x7F]*$/';
+
     /**
      * Constructor method.
      * This method constructs a FilterInput with the given configuration.

@@ -217,6 +217,7 @@ class CacheControl {
             InternalResources::SEND_MAIL,
             InternalResources::SET_NAVIGATION_COUNTRY,
             InternalResources::GET_SESSION,
+            InternalResources::SET_SESSION,
             InternalUser::ADD_USER_FAST_REGISTER,
             InternalUser::ADD_USER,
             InternalUser::ADD_WISHLIST_PRODUCT,
