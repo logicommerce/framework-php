@@ -18,6 +18,7 @@ use FWK\Enums\RouteItems;
 use FWK\Enums\Services;
 use FWK\Enums\TwigContentTypes;
 use SDK\Application;
+use FWK\Services\PluginService;
 
 /**
  * This is the TwigLoader class.
@@ -80,7 +81,7 @@ final class TwigLoader implements TwigLoaderInterface {
         if (defined('USE_PHARS') && USE_PHARS && ((defined('USE_LC_PLUGINS_PHAR') && USE_LC_PLUGINS_PHAR) || !defined('USE_LC_PLUGINS_PHAR'))) {
             $this->corePath[] = PLUGINS_LOAD_PATH . '/twigCoreTemplates';
         } else {
-            $plugins = Application::getInstance()?->getEcommercePlugins() ?? [];
+            $plugins = PluginService::getInstance()->getPlugins() ?? [];
             foreach ($plugins as $plugin) {
                 $corePluginPath = PLUGINS_LOAD_PATH . '/' . Utils::getCamelFromSnake($plugin->getModule(), '.') . '/twigCoreTemplates';
                 if (is_dir($corePluginPath)) {

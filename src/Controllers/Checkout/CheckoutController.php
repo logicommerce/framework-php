@@ -13,6 +13,7 @@ use FWK\Core\Form\FormFactory;
 use FWK\Enums\Services;
 use FWK\Core\Resources\Loader;
 use FWK\Core\Resources\Utils;
+use SDK\Enums\CompanyRoleType;
 use FWK\Services\AccountService;
 use SDK\Core\Resources\BatchRequests;
 use SDK\Core\Resources\Cookie;
@@ -37,8 +38,10 @@ use SDK\Services\Parameters\Groups\Document\PickupPointProvidersParametersGroup;
  * @package FWK\Controllers\Checkout
  */
 class CheckoutController extends BaseHtmlController {
-    use AddDefaultCountryAndLocationsTrait, SetPhysicalLocationsFromDeliveries, 
-    AddPluginPaymentSystemTrait, AddPluginRewardPointsTrait;
+    use AddDefaultCountryAndLocationsTrait,
+        SetPhysicalLocationsFromDeliveries,
+        AddPluginPaymentSystemTrait,
+        AddPluginRewardPointsTrait;
 
     use CheckoutRedirectTrait {
         __construct as __constructCheckoutRedirectTrait;
@@ -151,9 +154,9 @@ class CheckoutController extends BaseHtmlController {
             $this->userService->addGetBillingAddresses($requests, self::BILLING_ADDRESSES);
             $this->userService->addGetShippingAddresses($requests, self::SHIPPING_ADDRESSES);
             if ($this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getType() === MasterType::EMPLOYEE) {
-                $roleId = $this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getRole()?->getId() ?? 0;
-                if ($roleId !== 0) {
-                    $this->accountService->addGetCompanyRole($requests, self::COMPANY_ROLE, $roleId);
+                $role = $this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getRole();
+                if ($role?->getType() === CompanyRoleType::CUSTOM && ($role->getId() ?? 0) !== 0) {
+                    $this->accountService->addGetCompanyRole($requests, self::COMPANY_ROLE, $role->getId());
                 }
             }
         }
@@ -189,7 +192,7 @@ class CheckoutController extends BaseHtmlController {
         if (Utils::isSessionLoggedIn($this->getSession())) {
             $billingAddresses = $this->getControllerData(self::BILLING_ADDRESSES);
             $shippingAddresses = $this->getControllerData(self::SHIPPING_ADDRESSES);
-            $thisAccountUpdatePermissions = $this->getControllerData(self::COMPANY_ROLE)?->getPermissions()?->getThisAccountUpdate() ?? true;
+            $thisAccountUpdatePermissions = Utils::resolveThisAccountUpdatePermission($this->getControllerData(self::COMPANY_ROLE));
         } else {
             $billingAddresses = null;
             $shippingAddresses = null;

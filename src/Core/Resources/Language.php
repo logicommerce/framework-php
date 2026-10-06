@@ -6,6 +6,7 @@ use FWK\Enums\RouteItems;
 use FWK\Enums\Services;
 use SDK\Application;
 use SDK\Core\Resources\Environment;
+use FWK\Services\PluginService;
 
 /**
  * This is the Language class.
@@ -152,7 +153,7 @@ class Language {
                 break;
             }
         }
-        $plugins = Application::getInstance()?->getEcommercePlugins() ?? [];
+        $plugins = PluginService::getInstance()->getPlugins() ?? [];
         foreach ($plugins as $plugin) {
             $class = Loader::getClassFQN('LanguageLabels', 'Plugins\\' . Utils::getCamelFromSnake($plugin->getModule(), '.') . '\\Enums\\', '');
             if (class_exists($class)) {
@@ -192,7 +193,7 @@ class Language {
 
     private function getPluginsLanguageSheet(bool $defaultLanguage = false): array {
         $pluginsLanguageSheet = [];
-        $plugins = Application::getInstance()?->getEcommercePlugins() ?? [];
+        $plugins = PluginService::getInstance()->getPlugins() ?? [];
         foreach ($plugins as $plugin) {
             $languageFile = PLUGINS_LOAD_PATH . '/' . Utils::getCamelFromSnake($plugin->getModule(), '.') . '/src/Languages/' . ($defaultLanguage ? $this::DEFAULT_LANGUAGE : self::$language) . '.php';
             if (is_file($languageFile)) {

@@ -9,6 +9,7 @@ use FWK\Core\Resources\Session\BasketGridProduct;
 use FWK\Core\Resources\Session\SessionGeneralSettings;
 use FWK\Core\Resources\Session\SessionShoppingList;
 use FWK\Core\Theme\Dtos\CommerceLockedStock;
+use SDK\Application;
 use SDK\Core\Resources\Connection;
 use SDK\Core\Resources\RedisSessionHandler;
 use SDK\Dtos\Common\Route;
@@ -499,7 +500,9 @@ class Session {
             $_SESSION[self::GENERAL_SETTINGS] = new SessionGeneralSettings($this->getGenerialSettingsFromStoreURL($storeURL));
             $this->generalSettings = $_SESSION[self::GENERAL_SETTINGS];
             $this->setBasketToken();
-            $this->setProductComparison(Loader::service(Services::PRODUCT)->getProductComparison());
+            if (Application::getInstance()->getEcommerceSettings()?->getCatalogSettings()?->getProductComparisonActive()) {
+                $this->setProductComparison(Loader::service(Services::PRODUCT)->getProductComparison());
+            }
             if ($doCommit) {
                 $this->commitSession();
             }

@@ -44,6 +44,9 @@
                         {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::ATTACHMENT') %}
                             {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/attachment.html.twig' as modeBasket %}
                             {{ modeBasket.attachment(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::LINK') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/attachment.html.twig' as modeBasket %}
+                            {{ modeBasket.attachment(customTag, args.showFormFields) }}
                         {% endif %}
                     </div>
                 {% endif %}

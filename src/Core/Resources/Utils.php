@@ -25,6 +25,7 @@ use SDK\Enums\UserKeyCriteria;
 use SDK\Dtos\Basket\BasketRows\Option as BasketRowOption;
 use SDK\Enums\AccountType;
 use SDK\Enums\BasketWarningCode;
+use SDK\Dtos\Accounts\CustomCompanyRole;
 use SDK\Enums\CompanyRoleType;
 use SDK\Enums\MasterType;
 use SDK\Enums\OptionType;
@@ -484,6 +485,7 @@ abstract class Utils {
      * @return string
      */
     public static function cleanHtmlTags(string $text): string {
+        $text = preg_replace('#<(script|style)\b[^>]*>.*?</\1\s*>#si', '', $text);
         return preg_replace('(<([^>]+)>)', '', $text);
     }
 
@@ -555,12 +557,35 @@ abstract class Utils {
             in_array($account->getType(), AccountType::getCompanyTypes(), true) &&
             $accountRegisteredUser != null &&
             !$accountRegisteredUser->isMaster() &&
-            (
-                $accountRegisteredUser?->getType() == MasterType::EMPLOYEE &&
-                $accountRegisteredUser?->getRole()?->getType() == CompanyRoleType::CUSTOM
-            ) &&
+            $accountRegisteredUser->getType() == MasterType::EMPLOYEE &&
             !$thisAccountUpdatePermissions &&
-            LmsService::hasAdvcaRolesManagement());
+            LmsService::hasAnyAdvcaTier());
+    }
+
+    /**
+     * Resolves the effective THIS_ACCOUNT_UPDATE permission of the session user on the used account,
+     * mirroring how FOB evaluates it:
+     *  - master → true
+     *  - CUSTOM role → its own permissions.thisAccountUpdate (fetched by caller)
+     *  - BASIC_FIXED role → false (a non-master can only be COMPANY_STRUCTURE_NON_MASTER,
+     *    which has thisAccountUpdate hard-coded to false at FOB; the GET /company/roles/{id}
+     *    endpoint is @LMS(ADVCAB|ADVCA) and returns AUTH_LICENSE_REQUIRED on ADVCAG, so callers
+     *    cannot know this by asking).
+     *
+     * @param CustomCompanyRole|null $customCompanyRole role fetched from FOB, only when role.type == CUSTOM
+     *
+     * @return bool
+     */
+    public static function resolveThisAccountUpdatePermission(?CustomCompanyRole $customCompanyRole = null): bool {
+        $accountRegisteredUser = Session::getInstance()?->getBasket()?->getAccountRegisteredUser();
+        if ($accountRegisteredUser === null || $accountRegisteredUser->isMaster()) {
+            return true;
+        }
+        if ($accountRegisteredUser->getRole()?->getType() === CompanyRoleType::CUSTOM) {
+            return $customCompanyRole?->getPermissions()?->getThisAccountUpdate() ?? true;
+        }
+        // BASIC_FIXED non-master: COMPANY_STRUCTURE_NON_MASTER has thisAccountUpdate = false at FOB.
+        return false;
     }
 
     /**

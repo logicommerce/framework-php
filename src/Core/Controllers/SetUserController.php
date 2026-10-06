@@ -32,6 +32,7 @@ use SDK\Application;
 use SDK\Core\Services\Parameters\Factories\UserToAccountFactory;
 use SDK\Core\Services\Parameters\Groups\CustomTagDataParametersGroup;
 use SDK\Enums\AccountKey;
+use SDK\Enums\CompanyRoleType;
 use SDK\Enums\MasterType;
 use SDK\Services\Parameters\Groups\Account\AccountParametersGroup;
 use SDK\Services\Parameters\Groups\Account\UpdateAccountRegisteredUsersParametersGroup;
@@ -697,11 +698,12 @@ abstract class SetUserController extends BaseJsonController {
 
                     $thisAccountUpdatePermissions = true;
                     if ($this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getType() === MasterType::EMPLOYEE) {
-                        $roleId = $this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getRole()?->getId() ?? 0;
-                        if ($roleId !== 0) {
-                            $companyRole = $this->accountService->getCompanyRole($roleId);
-                            $thisAccountUpdatePermissions = $companyRole?->getPermissions()?->getThisAccountUpdate() ?? true;
+                        $role = $this->getSession()?->getBasket()?->getAccountRegisteredUser()?->getRole();
+                        $companyRole = null;
+                        if ($role?->getType() === CompanyRoleType::CUSTOM && ($role->getId() ?? 0) !== 0) {
+                            $companyRole = $this->accountService->getCompanyRole($role->getId());
                         }
+                        $thisAccountUpdatePermissions = Utils::resolveThisAccountUpdatePermission($companyRole);
                         $isAccountUpdateBlocked = Utils::isAccountUpdateBlocked($thisAccountUpdatePermissions);
                     }
 

@@ -1322,6 +1322,7 @@ LC.dataEvents.oauth = function (event) {
     var name = '_blank';
     var documentPath = LC.global.routePaths.USER_OAUTH + '?pluginModule=' + data.plugin;
     var properties = 'menubar=1,resizable=1,scrollbars=1,width=800,height=600';
+    LC.resources.pluginListener('onUserLogin', event, data);
     window.open(documentPath, name, properties);
 }
 

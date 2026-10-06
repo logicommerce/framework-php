@@ -302,7 +302,7 @@ class SeoItems {
      * @return string
      */
     public function outputTitle(): string {
-        return '<title>' . $this->title . '</title>';
+        return '<title>' . Utils::cleanHtmlTags($this->title) . '</title>';
     }
 
     /**
