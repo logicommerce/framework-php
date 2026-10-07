@@ -508,7 +508,7 @@ class Session {
             }
             $this->initRoute($storeURL['route']);
             $newCountry = $this->getGeneralSettings()->getCountry();
-            if (!is_null($route) && $oldCountry !== $newCountry) {
+            if (!is_null($route) && $oldCountry !== $newCountry && (!empty($this->getBasket()->getItems()) || $this->isLogged())) {
                 Loader::service(Services::BASKET)->recalculate();
             }
         }
