@@ -31,7 +31,7 @@ class ProductJsonData {
      * 
      * @param Product $product
      */
-    public function __construct(Product $product = null) {
+    public function __construct(?Product $product = null) {
         $this->product = $product;
         if ($product != null) {
             $this->stocks = $this->getStocks();

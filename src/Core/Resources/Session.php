@@ -1105,7 +1105,7 @@ class Session {
      *
      * @return void
      */
-    public function updateShoppingList(ElementCollection $shoppingLists = null): void {
+    public function updateShoppingList(?ElementCollection $shoppingLists = null): void {
         $doCommit = $this->startWritableSession();
         if (is_null($shoppingLists)) {
             $this->shoppingList->init();

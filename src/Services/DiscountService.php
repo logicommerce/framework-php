@@ -42,7 +42,7 @@ class DiscountService extends DiscountServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllDiscounts(DiscountsParametersGroup $params = null): ?ElementCollection {
+    public function getAllDiscounts(?DiscountsParametersGroup $params = null): ?ElementCollection {
         if (is_null($params)) {
             $params = new DiscountsParametersGroup();
         }

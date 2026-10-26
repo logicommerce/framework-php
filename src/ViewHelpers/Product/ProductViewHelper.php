@@ -84,7 +84,7 @@ class ProductViewHelper extends ViewHelper {
      * 
      * @return array
      */
-    public function getJsonData(Product $product = null): array {
+    public function getJsonData(?Product $product = null): array {
         $productJsonData = new ProductJsonData($product);
         return $productJsonData->output();
     }
@@ -96,7 +96,7 @@ class ProductViewHelper extends ViewHelper {
      * 
      * @return array
      */
-    public function getJsonGridData(Product $product = null): array {
+    public function getJsonGridData(?Product $product = null): array {
         $productGirdJsonData = new ProductGridJsonData($product);
         return $productGirdJsonData->output();
     }

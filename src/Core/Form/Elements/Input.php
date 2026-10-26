@@ -69,7 +69,7 @@ abstract class Input extends Element {
      * @param string $value Value of the Input.
      * @param FilterInput $filterInput Filter of the input.
      */
-    public function __construct(string $value = '', FilterInput $filterInput = null) {
+    public function __construct(string $value = '', ?FilterInput $filterInput = null) {
         $this->setValue($value);
         if (is_null($filterInput)) {
             $this->setFilterInput(new FilterInput([

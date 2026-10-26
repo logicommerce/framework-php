@@ -239,8 +239,8 @@ class TwigFunctionsHtml extends TwigFunctions {
     private static function localizedDateFilter(): \Twig\TwigFilter {
         return new \Twig\TwigFilter('date', function (
             $date,
-            string $format = null,
-            string $timezone = null
+            ?string $format = null,
+            ?string $timezone = null
         ) {
             if ($date === null || $date === '') {
                 return '';

@@ -46,7 +46,7 @@ abstract class BaseHtmlController extends Controller {
     /**
      * @see \FWK\Core\Controllers\Controller::setType()
      */
-    protected function setType(array $additionalData = [], string $header = null): void {
+    protected function setType(array $additionalData = [], ?string $header = null): void {
         Response::setType(Response::TYPE_HTML);
     }
 

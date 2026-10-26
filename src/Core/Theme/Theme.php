@@ -109,7 +109,7 @@ class Theme extends SDKTheme {
      *
      * @return void
      */
-    final public static function reloadInstance(Route $route = null): void {
+    final public static function reloadInstance(?Route $route = null): void {
         self::resetInstance();
         $theme = $route->getTheme();
         $auxThemeData = ($theme !== null) ? $theme->toArray() : [];

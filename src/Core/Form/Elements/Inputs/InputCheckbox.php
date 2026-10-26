@@ -31,7 +31,7 @@ class InputCheckbox extends Input {
      * @param string $value To set the checkbox input value.
      * @param FilterInput $filterInput To set an specific FilterInput to the checkbox input. If null, then the constructor sets a default FilterInput.
      */
-    public function __construct(string $value = '', FilterInput $filterInput = null) {
+    public function __construct(string $value = '', ?FilterInput $filterInput = null) {
         $this->value = $value;
         if (is_null($filterInput)) {
             $defaultFilter = new FilterInput([

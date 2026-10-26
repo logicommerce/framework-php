@@ -63,7 +63,7 @@ class Select extends Element {
      * @param FilterInput $filterInput
      *            To set an specific FilterInput. If null, then the constructor sets a default FilterInput.
      */
-    public function __construct(array $options, FilterInput $filterInput = null, string $selected = '') {
+    public function __construct(array $options, ?FilterInput $filterInput = null, string $selected = '') {
         $this->options = $options;
         $this->selected = $selected;
         $optionValues = [];

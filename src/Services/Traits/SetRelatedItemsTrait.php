@@ -34,7 +34,7 @@ trait SetRelatedItemsTrait {
      * 
      * @return void
      */
-    public function setRelatedItems(ElementCollection &$elements, $type = '', RelatedItemsParametersGroup $params = null): void {
+    public function setRelatedItems(ElementCollection &$elements, $type = '', ?RelatedItemsParametersGroup $params = null): void {
         $batchRequest = new BatchRequests();
         $withRelatedClass = '';
         foreach ($elements as $key => $element) {

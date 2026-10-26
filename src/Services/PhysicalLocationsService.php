@@ -103,7 +103,7 @@ class PhysicalLocationsService extends PhysicalLocationsServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllPhysicalLocations(PhysicalLocationParametersGroup $physicalLocationParametersGroup = null): ?ElementCollection {
+    public function getAllPhysicalLocations(?PhysicalLocationParametersGroup $physicalLocationParametersGroup = null): ?ElementCollection {
         if(is_null($physicalLocationParametersGroup)){
             $physicalLocationParametersGroup = new PhysicalLocationParametersGroup();
         }

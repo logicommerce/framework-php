@@ -138,7 +138,7 @@ class BrandService extends BrandServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllBrands(BrandParametersGroup $params = null): ?ElementCollection {
+    public function getAllBrands(?BrandParametersGroup $params = null): ?ElementCollection {
         if (is_null($params)) {
             $params = new BrandParametersGroup();
         }

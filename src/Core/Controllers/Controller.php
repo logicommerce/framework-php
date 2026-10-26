@@ -428,7 +428,7 @@ abstract class Controller {
      *            
      * @return void
      */
-    public function run(array $additionalData = [], string $header = null): void {
+    public function run(array $additionalData = [], ?string $header = null): void {
         Utils::addTimerDebugFlag('Controller-run', Timer::START_SUFFIX);
         $this->fillData($additionalData);
         $this->addResponseHeaders();
@@ -755,7 +755,7 @@ abstract class Controller {
      *            
      * @return string containing the renderization of the page.
      */
-    protected function render(string $content = null, string $layout = null, string $format = 'html'): string {
+    protected function render(?string $content = null, ?string $layout = null, string $format = 'html'): string {
         $this->setTwig();
         return $this->twig->render($content, $layout, $format);
     }
@@ -770,7 +770,7 @@ abstract class Controller {
      *            
      * @return void
      */
-    final protected function response(string $output, string $header = null): void {
+    final protected function response(string $output, ?string $header = null): void {
         $cacheable = $this->isCacheable();
         Utils::addTimerDebugFlag('response', Timer::START_SUFFIX);
         if (self::getTheme()->getName() !== INTERNAL_THEME) {

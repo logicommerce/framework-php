@@ -90,7 +90,7 @@ class ProductService extends ProductServiceSDK {
      * 
      * @return Product|NULL
      */
-    public function getProductById(int $id, ProductParametersGroup $params = null): ?Product {
+    public function getProductById(int $id, ?ProductParametersGroup $params = null): ?Product {
         return $this->getProduct($id, $params);
     }
 
@@ -102,7 +102,7 @@ class ProductService extends ProductServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getProducts(ProductsParametersGroup $params = null): ?ElementCollection {
+    public function getProducts(?ProductsParametersGroup $params = null): ?ElementCollection {
         return parent::getProducts($this->getProductsParameters($params));
     }
 
@@ -194,7 +194,7 @@ class ProductService extends ProductServiceSDK {
      * @param int $id
      * @param ProductParametersGroup $params
      */
-    public function addGetProductById(BatchRequests $batchRequests, string $batchName, int $id, ProductParametersGroup $params = null): void {
+    public function addGetProductById(BatchRequests $batchRequests, string $batchName, int $id, ?ProductParametersGroup $params = null): void {
         $this->addGetProduct($batchRequests, $batchName, $id, $params);
     }
 
@@ -209,7 +209,7 @@ class ProductService extends ProductServiceSDK {
      *
      * @return void
      */
-    public function addGetProducts(BatchRequests $batchRequests, string $batchName, ProductsParametersGroup $params = null): void {
+    public function addGetProducts(BatchRequests $batchRequests, string $batchName, ?ProductsParametersGroup $params = null): void {
         parent::addGetProducts($batchRequests, $batchName, $this->getProductsParameters($params));
     }
 
@@ -295,7 +295,7 @@ class ProductService extends ProductServiceSDK {
         $this->addGetProducts($batchRequests, $batchName, $this->getParametersBySearchCriteria($searchCriteria));
     }
 
-    private function getProductsParameters(ProductsParametersGroup $productParametersGroup = null): ProductsParametersGroup {
+    private function getProductsParameters(?ProductsParametersGroup $productParametersGroup = null): ProductsParametersGroup {
         if (is_null($productParametersGroup)) {
             $productParametersGroup = new ProductsParametersGroup();
         }
@@ -358,7 +358,7 @@ class ProductService extends ProductServiceSDK {
      *
      * @see SDK\Dtos\Product\Product::addProductComparison()
      */
-    public function addProductComparison(AddComparisonProductParametersGroup $addComparisonProduct = null): ?Status {
+    public function addProductComparison(?AddComparisonProductParametersGroup $addComparisonProduct = null): ?Status {
         $response = parent::addProductComparison($addComparisonProduct);
         if (is_null($response->getError())) {
             Session::getInstance()->setAggregateDataProductComparison($addComparisonProduct->toArray()[Parameters::ID], MethodType::POST);

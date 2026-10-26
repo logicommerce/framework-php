@@ -91,7 +91,7 @@ class TwigFunctionsCore extends TwigFunctions {
      * @return \Twig\TwigFunction
      */
     private static function localizedDateTime(): ?\Twig\TwigFunction {
-        return new \Twig\TwigFunction('localizedDateTime', function ($date = null, int $dateFormatter = null, int $timeFormatter = null, int $calendarFormatter = null, string $format = null) {
+        return new \Twig\TwigFunction('localizedDateTime', function ($date = null, ?int $dateFormatter = null, ?int $timeFormatter = null, ?int $calendarFormatter = null, ?string $format = null) {
             return new \Twig\Markup((new DateTimeFormatter($dateFormatter, $timeFormatter, $calendarFormatter))->getFormattedDateTime($date, $format), CHARSET);
         });
     }
@@ -103,7 +103,7 @@ class TwigFunctionsCore extends TwigFunctions {
      * @return \Twig\TwigFunction
      */
     private static function formatDate(): ?\Twig\TwigFunction {
-        return new \Twig\TwigFunction('formatDate', function ($date = null, string $format = null) {
+        return new \Twig\TwigFunction('formatDate', function ($date = null, ?string $format = null) {
             return new \Twig\Markup((new DateTimeFormatter())->getFormattedDate($date, $format), CHARSET);
         });
     }
@@ -115,7 +115,7 @@ class TwigFunctionsCore extends TwigFunctions {
      * @return \Twig\TwigFunction
      */
     private static function formatDateTime(): ?\Twig\TwigFunction {
-        return new \Twig\TwigFunction('formatDateTime', function ($date = null, string $format = null) {
+        return new \Twig\TwigFunction('formatDateTime', function ($date = null, ?string $format = null) {
             return new \Twig\Markup((new DateTimeFormatter())->getFormattedDateTime($date, $format), CHARSET);
         });
     }

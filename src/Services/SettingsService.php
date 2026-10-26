@@ -46,7 +46,7 @@ class SettingsService extends SettingsServiceSDK {
      *
      * @return BlogSettings
      */
-    public function getBlogSettings(string $languageCode = null): BlogSettings {
+    public function getBlogSettings(?string $languageCode = null): BlogSettings {
         if (is_null($languageCode)) {
             $languageCode = Session::getInstance()->getGeneralSettings()->getLanguage();
         }

@@ -34,7 +34,7 @@ class InputPassword extends Input {
      * @param string $value To set the password input value.
      * @param FilterInput $filterInput To set an specific FilterInput to the password input. If null, then the constructor sets a default FilterInput.
      */
-    public function __construct(string $value = '', FilterInput $filterInput = null) {
+    public function __construct(string $value = '', ?FilterInput $filterInput = null) {
         $this->value = $value;
         if(is_null($filterInput)) {
             $defaultFilter = new FilterInput([

@@ -488,7 +488,6 @@ class HealthCheck {
         $response['timeTake_ms'] = round(microtime(true) * 1000);
         $response['response'] = curl_exec($ch);
         $response['timeTake_ms'] = round(microtime(true) * 1000) - $response['timeTake_ms'];
-        curl_close($ch);
         return $response;
     }
 

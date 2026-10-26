@@ -35,6 +35,10 @@ function errorCapturerFWK(): void {
         return;
     }
 
+    if ($last_error['type'] === E_DEPRECATED || $last_error['type'] === E_USER_DEPRECATED) {
+        return;
+    }
+
     if (isset($last_error->e)) {
         $message = $last_error->e->getMessage();
     } else {
@@ -60,7 +64,7 @@ function errorCapturerFWK(): void {
     }
 }
 
-function callMethod(callable $method, callable $finally = null, string $message = '', array $args = [], bool $staticRedirect = false): bool {
+function callMethod(callable $method, ?callable $finally = null, string $message = '', array $args = [], bool $staticRedirect = false): bool {
     $onerror = false;
     try {
         $method($args);

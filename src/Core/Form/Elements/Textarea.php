@@ -77,7 +77,7 @@ class Textarea extends Element {
      * @param string $value To set the value of the textarea.
      * @param FilterInput $filterInput To set an specific FilterInput. If null, then the constructor sets a default FilterInput.
      */
-    public function __construct(string $value = '', FilterInput $filterInput = null) {
+    public function __construct(string $value = '', ?FilterInput $filterInput = null) {
         $this->setValue($value);
         $this->setContentText($value);
         if (is_null($filterInput)) {

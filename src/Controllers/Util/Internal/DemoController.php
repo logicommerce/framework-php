@@ -223,7 +223,7 @@ class DemoController extends BaseHtmlController {
      *
      * @see \FWK\Core\Controllers\Controller::render()
      */
-    protected function render(String $content = null, String $layout = null, String $format = 'html'): string {
+    protected function render(?String $content = null, ?String $layout = null, String $format = 'html'): string {
         $layout = 'layouts/demo.html.twig';
         $content = 'Content/Demo/' . $this->content . '.html.twig';
         return parent::render($content, $layout, '');

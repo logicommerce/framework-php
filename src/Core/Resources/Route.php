@@ -46,7 +46,7 @@ class Route extends SDKRoute {
      *            
      * @see SDKRoute::__construct()
      */
-    public function __construct(array $data = [], Page $page = null) {
+    public function __construct(array $data = [], ?Page $page = null) {
         parent::__construct($data);
         if (isset($data[RouteItems::ENUM_CLASS])) {
             $class = Loader::EnumInternalRouteType($data[RouteItems::ENUM_CLASS]);

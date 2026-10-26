@@ -34,7 +34,7 @@ class InputRadio extends Input {
      * @param FilterInput $filterInput To set an specific FilterInput to the radio input. If null, then the constructor sets a default FilterInput.
      * @param string $checked To set the checked value of the radio input.
      */
-    public function __construct(array $values, FilterInput $filterInput = null, string $checked = '') {
+    public function __construct(array $values, ?FilterInput $filterInput = null, string $checked = '') {
         $this->values = $values;
         $this->checked = $checked;
         if (is_null($filterInput)) {

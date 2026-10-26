@@ -77,7 +77,7 @@ abstract class Button extends Element {
      * @param string $value
      * @param FilterInput $filterInput
      */
-    public function __construct(string $value = '', FilterInput $filterInput = null) {
+    public function __construct(string $value = '', ?FilterInput $filterInput = null) {
         $this->setValue($value);
         $this->setFilterInput($filterInput);
     }

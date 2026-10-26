@@ -36,7 +36,7 @@ class OrderService extends OrderServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllReturnPoints(int $id, PaginableParametersGroup $params = null): ?ElementCollection {
+    public function getAllReturnPoints(int $id, ?PaginableParametersGroup $params = null): ?ElementCollection {
         if (is_null($params)) {
             $params = new PaginableParametersGroup();
         }

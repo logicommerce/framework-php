@@ -77,7 +77,7 @@ class HealthCheckController extends BaseHtmlController {
      * 
      * @see \FWK\Core\Controllers\Controller::render()
      */
-    protected function render(String $content = null, String $layout = null, String $format = 'html'): string {
+    protected function render(?String $content = null, ?String $layout = null, String $format = 'html'): string {
         $layout = 'layouts/default.html.twig';
         $content = 'Content/Util/HealthCheck/default.html.twig';
         return parent::render($content, $layout, '');

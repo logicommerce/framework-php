@@ -56,7 +56,7 @@ class AccountService extends AccountServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllSalesAgentCustomers(SalesAgentCustomersParametersGroup $params = null): ?ElementCollection {
+    public function getAllSalesAgentCustomers(?SalesAgentCustomersParametersGroup $params = null): ?ElementCollection {
         if (is_null($params)) {
             $params = new SalesAgentCustomersParametersGroup();
         }

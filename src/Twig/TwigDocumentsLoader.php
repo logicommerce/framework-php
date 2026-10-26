@@ -64,7 +64,7 @@ final class TwigDocumentsLoader implements TwigLoaderInterface {
      *            
      * @return string
      */
-    public function render(String $content = null, String $layout = null, String $format = 'html') {
+    public function render(?String $content = null, ?String $layout = null, String $format = 'html') {
         foreach ($this->data as $key => $value) {
             $this->twig->addGlobal($key, $value);
         }

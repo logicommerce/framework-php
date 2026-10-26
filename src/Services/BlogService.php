@@ -160,7 +160,7 @@ class BlogService extends BlogServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllTags(BlogTagParametersGroup $params = null): ?ElementCollection {
+    public function getAllTags(?BlogTagParametersGroup $params = null): ?ElementCollection {
         if (is_null($params)) {
             $params = new BlogTagParametersGroup();
         }

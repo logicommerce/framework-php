@@ -210,7 +210,7 @@ final class TwigLoader implements TwigLoaderInterface {
      *
      * @return string Rendered output.
      */
-    public function render(String $content = null, String $layout = null, String $format = 'html') {
+    public function render(?String $content = null, ?String $layout = null, String $format = 'html') {
         Utils::addTimerDebugFlag('TwigLoader-render', Timer::START_SUFFIX);
         $localVersion = (strlen($this->themeVersion) ? $this->themeVersion : '');
         $localVersion = $localVersion . (strlen($localVersion) ? '/' : '');

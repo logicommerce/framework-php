@@ -131,7 +131,7 @@ class PreviewDocumentTemplateController extends BaseHtmlController {
      *
      * @see \FWK\Core\Controllers\Controller::render()
      */
-    protected function render(String $content = null, String $layout = null, String $format = 'html'): string {
+    protected function render(?String $content = null, ?String $layout = null, String $format = 'html'): string {
         $content = $this->getRequestParam(Parameters::TEMPLATE, true);
         $document = null;
         $orderService = Loader::service(Services::ORDER);

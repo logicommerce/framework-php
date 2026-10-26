@@ -714,7 +714,7 @@ abstract class FormFactory {
         ?Account $account = null,
         ?AccountAddress $address = null,
         string $namePrefix = '',
-        RegisteredUser|RegisteredUserSimpleProfile $registeredUser = null,
+        RegisteredUser|RegisteredUserSimpleProfile|null $registeredUser = null,
         ?MasterVal $masterVal = null,
         ?CustomCompanyRole $customCompanyRole = null,
         array $companyRoles = [],
@@ -1843,7 +1843,7 @@ abstract class FormFactory {
      * @return Form
      * @deprecated
      */
-    public static function getSalesAgentCustomers(string $q = '', \DateTime $fromDate = null, \DateTime $toDate = null, $includeSubordinates = false): Form {
+    public static function getSalesAgentCustomers(string $q = '', ?\DateTime $fromDate = null, ?\DateTime $toDate = null, $includeSubordinates = false): Form {
         $languageSheet = self::getLanguage();
         $formHead = (new FormHead(RoutePaths::getPath(InternalUser::SALES_AGENT_CUSTOMERS), 'salesAgentCustomersForm'))->setId('salesAgentCustomersForm')->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
         $formItems[] = new FormItem(Parameters::Q, ((new InputText($q))->setId('searchClient')->setRequired(false)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::SALES_AGENT_CUSTOMERS_SEARCH_CLIENTS))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
@@ -1872,7 +1872,7 @@ abstract class FormFactory {
      *
      * @return Form
      */
-    public static function getAccountSalesAgentCustomers(string $q = '', \DateTime $fromDate = null, \DateTime $toDate = null, $includeSubordinates = false): Form {
+    public static function getAccountSalesAgentCustomers(string $q = '', ?\DateTime $fromDate = null, ?\DateTime $toDate = null, $includeSubordinates = false): Form {
         $languageSheet = self::getLanguage();
         $formHead = (new FormHead(RoutePaths::getPath(RouteType::REGISTERED_USER_SALES_AGENT_CUSTOMERS), 'salesAgentCustomersForm'))->setId('salesAgentCustomersForm')->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
         $formItems[] = new FormItem(Parameters::Q, ((new InputText($q))->setId('searchClient')->setRequired(false)->setLabelFor($languageSheet->getLabelValue(LanguageLabels::ADVCA_SALES_AGENT_CUSTOMERS_SEARCH_CLIENTS))->setClass(self::CLASS_WILDCARD)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD)));
@@ -1901,7 +1901,7 @@ abstract class FormFactory {
      * @return Form
      * @deprecated
      */
-    public static function getSalesAgentSales(\DateTime $fromDate = null, \DateTime $toDate = null): Form {
+    public static function getSalesAgentSales(?\DateTime $fromDate = null, ?\DateTime $toDate = null): Form {
         $languageSheet = self::getLanguage();
         $formHead = (new FormHead(RoutePaths::getPath(InternalUser::SALES_AGENT_SALES), 'salesAgentSalesForm'))->setId('salesAgentSalesForm')->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
         $formItems[] = new FormItem(Parameters::FROM_DATE, ((new InputDate((!is_null($fromDate) ? $fromDate->format(Date::DATETIME_FORMAT) : '')))
@@ -1923,7 +1923,7 @@ abstract class FormFactory {
      *
      * @return Form
      */
-    public static function getAccountSalesAgentSales(\DateTime $fromDate = null, \DateTime $toDate = null): Form {
+    public static function getAccountSalesAgentSales(?\DateTime $fromDate = null, ?\DateTime $toDate = null): Form {
         $languageSheet = self::getLanguage();
         $formHead = (new FormHead(RoutePaths::getPath(RouteType::REGISTERED_USER_SALES_AGENT_SALES), 'salesAgentSalesForm'))->setId('salesAgentSalesForm')->setAutocomplete(Input::AUTOCOMPLETE_ON)->setMethod(FormHead::METHOD_POST)->setAttributeWildcard(self::ATTRIBUTE_WILDCARD);
         $formItems[] = new FormItem(Parameters::FROM_DATE, ((new InputDate((!is_null($fromDate) ? $fromDate->format(Date::DATETIME_FORMAT) : '')))
@@ -2258,7 +2258,7 @@ abstract class FormFactory {
      * 
      * @return Form
      */
-    public static function getAccountRegisteredUsers(AccountRegisteredUsersParametersGroup $accountRegisteredUsersParametersGroup = null, array $companyRoles = []): Form {
+    public static function getAccountRegisteredUsers(?AccountRegisteredUsersParametersGroup $accountRegisteredUsersParametersGroup = null, array $companyRoles = []): Form {
         $parameters = [];
         if (!is_null($accountRegisteredUsersParametersGroup)) {
             $parameters = $accountRegisteredUsersParametersGroup->toArray();
@@ -2331,7 +2331,7 @@ abstract class FormFactory {
      * @param CompanyRolesParametersGroup|null $companyRolesParametersGroup
      * @return Form
      */
-    public static function getCompanyRolesFilters(CompanyRolesParametersGroup $companyRolesParametersGroup = null): Form {
+    public static function getCompanyRolesFilters(?CompanyRolesParametersGroup $companyRolesParametersGroup = null): Form {
         $parameters = [];
         if (!is_null($companyRolesParametersGroup)) {
             $parameters = $companyRolesParametersGroup->toArray();
@@ -2406,7 +2406,7 @@ abstract class FormFactory {
      * 
      * @return Form
      */
-    public static function getAccountRegisteredUserMove(string $accountId = AccountKey::USED, int $registeredUserId = 0, BaseCompanyStructureTreeNode $companyStructure = null): Form {
+    public static function getAccountRegisteredUserMove(string $accountId = AccountKey::USED, int $registeredUserId = 0, ?BaseCompanyStructureTreeNode $companyStructure = null): Form {
         $languageSheet = self::getLanguage();
         $idForm = 'registeredUserMoveForm';
 
@@ -2681,7 +2681,7 @@ abstract class FormFactory {
      * @param CustomCompanyRole|null $customCompanyRole
      * @return Form
      */
-    public static function getSaveCompanyRoleForm(CustomCompanyRole $customCompanyRole = null): Form {
+    public static function getSaveCompanyRoleForm(?CustomCompanyRole $customCompanyRole = null): Form {
         $isEdit = $customCompanyRole !== null;
         $parameters = $isEdit ? $customCompanyRole->toArray() : [];
         $perms = $parameters[Parameters::ROLE_PERMISSIONS] ?? [];
@@ -2904,7 +2904,7 @@ abstract class FormFactory {
      * @param string $rolesFilter
      * @return Form
      */
-    public static function getAccountEditForm(Account $account = null, array $companyRoles = [], ?CompanyRolePermissionsValues $permissions = null, ?ElementCollection $accountCustomTags = null, string $rolesFilter = CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER): Form {
+    public static function getAccountEditForm(?Account $account = null, array $companyRoles = [], ?CompanyRolePermissionsValues $permissions = null, ?ElementCollection $accountCustomTags = null, string $rolesFilter = CustomCompanyRoleTarget::COMPANY_DIVISION_MASTER): Form {
         $formHead = (new FormHead(
             RoutePaths::getPath(InternalAccount::UPDATE_ACCOUNT),
             'editAccountForm'

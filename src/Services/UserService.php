@@ -61,7 +61,7 @@ class UserService extends UserServiceSDK {
      *
      * @see SDK\Services\UserService::login()
      */
-    public function login(LoginParametersGroup $data = null): ?Basket {
+    public function login(?LoginParametersGroup $data = null): ?Basket {
         $response = parent::login($data);
         if (is_null($response->getError()) || $response->getError()->getCode() === 'A01000-USER_IS_LOGGED_IN') {
             Session::getInstance()->loginReset(is_null($response->getError()) ? $response : null);
@@ -104,7 +104,7 @@ class UserService extends UserServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllSalesAgentCustomers(SalesAgentCustomersParametersGroup $params = null): ?ElementCollection {
+    public function getAllSalesAgentCustomers(?SalesAgentCustomersParametersGroup $params = null): ?ElementCollection {
         // trigger_error("The function 'getAllSalesAgentCustomers' will be deprecated soon. you must use AccountService 'getAllSalesAgentCustomers'");
         if (is_null($params)) {
             $params = new SalesAgentCustomersParametersGroup();
@@ -117,7 +117,7 @@ class UserService extends UserServiceSDK {
      * @see \SDK\Services\UserService::updateBillingAddress()
      * @deprecated use AccountService::updateAccountsInvoicingAddresses
      */
-    public function updateBillingAddress(int $id, AddressParametersGroup $data = null, string $dataValidatior = ''): ?Address {
+    public function updateBillingAddress(int $id, ?AddressParametersGroup $data = null, string $dataValidatior = ''): ?Address {
         $response =  parent::updateBillingAddress($id, $data, $dataValidatior);
         if (is_null($response->getError())) {
             // refresh sessionBasket
@@ -131,7 +131,7 @@ class UserService extends UserServiceSDK {
      * @see \SDK\Services\UserService::createShippingAddress()
      * @deprecated use AccountService::createAccountShippingAddresses
      */
-    public function createShippingAddress(ShippingAddressParametersGroup $data = null, string $dataValidatior = ''): ?ShippingAddress {
+    public function createShippingAddress(?ShippingAddressParametersGroup $data = null, string $dataValidatior = ''): ?ShippingAddress {
         $response =  parent::createShippingAddress($data, $dataValidatior);
         if (is_null($response->getError())) {
             // refresh sessionBasket
@@ -210,7 +210,7 @@ class UserService extends UserServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllShoppingLists(ShoppingListsParametersGroup $shoppingListsParametersGroup = null): ?ElementCollection {
+    public function getAllShoppingLists(?ShoppingListsParametersGroup $shoppingListsParametersGroup = null): ?ElementCollection {
         if (is_null($shoppingListsParametersGroup)) {
             $shoppingListsParametersGroup = new ShoppingListsParametersGroup();
         }
@@ -225,7 +225,7 @@ class UserService extends UserServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getAllShoppingListRows(ShoppingListRowsParametersGroup $shoppingListRowsParametersGroup = null): ?ElementCollection {
+    public function getAllShoppingListRows(?ShoppingListRowsParametersGroup $shoppingListRowsParametersGroup = null): ?ElementCollection {
         if (is_null($shoppingListRowsParametersGroup)) {
             $shoppingListRowsParametersGroup = new ShoppingListRowsParametersGroup();
         }
@@ -255,7 +255,7 @@ class UserService extends UserServiceSDK {
      *
      * @return ElementCollection|NULL
      */
-    public function getDefaultShoppingListRows(ShoppingListRowsParametersGroup $shoppingListRowsParametersGroup = null): ?ElementCollection {
+    public function getDefaultShoppingListRows(?ShoppingListRowsParametersGroup $shoppingListRowsParametersGroup = null): ?ElementCollection {
         if (is_null($shoppingListRowsParametersGroup)) {
             $shoppingListRowsParametersGroup = new ShoppingListRowsParametersGroup();
         }
@@ -314,7 +314,7 @@ class UserService extends UserServiceSDK {
      *
      * @see SDK\Dtos\User\User::addGetWishlist()
      */
-    public function addGetDefaultShoppingListRows(BatchRequests $batchRequests, string $batchName, ShoppingListRowsParametersGroup $params = null): void {
+    public function addGetDefaultShoppingListRows(BatchRequests $batchRequests, string $batchName, ?ShoppingListRowsParametersGroup $params = null): void {
         $this->addGetShoppingListRows($batchRequests, $batchName, Session::getInstance()->getShoppingList()->getDefaultOneId(), $params);
     }
 

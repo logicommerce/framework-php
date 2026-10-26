@@ -41,7 +41,7 @@ class ProductGridJsonData {
      * @param bool $appliedTaxes
      * @param bool $showAsGrid
      */
-    public function __construct(Product $product = null, $appliedTaxes = false, $showAsGrid = false) {
+    public function __construct(?Product $product = null, $appliedTaxes = false, $showAsGrid = false) {
         $this->product = $product;
         $this->appliedTaxes = $appliedTaxes;
         $this->showAsGrid = $showAsGrid;

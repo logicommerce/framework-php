@@ -102,7 +102,7 @@ abstract class BasePdfController extends Controller {
     /**
      * @see \FWK\Core\Controllers\Controller::setType()
      */
-    protected function setType(array $additionalData = [], string $header = null): void {
+    protected function setType(array $additionalData = [], ?string $header = null): void {
         Response::setType(Response::TYPE_PDF);
     }
 
@@ -138,7 +138,7 @@ abstract class BasePdfController extends Controller {
      *              
      * @see \FWK\Core\Controllers\Controller::render()
      */
-    protected function render(String $content = null, String $layout = null, String $format = 'html'): string {
+    protected function render(?String $content = null, ?String $layout = null, String $format = 'html'): string {
         return parent::render('Content/' . ucfirst(TwigContentTypes::PDF) . '/default.' . TwigContentTypes::PDF . '.twig', null, TwigContentTypes::PDF);
     }
 

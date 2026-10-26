@@ -29,7 +29,7 @@ class FormItem {
      * @param Element $formElement
      * @param FilterInput $filterInput
      */
-    public function __construct(string $name, Element $formElement, FilterInput $filterInput = null) {
+    public function __construct(string $name, Element $formElement, ?FilterInput $filterInput = null) {
         $this->name = $name;
         $this->formElement = $formElement;
         if (is_null($filterInput)) {

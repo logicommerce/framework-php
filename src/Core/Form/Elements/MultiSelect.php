@@ -37,7 +37,7 @@ class MultiSelect extends Element {
 
     public const TYPE = 'multiselect';
 
-    public function __construct(array $options, FilterInput $filterInput = null, array $selected = []) {
+    public function __construct(array $options, ?FilterInput $filterInput = null, array $selected = []) {
         $this->options = $options;
         $this->selected = $selected;
 
