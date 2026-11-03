@@ -24,6 +24,7 @@ use SDK\Core\Resources\VarnishManagement;
 use FWK\Core\Resources\SeoItems;
 use FWK\Core\Resources\RoutePaths;
 use FWK\Core\Resources\DateTimeFormatter;
+use FWK\Core\Resources\BatchLocalResults;
 use FWK\Enums\Parameters;
 use FWK\Enums\RouteType;
 use FWK\Twig\TwigLoaderInterface;
@@ -666,7 +667,7 @@ abstract class Controller {
                 $this->checkCriticalServiceLoaded($batchResult[self::CONTROLLER_ITEM]);
             }
         }
-        return $batchResult;
+        return $batchResult + BatchLocalResults::pull($this->apiBatchRequest);
     }
 
     /**

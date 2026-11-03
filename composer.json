@@ -1,7 +1,7 @@
 {
 	"name" : "logicommerce/fwk",
 	"require" : {
-		"twig/twig" : "3.5.0"
+		"twig/twig" : "3.30.0"
 	},
 	"config": {
 		"audit": {

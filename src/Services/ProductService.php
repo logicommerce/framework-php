@@ -19,6 +19,10 @@ use SDK\Core\Enums\MethodType;
 use SDK\Services\Parameters\Groups\Product\AddComparisonProductParametersGroup;
 use SDK\Services\Parameters\Groups\Product\ProductParametersGroup;
 use SDK\Services\Parameters\Groups\Product\ProductsParametersGroup;
+use SDK\Services\Parameters\Groups\BundleDefinitionsParametersGroup;
+use SDK\Dtos\Catalog\BundleDefinition;
+use SDK\Enums\LicenseType;
+use FWK\Core\Resources\BatchLocalResults;
 
 /**
  * This is the ProductService class.
@@ -196,6 +200,14 @@ class ProductService extends ProductServiceSDK {
      */
     public function addGetProductById(BatchRequests $batchRequests, string $batchName, int $id, ?ProductParametersGroup $params = null): void {
         $this->addGetProduct($batchRequests, $batchName, $id, $params);
+    }
+
+    public function addGetBundleDefinitions(BatchRequests $batchRequests, string $batchName, int $id, ?BundleDefinitionsParametersGroup $params = null): void {
+        if (LmsService::hasLicense(LicenseType::PRPCK)) {
+            parent::addGetBundleDefinitions($batchRequests, $batchName, $id, $params);
+        } else {
+            BatchLocalResults::add($batchRequests, $batchName, $this->buildElementCollection([self::ITEMS => []], BundleDefinition::class));
+        }
     }
 
     /**

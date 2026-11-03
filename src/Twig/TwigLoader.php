@@ -136,7 +136,7 @@ final class TwigLoader implements TwigLoaderInterface {
         $twigOptions['autoescape'] = ($autoescape > 0) ? $this->getAutoescape($autoescape) : false;
         $this->twig = $this->initEnvironment($loader, $twigOptions);
         if ($loadCore) {
-            $this->loadCore($twigOptions);
+            $this->loadCore($loader);
         }
     }
 
@@ -149,35 +149,34 @@ final class TwigLoader implements TwigLoaderInterface {
         return $twig;
     }
 
-    private function loadCore(array $twigOptions) {
-        $coreTwigLoader = new FilesystemLoader($this->corePath);
-        $this->coreTwig = $this->initEnvironment($coreTwigLoader, $twigOptions);
+    private function loadCore(FilesystemLoader $loader) {
+        foreach ($this->corePath as $path) {
+            $loader->addPath($path);
+        }
+        $this->coreTwig = $this->twig;
         Loader::twigFunctions(TwigContentTypes::CORE)->addFunctions($this->twig);
-        Loader::twigFunctions(TwigContentTypes::CORE)->addFunctions($this->coreTwig);
         Loader::twigExtensions(TwigContentTypes::CORE)->addExtensions($this->twig);
-        Loader::twigExtensions(TwigContentTypes::CORE)->addExtensions($this->coreTwig);
 
         foreach (Controller::getGlobalDataKeys() as $globalDataKey) {
             isset($this->data[$globalDataKey]) ? $this->coreTwig->addGlobal($globalDataKey, $this->data[$globalDataKey]) : null;
         }
 
         $coreMacros = [
-            ControllerData::MACROS_CORE_ACCOUNT => $this->coreTwig->load('macros/account.twig'),
-            ControllerData::MACROS_CORE_BASKET => $this->coreTwig->load('macros/basket.twig'),
-            ControllerData::MACROS_CORE_BLOG => $this->coreTwig->load('macros/blog.twig'),
-            ControllerData::MACROS_CORE_CATEGORY => $this->coreTwig->load('macros/category.twig'),
-            ControllerData::MACROS_CORE_FORM => $this->coreTwig->load('macros/form.twig'),
-            ControllerData::MACROS_CORE_DOCUMENT => $this->coreTwig->load('macros/document.twig'),
-            ControllerData::MACROS_CORE_PAGE => $this->coreTwig->load('macros/page.twig'),
-            ControllerData::MACROS_CORE_PRODUCT => $this->coreTwig->load('macros/product.twig'),
-            ControllerData::MACROS_CORE_THIRD_PARTY => $this->coreTwig->load('macros/thirdParty.twig'),
-            ControllerData::MACROS_CORE_USER => $this->coreTwig->load('macros/user.twig'),
-            ControllerData::MACROS_CORE_UTIL => $this->coreTwig->load('macros/util.twig')
+            ControllerData::MACROS_CORE_ACCOUNT => 'macros/account.twig',
+            ControllerData::MACROS_CORE_BASKET => 'macros/basket.twig',
+            ControllerData::MACROS_CORE_BLOG => 'macros/blog.twig',
+            ControllerData::MACROS_CORE_CATEGORY => 'macros/category.twig',
+            ControllerData::MACROS_CORE_FORM => 'macros/form.twig',
+            ControllerData::MACROS_CORE_DOCUMENT => 'macros/document.twig',
+            ControllerData::MACROS_CORE_PAGE => 'macros/page.twig',
+            ControllerData::MACROS_CORE_PRODUCT => 'macros/product.twig',
+            ControllerData::MACROS_CORE_THIRD_PARTY => 'macros/thirdParty.twig',
+            ControllerData::MACROS_CORE_USER => 'macros/user.twig',
+            ControllerData::MACROS_CORE_UTIL => 'macros/util.twig'
         ];
 
-        try {
-            $coreMacros[ControllerData::MACROS_CORE_WIDGET] = $this->coreTwig->load('macros/widget.twig');
-        } catch (\Twig\Error\LoaderError $e) {
+        if ($loader->exists('macros/widget.twig')) {
+            $coreMacros[ControllerData::MACROS_CORE_WIDGET] = 'macros/widget.twig';
         }
 
         $this->twig->addGlobal(ControllerData::MACROS_CORE, $coreMacros);
