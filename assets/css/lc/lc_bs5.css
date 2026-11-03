@@ -1348,3 +1348,12 @@ div.expired[data-lc-basket-expires]>div.expired {
   left: 0px;
   display: none;
 }
+/* Disabled visual for MultiSelect / SingleSelect widgets — mirrors Bootstrap's native
+ * .form-control:disabled grey background so disabled dropdowns look like disabled text
+ * inputs next to them. Scoped to the dropdown wrapper; `:has(input:disabled)` reads the
+ * actual control state already present in the DOM, no PHP class needed. */
+.multiselect-dropdown:has(input:disabled),
+.singleselect-dropdown:has(input:disabled) {
+    background-color: #e9ecef;
+    pointer-events: none;
+}

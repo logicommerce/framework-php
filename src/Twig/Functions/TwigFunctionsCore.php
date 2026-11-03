@@ -209,7 +209,8 @@ class TwigFunctionsCore extends TwigFunctions {
             $session = Session::getInstance();
             $value ??= 0;
             $output = '';
-            $value = round($value, $decimalsMaxLength); // round to decimals lenght to avoid errors with numfmt_set_pattern($fmtAttr, '#0.' . str_repeat('0', $decimalsMaxLength));
+            // Pre-round to 9 decimals so float error (e.g. 0.70 * 0.95 = 0.66499...) rounds as on PHP < 8.4
+            $value = round(round($value, 9), $decimalsMaxLength);
             $currencyCode = $session->getGeneralSettings()->getCurrency();
 
             $fmt = numfmt_create($session->getGeneralSettings()->getLocale() . "@currency=" . $session->getGeneralSettings()->getCurrency(), \NumberFormatter::CURRENCY);

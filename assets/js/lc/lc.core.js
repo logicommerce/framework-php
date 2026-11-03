@@ -1854,6 +1854,65 @@ $.extend(true, LC.ProductComparisonDetailClass.prototype, {
 LC.productComparisonDetail = new LC.ProductComparisonDetailClass();
 
 /**
+ * Delegated bindings for MultiSelect / SingleSelect dropdowns (MULTIPLE_SELECTION,
+ * MULTIPLE_SELECTION_IMAGE, SINGLE_SELECTION_IMAGE custom tags). One function covers both
+ * kinds — the trigger/panel/outside-click behaviour is identical, only the pick handler
+ * differs. Hooks on document so every form (userForm, customerForm, OSC, …) gets the
+ * behaviour without each Form class binding it individually.
+ * @memberOf LC
+ */
+LC.initializeSelectDropdowns = function () {
+    const $doc = $(document);
+    const DROPDOWN = '[data-lc-function="multiSelectDropdown"], [data-lc-function="singleSelectDropdown"]';
+    const PANEL = '.multiselect-dropdown-list-wrapper, .singleselect-dropdown-list-wrapper';
+
+    $doc.off('click.lcDropdownToggle').on('click.lcDropdownToggle', DROPDOWN, function (e) {
+        e.stopPropagation();
+        const $panel = $(this).find(PANEL);
+        $(PANEL).not($panel).slideUp(150);
+        $panel.stop(true, true).slideToggle(150);
+    });
+
+    $doc.off('click.lcDropdownInner').on('click.lcDropdownInner', PANEL, function (e) { e.stopPropagation(); });
+
+    $doc.off('click.lcDropdownOutside').on('click.lcDropdownOutside', function (e) {
+        if (!$(e.target).closest(DROPDOWN).length) $(PANEL).slideUp(150);
+    });
+
+    // Capture phase so OSC's form-level change handler sees the fresh hidden-input value
+    // when it serializes. One listener dispatches by widget kind.
+    if (document.__lcSelectCaptureBound) return;
+    document.__lcSelectCaptureBound = true;
+    document.addEventListener('change', function (e) {
+        const t = e.target;
+        if (!t || !t.matches) return;
+        if (t.matches('.multiselect-dropdown-list input[type="checkbox"]')) LC._syncMultiselectPick(t);
+        else if (t.matches('.singleselect-dropdown-list input[type="radio"]')) LC._syncSingleselectPick(t);
+    }, true);
+};
+
+/** @private */
+LC._syncMultiselectPick = function (target) {
+    const $dropdown = $(target).closest('.multiselect-dropdown');
+    const $selected = $dropdown.find('.multiselect-dropdown-list input[type="checkbox"]:checked');
+    const $carrier = $dropdown.siblings('input.visually-hidden[type="text"]').first();
+    // Trigger `blur` after setting the value — jquery-form-validator re-runs the required rule on
+    // blur (not change) and the visually-hidden carrier never gets a natural blur from user input.
+    $carrier.val($selected.map(function () { return $(this).val(); }).get().join(',')).trigger('change').trigger('blur');
+    $dropdown.find('.multiselect-label .selected').text('(' + $selected.length + ')');
+};
+
+/** @private — radios share `name`; native single-selection + form submission, no hidden carrier. */
+LC._syncSingleselectPick = function (target) {
+    const $dropdown = $(target).closest('.singleselect-dropdown');
+    const $picked = $(target).closest('.form-check');
+    $dropdown.find('.form-check').removeClass('checked');
+    $picked.addClass('checked');
+    $dropdown.find('.singleselect-label').html($picked.find('.form-check-label').html());
+    $dropdown.find('.singleselect-dropdown-list-wrapper').slideUp(150);
+};
+
+/**
  * Initialize all countdowns
  * @todo lock-countdown and basket-expires
  */

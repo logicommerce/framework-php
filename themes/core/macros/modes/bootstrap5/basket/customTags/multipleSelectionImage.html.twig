@@ -1,0 +1,48 @@
+{#- MULTIPLE_SELECTION_IMAGE basket custom tag — same as multipleSelection, plus a thumbnail
+    per option. Image URL is already resolved by SDK CdnImageTrait at hydration. -#}
+{% macro multipleSelectionImage(customTag, showForm) %}
+    {%- set selectedIds = customTag.value|length ? customTag.value|split(',') : [] -%}
+    {% if showForm == true %}
+        <div id="basketCustomTag{{ customTag.id }}" class="formField basketField">
+            <div class="multiselect-dropdown form-select" data-lc-function="multiSelectDropdown">
+                <div class="multiselect-dropdown-list-wrapper">
+                    <div class="multiselect-dropdown-list">
+                        {#- Sort by creation id — see multipleSelection.html.twig. -#}
+                        {%- for selectableValue in customTag.selectableValues|sort((a, b) => a.id <=> b.id) -%}
+                            {%- set isChecked = (selectableValue.id ~ '') in selectedIds -%}
+                            {%- set checkboxId = 'basketCustomTag' ~ customTag.id ~ '_' ~ selectableValue.id -%}
+                            <div class="form-check form-check-inline {% if isChecked %}checked{% endif %}">
+                                <input class="form-check-input" type="checkbox" id="{{ checkboxId }}" value="{{ selectableValue.id }}" {% if isChecked %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ checkboxId }}">
+                                    {%- if selectableValue.image|length -%}
+                                        <img class="multiselect-option-image" src="{{ selectableValue.image }}" alt="" loading="lazy" onerror="this.style.display='none';">
+                                    {%- endif -%}
+                                    {{ selectableValue.value }}
+                                </label>
+                            </div>
+                        {%- endfor -%}
+                    </div>
+                </div>
+                <span class="multiselect-label">
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECTED_LABEL')] }}
+                    <span class="selected">({{ selectedIds|length }})</span>
+                </span>
+            </div>
+            {#- Carrier after dropdown — see multipleSelection.html.twig. -#}
+            <input type="text" class="visually-hidden" tabindex="-1" autocomplete="off"
+                   name="customTags_{{ customTag.id }}" value="{{ customTag.value }}"
+                   {% if customTag.required %}required data-validation="required"{% endif %}>
+        </div>
+    {% else %}
+        <div class="staticBasketMultipleSelectionImageValue">
+            {%- for selectableValue in customTag.selectableValues|sort((a, b) => a.id <=> b.id) -%}
+                {%- if (selectableValue.id ~ '') in selectedIds -%}
+                    {%- if selectableValue.image|length -%}
+                        <img class="multiselect-option-image" src="{{ selectableValue.image }}" alt="{{ selectableValue.value|escape }}" loading="lazy" onerror="this.style.display='none';">
+                    {%- endif -%}
+                    {{- selectableValue.value -}}{%- if not loop.last -%}, {% endif -%}
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
+    {% endif %}
+{% endmacro %}

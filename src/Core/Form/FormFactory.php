@@ -15,6 +15,7 @@ use FWK\Enums\Parameters;
 use SDK\Dtos\User\User;
 use FWK\Core\Form\Elements\Inputs\InputText;
 use FWK\Core\Form\Elements\Select;
+use FWK\Core\Form\Elements\SingleSelect;
 use SDK\Enums\Gender;
 use FWK\Core\Resources\Language;
 use FWK\Enums\LanguageLabels;
@@ -37,6 +38,7 @@ use FWK\Core\Form\Elements\Inputs\InputFile;
 use SDK\Core\Dtos\ElementCollection;
 use SDK\Core\Enums\CustomTagControlType;
 use FWK\Core\Form\Elements\Inputs\InputImage;
+use FWK\Core\Form\Elements\Inputs\InputUrl;
 use FWK\Core\Form\Elements\Separator;
 use FWK\Core\Form\Elements\TableMultiSelect;
 use FWK\Core\Resources\DateTimeFormatter;
@@ -418,7 +420,11 @@ abstract class FormFactory {
                 $value = $userCustomTag->getDefaultValue();
                 foreach ($user->getCustomTagValues() as $userCustomTagValue) {
                     if ($userCustomTag->getId() === $userCustomTagValue->getCustomTagId()) {
-                        $value = $userCustomTagValue->getValue();
+                        if (count($userCustomTagValue->getValues())) {
+                            $value = implode(',', array_map(fn($v) => (string) $v->getId(), $userCustomTagValue->getValues()));
+                        } else {
+                            $value = $userCustomTagValue->getValue();
+                        }
                         break;
                     }
                 }
@@ -508,6 +514,36 @@ abstract class FormFactory {
                 break;
             case CustomTagControlType::ATTACHMENT:
                 $inputElement = (new InputFile($value));
+                break;
+            case CustomTagControlType::MULTIPLE_SELECTION:
+            case CustomTagControlType::MULTIPLE_SELECTION_IMAGE:
+                // Sort by creation id — alphabetical sorting breaks business-meaningful orders
+                // (e.g. "Morning / Afternoon / Night" shouldn't become alphabetical).
+                $selectableValues = $customTagType->getSelectableValues();
+                usort($selectableValues, fn($a, $b) => $a->getId() <=> $b->getId());
+                $multiOptions = [];
+                $multiImages = [];
+                foreach ($selectableValues as $selectableValue) {
+                    $multiOptions[] = (new Option($selectableValue->getValue()))->setValue($selectableValue->getId())->setData($selectableValue->toArray());
+                    $multiImages[$selectableValue->getId()] = $selectableValue->getImage();
+                }
+                $selected = $value !== '' ? explode(',', $value) : [];
+                $inputElement = new MultiSelect($multiOptions, null, $selected, $multiImages);
+                break;
+            case CustomTagControlType::SINGLE_SELECTION_IMAGE:
+                // Sort by creation id — see note above.
+                $selectableValues = $customTagType->getSelectableValues();
+                usort($selectableValues, fn($a, $b) => $a->getId() <=> $b->getId());
+                $singleImageOptions = [];
+                $singleImages = [];
+                foreach ($selectableValues as $selectableValue) {
+                    $singleImageOptions[] = (new Option($selectableValue->getValue()))->setValue($selectableValue->getId())->setData($selectableValue->toArray());
+                    $singleImages[$selectableValue->getId()] = $selectableValue->getImage();
+                }
+                $inputElement = new SingleSelect($singleImageOptions, null, $value, $singleImages);
+                break;
+            case CustomTagControlType::LINK:
+                $inputElement = new InputUrl($value);
                 break;
             default:
                 return null;
@@ -3019,7 +3055,11 @@ abstract class FormFactory {
 
             foreach ($account?->getCustomTagValues() as $accountCustomTagValue) {
                 if ($accountCustomTag->getId() === $accountCustomTagValue->getCustomTagId()) {
-                    $value = $accountCustomTagValue->getValue();
+                    if (count($accountCustomTagValue->getValues())) {
+                        $value = implode(',', array_map(fn($v) => (string) $v->getId(), $accountCustomTagValue->getValues()));
+                    } else {
+                        $value = $accountCustomTagValue->getValue();
+                    }
                     break;
                 }
             }

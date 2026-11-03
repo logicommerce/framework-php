@@ -224,9 +224,9 @@ class UtilViewHelper extends ViewHelper {
         }
 
         if ($roundDecimals > 0) {
-            $roundedPercentDifference = number_format($percentDifference, $roundDecimals);
+            $roundedPercentDifference = number_format(round($percentDifference, 9), $roundDecimals);
         } else {
-            $roundedPercentDifference = round($percentDifference);
+            $roundedPercentDifference = round(round($percentDifference, 9));
         }
 
         return [

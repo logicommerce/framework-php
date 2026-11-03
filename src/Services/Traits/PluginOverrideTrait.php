@@ -74,6 +74,27 @@ trait PluginOverrideTrait {
     }
 
     /**
+     * Discovers `Plugins\<Module>\Core\Theme\TcModifier` for the active plugins whose properties list the
+     * route in `getTcOverridePages()`, a list of its own (not the layout or controller one); missing
+     * method or class = opt out.
+     */
+    final public function getActiveTcModifiers(string $routeType): array {
+        $result = [];
+        foreach ($this->getOverridePlugins() as $plugin) {
+            $properties = $this->getPluginPropertiesByModule($plugin->getModule());
+            if ($properties === null || !method_exists($properties, 'getTcOverridePages') || !in_array($routeType, $properties->getTcOverridePages(), true)) {
+                continue;
+            }
+            $module = Utils::getCamelFromSnake($plugin->getModule(), '.');
+            $class = 'Plugins\\' . $module . '\\Core\\Theme\\TcModifier';
+            if (class_exists($class) && is_subclass_of($class, \FWK\Core\Theme\PluginTcModifier::class)) {
+                $result[] = new $class();
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Strict variant — filtered by `getControllerOverridePages()` so layout-only
      * plugins don't hijack the controller. Falls back to `getAvailablePages`.
      *

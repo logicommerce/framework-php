@@ -94,7 +94,13 @@ class CustomTags {
             $customTag->setValue('');
             foreach ($customTagValues as $customTagValue) {
                 if ($customTag->getId() === $customTagValue->getCustomTagId()) {
-                    $customTag->setValue($customTagValue->getValue());
+                    // Multi-selection types keep their picks in getValues(); flatten to a comma-separated
+                    // ID list so the dropdown templates can pre-check the right boxes on edit.
+                    if (count($customTagValue->getValues())) {
+                        $customTag->setValue(implode(',', array_map(fn($v) => (string) $v->getId(), $customTagValue->getValues())));
+                    } else {
+                        $customTag->setValue($customTagValue->getValue());
+                    }
                     break;
                 }
             }

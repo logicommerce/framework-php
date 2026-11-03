@@ -227,7 +227,7 @@ class TwigFunctionsHtml extends TwigFunctions {
     private static function rewriteHtml(): \Twig\TwigFilter {
         return new \Twig\TwigFilter('rewriteHtml', function (string $string = ''): string {
             $dom = new \DOMDocument();
-            $dom->loadHTML(utf8_decode($string), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $dom->loadHTML(mb_convert_encoding($string, 'ISO-8859-1', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             $result = $dom->saveHTML();
             if ($result === false) {
                 return '';

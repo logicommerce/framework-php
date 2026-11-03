@@ -41,6 +41,8 @@ class LcCommerceSession implements \JsonSerializable {
 
     private ?Basket $basket = null;
 
+    private string $basketToken = '';
+
     /**
      * Constructor method for LcCommerceSession
      *
@@ -78,6 +80,7 @@ class LcCommerceSession implements \JsonSerializable {
             $this->postalCode = '';
         }
         $this->basket = new Basket($session->getBasket());
+        $this->basketToken = $session->getBasketToken();
     }
 
     private function getObjectProperties(array $data = []): array {

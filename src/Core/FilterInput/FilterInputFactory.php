@@ -1094,6 +1094,7 @@ abstract class FilterInputFactory {
         return [
             Parameters::JOB => new FilterInput([
                 FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false,
+                FilterInput::CONFIGURATION_ALLOW_EMPTY => true,
             ]),
         ];
     }
@@ -1367,7 +1368,8 @@ abstract class FilterInputFactory {
     public static function getCustomTagsParameter(): array {
         return [
             Parameters::CUSTOM_TAGS => new FilterInput([
-                FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false
+                FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false,
+                FilterInput::CONFIGURATION_ALLOW_EMPTY => true
             ])
         ];
     }

@@ -63,6 +63,8 @@ LC.initQueue.enqueue(function () {
 
     LC.initializeForms();
 
+    LC.initializeSelectDropdowns();
+
     LC.initializeRangeSliders();
 
     // Initialize Quantity Fields

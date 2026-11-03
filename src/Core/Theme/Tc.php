@@ -97,6 +97,8 @@ use FWK\Core\Theme\Dtos\ShoppingListViewOptionSortItems;
 use FWK\Enums\ApplicableFilterPriceRangeMode;
 use FWK\Enums\RouteType;
 use FWK\Enums\RouteTypes\InternalUser;
+use FWK\Core\Resources\Loader;
+use FWK\Enums\Services;
 use SDK\Enums\CompanyRolesSort;
 use SDK\Enums\DiscountSort;
 use SDK\Enums\GeneralRestriction;
@@ -124,6 +126,8 @@ abstract class Tc implements TcInterface {
 
     protected static ?Configuration $configuration = null;
 
+    private static bool $applyingPluginModifiers = false;
+
     /**
      * This method returns the 'theme configuration' data, encapsulated in a Configuration object.
      *
@@ -133,9 +137,35 @@ abstract class Tc implements TcInterface {
      */
     public function getConfiguration(): Configuration {
         if (is_null(self::$configuration)) {
-            self::$configuration = new Configuration($this->getConfigurationData());
+            self::$configuration = new Configuration(self::withPluginModifiers($this->getConfigurationData()));
         }
         return self::$configuration;
+    }
+
+    /**
+     * This method returns the given configuration data once adjusted by the plugins that list the current
+     * route in their properties' getTcOverridePages() (see PluginTcModifier). Before the route is resolved the Theme route type is still
+     * NOT_FOUND and the data is returned untouched, as it is while a modifier runs: a modifier (or the
+     * override gate) that reads the configuration gets the commerce's own data instead of recursing.
+     *
+     * @param array $configurationData
+     *
+     * @return array
+     */
+    public static function withPluginModifiers(array $configurationData): array {
+        $routeType = Theme::getInstance()->getRouteType();
+        if ($routeType === RouteType::NOT_FOUND || self::$applyingPluginModifiers) {
+            return $configurationData;
+        }
+        self::$applyingPluginModifiers = true;
+        try {
+            foreach (Loader::service(Services::PLUGIN)->getActiveTcModifiers($routeType) as $modifier) {
+                $configurationData = $modifier->modify($configurationData, $routeType);
+            }
+        } finally {
+            self::$applyingPluginModifiers = false;
+        }
+        return $configurationData;
     }
 
     /**

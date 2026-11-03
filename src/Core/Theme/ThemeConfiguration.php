@@ -93,7 +93,7 @@ class ThemeConfiguration {
      */
     public static function getConfigurationData(Theme $theme): array {
         $tc = self::themeConfiguration($theme->getViewKey());
-        return $tc->getConfigurationData();
+        return Tc::withPluginModifiers($tc->getConfigurationData());
     }
 
     /**

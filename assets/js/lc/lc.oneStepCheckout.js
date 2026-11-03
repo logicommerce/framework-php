@@ -1886,7 +1886,6 @@ LC.OneStepCheckout = LC.Form.extend({
 
         //Validate form
         if (!this.el.$form.isValid(document.documentElement.lang || 'en', LC.validateFormConf)) {
-            this.el.$form.find('button[type=submit]').attr('disabled', true);
             return false;
         }
 
@@ -2169,7 +2168,7 @@ LC.OneStepCheckout = LC.Form.extend({
                     return;
                 }
                 const groupClass = '.userFieldGroup' + field.charAt(0).toUpperCase() + field.slice(1);
-                if (section == 'billing') { 
+                if (section == 'billing') {
                     section = 'user';
                 }
                 const $inputs = this.userForm.el.$form.find(

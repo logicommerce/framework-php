@@ -34,12 +34,14 @@ class MultiSelect extends Element {
 
     private array $options = [];
     private array $selected = [];
+    private array $images = [];
 
     public const TYPE = 'multiselect';
 
-    public function __construct(array $options, ?FilterInput $filterInput = null, array $selected = []) {
+    public function __construct(array $options, ?FilterInput $filterInput = null, array $selected = [], array $images = []) {
         $this->options = $options;
         $this->selected = $selected;
+        $this->images = $images;
 
         $optionValues = [];
         foreach ($this->options as $option) {
@@ -48,8 +50,9 @@ class MultiSelect extends Element {
 
         if (is_null($filterInput)) {
             $this->setFilterInput(new FilterInput([
-                FilterInput::CONFIGURATION_FILTER_KEY_AVAILABLE_VALUES => $optionValues,
-                FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false
+                FilterInput::CONFIGURATION_FILTER_KEY_AVAILABLE_VALUES => array_merge([''], $optionValues),
+                FilterInput::CONFIGURATION_FILTER_KEY_ENABLE_MODIFICATION => false,
+                FilterInput::CONFIGURATION_ALLOW_EMPTY => true
             ]));
         } else {
             $this->setFilterInput($filterInput);
@@ -61,26 +64,45 @@ class MultiSelect extends Element {
             $this->setId($name);
         }
 
+        $escapedName = htmlspecialchars($name);
+
         $html = $this->getLabelFor($this->getRequired());
 
         $html .= '<div ' . $this->outputAttributes($name, $richFormList) . '>';
 
-        $html .= '<input type="hidden" id="multiSelectValue" name="multiSelectValue" value="' . implode(',', $this->selected) . '">';
+
+        $disabledAttr = $this->getDisabled() ? ' disabled' : '';
 
         $html .= '<div class="multiselect-dropdown form-select" data-lc-function="multiSelectDropdown">';
         $html .= '<div class="multiselect-dropdown-list-wrapper">';
         $html .= '<div class="multiselect-dropdown-list">';
 
         foreach ($this->options as $option) {
-            $value = htmlspecialchars($option->getValue());
+            $value = htmlspecialchars((string) $option->getValue());
             $isChecked = in_array($option->getValue(), $this->selected) ? 'checked' : '';
             $checkedClass = $isChecked ? 'checked form-check form-check-inline' : 'form-check form-check-inline';
-            $html .= "<div class=\"{$checkedClass}\"><input class=\"form-check-input\" type=\"checkbox\" value=\"{$value}\" {$isChecked}><label class=\"form-check-label\">{$option->getText()}</label></div>";
+            $image = $this->images[$option->getValue()] ?? '';
+            $imageHtml = strlen($image) ? '<img class="multiselect-option-image" src="' . htmlspecialchars($image) . '" alt="" loading="lazy" onerror="this.style.display=\'none\';">' : '';
+            $checkboxId = $this->getId() . '_' . $value;
+            $html .= '<div class="' . $checkedClass . '">'
+                . '<input class="form-check-input" type="checkbox" id="' . htmlspecialchars($checkboxId) . '" value="' . $value . '" ' . $isChecked . $disabledAttr . '>'
+                . '<label class="form-check-label" for="' . htmlspecialchars($checkboxId) . '">' . $imageHtml . $option->getText() . '</label>'
+                . '</div>';
         }
 
         $html .= '</div></div>';
         $html .= '<span class="multiselect-label">' . Language::getInstance()->getLabelValue(LanguageLabels::SELECTED_LABEL) . ' <span class="selected">(' . count($this->selected) . ')</span></span>';
-        $html .= '</div></div>';
+        $html .= '</div>';
+
+        // Visually hidden text carrier placed AFTER the dropdown so the browser's native
+        // "Please fill out this field" tooltip anchors beneath the visible field, not above it.
+        // LC._syncMultiselectPick keeps its comma-joined value in sync with the checkboxes.
+        // Not type="hidden" and width/height > 0 via .visually-hidden → jQuery :visible is true →
+        // jquery-form-validator picks up the required rule natively.
+        $requiredAttr = $this->getRequired() ? ' required data-validation="required"' : '';
+        $html .= '<input type="text" class="visually-hidden" tabindex="-1" autocomplete="off" name="' . $escapedName . '" value="' . htmlspecialchars(implode(',', $this->selected)) . '"' . $requiredAttr . $disabledAttr . '>';
+
+        $html .= '</div>';
         return $html;
     }
 

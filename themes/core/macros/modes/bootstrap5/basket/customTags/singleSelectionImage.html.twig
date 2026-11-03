@@ -1,0 +1,58 @@
+{#-
+    SINGLE_SELECTION_IMAGE basket custom tag — mirrors FWK\Core\Form\Elements\SingleSelect's
+    output so LC.initializeSelectDropdowns picks it up. Radios share `name="customTags_<id>"`
+    so the browser handles single-selection and form submission natively; no hidden carrier.
+-#}
+{% macro singleSelectionImage(customTag, showForm) %}
+    {% if showForm == true %}
+        {%- set sortedValues = customTag.selectableValues|sort((a, b) => a.id <=> b.id) -%}
+        {%- set selectedLabelText = '' -%}
+        {%- set selectedLabelImage = '' -%}
+        {%- for selectableValue in sortedValues -%}
+            {%- if (selectableValue.id ~ '') == customTag.value -%}
+                {%- set selectedLabelText = selectableValue.value -%}
+                {%- set selectedLabelImage = selectableValue.image -%}
+            {%- endif -%}
+        {%- endfor -%}
+        <div class="formField basketField" id="basketCustomTag{{ customTag.id }}">
+            {#- Shared `name` on radios → browser handles single-selection + submit natively.
+                No hidden carrier needed. required/data-validation on the first radio only. -#}
+            <div class="singleselect-dropdown form-select" data-lc-function="singleSelectDropdown">
+                <div class="singleselect-dropdown-list-wrapper">
+                    <div class="singleselect-dropdown-list">
+                        {%- for selectableValue in sortedValues -%}
+                            {%- set isSelected = (selectableValue.id ~ '') == customTag.value -%}
+                            {%- set radioId = 'basketCustomTag' ~ customTag.id ~ '_' ~ selectableValue.id -%}
+                            <div class="form-check form-check-inline {% if isSelected %}checked{% endif %}">
+                                <input class="form-check-input" type="radio" name="customTags_{{ customTag.id }}" id="{{ radioId }}" value="{{ selectableValue.id }}" {% if isSelected %}checked{% endif %} {% if loop.first and customTag.required %}required data-validation="required"{% endif %}>
+                                <label class="form-check-label" for="{{ radioId }}">
+                                    {%- if selectableValue.image|length -%}
+                                        <img class="singleselect-option-image" src="{{ selectableValue.image }}" alt="" loading="lazy" onerror="this.style.display='none';">
+                                    {%- endif -%}
+                                    {{ selectableValue.value }} 
+                                </label>
+                            </div>
+                        {%- endfor -%}
+                    </div>
+                </div>
+                <span class="singleselect-label">
+                    {%- if selectedLabelImage|length -%}
+                        <img class="singleselect-option-image" src="{{ selectedLabelImage }}" alt="" loading="lazy" onerror="this.style.display='none';">
+                    {%- endif -%}
+                    <span class="selected-text">{{ selectedLabelText }}</span>
+                </span>
+            </div>
+        </div>
+    {% else %}
+        {%- for selectableValue in customTag.selectableValues -%}
+            {%- if (selectableValue.id ~ '') == customTag.value -%}
+                <div class="staticBasketSingleSelectionImageValue">
+                    {%- if selectableValue.image|length -%}
+                        <img class="multiselect-option-image" src="{{ selectableValue.image }}" alt="{{ selectableValue.value|escape }}" loading="lazy" onerror="this.style.display='none';">
+                    {%- endif -%}
+                    {{ selectableValue.value }}
+                </div>
+            {%- endif -%}
+        {%- endfor -%}
+    {% endif %}
+{% endmacro %}

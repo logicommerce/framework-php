@@ -1,0 +1,23 @@
+{#-
+    LINK basket custom tag — URL input with built-in browser validation when editable, and a
+    clickable anchor (new tab, noopener) in read-only mode.
+-#}
+{% macro link(customTag, showForm) %}
+    {% if showForm == true %}
+        <input
+            type="url"
+            class="form-control formField basketField"
+            id="basketCustomTag{{ customTag.id }}"
+            name="customTags_{{ customTag.id }}"
+            value="{{ customTag.value }}"
+            {% if customTag.required %}data-validation="required"{% endif %}
+            {% if customTag.maxValue is defined and customTag.maxValue|length %}maxlength="{{ customTag.maxValue }}"{% endif %}
+        >
+    {% else %}
+        <div class="staticBasketLinkValue">
+            {%- if customTag.value|length -%}
+                <a href="{{ customTag.value }}" target="_blank" rel="noopener noreferrer">{{ customTag.value }}</a>
+            {%- endif -%}
+        </div>
+    {% endif %}
+{% endmacro %}

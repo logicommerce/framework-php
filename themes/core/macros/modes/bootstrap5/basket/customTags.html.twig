@@ -45,10 +45,19 @@
                             {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/attachment.html.twig' as modeBasket %}
                             {{ modeBasket.attachment(customTag, args.showFormFields) }}
                         {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::LINK') %}
-                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/attachment.html.twig' as modeBasket %}
-                            {{ modeBasket.attachment(customTag, args.showFormFields) }}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/link.html.twig' as modeBasket %}
+                            {{ modeBasket.link(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/multipleSelection.html.twig' as modeBasket %}
+                            {{ modeBasket.multipleSelection(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::MULTIPLE_SELECTION_IMAGE') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/multipleSelectionImage.html.twig' as modeBasket %}
+                            {{ modeBasket.multipleSelectionImage(customTag, args.showFormFields) }}
+                        {% elseif customTag.controlType == constant('SDK\\Core\\Enums\\CustomTagControlType::SINGLE_SELECTION_IMAGE') %}
+                            {% import 'macros/modes/' ~ coreMode ~ '/basket/customTags/singleSelectionImage.html.twig' as modeBasket %}
+                            {{ modeBasket.singleSelectionImage(customTag, args.showFormFields) }}
                         {% endif %}
-                    </div>
+                    </div> 
                 {% endif %}
             {% endfor %}
             {% if args.saveButtonSubmitAction %}

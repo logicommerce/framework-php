@@ -1,0 +1,50 @@
+{#-
+    MULTIPLE_SELECTION basket custom tag.
+    Renders a MultiSelect-style dropdown. Mirrors the HTML emitted by FWK\Core\Form\Elements\MultiSelect
+    so the global JS handler (LC.initializeSelectDropdowns) wires up the open/close toggle, label
+    counter and sibling hidden-input sync automatically.
+
+    `customTag.value` is a comma-joined list of selectableValue ids (ViewHelper flattens the picks).
+-#}
+{% macro multipleSelection(customTag, showForm) %}
+    {%- set selectedIds = customTag.value|length ? customTag.value|split(',') : [] -%}
+    {% if showForm == true %}
+        <div id="basketCustomTag{{ customTag.id }}" class="formField basketField">
+            <div class="multiselect-dropdown form-select" data-lc-function="multiSelectDropdown">
+                <div class="multiselect-dropdown-list-wrapper">
+                    <div class="multiselect-dropdown-list">
+                        {#- Sort by creation id so the order reflects what the BO admin set up and stays stable
+                            between requests (the API's CustomTagSelectableValueDTO carries no priority field).
+                            Alphabetical would break business-meaningful orders like time slots. -#}
+                        {%- for selectableValue in customTag.selectableValues|sort((a, b) => a.id <=> b.id) -%}
+                            {%- set isChecked = (selectableValue.id ~ '') in selectedIds -%}
+                            {%- set checkboxId = 'basketCustomTag' ~ customTag.id ~ '_' ~ selectableValue.id -%}
+                            <div class="form-check form-check-inline {% if isChecked %}checked{% endif %}">
+                                <input class="form-check-input" type="checkbox" id="{{ checkboxId }}" value="{{ selectableValue.id }}" {% if isChecked %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ checkboxId }}">{{ selectableValue.value }}</label>
+                            </div>
+                        {%- endfor -%}
+                    </div>
+                </div>
+                <span class="multiselect-label">
+                    {{- languageSheet[constant('FWK\\Enums\\LanguageLabels::SELECTED_LABEL')] }}
+                    <span class="selected">({{ selectedIds|length }})</span>
+                </span>
+            </div>
+            {#- Visually hidden text carrier placed AFTER the dropdown so the browser's native
+                "Please fill out this field" tooltip anchors beneath the visible field, not above
+                it. LC._syncMultiselectPick keeps its comma-joined value in sync with the checkboxes. -#}
+            <input type="text" class="visually-hidden" tabindex="-1" autocomplete="off"
+                   name="customTags_{{ customTag.id }}" value="{{ customTag.value }}"
+                   {% if customTag.required %}required data-validation="required"{% endif %}>
+        </div>
+    {% else %}
+        <div class="staticBasketMultipleSelectionValue">
+            {%- for selectableValue in customTag.selectableValues|sort((a, b) => a.id <=> b.id) -%}
+                {%- if (selectableValue.id ~ '') in selectedIds -%}
+                    {{- selectableValue.value -}}{%- if not loop.last -%}, {% endif -%}
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
+    {% endif %}
+{% endmacro %}

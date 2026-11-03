@@ -6315,45 +6315,8 @@ LC.OrdersForm = LC.Form.extend({
         this.trigger('initializeBefore');
         this.el.$form.find("[type=submit]").prop('disabled', false);
         initCalendar(this.el.$form);
-        this.initMultiselect();
         this.trigger('initializeCallback');
         this.el.form.initialized = true;
-    },
-    initMultiselect: function () {
-        this.el.$form.find('.multiselect-dropdown').on('click', function (e) {
-            e.stopPropagation();
-            var $this = $(this);
-            var $dropdown = $this.find('.multiselect-dropdown-list-wrapper');
-            $('.multiselect-dropdown-list-wrapper').not($dropdown).slideUp(150);
-            $dropdown.stop(true, true).slideToggle(150);
-        });
-
-        this.el.$form.find('.multiselect-dropdown-list-wrapper').on('click', function (e) {
-            e.stopPropagation();
-        });
-
-        $(window).on('click', function (e) {
-            if (!$(e.target).closest('.multiselect-dropdown').length) {
-                $('.multiselect-dropdown-list-wrapper').slideUp(150);
-            }
-        });
-
-        this.el.$form.find('.multiselect-dropdown-list input[type="checkbox"]').on('change', function () {
-            var $dropdown = $(this).closest('.multiselect-dropdown');
-            var $list = $dropdown.find('.multiselect-dropdown-list');
-            var $selected = $list.find('input[type="checkbox"]:checked');
-
-            var selectedValues = [];
-            $selected.each(function () {
-                var value = $(this).val().trim();
-                selectedValues.push(value);
-            });
-
-            $('#multiSelectValue').val(selectedValues.join(','));
-
-            var $label = $dropdown.find('.multiselect-label .selected');
-            $label.text('(' + selectedValues.length + ')');
-        });
     },
     submit: function (event) {
         event.preventDefault();
@@ -6373,7 +6336,7 @@ LC.OrdersForm = LC.Form.extend({
             var addedFrom = this.el.$form.find('#addedFrom').val() || '';
             var addedTo = this.el.$form.find('#addedTo').val() || '';
             var onlyCreatedByMe = this.el.$form.find('#onlyCreatedByMe').val() || '';
-            var statuses = this.el.$form.find('#statusIdList > #multiSelectValue').val() || '';
+            var statuses = this.el.$form.find('#statusIdList > input[type="hidden"]').val() || '';
             var includeSubCompanyStructure = this.el.$form.find('#includeSubCompanyStructure').val() || '';
 
             if ($("#accountOrdersLoadUrl").length > 0) {

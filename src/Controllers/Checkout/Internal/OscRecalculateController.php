@@ -31,6 +31,9 @@ use FWK\Enums\Parameters;
 use FWK\Enums\RouteType;
 use FWK\Enums\SetUserTypeForms;
 use SDK\Core\Dtos\IncidenceSaveForLaterListRowsCollection;
+use SDK\Core\Services\Parameters\Groups\CustomTagDataParametersGroup;
+use SDK\Services\Parameters\Groups\Basket\EditBasketCustomTagParametersGroup;
+use SDK\Services\Parameters\Groups\Basket\EditBasketCustomTagsParametersGroup;
 
 /**
  * This is the OSC internal recalculate controller.
@@ -136,6 +139,7 @@ class OscRecalculateController extends SetUserController {
         $this->deleteRow();
         $this->saveForLaterRow();
         $this->editBasketComment($basket);
+        $this->editBasketCustomTags($basket);
         $this->setPaymentSystem();
         $this->setDelivery();
         $this->applyRewardPoints();
@@ -217,6 +221,52 @@ class OscRecalculateController extends SetUserController {
         if ($comment !== $basket->getComment()) {
             $this->basketService->comment($comment);
         }
+    }
+
+    /**
+     * Persist basket custom tag values on every recalculate so the user's picks survive page
+     * refreshes without waiting for the save button or next-step submit. Mirrors the per-tag
+     * diff + batch-set flow in NextStepController.
+     */
+    private function editBasketCustomTags(Basket $basket): void {
+        $incoming = $this->data['customTags'] ?? [];
+        if (empty($incoming) || !is_array($incoming)) {
+            return;
+        }
+        $newCustomTagValues = [];
+        foreach ($basket->getCustomTagValues() as $customTagsValues) {
+            $id = $customTagsValues->getCustomTagId();
+            if (!array_key_exists($id, $incoming)) {
+                continue;
+            }
+            $value = (string) ($incoming[$id] ?? '');
+            $currentValue = (string) ($customTagsValues->getValue() ?? '');
+            if ($value === $currentValue) {
+                continue;
+            }
+            $group = new EditBasketCustomTagParametersGroup();
+            $group->setCustomTagId($id);
+            // ATTACHMENT value arrives as a JSON blob {extension, fileName, value}; route it
+            // through CustomTagData so the backend persists metadata, not the raw JSON string.
+            $objValue = $value !== '' ? json_decode($value) : null;
+            if (is_object($objValue) && property_exists($objValue, 'extension')
+                && property_exists($objValue, 'fileName') && property_exists($objValue, 'value')) {
+                $customTagData = new CustomTagDataParametersGroup();
+                $customTagData->setExtension($objValue->extension);
+                $customTagData->setFileName($objValue->fileName);
+                $customTagData->setValue($objValue->value);
+                $group->setData($customTagData);
+            } else {
+                $group->setValue($value);
+            }
+            $newCustomTagValues[] = $group;
+        }
+        if (empty($newCustomTagValues)) {
+            return;
+        }
+        $editGroup = new EditBasketCustomTagsParametersGroup();
+        $editGroup->setCustomTags($newCustomTagValues);
+        $this->basketService->setCustomTags($editGroup);
     }
 
     private function setPaymentSystem(): void {
