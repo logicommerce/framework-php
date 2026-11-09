@@ -2,11 +2,13 @@
 
 namespace FWK\ViewHelpers\Util\Macro;
 
+use SDK\Core\Enums\Device;
 use SDK\Enums\TrackerAmbience;
 use SDK\Enums\TrackerPageType;
 use SDK\Enums\TrackerPosition;
 use SDK\Enums\TrackerScopeType;
 use FWK\Core\Exceptions\CommerceException;
+use FWK\Core\Resources\Route;
 use FWK\Core\ViewHelpers\ViewHelper;
 
 /**
@@ -45,7 +47,13 @@ class Trackers {
      */
     public function getViewParameters(): array {
         if (!strlen($this->ambience)) {
-            $this->ambience = TrackerAmbience::ALL;
+            if ($this->hasDeviceSpecificAmbience()) {
+                $this->ambience = in_array(Route::getDevice(), [Device::MOBILE, Device::TABLET], true)
+                    ? TrackerAmbience::MOBILE
+                    : TrackerAmbience::DESKTOP;
+            } else {
+                $this->ambience = TrackerAmbience::ALL;
+            }
         }
         if (!TrackerAmbience::isValid($this->ambience)) {
             throw new CommerceException("The value of [ambience] argument: '" . $this->ambience . "' not exists in " . self::class, CommerceException::VIEW_HELPER_UNDEFINED_ARGUMENT);
@@ -55,6 +63,22 @@ class Trackers {
             throw new CommerceException("The value of [type] argument: '" . $this->type . "' not exists in " . self::class, CommerceException::VIEW_HELPER_UNDEFINED_ARGUMENT);
         }
         return $this->getProperties();
+    }
+
+    /**
+     * Returns true when at least one script in the collection carries an
+     * ambience other than ALL, i.e. the backend has configured per-device
+     * filtering for this shop.
+     */
+    private function hasDeviceSpecificAmbience(): bool {
+        foreach ($this->trackers as $tracker) {
+            foreach ($tracker->getScripts() as $script) {
+                if ($script->getAmbience() !== TrackerAmbience::ALL) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

@@ -3,7 +3,7 @@
     {%- for tracker in args.trackers -%}
         {%- set scripts = tracker.scripts -%}
         {%- if args.ambience != constant('SDK\\Enums\\TrackerAmbience::ALL') -%}
-            {%- set scripts = scripts|filter(script => script.ambience == args.ambience) -%}
+            {%- set scripts = scripts|filter(script => script.ambience == args.ambience or script.ambience == constant('SDK\\Enums\\TrackerAmbience::ALL')) -%}
         {%- endif -%}
         {%- if args.position|trim|length -%}
             {%- set scripts = scripts|filter(script => script.position == args.position) -%}
